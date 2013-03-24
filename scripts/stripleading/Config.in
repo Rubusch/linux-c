@@ -1,0 +1,13 @@
+#
+# GCOV coverage profiling
+#
+
+mainmenu_option next_comment
+comment 'GCOV coverage profiling'
+ 
+bool 'GCOV kernel' CONFIG_GCOV_PROFILE
+if [ "$CONFIG_GCOV_PROFILE" != "n" ]; then
+   bool '  Profile entire Kernel' CONFIG_GCOV_ALL
+   tristate '  Provide GCOV proc file system entry' CONFIG_GCOV_PROC
+fi
+endmenu

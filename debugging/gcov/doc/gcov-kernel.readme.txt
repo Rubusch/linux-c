@@ -1,0 +1,171 @@
+GCOV support for the Linux kernel
+=================================
+
+Description
+-------------
+  GCOV is a test coverage program distributed as part of GCC. It helps discover
+  where your optimization efforts will best affect your code. Using GCOV one can
+  find out some basic performance statistics on a per source file level such as:
+
+    * how often each line of code executes
+
+    * what lines of code are actually executed
+
+
+  GCOV is already available for user level applications. The GCOV kernel patch
+  and kernel module provide the infrastructure required to access GCOV data from
+  within a running linux kernel.
+
+
+Further README contents
+-----------------------
+  1. Included files
+  2. Installing GCOV
+  3. An example of how to access kernel coverage data
+  4. Resetting kernel coverage data
+  5. GCOV parameters
+  6. Questions and comments
+
+
+
+1. Included files
+-----------------
+  README                        - This README file
+  FAQ                           - A list of frequently asked questions
+  linux-{version}-gcov.patch    - Patch against the Linux kernel
+  modutils-{version}-gcov.patch - Patch against modutils (Linux 2.4 only)
+
+
+2. Installing GCOV
+------------------
+  The latest gcov-kernel package may be obtained from the 'files' section of the
+  Linux Test Project homepage at:
+
+    http://sourceforge.net/projects/ltp
+
+  To install basic GCOV support:
+
+    1. Obtain and unpack the kernel source code package from either:
+
+         ftp://ftp.kernel.org/pub/linux/kernel/
+
+    2. Apply the matching version of the GCOV patch to the Linux kernel source:
+
+       patch -p1 < {path to patch}/linux-{version}-gcov.patch
+
+    3. Configure GCOV options (say Y to all for the recommended settings):
+
+       CONFIG_GCOV_PROFILE=y : include basic kernel support for GCOV
+       CONFIG_GCOV_ALL=y     : profile all of the kernel source
+       CONFIG_GCOV_PROC=y/m  : provide proc fs entry to access GCOV data
+
+    4. Compile and install the kernel
+
+
+  To get coverage data for dynamically loaded kernel modules (Linux 2.4 only),
+  follow the following steps:
+
+    1. Obtain and unpack the modutils source code package from:
+
+       ftp://ftp.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+
+    2. Apply the GCOV modutils patch to the modutils source:
+
+       patch -p1 < {path to patch}/modutils-{version}-gcov.patch
+
+    3. Compile and install the modutils package
+
+
+3. An example of how to access kernel coverage data
+---------------------------------------------------
+  In case the CONFIG_GCOV_PROC options was set to 'm', the gcov-proc module has
+  to be manually loaded after booting the GCOV kernel:
+
+    modprobe gcov-proc
+
+  As a result, a new directory /proc/gcov will be available. It contains a GCOV
+  data file for each source code file either compiled into the kernel or loaded
+  as a module. These data files represent the current coverage state.
+
+  The GCOV tool (part of GCC) can then be used to obtain coverage data for any
+  source code file, e.g.:
+
+    cp /proc/gcov/kernel/signal.* .
+    gcov signal.c
+
+  This will first copy all necessary files to the current directory and then
+  create a new file 'signal.c.gcov' containing the original source code
+  and the number of executions per line. Here is a sample output from the
+  'signal.c.gcov' file:
+
+        -:  409:static void handle_stop_signal(int sig, struct task_struct *t)
+     7777:  410:{
+     7777:  411:        switch (sig) {
+        -:  412:        case SIGKILL: case SIGCONT:
+        -:  413:                /* Wake up the process if stopped.  */
+        2:  414:                if (t->state == TASK_STOPPED)
+    #####:  415:                        wake_up_process(t);
+        2:  416:                t->exit_code = 0;
+        2:  417:                rm_sig_from_queue(SIGSTOP, t);
+        2:  418:                rm_sig_from_queue(SIGTSTP, t);
+        2:  419:                rm_sig_from_queue(SIGTTOU, t);
+        2:  420:                rm_sig_from_queue(SIGTTIN, t);
+        2:  421:                break;
+        -:  422:
+        -:  423:        case SIGSTOP: case SIGTSTP:
+        -:  424:        case SIGTTIN: case SIGTTOU:
+        -:  425:                /* If we're stopping again, cancel SIGCONT */
+    #####:  426:                rm_sig_from_queue(SIGCONT, t);
+        -:  427:                break;
+        -:  428:        }
+        -:  429:}
+
+
+  The first column contains either the number of executions or '#####' for no
+  execution or '-' for lines which did not produce executable code. Note that
+  this output format was changed with GCC release 3.3, so the exact format
+  may differ on other systems.
+
+
+4. Resetting kernel coverage data
+---------------------------------
+  To reset the execution counters for a specific file, simply write to the
+  associated .da file in the /proc/gcov hierarchy:
+
+    echo 0 > /proc/gcov/kernel/signal.da
+
+  To reset all execution counters, write to the extra file '/proc/gcov/vmlinux':
+
+    echo 0 > /proc/gcov/vmlinux
+
+
+5. GCOV parameters
+------------------
+  There are certain parameters specified at run-time that influence the
+  /proc/gcov file system entry. Depending on the value of the CONFIG_GCOV_PROC
+  option, these parameters are either passed as module parameter when loading
+  gcov-proc, i.e.:
+
+    modprobe gcov-proc parameter=value
+
+  If gcov-proc is compiled into the kernel, the parameters can be specified
+  using the kernel command line.
+
+  Implemented parameters are:
+
+  - gcov_link=0/1 (default is 1): When set to non-zero, symbolic links to
+    source and GCOV graph files are created in /proc/gcov along with the data
+    files.
+
+  - gcov_persist=0/1 (default is 0): When set to non-zero, GCOV data for dynamic
+    kernel modules is kept even after those modules are unloaded so that
+    coverage measurements can be extended to module cleanup code. To clear
+    this persistent data, write to /proc/vmlinux.
+
+
+6. Questions and comments
+-------------------------
+  If you have further questions regarding the use of this patch, please check
+  the FAQ file for more information. Also questions or comments may be sent to
+  the LTP Mailing list at ltp-coverage@lists.sourceforge.net
+

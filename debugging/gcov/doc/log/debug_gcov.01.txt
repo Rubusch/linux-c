@@ -1,0 +1,761 @@
+ready
+./runmake.sh: line 44: cleartool: command not found
+
+[47;32m[5m using variable 'BUILD=debug_gcov.01' for load [0m
+
+ ################################################################################
+ #   clearmake ' load' in 'gnu'
+ ################################################################################
+	cp -pf /hix/gpon_cxu_f/os/linux-2.4/linux.config /hix/gpon_cxu_f/os/linux-2.4/.config
+	cd /hix/gpon_cxu_f/os/linux-2.4; scripts/Configure -d arch/ppc/config.in
+#
+# Using defaults found in .config
+#
+*
+* Code maturity level options
+*
+Prompt for development and/or incomplete code/drivers (CONFIG_EXPERIMENTAL) [Y/n/?] 
+Prompt for advanced kernel configuration options (CONFIG_ADVANCED_OPTIONS) [Y/n/?] 
+*
+* Loadable module support
+*
+Enable loadable module support (CONFIG_MODULES) [Y/n/?] 
+  Set version information on all module symbols (CONFIG_MODVERSIONS) [N/y/?] 
+  Kernel module loader (CONFIG_KMOD) [N/y/?] 
+*
+* Platform support
+*
+Processor Type (6xx/7xx/74xx/8260, 40x, 44x, POWER3, POWER4, 8xx) [6xx/7xx/74xx/8260] 
+  defined CONFIG_6xx
+MPC8260 CPM Support (CONFIG_8260) [Y/n/?] 
+  MPC8272 Family Support (CONFIG_8272) [Y/n/?] 
+Machine Type (hiX5750-CXUF, ADS8272, EST8260, RPX8260) [hiX5750-CXUF] 
+  defined CONFIG_HIX5750_CXUF
+Symmetric multi-processing support (CONFIG_SMP) [N/y/?] 
+*
+* General setup
+*
+High memory support (experimental) (CONFIG_HIGHMEM) [N/y/?] 
+  Set maximum low memory (CONFIG_LOWMEM_SIZE_BOOL) [N/y/?] 
+Set custom kernel base address (CONFIG_KERNEL_START_BOOL) [N/y/?] 
+Set custom user task size (CONFIG_TASK_SIZE_BOOL) [N/y/?] 
+Enable PCI (CONFIG_PCI) [Y/n/?] 
+PC PS/2 style Keyboard (CONFIG_PC_KEYBOARD) [N/y/?] 
+Networking support (CONFIG_NET) [Y/n/?] 
+Sysctl support (CONFIG_SYSCTL) [Y/n/?] 
+System V IPC (CONFIG_SYSVIPC) [Y/n/?] 
+BSD Process Accounting (CONFIG_BSD_PROCESS_ACCT) [N/y/?] 
+Kernel support for MISC binaries (CONFIG_BINFMT_MISC) [N/y/m/?] 
+Select task to kill on out of memory condition (CONFIG_OOM_KILLER) [N/y/?] 
+PCI device name database (CONFIG_PCI_NAMES) [Y/n/?] 
+Support for hot-pluggable devices (CONFIG_HOTPLUG) [N/y/?] 
+*
+* Parallel port support
+*
+Parallel port support (CONFIG_PARPORT) [N/y/m/?] 
+Generic /dev/rtc emulation (CONFIG_GEN_RTC) [Y/m/n/?] 
+Default bootloader kernel arguments (CONFIG_CMDLINE_BOOL) [Y/n/?] 
+Initial kernel command string (CONFIG_CMDLINE) [console=ttyS0,38400 root=/dev/ram rw] 
+*
+* Memory Technology Devices (MTD)
+*
+Memory Technology Device (MTD) support (CONFIG_MTD) [Y/m/n/?] 
+Debugging (CONFIG_MTD_DEBUG) [N/y/?] 
+  MTD partitioning support (CONFIG_MTD_PARTITIONS) [Y/m/n/?] 
+  MTD concatenating support (CONFIG_MTD_CONCAT) [N/y/m/?] 
+  RedBoot partition table parsing (CONFIG_MTD_REDBOOT_PARTS) [N/y/m/?] 
+  Command line partition table parsing (CONFIG_MTD_CMDLINE_PARTS) [N/y/m/?] 
+*
+* User Modules And Translation Layers
+*
+  Direct char device access to MTD devices (CONFIG_MTD_CHAR) [Y/m/n/?] 
+  Caching block device access to MTD devices (CONFIG_MTD_BLOCK) [Y/m/n/?] 
+  FTL (Flash Translation Layer) support (CONFIG_FTL) [N/y/m/?] 
+  NFTL (NAND Flash Translation Layer) support (CONFIG_NFTL) [N/y/m/?] 
+*
+* RAM/ROM/Flash chip drivers
+*
+  Detect flash chips by Common Flash Interface (CFI) probe (CONFIG_MTD_CFI) [Y/m/n/?] 
+  Detect JEDEC JESD21c compatible flash chips (CONFIG_MTD_JEDECPROBE) [N/y/m/?] 
+  Flash chip driver advanced configuration options (CONFIG_MTD_CFI_ADV_OPTIONS) [N/y/?] 
+  Support for Intel/Sharp flash chips (CONFIG_MTD_CFI_INTELEXT) [N/y/m/?] 
+  Support for AMD/Fujitsu flash chips (CONFIG_MTD_CFI_AMDSTD) [Y/m/n/?] 
+  Support for ST (Advanced Architecture) flash chips (CONFIG_MTD_CFI_STAA) [N/y/m/?] 
+  Support for RAM chips in bus mapping (CONFIG_MTD_RAM) [N/y/m/?] 
+  Support for ROM chips in bus mapping (CONFIG_MTD_ROM) [N/y/m/?] 
+  Support for absent chips in bus mapping (CONFIG_MTD_ABSENT) [N/y/m/?] 
+  Older (theoretically obsoleted now) drivers for non-CFI chips (CONFIG_MTD_OBSOLETE_CHIPS) [N/y/?] 
+*
+* Mapping drivers for chip access
+*
+  CFI Flash device in physical memory map (CONFIG_MTD_PHYSMAP) [N/y/m/?] 
+  CFI Flash device mapped on TQM8XXL (CONFIG_MTD_TQM8XXL) [N/y/m/?] 
+  CFI Flash device mapped on RPX Lite or CLLF (CONFIG_MTD_RPXLITE) [N/y/m/?] 
+  System flash on MBX860 board (CONFIG_MTD_MBX860) [N/y/m/?] 
+  CFI Flash device mapped on D-Box2 (CONFIG_MTD_DBOX2) [N/y/m/?] 
+  CFI Flash device mapping on FlagaDM (CONFIG_MTD_CFI_FLAGADM) [N/y/m/?] 
+  CFI Flash device mapped on IBM Redwood-4/5 (CONFIG_MTD_REDWOOD) [N/y/m/?] 
+  CFI Flash device mapped on Siemens hiX5750 (CXU-F) (CONFIG_MTD_CXUF) [Y/m/n/?] 
+  PCI MTD driver (CONFIG_MTD_PCI) [N/y/m/?] 
+*
+* Self-contained MTD device drivers
+*
+  Ramix PMC551 PCI Mezzanine RAM card support (CONFIG_MTD_PMC551) [N/y/m/?] 
+  Uncached system RAM (CONFIG_MTD_SLRAM) [N/y/m/?] 
+  Test driver using RAM (CONFIG_MTD_MTDRAM) [N/y/m/?] 
+  MTD emulation using block device (CONFIG_MTD_BLKMTD) [N/y/m/?] 
+*
+* Disk-On-Chip Device Drivers
+*
+  M-Systems Disk-On-Chip 1000 (CONFIG_MTD_DOC1000) [N/y/m/?] 
+  M-Systems Disk-On-Chip 2000 and Millennium (CONFIG_MTD_DOC2000) [N/y/m/?] 
+  M-Systems Disk-On-Chip Millennium-only alternative driver (see help) (CONFIG_MTD_DOC2001) [N/y/m/?] 
+*
+* NAND Flash Device Drivers
+*
+  NAND Device Support (CONFIG_MTD_NAND) [N/y/m/?] 
+*
+* Plug and Play configuration
+*
+Plug and Play support (CONFIG_PNP) [N/y/m/?] 
+*
+* Block devices
+*
+Normal floppy disk support (CONFIG_BLK_DEV_FD) [N/y/m/?] 
+Compaq SMART2 support (CONFIG_BLK_CPQ_DA) [N/y/m/?] 
+Compaq Smart Array 5xxx support (CONFIG_BLK_CPQ_CISS_DA) [N/y/m/?] 
+Mylex DAC960/DAC1100 PCI RAID Controller support (CONFIG_BLK_DEV_DAC960) [N/y/m/?] 
+Micro Memory MM5415 Battery Backed RAM support (EXPERIMENTAL) (CONFIG_BLK_DEV_UMEM) [N/y/m/?] 
+Promise SATA SX8 support (CONFIG_BLK_DEV_SX8) [N/y/m/?] 
+Loopback device support (CONFIG_BLK_DEV_LOOP) [Y/m/n/?] 
+Network block device support (CONFIG_BLK_DEV_NBD) [N/y/m/?] 
+RAM disk support (CONFIG_BLK_DEV_RAM) [Y/m/n/?] 
+  Default RAM disk size (CONFIG_BLK_DEV_RAM_SIZE) [32000] 
+  Initial RAM disk (initrd) support (CONFIG_BLK_DEV_INITRD) [Y/n/?] 
+Per partition statistics in /proc/partitions (CONFIG_BLK_STATS) [N/y/?] 
+*
+* Multi-device support (RAID and LVM)
+*
+Multiple devices driver support (RAID and LVM) (CONFIG_MD) [N/y/?] 
+*
+* Networking options
+*
+Packet socket (CONFIG_PACKET) [Y/m/n/?] 
+  Packet socket: mmapped IO (CONFIG_PACKET_MMAP) [N/y/?] 
+Netlink device emulation (CONFIG_NETLINK_DEV) [N/y/m/?] 
+Network packet filtering (replaces ipchains) (CONFIG_NETFILTER) [Y/n/?] 
+  Network packet filtering debugging (CONFIG_NETFILTER_DEBUG) [N/y/?] 
+Socket Filtering (CONFIG_FILTER) [N/y/?] 
+Unix domain sockets (CONFIG_UNIX) [Y/m/n/?] 
+TCP/IP networking (CONFIG_INET) [Y/n/?] 
+  IP: multicasting (CONFIG_IP_MULTICAST) [Y/n/?] 
+  IP: advanced router (CONFIG_IP_ADVANCED_ROUTER) [Y/n/?] 
+    IP: policy routing (CONFIG_IP_MULTIPLE_TABLES) [Y/n/?] 
+      IP: use netfilter MARK value as routing key (CONFIG_IP_ROUTE_FWMARK) [Y/n/?] 
+      IP: fast network address translation (CONFIG_IP_ROUTE_NAT) [Y/n/?] 
+    IP: equal cost multipath (CONFIG_IP_ROUTE_MULTIPATH) [Y/n/?] 
+    IP: use TOS value as routing key (CONFIG_IP_ROUTE_TOS) [Y/n/?] 
+    IP: verbose route monitoring (CONFIG_IP_ROUTE_VERBOSE) [N/y/?] 
+  IP: kernel level autoconfiguration (CONFIG_IP_PNP) [N/y/?] 
+  IP: tunneling (CONFIG_NET_IPIP) [N/y/m/?] 
+  IP: GRE tunnels over IP (CONFIG_NET_IPGRE) [N/y/m/?] 
+  IP: multicast routing (CONFIG_IP_MROUTE) [Y/n/?] 
+    IP: PIM-SM version 1 support (CONFIG_IP_PIMSM_V1) [Y/n/?] 
+    IP: PIM-SM version 2 support (CONFIG_IP_PIMSM_V2) [Y/n/?] 
+  IP: ARP daemon support (EXPERIMENTAL) (CONFIG_ARPD) [N/y/?] 
+  IP: TCP Explicit Congestion Notification support (CONFIG_INET_ECN) [N/y/?] 
+  IP: TCP syncookie support (disabled per default) (CONFIG_SYN_COOKIES) [Y/n/?] 
+*
+*   IP: Netfilter Configuration
+*
+Connection tracking (required for masq/NAT) (CONFIG_IP_NF_CONNTRACK) [N/y/m/?] 
+Userspace queueing via NETLINK (EXPERIMENTAL) (CONFIG_IP_NF_QUEUE) [N/y/m/?] 
+IP tables support (required for filtering/masq/NAT) (CONFIG_IP_NF_IPTABLES) [N/y/m/?] 
+ARP tables support (CONFIG_IP_NF_ARPTABLES) [N/y/m/?] 
+ipchains (2.2-style) support (CONFIG_IP_NF_COMPAT_IPCHAINS) [N/y/m/?] 
+ipfwadm (2.0-style) support (CONFIG_IP_NF_COMPAT_IPFWADM) [N/y/m/?] 
+*
+*   IP: Virtual Server Configuration
+*
+virtual server support (EXPERIMENTAL) (CONFIG_IP_VS) [N/y/m/?] 
+IP arp reply agent (CONFIG_ARP_REPLY) [Y/n/?] 
+  The IPv6 protocol (EXPERIMENTAL) (CONFIG_IPV6) [N/y/m/?] 
+  Kernel httpd acceleration (EXPERIMENTAL) (CONFIG_KHTTPD) [N/y/m/?] 
+*
+*    SCTP Configuration (EXPERIMENTAL)
+*
+  The SCTP Protocol (EXPERIMENTAL) (CONFIG_IP_SCTP) [N/y/m/?] 
+Asynchronous Transfer Mode (ATM) (EXPERIMENTAL) (CONFIG_ATM) [N/y/m/?] 
+802.1Q VLAN Support (CONFIG_VLAN_8021Q) [N/y/m/?] 
+*
+*  
+*
+The IPX protocol (CONFIG_IPX) [N/y/m/?] 
+Appletalk protocol support (CONFIG_ATALK) [N/y/m/?] 
+DECnet Support (CONFIG_DECNET) [N/y/m/?] 
+802.1d Ethernet Bridging (CONFIG_BRIDGE) [N/y/m/?] 
+CCITT X.25 Packet Layer (EXPERIMENTAL) (CONFIG_X25) [N/y/m/?] 
+LAPB Data Link Driver (EXPERIMENTAL) (CONFIG_LAPB) [N/y/m/?] 
+802.2 LLC (EXPERIMENTAL) (CONFIG_LLC) [N/y/?] 
+Frame Diverter (EXPERIMENTAL) (CONFIG_NET_DIVERT) [N/y/?] 
+Acorn Econet/AUN protocols (EXPERIMENTAL) (CONFIG_ECONET) [N/y/m/?] 
+WAN router (CONFIG_WAN_ROUTER) [N/y/m/?] 
+Fast switching (read help!) (CONFIG_NET_FASTROUTE) [N/y/?] 
+Forwarding between high speed interfaces (CONFIG_NET_HW_FLOWCONTROL) [N/y/?] 
+*
+* QoS and/or fair queueing
+*
+QoS and/or fair queueing (CONFIG_NET_SCHED) [Y/n/?] 
+  CBQ packet scheduler (CONFIG_NET_SCH_CBQ) [N/y/m/?] 
+  HTB packet scheduler (CONFIG_NET_SCH_HTB) [N/y/m/?] 
+  CSZ packet scheduler (CONFIG_NET_SCH_CSZ) [N/y/m/?] 
+  H-FSC packet scheduler (CONFIG_NET_SCH_HFSC) [N/y/m/?] 
+  The simplest PRIO pseudoscheduler (CONFIG_NET_SCH_PRIO) [N/y/m/?] 
+  RED queue (CONFIG_NET_SCH_RED) [N/y/m/?] 
+  SFQ queue (CONFIG_NET_SCH_SFQ) [N/y/m/?] 
+  TEQL queue (CONFIG_NET_SCH_TEQL) [N/y/m/?] 
+  TBF queue (CONFIG_NET_SCH_TBF) [N/y/m/?] 
+  GRED queue (CONFIG_NET_SCH_GRED) [N/y/m/?] 
+  Network emulator (CONFIG_NET_SCH_NETEM) [N/y/m/?] 
+  Diffserv field marker (CONFIG_NET_SCH_DSMARK) [N/y/m/?] 
+  Ingress Qdisc (CONFIG_NET_SCH_INGRESS) [N/y/m/?] 
+  QoS support (CONFIG_NET_QOS) [Y/n/?] 
+    Rate estimator (CONFIG_NET_ESTIMATOR) [N/y/?] 
+  Packet classifier API (CONFIG_NET_CLS) [Y/n/?] 
+    TC index classifier (CONFIG_NET_CLS_TCINDEX) [N/y/m/?] 
+    Routing table based classifier (CONFIG_NET_CLS_ROUTE4) [N/y/m/?] 
+    Firewall based classifier (CONFIG_NET_CLS_FW) [N/y/m/?] 
+    U32 classifier (CONFIG_NET_CLS_U32) [N/y/m/?] 
+    Special RSVP classifier (CONFIG_NET_CLS_RSVP) [N/y/m/?] 
+    Special RSVP classifier for IPv6 (CONFIG_NET_CLS_RSVP6) [N/y/m/?] 
+    Traffic policing (needed for in/egress) (CONFIG_NET_CLS_POLICE) [Y/n/?] 
+*
+* Network testing
+*
+Packet Generator (USE WITH CAUTION) (CONFIG_NET_PKTGEN) [N/y/m/?] 
+*
+*  
+*
+Siemens Switch (CONFIG_SIEMENS_SWITCH) [Y/n/?] 
+HIX5635 (CONFIG_HIX5635) [Y/n/?] 
+*
+* ATA/IDE/MFM/RLL support
+*
+ATA/IDE/MFM/RLL support (CONFIG_IDE) [N/y/m/?] 
+*
+* SCSI support
+*
+SCSI support (CONFIG_SCSI) [N/y/m/?] 
+*
+* IEEE 1394 (FireWire) support (EXPERIMENTAL)
+*
+IEEE 1394 (FireWire) support (EXPERIMENTAL) (CONFIG_IEEE1394) [N/y/m/?] 
+*
+* Network device support
+*
+Network device support (CONFIG_NETDEVICES) [Y/n/?] 
+*
+* ARCnet devices
+*
+ARCnet support (CONFIG_ARCNET) [N/y/m/?] 
+Dummy net driver support (CONFIG_DUMMY) [N/y/m/?] 
+Bonding driver support (CONFIG_BONDING) [N/y/m/?] 
+EQL (serial line load balancing) support (CONFIG_EQUALIZER) [N/y/m/?] 
+Universal TUN/TAP device driver support (CONFIG_TUN) [N/y/m/?] 
+Ethertap network tap (OBSOLETE) (CONFIG_ETHERTAP) [N/y/m/?] 
+*
+* Ethernet (10 or 100Mbit)
+*
+Ethernet (10 or 100Mbit) (CONFIG_NET_ETHERNET) [Y/n/?] 
+  MACE (Power Mac ethernet) support (CONFIG_MACE) [N/y/m/?] 
+  BMAC (G3 ethernet) support (CONFIG_BMAC) [N/y/m/?] 
+  GMAC (G4/iBook ethernet) support (OBSOLETE, use Sun GEM) (CONFIG_GMAC) [N/y/m/?] 
+  Sun Happy Meal 10/100baseT support (CONFIG_HAPPYMEAL) [N/y/m/?] 
+  Sun GEM & Apple GMAC support (CONFIG_SUNGEM) [N/y/m/?] 
+  3COM cards (CONFIG_NET_VENDOR_3COM) [N/y/?] 
+  Western Digital/SMC cards (CONFIG_NET_VENDOR_SMC) [N/y/?] 
+  Racal-Interlan (Micom) NI cards (CONFIG_NET_VENDOR_RACAL) [N/y/?] 
+  HP 10/100VG PCLAN (ISA, EISA, PCI) support (CONFIG_HP100) [N/y/m/?] 
+  EISA, VLB, PCI and on board controllers (CONFIG_NET_PCI) [N/y/?] 
+  Pocket and portable adapters (CONFIG_NET_POCKET) [N/y/?] 
+*
+* Ethernet (1000 Mbit)
+*
+Alteon AceNIC/3Com 3C985/NetGear GA620 Gigabit support (CONFIG_ACENIC) [N/y/m/?] 
+D-Link DL2000-based Gigabit Ethernet support (CONFIG_DL2K) [N/y/m/?] 
+Intel(R) PRO/1000 Gigabit Ethernet support (CONFIG_E1000) [N/y/m/?] 
+National Semiconductor DP83820 support (CONFIG_NS83820) [N/y/m/?] 
+Packet Engines Hamachi GNIC-II support (CONFIG_HAMACHI) [N/y/m/?] 
+Packet Engines Yellowfin Gigabit-NIC support (EXPERIMENTAL) (CONFIG_YELLOWFIN) [N/y/m/?] 
+Realtek 8169 Gigabit Ethernet support (CONFIG_R8169) [N/y/m/?] 
+Alternate Marvell Yukon Chipset Support (not Yukon2) (CONFIG_SKGE) [N/y/m/?] 
+Alternate Marvell Yukon 2 Chipset Support (CONFIG_SKY2) [N/y/m/?] 
+Marvell Yukon Chipset / SysKonnect SK-98xx Support (CONFIG_SK98LIN) [N/y/m/?] 
+Broadcom Tigon3 support (CONFIG_TIGON3) [N/y/m/?] 
+FDDI driver support (CONFIG_FDDI) [N/y/?] 
+HIPPI driver support (EXPERIMENTAL) (CONFIG_HIPPI) [N/y/?] 
+PPP (point-to-point protocol) support (CONFIG_PPP) [N/y/m/?] 
+SLIP (serial line) support (CONFIG_SLIP) [N/y/m/?] 
+*
+* Wireless LAN (non-hamradio)
+*
+Wireless LAN (non-hamradio) (CONFIG_NET_RADIO) [N/y/?] 
+*
+* Token Ring devices
+*
+Token Ring driver support (CONFIG_TR) [N/y/?] 
+Fibre Channel driver support (CONFIG_NET_FC) [N/y/?] 
+Red Creek Hardware VPN (EXPERIMENTAL) (CONFIG_RCPCI) [N/y/m/?] 
+Traffic Shaper (EXPERIMENTAL) (CONFIG_SHAPER) [N/y/m/?] 
+*
+* Wan interfaces
+*
+Wan interfaces support (CONFIG_WAN) [N/y/?] 
+*
+* Amateur Radio support
+*
+Amateur Radio support (CONFIG_HAMRADIO) [N/y/?] 
+*
+* IrDA (infrared) support
+*
+IrDA subsystem support (CONFIG_IRDA) [N/y/m/?] 
+*
+* ISDN subsystem
+*
+ISDN support (CONFIG_ISDN) [N/y/m/?] 
+*
+* Old CD-ROM drivers (not SCSI, not IDE)
+*
+Support non-SCSI/IDE/ATAPI CDROM drives (CONFIG_CD_NO_IDESCSI) [N/y/?] 
+*
+* Console drivers
+*
+Support for VGA Console (CONFIG_VGA_CONSOLE) [N/y/?] 
+*
+* Frame-buffer support
+*
+Support for frame buffer devices (EXPERIMENTAL) (CONFIG_FB) [N/y/?] 
+*
+* Input core support
+*
+Input core support (CONFIG_INPUT) [N/y/m/?] 
+  Use dummy keyboard driver (CONFIG_DUMMY_KEYB) [N/y/?] 
+*
+* Macintosh device drivers
+*
+*
+* Character devices
+*
+Virtual terminal (CONFIG_VT) [N/y/?] 
+Standard/generic (8250/16550 and compatible UARTs) serial support (CONFIG_SERIAL) [N/y/m/?] 
+Non-standard serial port support (CONFIG_SERIAL_NONSTANDARD) [N/y/?] 
+Unix98 PTY support (CONFIG_UNIX98_PTYS) [Y/n/?] 
+Maximum number of Unix98 PTYs in use (0-2048) (CONFIG_UNIX98_PTY_COUNT) [256] 
+*
+* I2C support
+*
+I2C support (CONFIG_I2C) [Y/m/n/?] 
+I2C bit-banging interfaces (CONFIG_I2C_ALGOBIT) [N/y/m/?] 
+NatSemi SCx200 ACCESS.bus (CONFIG_SCx200_ACB) [N/y/m/?] 
+I2C PCF 8584 interfaces (CONFIG_I2C_ALGOPCF) [N/y/m/?] 
+MPC8260 CPM I2C interface (CONFIG_I2C_ALGO8260) [Y/m/n/?] 
+Siemens CXU-F I2C drivers (CONFIG_CXUF_I2C_DRV) [Y/m/n/?] 
+ LM75 Digital thermometer and thermostat  (CONFIG_LM75) [M/n/y/?] 
+ DS1337 Real Time Clock  (CONFIG_DS1337) [M/n/y/?] 
+ XFP module  (CONFIG_XFP) [M/n/y/?] 
+I2C device interface (CONFIG_I2C_CHARDEV) [Y/m/n/?] 
+I2C /proc interface (required for hardware sensors) (CONFIG_I2C_PROC) [Y/m/n/?] 
+*
+* Mice
+*
+Bus Mouse Support (CONFIG_BUSMOUSE) [N/y/m/?] 
+Mouse Support (not serial and bus mice) (CONFIG_MOUSE) [N/y/m/?] 
+*
+* Joysticks
+*
+*
+* Input core support is needed for gameports
+*
+*
+* Input core support is needed for joysticks
+*
+QIC-02 tape support (CONFIG_QIC02_TAPE) [N/y/m/?] 
+IPMI top-level message handler (CONFIG_IPMI_HANDLER) [N/y/m/?] 
+*
+* Watchdog Cards
+*
+Watchdog Timer Support (CONFIG_WATCHDOG) [N/y/?] 
+NatSemi SCx200 Support (CONFIG_SCx200) [N/y/m/?] 
+AMD 76x native power management (Experimental) (CONFIG_AMD_PM768) [N/y/m/?] 
+/dev/nvram support (CONFIG_NVRAM) [N/y/m/?] 
+Enhanced Real Time Clock Support (CONFIG_RTC) [N/y/m/?] 
+Double Talk PC internal speech card support (CONFIG_DTLK) [N/y/m/?] 
+Siemens R3964 line discipline (CONFIG_R3964) [N/y/m/?] 
+Applicom intelligent fieldbus card support (CONFIG_APPLICOM) [N/y/m/?] 
+*
+* Ftape, the floppy tape device driver
+*
+Ftape (QIC-80/Travan) support (CONFIG_FTAPE) [N/y/m/?] 
+/dev/agpgart (AGP Support) (CONFIG_AGP) [N/y/m/?] 
+*
+* Direct Rendering Manager (XFree86 DRI support)
+*
+Direct Rendering Manager (XFree86 DRI support) (CONFIG_DRM) [N/y/?] 
+*
+* CXU_F devices
+*
+DASAN Common (CONFIG_DASAN_COMMON) [Y/n/?] 
+DASAN BCM (CONFIG_DASAN_BCM) [Y/n/?] 
+DASAN Switch (CONFIG_DASAN_SWITCH) [Y/n/?] 
+DASAN PIM V2 (CONFIG_PIMV2_DASAN_EXT) [Y/n/?] 
+CPU True Load (CONFIG_CPU_TRUELOAD) [Y/n/?] 
+Disable SDK irq interrupts (CHANGE_SDK_IRQ_INTERRUPT_TO_POLL) [Y/n/?] 
+BCMHAL module (CONFIG_BCMHAL_MODULE) [M/n/y/?] 
+IGMP snooping (CONFIG_SWAL_IGMP) [Y/n/?] 
+CXU_F FPGA support (CONFIG_GLUE_FPGA) [M/n/y/?] 
+CXU_F core driver (CONFIG_CXU_F_FPGA_CORE) [M/n/?] 
+CXU_F glbinfo driver (CONFIG_CXU_F_GLBINFO) [M/n/?] 
+CXU_F I2C driver (CONFIG_CXU_F_I2C_DRV) [M/n/?] 
+CXU_F IU reset driver (CONFIG_CXU_F_RESET_DRV) [M/n/?] 
+CXU_F redundancy driver (CONFIG_CXU_F_RED_DRV) [M/n/?] 
+CXU_F watchdog driver (CONFIG_CXU_F_WATCHDOG_DRV) [Y/n/?] 
+CXU_F clock sync driver (CONFIG_CXU_F_CLOCK_SYNC_DRV) [M/n/?] 
+CXU_F alarm driver (CONFIG_CXU_F_ALARM_DRV) [M/n/?] 
+CXU_F epcs driver (CONFIG_CXU_F_EPCS_DRV) [M/n/?] 
+Siemens ComDev driver  (CONFIG_COMDEV) [Y/m/n/?] 
+Siemens liudb (CONFIG_LIUDB) [M/n/y/?] 
+Siemens dump debug suppport (CONFIG_DUMP) [M/n/y/?] 
+VLOG: the EMbedded-device LOGger (CONFIG_VLOG) [M/n/y/?] 
+*
+* Multimedia devices
+*
+Video For Linux (CONFIG_VIDEO_DEV) [N/y/m/?] 
+*
+* File systems
+*
+Quota support (CONFIG_QUOTA) [N/y/?] 
+Kernel automounter support (CONFIG_AUTOFS_FS) [N/y/m/?] 
+Kernel automounter version 4 support (also supports v3) (CONFIG_AUTOFS4_FS) [N/y/m/?] 
+Reiserfs support (CONFIG_REISERFS_FS) [N/y/m/?] 
+ADFS file system support (EXPERIMENTAL) (CONFIG_ADFS_FS) [N/y/m/?] 
+Amiga FFS file system support (EXPERIMENTAL) (CONFIG_AFFS_FS) [N/y/m/?] 
+Apple HFS file system support (EXPERIMENTAL) (CONFIG_HFS_FS) [N/y/m/?] 
+Apple HFS+ (Extended HFS) file system support (EXPERIMENTAL) (CONFIG_HFSPLUS_FS) [N/y/m/?] 
+BeOS file systemv(BeFS) support (read only) (EXPERIMENTAL) (CONFIG_BEFS_FS) [N/y/m/?] 
+BFS file system support (EXPERIMENTAL) (CONFIG_BFS_FS) [N/y/m/?] 
+Ext3 journalling file system support (CONFIG_EXT3_FS) [N/y/m/?] 
+DOS FAT fs support (CONFIG_FAT_FS) [N/y/m/?] 
+EFS file system support (read only) (EXPERIMENTAL) (CONFIG_EFS_FS) [N/y/m/?] 
+Journalling Flash File System (JFFS) support (CONFIG_JFFS_FS) [N/y/m/?] 
+Journalling Flash File System v2 (JFFS2) support (CONFIG_JFFS2_FS) [Y/m/n/?] 
+JFFS2 debugging verbosity (0 = quiet, 2 = noisy) (CONFIG_JFFS2_FS_DEBUG) [0] 
+Compressed ROM file system support (CONFIG_CRAMFS) [Y/m/n/?] 
+Virtual memory file system support (former shm fs) (CONFIG_TMPFS) [Y/n/?] 
+ISO 9660 CDROM file system support (CONFIG_ISO9660_FS) [N/y/m/?] 
+JFS filesystem support (CONFIG_JFS_FS) [N/y/m/?] 
+Minix fs support (CONFIG_MINIX_FS) [N/y/m/?] 
+FreeVxFS file system support (VERITAS VxFS(TM) compatible) (CONFIG_VXFS_FS) [N/y/m/?] 
+NTFS file system support (read only) (CONFIG_NTFS_FS) [N/y/m/?] 
+OS/2 HPFS file system support (CONFIG_HPFS_FS) [N/y/m/?] 
+/proc file system support (CONFIG_PROC_FS) [Y/n/?] 
+/dev file system support (EXPERIMENTAL) (CONFIG_DEVFS_FS) [N/y/?] 
+/dev/pts file system for Unix98 PTYs (CONFIG_DEVPTS_FS) [N/y/?] 
+QNX4 file system support (read only) (CONFIG_QNX4FS_FS) [N/y/m/?] 
+ROM file system support (CONFIG_ROMFS_FS) [N/y/m/?] 
+Second extended fs support (CONFIG_EXT2_FS) [Y/m/n/?] 
+System V/Xenix/V7/Coherent file system support (CONFIG_SYSV_FS) [N/y/m/?] 
+UDF file system support (read only) (CONFIG_UDF_FS) [N/y/m/?] 
+UFS file system support (read only) (CONFIG_UFS_FS) [N/y/m/?] 
+XFS filesystem support (CONFIG_XFS_FS) [N/y/m/?] 
+*
+* Network File Systems
+*
+Coda file system support (advanced network fs) (CONFIG_CODA_FS) [N/y/m/?] 
+InterMezzo file system support (replicating fs) (EXPERIMENTAL) (CONFIG_INTERMEZZO_FS) [N/y/m/?] 
+NFS file system support (CONFIG_NFS_FS) [Y/m/n/?] 
+  Provide NFSv3 client support (CONFIG_NFS_V3) [Y/n/?] 
+  Allow direct I/O on NFS files (EXPERIMENTAL) (CONFIG_NFS_DIRECTIO) [N/y/?] 
+NFS server support (CONFIG_NFSD) [N/y/m/?] 
+SMB file system support (to mount Windows shares etc.) (CONFIG_SMB_FS) [N/y/m/?] 
+NCP file system support (to mount NetWare volumes) (CONFIG_NCP_FS) [N/y/m/?] 
+*
+* Partition Types
+*
+Advanced partition selection (CONFIG_PARTITION_ADVANCED) [N/y/?] 
+*
+* GCOV coverage profiling
+*
+GCOV kernel (CONFIG_GCOV_PROFILE) [Y/n/?] 
+  Profile entire Kernel (CONFIG_GCOV_ALL) [Y/n/?] 
+  Provide GCOV proc file system entry (CONFIG_GCOV_PROC) [Y/m/n/?] 
+*
+* Sound
+*
+Sound card support (CONFIG_SOUND) [N/y/m/?] 
+*
+* MPC8260 CPM Options
+*
+Enable SCC Console (CONFIG_SCC_CONSOLE) [N/y/?] 
+CPM SCC Ethernet (CONFIG_SCC_ENET) [N/y/?] 
+FCC Ethernet (CONFIG_FEC_ENET) [Y/n/?] 
+Ethernet on FCC1 (CONFIG_FCC1_ENET) [Y/n/?] 
+Ethernet on FCC2 (CONFIG_FCC2_ENET) [Y/n/?] 
+Ethernet on FCC3 (CONFIG_FCC3_ENET) [N/y/?] 
+CPM2 patches (CONFIG_CPM2_UCODE_PATCH) [Y/n/?] 
+CPM119 patch for Hip7 rev_A.0 (CONFIG_USE_CPM119_RA0_PATCH) [Y/n/?] 
+*
+* USB support
+*
+Support for USB (CONFIG_USB) [N/y/m/?] 
+*
+* Support for USB gadgets
+*
+Support for USB Gadgets (CONFIG_USB_GADGET) [N/y/m/?] 
+*
+* Bluetooth support
+*
+Bluetooth subsystem support (CONFIG_BLUEZ) [N/y/m/?] 
+*
+* Cryptographic options
+*
+Cryptographic API (CONFIG_CRYPTO) [N/y/?] 
+*
+* Library routines
+*
+CRC32 functions (CONFIG_CRC32) [N/y/m/?] 
+SKB free queue (CONFIG_SKBUFF_FREE_QUEUE) [Y/n/?] 
+SKB free check (CONFIG_SKBUFF_FREE_CHECK) [N/y/?] 
+*
+* Kernel hacking
+*
+Kernel debugging (CONFIG_DEBUG_KERNEL) [N/y/?] 
+Kernel messages buffer length shift (0 = default) (CONFIG_LOG_BUF_SHIFT) [0] 
+
+*** End of Linux kernel configuration.
+*** Check the top-level Makefile for additional configuration.
+*** Next, you must run 'make dep'.
+
+
+  .. making /hix/gpon_cxu_f/os/linux-2.4/include/linux/modversions.h
+
+ ################################################################################
+ #   make ' ARCH=ppc /hix/gpon_cxu_f/os/linux-2.4/include/linux/modversions.h' in '/hix/gpon_cxu_f/os/linux-2.4'
+ ################################################################################
+clearmake[1]: Entering directory `/hix/gpon_cxu_f/os/linux-2.4'
+
+clearmake[1]: Leaving directory `/hix/gpon_cxu_f/os/linux-2.4'
+
+	make -C /hix/gpon_ramdisk/Files/base
+
+ ################################################################################
+ #   make '' in '/hix/gpon_ramdisk/Files/base'
+ ################################################################################
+clearmake[1]: Entering directory `/hix/gpon_ramdisk/Files/base'
+Wink in derived object ".sysinit_install"
+Wink in derived object "etc/bootptab_install"
+Wink in derived object "etc/hosts_install"
+Wink in derived object "etc/startup.model_SHE17_install"
+Wink in derived object "etc/startup.model_M600CXUB_install"
+Wink in derived object "etc/startup.model_G1100ECXUB1_install"
+Wink in derived object "etc/startup.model_G1100ECXUF_install"
+Wink in derived object "etc/startup.model_G1100ECXUF4_install"
+Wink in derived object "usr/sbin/sshd_start_install"
+Wink in derived object "/hix/gpon_cxu_f/make/ramdisk.mk_install"
+clearmake[1]: Leaving directory `/hix/gpon_ramdisk/Files/base'
+	make -C  ./make SIZE=32000 all
+
+ ################################################################################
+ #   make ' SIZE=32000 all' in './make'
+ ################################################################################
+clearmake[1]: Entering directory `/hix/gpon_cxu_f/make'
+	make -C ../os/linux-2.4  include/linux/version.h
+
+ ################################################################################
+ #   make ' include/linux/version.h' in '../os/linux-2.4'
+ ################################################################################
+clearmake[2]: Entering directory `/hix/gpon_cxu_f/os/linux-2.4'
+
+clearmake[2]: Leaving directory `/hix/gpon_cxu_f/os/linux-2.4'
+
+	make -f Makefile ramdisk-build-parallel
+
+ ################################################################################
+ #   make ' -f Makefile ramdisk-build-parallel' in ''
+ ################################################################################
+clearmake[2]: Entering directory `/hix/gpon_cxu_f/make'
+-------------------------------------
+building /hix/gpon_ramdisk/apply_model_diff
+-------------------------------------
+	make -C /hix/gpon_ramdisk/apply_model_diff;
+
+ ################################################################################
+ #   make '' in '/hix/gpon_ramdisk/apply_model_diff'
+ ################################################################################
+clearmake[3]: Entering directory `/hix/gpon_ramdisk/apply_model_diff'
+	ppc_82xx-gcc -o apply_model_diff-7.72 apply_model_diff-7.72.c
+apply_model_diff-7.72.c: In function `adjust_snmpoid':
+apply_model_diff-7.72.c:121: warning: assignment makes pointer from integer without a cast
+
+clearmake[3]: Leaving directory `/hix/gpon_ramdisk/apply_model_diff'
+
+	make -C /hix/gpon_cxu_f/os/linux-2.4 modules
+
+ ################################################################################
+ #   make ' modules' in '/hix/gpon_cxu_f/os/linux-2.4'
+ ################################################################################
+clearmake[3]: Entering directory `/hix/gpon_cxu_f/os/linux-2.4'
+clearmake: Error: Unable to find view by uuid:0097e255.45d311dc.85b0.00:0c:29:54:2e:7b, last known at "ol912:/viewstorage/pt103043_gpon_cxu_vr_prod.vws".
+clearmake: Error: Unable to contact View - ClearCase object not found
+clearmake: Warning: View "ol912:/viewstorage/pt103043_gpon_cxu_vr_prod.vws" unavailable -
+This process will not contact the view again for 60 minutes.
+NOTE: Other processes may try to contact the view.
+	gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -o scripts/split-include scripts/split-include.c
+
+	scripts/split-include include/linux/autoconf.h include/config
+
+	make -C   kernel CFLAGS="-D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE" MAKING_MODULES=1 modules
+
+ ################################################################################
+ #   make ' CFLAGS=-D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE MAKING_MODULES=1 modules' in 'kernel'
+ ################################################################################
+clearmake[4]: Entering directory `/vobs/cots/linux-2.4/kernel'
+`modules' is up to date.
+clearmake[4]: Leaving directory `/vobs/cots/linux-2.4/kernel'
+
+	make -C   drivers CFLAGS="-D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE" MAKING_MODULES=1 modules
+
+ ################################################################################
+ #   make ' CFLAGS=-D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE MAKING_MODULES=1 modules' in 'drivers'
+ ################################################################################
+clearmake[4]: Entering directory `/vobs/cots/linux-2.4/drivers'
+	make -C block modules
+
+ ################################################################################
+ #   make ' modules' in 'block'
+ ################################################################################
+clearmake[5]: Entering directory `/vobs/cots/linux-2.4/drivers/block'
+`modules' is up to date.
+clearmake[5]: Leaving directory `/vobs/cots/linux-2.4/drivers/block'
+
+	make -C cdrom modules
+
+ ################################################################################
+ #   make ' modules' in 'cdrom'
+ ################################################################################
+clearmake[5]: Entering directory `/vobs/cots/linux-2.4/drivers/cdrom'
+`modules' is up to date.
+clearmake[5]: Leaving directory `/vobs/cots/linux-2.4/drivers/cdrom'
+
+	make -C char modules
+
+ ################################################################################
+ #   make ' modules' in 'char'
+ ################################################################################
+clearmake[5]: Entering directory `/vobs/cots/linux-2.4/drivers/char'
+`modules' is up to date.
+clearmake[5]: Leaving directory `/vobs/cots/linux-2.4/drivers/char'
+
+	make -C cxu_f modules
+
+ ################################################################################
+ #   make ' modules' in 'cxu_f'
+ ################################################################################
+clearmake[5]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f'
+	ppc_82xx-gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=dump  -c -o dump/dump.o dump/dump.c
+dump/dump.c:109: warning: #warning #### __DUMP_PRINT_LEVEL_DEBUG__ ####
+dump/dump.c:1003: warning: function declaration isn't a prototype
+dump/dump.c:1014: warning: function declaration isn't a prototype
+
+	make -C alarm modules
+
+ ################################################################################
+ #   make ' modules' in 'alarm'
+ ################################################################################
+clearmake[6]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/alarm'
+	ppc_82xx-gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE -DCXU_F -I/vobs/cots/linux-2.4/drivers/char/comdev  -o alarm.o -c alarm.c
+alarm.c:37: warning: `__KERNEL__' redefined
+*Initialization*:1: warning: this is the location of the previous definition
+alarm.c: In function `almdrv_init':
+alarm.c:101: warning: unused variable `regData'
+alarm.c: At top level:
+alarm.c:541: warning: function declaration isn't a prototype
+alarm.c:546: warning: function declaration isn't a prototype
+
+clearmake[6]: Leaving directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/alarm'
+
+	make -C ds75 modules
+
+ ################################################################################
+ #   make ' modules' in 'ds75'
+ ################################################################################
+clearmake[6]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/ds75'
+	ppc_82xx-gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE -I/include -I/arch/ppc -I/arch/ppc/platforms -o ds75.o -c ds75.c
+
+clearmake[6]: Leaving directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/ds75'
+
+	make -C epcs modules
+
+ ################################################################################
+ #   make ' modules' in 'epcs'
+ ################################################################################
+clearmake[6]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/epcs'
+	ppc_82xx-gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE -DCXU_F -I../foglux/core -o epcs_dd.o -c epcs_dd.c
+
+clearmake[6]: Leaving directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/epcs'
+
+	make -C foglux/clock_sync modules
+
+ ################################################################################
+ #   make ' modules' in 'foglux/clock_sync'
+ ################################################################################
+clearmake[6]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/foglux/clock_sync'
+	ppc_82xx-gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE -DCONFIG_HIX5750_CXU_F -DMODULE -I../core -o foglux-clocksync.o -c clock_sync.c
+
+clearmake[6]: Leaving directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/foglux/clock_sync'
+
+	make -C foglux/core modules
+
+ ################################################################################
+ #   make ' modules' in 'foglux/core'
+ ################################################################################
+clearmake[6]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/foglux/core'
+	ppc_82xx-gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE -DCONFIG_HIX5750_CXU_F -I/vobs/cots/linux-2.4/drivers/cxu_f/comdev -o foglux-core.o -c foglux.c
+cpp0: output pipe has been closed
+{standard input}: Assembler messages:
+{standard input}:0: Warning: end of file not at end of a line; newline inserted
+{standard input}:247: Error: syntax error; found `
+ppc_82xx-gcc: Internal compiler error: program cc1 got fatal signal 11
+*** Error code 1
+clearmake: Error: Build script failed for "foglux-core.o"
+
+clearmake[6]: Leaving directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/foglux/core'
+clearmake returned 1
+*** Error code 99
+clearmake: Error: Build script failed for "_modsubdir_foglux/core"
+
+clearmake[5]: Leaving directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f'
+clearmake returned 1
+*** Error code 99
+clearmake: Error: Build script failed for "_modsubdir_cxu_f"
+
+clearmake[4]: Leaving directory `/vobs/cots/linux-2.4/drivers'
+clearmake returned 1
+*** Error code 99
+clearmake: Error: Build script failed for "_mod_drivers"
+
+clearmake[3]: Leaving directory `/hix/gpon_cxu_f/os/linux-2.4'
+clearmake returned 1
+*** Error code 99
+clearmake: Error: Build script failed for "modules-pre"
+
+clearmake[2]: Leaving directory `/hix/gpon_cxu_f/make'
+clearmake returned 1
+*** Error code 99
+clearmake: Error: Build script failed for "ramdisk-build"
+
+clearmake[1]: Leaving directory `/hix/gpon_cxu_f/make'
+clearmake returned 1
+*** Error code 99
+clearmake: Error: Build script failed for "ramdisk"
+
+clearmake returned 1

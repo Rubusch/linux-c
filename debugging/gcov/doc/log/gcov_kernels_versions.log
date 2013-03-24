@@ -1,0 +1,338 @@
+versions / changelog:
+
+debug_gcov_01:
+	gcov patch done by hand, double checked
+	
+	ramdisksize modified to 32MB at:
+	/hix/gpon_cxu_f/os/linux-2.4/.config
+	/hix/gpon_cxu_f/os/linux-2.4/linux.config
+	/hix/gpon_cxu_f/
+
+	-> failed 
+	(...)
+	clearmake[6]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/foglux/core'
+	ppc_82xx-gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/u
+	sr/lib/gcc-lib/ppc-linux/2.95.4/include -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -W
+	all -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_D
+	ASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D_
+	_CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float 
+	-pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drive
+	rs/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE -DCONFIG_HIX5750_CXU_F -
+	I/vobs/cots/linux-2.4/drivers/cxu_f/comdev -o foglux-core.o -c foglux.c
+	cpp0: output pipe has been closed
+	{standard input}: Assembler messages:
+	{standard input}:0: Warning: end of file not at end of a line; newline inserted
+	{standard input}:247: Error: syntax error; found `
+	ppc_82xx-gcc: Internal compiler error: program cc1 got fatal signal 11
+	*** Error code 1
+	(...)
+
+
+
+debug_gcov_02:
+	with gcov
+	-> failed
+
+
+
+debug_gcov_02b:
+	test without gcov (make clean problem?)
+	-> succeeded (no make clean prob!)
+
+
+
+debug_gcov_03:
+	
+
+
+debug_gcov_04:
+	gcov only in SWAL as module (no modinit tool patch!)
+
+
+debug_gcov_05:
+	
+
+
+debug_gcov_06:
+
+
+
+debug_gcov_07: 
+	.config: 
+	CONFIG_GCOV_PROFILE=y 
+	CONFIG_GCOV_ALL=n 
+	CONFIG_GCOV_PROC=y 
+
+	-> compiled, /proc/gcov shows up and contains a file vmlinuz (empty?!)
+
+
+
+debug_gcov_08: 
+	gcov support in the .config: 
+	CONFIG_GCOV_PROFILE=y 
+	CONFIG_GCOV_ALL=n 
+	CONFIG_GCOV_PROC=y 
+
+	changed from 'm' to 'y' (no modutils patch available!):
+	CONFIG_BCMHAL_MODULE=y 
+	CONFIG_GLUE_FPGA=y
+	CONFIG_CXU_F_FPGA_CORE=y
+	CONFIG_CXU_F_GLBINFO=y
+	CONFIG_CXU_F_I2C_DRV=y
+	CONFIG_CXU_F_RESET_DRV=y
+	CONFIG_CXU_F_RED_DRV=y
+	CONFIG_CXU_F_CLOCK_SYNC_DRV=y
+	CONFIG_CXU_F_ALARM_DRV=y
+	CONFIG_CXU_F_EPCS_DRV=y
+	CONFIG_LIUDB=y
+	CONFIG_DUMP=y
+	CONFIG_VLOG=y
+
+	turned off: 
+	# CONFIG_SKBUFF_FREE_QUEUE is not set
+
+	turned on (kernel hacking): 
+	CONFIG_DEBUG_KERNEL=y
+	CONFIG_MAGIC_SYSRQ=y
+
+	add in file /hix/gpon_cxu_f/os/linux-2.4/drivers/switch/bcmhal/Makefile: 
+	EXTRA_CFLAGS += $(GCOV_FLAGS) 
+
+	-> failed (linker error)
+
+
+
+debug_gcov_09: 
+	gcov support in the .config: 
+	CONFIG_GCOV_PROFILE=y 
+	CONFIG_GCOV_ALL=n 
+	CONFIG_GCOV_PROC=y 
+
+	changed from 'm' to 'y':
+	CONFIG_BCMHAL_MODULE=y 
+	CONFIG_GLUE_FPGA=y
+	CONFIG_CXU_F_FPGA_CORE=y
+	CONFIG_CXU_F_GLBINFO=y
+	CONFIG_CXU_F_I2C_DRV=y
+	CONFIG_CXU_F_RESET_DRV=y
+	CONFIG_CXU_F_RED_DRV=y
+	CONFIG_CXU_F_CLOCK_SYNC_DRV=y
+	CONFIG_CXU_F_ALARM_DRV=y
+	CONFIG_CXU_F_EPCS_DRV=y
+	CONFIG_LIUDB=y
+	CONFIG_DUMP=y
+	CONFIG_VLOG=y
+
+	turned off: 
+	# CONFIG_SKBUFF_FREE_QUEUE is not set
+
+	turned on (kernel hacking): 
+	CONFIG_DEBUG_KERNEL=y
+	CONFIG_MAGIC_SYSRQ=y
+
+	only difference: - EXTRA_CFLAGS += $(GCOV_FLAGS) is here turned off! 
+
+	-> failed (linker error)
+
+
+
+debug_gcov_10:
+	gcov support in the .config: 
+	CONFIG_GCOV_PROFILE=y 
+	CONFIG_GCOV_ALL=n 
+	CONFIG_GCOV_PROC=y 
+
+	.config from version 09 restored!
+	
+	add the line: 
+	EXTRA_CFLAGS += $(GCOV_FLAGS)
+	to the file:
+	/hix/gpon_cxu_f/os/linux-2.4/drivers/switch/swal/Makefile
+
+	-> failed (asm error: compiler version (?)/asm linker!)
+
+
+
+debug_gcov_11:
+	gcov support in the .config: 
+	CONFIG_GCOV_PROFILE=y 
+	CONFIG_GCOV_ALL=n 
+	CONFIG_GCOV_PROC=y 
+
+	.config from version 09!
+
+	add the line: 
+	EXTRA_CFLAGS += $(GCOV_FLAGS)
+	to the file:
+	/hix/gpon_cxu_f/os/linux-2.4/drivers/switch/bcmhal/Makefile
+
+	-> compiled after a make clean for the kernel sources (?!), 
+	/proc/gcov shows up and contains a file vmlinuz (empty?!)
+
+
+
+debug_gcov_12:
+        removed the EXTRA_FLAGS entry in 
+      	/hix/gpon_cxu_f/os/linux-2.4/drivers/switch/bcmhal/Makefile
+
+      	/hix/gpon_cxu_f/os/linux-2.4/include/linux/gcov.h
+      	modified the macro GCC_VERSION_LOWER(major, minor) to allways return '1'
+      	The macro returns 1 with versions higher than 3.3 (inclusive), else it 
+      	returns 0.
+
+	make menuconfig (.config and linux.config) - all options set!
+	CONFIG_GCOV_PROFILE=y 
+	CONFIG_GCOV_ALL=y 
+	CONFIG_GCOV_PROC=y 
+
+	-> failed, common error:
+	(...)
+	clearmake[6]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/foglux/core'
+        ppc_82xx-gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/inclu\
+	de -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D\
+	__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpo\
+	n_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/lin\
+	ux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE -DCONFIG_HIX5750_CXU_F -I/vobs/cots/linux-2.4/drivers/cxu\
+	_f/comdev -o foglux-core.o -c foglux.c
+	cpp0: output pipe has been closed
+	{standard input}: Assembler messages:
+	{standard input}:0: Warning: end of file not at end of a line; newline inserted
+	{standard input}:247: Error: syntax error; found `
+	ppc_82xx-gcc: Internal compiler error: program cc1 got fatal signal 11
+	*** Error code 1
+	(...)
+
+
+
+debug_gcov_13:
+        based on debug_gcov_12
+
+      	/hix/gpon_cxu_f/os/linux-2.4/include/linux/gcov.h
+      	modified the macro GCC_VERSION_LOWER(major, minor) to allways return '0'
+      	The macro returns 1 with versions higher than 3.3 (inclusive), else it 
+      	returns 0.
+
+	-> failed with message:
+	(...)
+	clearmake[6]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/foglux/core'
+        ppc_82xx-gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/inclu\
+	de -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D\
+	__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpo\
+	n_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/lin\
+	ux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE -DCONFIG_HIX5750_CXU_F -I/vobs/cots/linux-2.4/drivers/cxu\
+	_f/comdev -o foglux-core.o -c foglux.c
+	cpp0: output pipe has been closed
+	{standard input}: Assembler messages:
+	{standard input}:0: Warning: end of file not at end of a line; newline inserted
+	{standard input}:247: Error: syntax error; found `
+	ppc_82xx-gcc: Internal compiler error: program cc1 got fatal signal 11
+	*** Error code 1
+	(...)
+
+
+
+debug_gcov_14:
+	based on debug_gcov_13
+
+	/hix/gpon_cxu_f/os/linux-2.4/include/linux/gcov.h
+	macro GCC_VERSION_LOWER restored
+
+	/hix/gpon_cxu_f/os/linux-2.4/drivers/gcov/
+	copied the code of gcov-proc.c to gcov-proc.c.orig 
+	and gcov-core.c to gcov-core.c.orig
+
+	gcov-proc.c and gcov-core.c modified -> functions are cut to see if compile error has to do with the implementation of the gcov modules
+	or the gcc version: 2.95.4 (gcov normally supports in the code gcc 3.1, 3.2 and 3.3). 
+
+	-> failed with the "typical error", seems that the error is related to the gcc 2.95.4!
+	clearmake[6]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f/foglux/core'
+        ppc_82xx-gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/vobs/cots/eldk/eldk2.1/usr/lib/gcc-lib/ppc-linux/2.95.4/inclu\
+	de -I/hix/gpon_cxu_f/os/linux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D\
+	__CONFIG_DASAN_BCM__ -D__CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpo\
+	n_cxu_f/os/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/lin\
+	ux-2.4/drivers/cxu_f/siemenslib/include -fprofile-arcs -ftest-coverage -DMODULE -DCONFIG_HIX5750_CXU_F -I/vobs/cots/linux-2.4/drivers/cxu\
+	_f/comdev -o foglux-core.o -c foglux.c
+	cpp0: output pipe has been closed
+	{standard input}: Assembler messages:
+	{standard input}:0: Warning: end of file not at end of a line; newline inserted
+	{standard input}:247: Error: syntax error; found `
+	ppc_82xx-gcc: Internal compiler error: program cc1 got fatal signal 11
+	*** Error code 1
+	  
+
+
+debug_gcov.15_x86:
+	check on the vm (x86) to compile a kernel 2.4.35 with a gcc 2.95.4 (tool test)
+
+	-> compiled!
+
+
+
+debug_gcov.16_x86:
+	check on the vm (x86) to compile a kernel 2.4.35 with a gcc 2.95.4 WITH the GCOV patch 
+	(Question: is it possible to use the GCOV with the gcc 2.95?)
+	
+	-> compiled & worked on a x86 machine using the gcc 2.95!
+
+
+
+debug_gcov.17:
+	idea: compile everything with another compiler - here x86 / gcc 3.2.3
+
+	based on debug_gcov_14:
+	/hix/gpon_cxu_f/os/linux-2.4/drivers/gcov/
+	cp -v gcov-core.c.orig gcov-core.c
+	cp -v gcov-proc.c.orig gcov-proc.c
+
+	/hix/gpon_cxu_f/cs/runconfig.sh modified:
+	#export CROSS_COMPILE=$ELDK_ARCH- ###
+	export CROSS_COMPILE= ###
+
+	/hix/gpon_cxu_f/os/linux-2.4/Makefile modified:
+	#ifndef CROSS_COMPILE ###
+	#CROSS_COMPILE = /vobs/cots/eldk/eldk2.1/usr/bin/ppc_82xx- ###
+	#endif 
+
+	-> failed!
+
+	(...)
+	clearmake[5]: Entering directory `/hix/gpon_cxu_f/gpon_kernel-2.4/drivers/cxu_f'
+        gcc -D__KERNEL__ -I/hix/gpon_cxu_f/os/linux-2.4/include -I/usr/lib/gcc-lib/i386-redhat-linux/3.2.3/include -I/hix/gpon_cxu_f/os/l\
+	inux-2.4/arch/ppc/platforms -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I. -D__CONFIG_DASAN_BCM__ -D__\
+	CONFIG_DASAN_SWITCH__ -D__CONFIG_SKBUFF_FREE_QUEUE__ -fomit-frame-pointer -D__CONFIG_SIEMENS_SWITCH__ -I/hix/gpon_cxu_f/os/linux-2.4/arch\
+	/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -I/hix/gpon_cxu_f/os/linux-2.4/drivers/cxu_f/siem\
+	enslib/include -fprofile-arcs -ftest-coverage -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=dump  -c -o dump/dump.o dump/dum\
+	p.c
+	cc1: invalid option `multiple'
+	cc1: invalid option `string'
+	cc1: warning: unknown register name: r2
+	*** Error code 1
+	(...)
+
+
+
+debug_gcov.18
+	based on: debug_gcov.17
+
+	idea: turn off compilier optimization!
+	
+	/hix/gpon_cxu_f/cs/runconfig.sh modified:
+	export CROSS_COMPILE=$ELDK_ARCH- 
+	
+	/hix/gpon_cxu_f/os/linux-2.4/Makefile modified:
+	ifndef CROSS_COMPILE ###
+	CROSS_COMPILE = /vobs/cots/eldk/eldk2.1/usr/bin/ppc_82xx- ###
+	endif 
+
+	/hix/gpon_cxu_f/os/linux-2.4/Makefile modified (turned of -O2):	
+	(...)
+	#HOSTCFLAGS     = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+	HOSTCFLAGS      = -Wall -Wstrict-prototypes -fomit-frame-pointer ###
+	(...)
+	###
+	#CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \ ###
+	#         -fno-strict-aliasing -fno-common ###
+	CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common ###
+	(...)
+
+
