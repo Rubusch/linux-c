@@ -1,0 +1,14 @@
+## gitignore
+
+## personal stuff
+REMOVEME/*
+
+## generated files
+*.o
+*.ko
+*.d
+
+## backups
+*.bk
+*.orig
+*~
