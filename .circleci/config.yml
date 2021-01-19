@@ -48,8 +48,5 @@ jobs:
 
       - run: date
 
-## preparations
-      - run: mkdir -p /lib/modules/$(uname -r)/build
-
 ## 00: basics
       - run: cd 00__basics/hello && make
