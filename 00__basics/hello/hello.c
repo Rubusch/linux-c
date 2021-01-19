@@ -1,6 +1,6 @@
 // hello.c
 /*
-  basic linux kernel module
+  very basic linux kernel module
 
   Demonstrates the simpliest hello world module for a 2.4 through
   5.4.75 kernel
@@ -11,7 +11,7 @@
   ---
   References:
   Linux Kernel Module Programming Guide", Peter Jay Salzman, 2007-05-18
-//*/
+*/
 
 #include <linux/module.h>
 #include <linux/kernel.h>
