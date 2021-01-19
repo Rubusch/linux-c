@@ -49,4 +49,4 @@ jobs:
       - run: date
 
 ## 00: basics
-      - run: make -C 00__basics/hello
+      - run: cd 00__basics/hello && make
