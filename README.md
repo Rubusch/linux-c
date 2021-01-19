@@ -4,7 +4,7 @@
 
 # Kernel Code Snippets
 
-No guarantee, use the code snippets at your own risk. This is just a collection code snippets.  
+No guarantee, use the code snippets at your own risk. This is just a collection code snippets. The sources are typically build by a Makefile as external kernel module.  
 
 ## Usage
 
