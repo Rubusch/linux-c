@@ -4,5 +4,20 @@
 
 # Kernel Code Snippets
 
-**UNDER CONSTRUCTION**  
+No guarantee, use the code snippets at your own risk. This is just a collection code snippets.  
+
+## Usage
+
+Open a terminal.  
+
+```
+$ sudo tail -f /var/log/syslog
+```
+
+Open another terminal build and load the module.  
+
+```
+$ make
+$ sudo insmod *.ko
+```
 
