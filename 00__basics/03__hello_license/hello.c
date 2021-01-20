@@ -14,6 +14,7 @@
   References:
   Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
 */
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
