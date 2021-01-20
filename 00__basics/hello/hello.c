@@ -1,9 +1,8 @@
 // hello.c
 /*
-  very basic linux kernel module
+  Hello
 
-  Demonstrates the simpliest hello world module for a 2.4 through
-  5.4.75 kernel
+  A very basic linux kernel module, 2.4.x.
 
   When directly implementing the init_module() and cleanup_module()
   no "static" return values allowed!!!
