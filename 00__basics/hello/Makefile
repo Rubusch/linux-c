@@ -3,9 +3,10 @@
 ##
 ## in case needs to be done:
 ## cd /usr/src/linux
-## make-kpkg clean && make-kpkg oldconfig 
+## make-kpkg clean && make-kpkg oldconfig
 ## make scripts/mod/modpost
 ##
+RM = rm -f
 
 obj-m += hello.o
 
@@ -14,3 +15,5 @@ all:
 
 clean:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	$(RM) *~
+
