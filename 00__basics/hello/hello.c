@@ -25,3 +25,6 @@ void cleanup_module(void)
 {
   printk(KERN_INFO "Goodbye World!\n");
 }
+MODULE_AUTHOR("Lothar Rubusch");
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("Hello World");
