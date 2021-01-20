@@ -55,3 +55,4 @@ jobs:
 ## 00: basics
       - run: cd 00__basics/01__hello && make
       - run: cd 00__basics/02__hello && make
+      - run: cd 00__basics/03__hello_license && make
