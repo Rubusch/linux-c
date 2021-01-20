@@ -29,6 +29,3 @@ static void __exit exit_hello(void)
 
 module_init(init_hello);
 module_exit(exit_hello);
-MODULE_AUTHOR("Lothar Rubusch");
-MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Hello World");
