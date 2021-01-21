@@ -5,6 +5,9 @@ REMOVEME/*
 
 ## generated files
 *.o
+*.mod
+*.order
+*.symvers
 *.ko
 *.d
 
