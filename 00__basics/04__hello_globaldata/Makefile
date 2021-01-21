@@ -8,4 +8,4 @@ clean:
 	make -C $(KERNELDIR) M=$(PWD) clean
 	find $(SRC) -type f -name \*~ -delete
 
-.PHONY: all module clean
+.PHONY: all clean
