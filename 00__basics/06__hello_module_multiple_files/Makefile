@@ -1,5 +1,4 @@
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
-#RM = rm -f
 
 all: module
 
