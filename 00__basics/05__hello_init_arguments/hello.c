@@ -25,7 +25,7 @@
 #include <linux/stat.h>
 
 
-// 1. set up globals as ".c-file-static" privates
+// 1. Set up globals as ".c-file-static" privates.
 static short int myshort = 1;
 static int myint = 420;
 static long int mylong = 9999;
@@ -35,15 +35,15 @@ static int arr_argc = 0;
 
 
 /*
-  2a. set up a modinfo parameter:
+  2a. Set up a modinfo parameter:
 
-  module_param(name, type, perm);
-  MODULE_PARAM_DESC(type, desc);
+      module_param(name, type, perm);
+      MODULE_PARAM_DESC(type, desc);
 
-  name = parameter's name (char*)
-  type = datatype (int)
-  perm = permissions bit for exposing parameters in the sysfs later on (0000)
-  desc = description for modinfo (char*)
+      name = parameter's name (char*)
+      type = datatype (int)
+      perm = permissions bit for exposing parameters in the sysfs later on (0000)
+      desc = description for modinfo (char*)
 */
 module_param(myshort, short, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 MODULE_PARM_DESC(myshort, " my short integer");
@@ -59,23 +59,23 @@ MODULE_PARM_DESC(mystring, " my char pointer");
 
 
 /*
-  2b. set up array
+  2b. Set up the array.
 
-  module_param_array(name, type, num, perm)
-  MODULE_PARAM_DESC(type, desc);
+      module_param_array(name, type, num, perm)
+      MODULE_PARAM_DESC(type, desc);
 
-  name = name of the array
-  type = datatype
-  num  = number of elements or NULL
-  perm = permissions (0000)
-  desc = description for modinfo (char*)
+      name = name of the array
+      type = datatype
+      num  = number of elements or NULL
+      perm = permissions (0000)
+      desc = description for modinfo (char*)
 */
 module_param_array(myintArray, int, &arr_argc, 0000);
 MODULE_PARM_DESC(myintArray, "my array of integers");
 
 
 /*
-  module official stuff
+  Module macros.
 */
 static int __init hello_init(void)
 {
@@ -83,7 +83,7 @@ static int __init hello_init(void)
 
 	printk(KERN_INFO "Hello World\n");
 
-	// 3. use the parameters, here print
+	// 3. Use the parameters and print them.
 	printk(KERN_INFO "myshort is a short integer: %hd\n", myshort);
 	printk(KERN_INFO "myint is a integer: %d\n", myint);
 	printk(KERN_INFO "mylong is a long integer: %ld\n", mylong);
@@ -108,5 +108,5 @@ module_init(hello_init);
 module_exit(hello_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <Lothar.Rubusch@gmx.ch>");
-MODULE_DESCRIPTION("usage of init parameters");
+MODULE_DESCRIPTION("Usage of init parameters");
 
