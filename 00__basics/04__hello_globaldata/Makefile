@@ -1,9 +1,11 @@
-RM = rm -f
+KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 obj-m += hello.o
 
 all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	make -C $(KERNELDIR) M=$(PWD) modules
 
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-	$(RM) *~
+	make -C $(KERNELDIR) M=$(PWD) clean
+	find $(SRC) -type f -name \*~ -delete
+
+.PHONY: all module clean
