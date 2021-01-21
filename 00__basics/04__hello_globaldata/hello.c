@@ -1,5 +1,5 @@
 /*
-  Hello
+  Hello Module
 
   A basic linux kernel module, 2.6.18. It demonstrates the "initdata"
   method to set global data for a module.
@@ -28,14 +28,14 @@ static int hello_data __initdata = 3;
 
 static int __init init_hello(void)
 {
-  printk(KERN_INFO "Hello World!\n");
-  return 0;
+	printk(KERN_INFO "Hello World!\n");
+	return 0;
 }
 
 
 static void __exit exit_hello(void)
 {
-  printk(KERN_INFO "Goodbye World!\n");
+	printk(KERN_INFO "Goodbye World!\n");
 }
 
 module_init(init_hello);
@@ -45,5 +45,5 @@ module_exit(exit_hello);
   modinfo stuff
 */
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Lothar Rubusch <lothar.rubusch@nsn.com>");
+MODULE_AUTHOR("Lothar Rubusch <lothar.rubusch@gmx.ch>");
 MODULE_DESCRIPTION("demonstration of initdata");
