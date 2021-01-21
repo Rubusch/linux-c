@@ -59,4 +59,4 @@ jobs:
       - run: cd 00__basics/04__hello_globaldata && make
       - run: cd 00__basics/05__hello_init_arguments && make
       - run: cd 00__basics/06__hello_module_multiple_files && make
-
+      - run: cd 00__basics/07__chardev_driver && make
