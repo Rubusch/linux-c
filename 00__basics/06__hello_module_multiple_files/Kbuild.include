@@ -1,0 +1,8 @@
+## either specify which header to take explicitely here, then provide
+## the entire path in the #include statement in the source files
+#ccflags-y += -include $(kbuild-dir)/hello.h
+
+## alternatively, include a directory as follows then a
+##     #include "hello.h"
+## will be fully sufficient
+ccflags-y += -I$(kbuild-dir)/include
