@@ -1,5 +1,5 @@
 /*
-  Hello
+  Hello Module
 
   A basic linux kernel module, 2.6.18.
 
@@ -18,13 +18,13 @@
 
 static int __init init_hello(void)
 {
-  printk(KERN_INFO "Hello World!\n");
-  return 0;
+	printk(KERN_INFO "Hello World!\n");
+	return 0;
 }
 
 static void __exit exit_hello(void)
 {
-  printk(KERN_INFO "Goodbye World!\n");
+	printk(KERN_INFO "Goodbye World!\n");
 }
 
 module_init(init_hello);
