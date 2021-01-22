@@ -63,31 +63,22 @@ struct file_operations proc_fops = {
 static ssize_t read_procfs(struct file *filp, char __user *ubuf, size_t count, loff_t *offp)
 {
 	printk(KERN_INFO "read handler\n");
-	return 0; // TODO 
+	return 0;
 }
 
 
 static ssize_t write_procfs(struct file *filp, const char __user *ubuf, size_t count, loff_t *offp)
 {
 	printk(KERN_INFO "write handler\n");
-	return -1; // TODO 
+	return 0; // NB: when this is set to -1, the write returns
+		  // right away (with an error), if not, it will
+		  // freeze and stops only with a "sudo rmmod -f
+		  // helloprocfs" from another shell
 }
 
 
 int start_procfs(void)
 {
-	/*
-	  static inline struct proc_dir_entry *proc_create(
-	      const char *name
-              , umode_t mode
-	      , struct proc_dir_entry *parent
-	      , const struct file_operations *proc_fops)
-
-	  name: The name of the proc entry
-	  mode: The access mode for proc entry
-	  parent: The name of the parent directory under /proc
-	  proc_fops: The structure in which the file operations for the proc entry will be created.
-	*/
 	if (NULL == (ent = proc_create(PROCFS_NAME, 0644, NULL, &proc_fops))) {
 		printk(KERN_ALERT "/proc/%s failed\n", PROCFS_NAME);
 	}
