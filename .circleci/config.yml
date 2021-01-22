@@ -63,3 +63,4 @@ jobs:
       - run: cd 00__basics/08__hello_procfs_read && make
       - run: cd 00__basics/09__hello_procfs_read_write && make
       - run: cd 00__basics/10__hello_procfs_fops && make
+      - run: cd 00__basics/11__hello_procfs_seq_filesystem && make
