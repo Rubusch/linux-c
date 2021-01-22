@@ -1,5 +1,5 @@
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
-obj-m += chardev.o
+obj-m += hellochardev.o
 
 all:
 	make -C $(KERNELDIR) M=$(PWD) modules
