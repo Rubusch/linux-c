@@ -60,3 +60,4 @@ jobs:
       - run: cd 00__basics/05__hello_init_arguments && make
       - run: cd 00__basics/06__hello_module_multiple_files && make
       - run: cd 00__basics/07__chardev_driver && make
+      - run: cd 00__basics/08__hello_procfs_read && make
