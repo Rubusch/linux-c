@@ -1,22 +1,4 @@
 /*
-  Hello IOCTL
-
-  The loadable kernel module, tested on 5.4.75.
-
-  A loadable kernelmodule and a corresponding userspace application to
-  show the usage of ioctl mechanisms.
-
-  The ioctl implementation needs the following steps:
-  - Create IOCTL command in driver
-  - Write IOCTL function in the driver
-  - Create IOCTL command in a Userspace application
-  - Use the IOCTL system call in a Userspace
-
-  ---
-  References:
-  Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
-  Highly inspired by / many thanks to embetronicx.com (2021)
-  https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
 */
 
 #include "helloioctl.h"
