@@ -18,4 +18,4 @@ module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <lothar.rubusch@nsn.com>");
-MODULE_DESCRIPTION("demonstrates the usage of ioctl");
+MODULE_DESCRIPTION("Demonstrates the usage of ioctl.");
