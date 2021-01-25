@@ -1,15 +1,4 @@
-// hello.c
 /*
-  Hello Module
-
-  A very basic linux kernel module, 2.4.x.
-
-  When directly implementing the init_module() and cleanup_module()
-  no "static" return values allowed!!!
-
-  ---
-  References:
-  Linux Kernel Module Programming Guide", Peter Jay Salzman, 2007-05-18
 */
 
 #include <linux/module.h>
