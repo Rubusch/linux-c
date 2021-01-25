@@ -1,5 +1,6 @@
 /*
 */
+// TODO check if this needs some rework                            
 
 
 #include <linux/kernel.h>
@@ -178,6 +179,9 @@ void stop_hello(void)
 }
 
 
+/*
+  init / exit
+*/
 
 static int __init mod_init(void)
 {
