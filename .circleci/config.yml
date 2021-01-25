@@ -65,3 +65,5 @@ jobs:
       - run: cd 00__basics/10__hello_procfs_fops && make
       - run: cd 00__basics/11__hello_procfs_seq_filesystem && make
       - run: cd 00__basics/12__hello_ioctl_chardev && make
+# 13 pending
+      - run: cd 00__basics/14__hello_kernelthread && make
