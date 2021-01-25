@@ -56,6 +56,7 @@ jobs:
       - run: cd 00__basics/01__hello && make
       - run: cd 00__basics/02__hello && make
       - run: cd 00__basics/03__hello_license && make
+      - run: cd 00__basics/03__symbol_export_to_another_module && make
       - run: cd 00__basics/04__hello_globaldata && make
       - run: cd 00__basics/05__hello_init_arguments && make
       - run: cd 00__basics/06__hello_module_multiple_files && make
