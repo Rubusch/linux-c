@@ -10,12 +10,18 @@ REMOVEME/*
 *.mod.o
 *.order
 *.symvers
+*.ko.cmd
+*.mod.cmd
+*.mod.o.cmd
+
+
 *.d
 *.ko
 
 
 
 ## backups
+.#*
 *.bk
 *.orig
 *~
