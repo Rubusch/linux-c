@@ -5,6 +5,7 @@ REMOVEME/*
 
 ## generated files
 *.o
+*.o.cmd
 *.mod
 *.mod.c
 *.mod.o
