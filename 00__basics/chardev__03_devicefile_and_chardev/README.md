@@ -23,7 +23,7 @@ $ dmesg | tail
 
 ## Notes
 
-Demonstrates a character device and device file setup.  
+Demonstrates a character device and device file setup. The demo should show in the logs the startup of the chardev driver, when the `/dev` file is used, e.g. through `cat` or through `echo 1`, in the current situation the system might freeze (wrong memory region? binary write needed instead of characters?).
 
 ---
 
