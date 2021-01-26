@@ -1,6 +1,6 @@
 # Hello Kernelthread Module
 
-The loadable kernel module, tested on 5.4.75.  
+The source was tested compiled and running on 5.4.75.  
 
 
 ## Usage
