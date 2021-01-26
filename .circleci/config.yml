@@ -69,3 +69,4 @@ jobs:
 # 13 pending
       - run: cd 00__basics/14__hello_kernelthread && make
       - run: cd 00__basics/14__kthread_atomic_operations && make
+      - run: cd 00__basics/19__hello_sysfs && make
