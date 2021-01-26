@@ -48,10 +48,11 @@ static char* msg_Ptr;
   Define the used file_operations fops.
 */
 static struct file_operations fops = {
+	.owner = THIS_MODULE,
 	.read = device_read,
 	.write = device_write,
 	.open = device_open,
-	.release = device_release
+	.release = device_release,
 };
 
 
@@ -195,6 +196,7 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <lothar.rubusch@gmx.ch>");
 MODULE_DESCRIPTION("demonstrates the usage of a character device");
