@@ -35,7 +35,7 @@ static ssize_t hello_write(struct file *, const char *, size_t, loff_t *);
 #define HELLO_DEVICE_NAME "lothars_hello_device"
 
 // device setup
-dev_t dev;
+dev_t dev = 0;
 static struct class *dev_class;
 static struct cdev hello_devicefile_cdev;
 
