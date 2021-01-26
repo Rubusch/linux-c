@@ -21,7 +21,7 @@ void cleanup_hello_devicefile(void);
   globals
 */
 
-#define HELLO_DEVICEFILE_MAJOR 0
+#define HELLO_DEVICEFILE_MAJOR 244 /* any number */
 #define HELLO_CDEV_NAME "lothars_hello_cdev"
 #define HELLO_CLASS_NAME "lothars_hello_class"
 #define HELLO_DEVICE_NAME "lothars_hello_device"
