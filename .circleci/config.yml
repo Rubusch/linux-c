@@ -70,3 +70,4 @@ jobs:
       - run: cd 00__basics/14__hello_kernelthread && make
       - run: cd 00__basics/14__kthread_atomic_operations && make
       - run: cd 00__basics/19__hello_sysfs && make
+      - run: cd 00__basics/03__module_load_arguments && make
