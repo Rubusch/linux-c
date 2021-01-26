@@ -26,7 +26,7 @@ $ dmesg | tail
 
 ## Notes
 
-Demonstrates a character device and device file setup.  
+Demonstrates a character device and device file setup. Here the kernel driver only allocates a major number, which will be printed to log. The user must create the devicefile with mknod and the specific major number.   
 
 ---
 
