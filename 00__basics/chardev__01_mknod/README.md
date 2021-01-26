@@ -1,0 +1,35 @@
+# Hello File Module
+
+The source was tested compiled and running on 5.4.75.  
+
+
+## Usage
+
+```
+$ make
+
+$ sudo insmod ./hellofile.ko
+$ dmesg | tail
+    Jan 26 22:31:21 debian kernel: init_hello_devicefile() initializing
+    Jan 26 22:31:21 debian kernel: init_hello_devicefile() major = 244, minor = 0
+    Jan 26 22:31:21 debian kernel: init_hello_devicefile() done.
+
+$ sudo mknod -m 666 /dev/lothars_hello_cdev c 244 0
+$ ls -l /dev/ | grep lothar
+    crw-rw-rw-   1 root root      244,   0 Jan 26 22:35 lothars_hello_cdev
+
+$ sudo rmmod hellofile
+$ dmesg | tail
+    Jan 26 22:36:32 debian kernel: cleanup_hello_devicefile() READY.
+```
+
+
+## Notes
+
+Demonstrates a character device and device file setup.  
+
+---
+
+## References:
+
+ * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
