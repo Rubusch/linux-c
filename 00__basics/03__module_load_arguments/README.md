@@ -32,6 +32,28 @@ NB: In case of a wrong argument, dmesg would show something like below. Just adj
 ```
 
 
+Setting values via `sysfs` is possible, too. When triggering the "callback" value, the callback function will get triggered.    
+
+```
+$ echo '6' | sudo tee -a /sys/module/helloarguments/parameters/hello_int_arg_cb
+    6
+
+$ echo '4' | sudo tee -a /sys/module/helloarguments/parameters/hello_int_arg
+    4
+
+
+$ dmesg | tail
+    Jan 26 18:13:53 debian kernel: new value: 6
+
+
+$ sudo cat /sys/module/helloarguments/parameters/hello_int_arg
+    4
+
+$ sudo cat /sys/module/helloarguments/parameters/hello_int_arg_cb
+    6
+```
+
+
 ## Notes
 
 There are several types of permissions:  

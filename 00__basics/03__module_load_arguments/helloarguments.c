@@ -82,6 +82,10 @@ module_param_cb(hello_int_arg_cb, &hello_param_ops, &hello_int_arg_cb, S_IRUGO|S
   implementation
 */
 
+/*
+  When setting values via /sys this callback function will be
+  triggered.
+*/
 int notify_param(const char* val, const struct kernel_param *kp)
 {
 	/* The macro to do compile-time type checking */
@@ -93,8 +97,6 @@ int notify_param(const char* val, const struct kernel_param *kp)
 	printk(KERN_INFO "new value: %d\n", hello_int_arg_cb);
 	return 0;
 }
-
-
 
 
 /*
