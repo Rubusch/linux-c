@@ -16,8 +16,8 @@
 static int __init mod_init(void);
 static void __exit mod_exit(void);
 
-int init_hello_devicefile(void);
-void cleanup_hello_devicefile(void);
+int init_hello_chardev(void);
+void cleanup_hello_chardev(void);
 
 static int hello_open(struct inode *, struct file *);
 static int hello_release(struct inode *, struct file *);
@@ -29,7 +29,7 @@ static ssize_t hello_write(struct file *, const char __user *, size_t, loff_t *)
   globals
 */
 
-#define HELLO_DEVICEFILE_MINOR 123 /* any number, the major number is allocated automatically */
+#define HELLO_CHARDEV_MINOR 123 /* any number, the major number is allocated automatically */
 
 #define HELLO_CDEV_NAME "lothars_hello_cdev"
 #define HELLO_CLASS_NAME "lothars_hello_class"
@@ -38,7 +38,7 @@ static ssize_t hello_write(struct file *, const char __user *, size_t, loff_t *)
 // device setup
 dev_t dev = 0;
 static struct class *dev_class;
-static struct cdev hello_devicefile_cdev;
+static struct cdev hello_chardev_cdev;
 
 static struct file_operations fops =
 {
@@ -96,7 +96,7 @@ static ssize_t hello_write(struct file *file, const char __user *buf, size_t len
   start / stop module
 */
 
-int init_hello_devicefile(void)
+int init_hello_chardev(void)
 {
 	printk(KERN_INFO "%s() initializing\n", __func__);
 
@@ -112,7 +112,7 @@ int init_hello_devicefile(void)
 	 * chosen dynamically, and returned (along with the first minor number)
 	 * in @dev.  Returns zero or a negative error code.
 	 */
-	if (0 > alloc_chrdev_region(&dev, HELLO_DEVICEFILE_MINOR, 1, HELLO_CDEV_NAME)) {
+	if (0 > alloc_chrdev_region(&dev, HELLO_CHARDEV_MINOR, 1, HELLO_CDEV_NAME)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
@@ -128,7 +128,7 @@ int init_hello_devicefile(void)
 	 * Initializes @cdev, remembering @fops, making it ready to add to the
 	 * system with cdev_add().
 	 */
-	cdev_init(&hello_devicefile_cdev, &fops);
+	cdev_init(&hello_chardev_cdev, &fops);
 
 
 	// add cdev to system
@@ -142,7 +142,7 @@ int init_hello_devicefile(void)
 	 * cdev_add() adds the device represented by @p to the system, making it
 	 * live immediately.  A negative error code is returned on failure.
 	 */
-	if (0 > cdev_add(&hello_devicefile_cdev, dev, 1)) {
+	if (0 > cdev_add(&hello_chardev_cdev, dev, 1)) {
 		printk(KERN_ERR "cdev_add() faied\n");
 		goto err_cdev;
 	}
@@ -208,7 +208,7 @@ err_device:
 	class_destroy(dev_class);
 
 err_class:
-	cdev_del(&hello_devicefile_cdev);
+	cdev_del(&hello_chardev_cdev);
 
 err_cdev:
 	unregister_chrdev_region(dev, 1);
@@ -216,7 +216,7 @@ err_cdev:
 	return -ENOMEM;
 }
 
-void cleanup_hello_devicefile(void)
+void cleanup_hello_chardev(void)
 {
 	/**
 	 * device_destroy - removes a device that was created with device_create()
@@ -248,7 +248,7 @@ void cleanup_hello_devicefile(void)
 	 * opened, however any cdevs already open will remain and their fops will
 	 * still be callable even after cdev_del returns.
 	 */
-	cdev_del(&hello_devicefile_cdev);
+	cdev_del(&hello_chardev_cdev);
 
 	/**
 	 * unregister_chrdev_region() - unregister a range of device numbers
@@ -271,12 +271,12 @@ void cleanup_hello_devicefile(void)
 
 static int __init mod_init(void)
 {
-	return init_hello_devicefile();
+	return init_hello_chardev();
 }
 
 static void __exit mod_exit(void)
 {
-	cleanup_hello_devicefile();
+	cleanup_hello_chardev();
 }
 
 module_init(mod_init);
