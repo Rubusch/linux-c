@@ -8,7 +8,27 @@ The source was tested compiled and running on 5.4.75.
 ```
 $ make
 $ sudo insmod ./waitqueue.ko
-         
+
+$ sudo cat /dev/lothars_hello_device
+
+$ sudo rmmod waitqueue
+
+$ dmesg | tail
+    Jan 28 00:50:13 debian kernel: init_hello_chardev() initializing
+    Jan 28 00:50:13 debian kernel: init_hello_chardev() major = 244, minor = 123
+    Jan 28 00:50:13 debian kernel: thread created
+    Jan 28 00:50:13 debian kernel: init_hello_chardev() done.
+    Jan 28 00:50:13 debian kernel: waiting for event...
+
+    Jan 28 00:50:19 debian kernel: hello_open()
+    Jan 28 00:50:19 debian kernel: hello_read()
+    Jan 28 00:50:19 debian kernel: event came from READ - read count: 1
+    Jan 28 00:50:19 debian kernel: waiting for event...
+    Jan 28 00:50:19 debian kernel: hello_release()
+
+    Jan 28 00:50:25 debian kernel: event came from EXIT
+    Jan 28 00:50:25 debian kernel: cleanup_hello_chardev() READY.
+
 ```
 
 
