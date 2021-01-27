@@ -31,5 +31,7 @@ Demonstrates a character device and device file setup. Here the kernel driver on
 ---
 
 ## References:
-
+ * Linux kernel source, comented API and documentation
  * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
+ * Highly inspired by / many thanks to www.embetronicx.com (2021)
+ * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
