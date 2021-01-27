@@ -22,14 +22,15 @@ void cleanup_hello_devicefile(void);
 static int hello_open(struct inode *, struct file *);
 static int hello_release(struct inode *, struct file *);
 static ssize_t hello_read(struct file *, char __user *, size_t, loff_t *);
-static ssize_t hello_write(struct file *, const char *, size_t, loff_t *);
+static ssize_t hello_write(struct file *, const char __user *, size_t, loff_t *);
 
 
 /*
   globals
 */
 
-#define HELLO_DEVICEFILE_MAJOR 244 /* any number */
+#define HELLO_DEVICEFILE_MINOR 123 /* any number, the major number is allocated automatically */
+
 #define HELLO_CDEV_NAME "lothars_hello_cdev"
 #define HELLO_CLASS_NAME "lothars_hello_class"
 #define HELLO_DEVICE_NAME "lothars_hello_device"
@@ -111,7 +112,7 @@ int init_hello_devicefile(void)
 	 * chosen dynamically, and returned (along with the first minor number)
 	 * in @dev.  Returns zero or a negative error code.
 	 */
-	if (0 > alloc_chrdev_region(&dev, HELLO_DEVICEFILE_MAJOR, 1, HELLO_CDEV_NAME)) {
+	if (0 > alloc_chrdev_region(&dev, HELLO_DEVICEFILE_MINOR, 1, HELLO_CDEV_NAME)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
