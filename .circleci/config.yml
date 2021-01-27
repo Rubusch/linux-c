@@ -77,3 +77,4 @@ jobs:
       - run: cd 00__basics/chardev__04_devicefile_implemented && make
       - run: cd 00__basics/device__01_static_major_minor && make
       - run: cd 00__basics/device__02_dynamic_major_minor && make
+      - run: cd 00__basics/wait__01_static && make
