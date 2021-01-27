@@ -3,6 +3,7 @@
 
 
 #define HELLO_CHARDEV_MINOR 3 /* any number */
+
 #define HELLO_CDEV_NAME "lothars_hello_cdev"
 #define HELLO_CLASS_NAME "lothars_hello_class"
 #define HELLO_DEVICE_NAME "lothars_hello_device"
