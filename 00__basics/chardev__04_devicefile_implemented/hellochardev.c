@@ -25,7 +25,7 @@ void cleanup_hello_chardev(void);
 static int hello_open(struct inode *, struct file *);
 static int hello_release(struct inode *, struct file *);
 static ssize_t hello_read(struct file *, char __user *, size_t, loff_t *);
-static ssize_t hello_write(struct file *, const char *, size_t, loff_t *);
+static ssize_t hello_write(struct file *, const char __user*, size_t, loff_t *);
 
 
 /*
