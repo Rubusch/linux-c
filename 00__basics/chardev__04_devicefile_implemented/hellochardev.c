@@ -60,14 +60,12 @@ static struct file_operations fops =
 */
 static int hello_open(struct inode *inode, struct file *file)
 {
-	printk(KERN_INFO "%s(%p, %p)\n", __func__, inode, file);
-
+	printk(KERN_INFO "%s()\n", __func__);
 	kernel_buf = kmalloc(KERNEL_BUF_SIZE, GFP_KERNEL);
 	if (0 == kernel_buf) {
 		printk(KERN_ERR "kmalloc() failed\n");
 		return -ENOMEM;
 	}
-
 	return 0;
 }
 
@@ -76,33 +74,28 @@ static int hello_open(struct inode *inode, struct file *file)
 */
 static int hello_release(struct inode *inode, struct file *file)
 {
-	printk(KERN_INFO "%s(%p, %p)\n", __func__, inode, file);
-
+	printk(KERN_INFO "%s()\n", __func__);
 	kfree(kernel_buf);
-
 	return 0;
 }
 
 /*
-  Called when userland wrote into the device file.
+  Called when someone (user/kernel) reads from the device file.
 */
 static ssize_t hello_read(struct file *file, char __user *buf, size_t len, loff_t *poff)
 {
-	printk(KERN_INFO "%s(%p, '%s', %lu, %p)\n", __func__, file, buf, len, poff);
-
+	printk(KERN_INFO "%s()\n", __func__);
 	copy_to_user(buf, kernel_buf, KERNEL_BUF_SIZE);
-//	copy_from_user(buf, kernel-buf, len);      
 	return 0;
 }
 
 /*
-  Called when the driver writes into the device file.
+  Called when someone (user/kernel) writes into the device file.
 */
-static ssize_t hello_write(struct file *file, const char *buf, size_t len, loff_t *poff)
+static ssize_t hello_write(struct file *file, const char __user *buf, size_t len, loff_t *poff)
 {
-	printk(KERN_INFO "%s(%p, '%s', %lu, %p)\n", __func__, file, buf, len, poff);
+	printk(KERN_INFO "%s()\n", __func__);
 	copy_from_user(kernel_buf, buf, len);
-//	copy_to_user(kernel_buf, buf, KERNEL_BUF_SIZE);         
 	return len; // if this is 0, it will spin around the "write"
 }
 
