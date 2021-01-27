@@ -14,7 +14,7 @@ NB: make sure not to print function arguments of the device functions if they ar
 
 ## Notes
 
-Demonstrates a character device and a wait on reading event. This implementation shows the static approach  
+Demonstrates a character device and a wait on reading event. This implementation shows the static approach.  
 
 ---
 
