@@ -1,13 +1,13 @@
 /*
+  NB: make sure not to print function arguments of the device
+  functions if they are not set, this can make the entire PC hang!
 */
 
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/module.h>
-#include <linux/kdev_t.h> /* */
 #include <linux/fs.h>
 #include <linux/cdev.h>
-#include <linux/device.h> /* */
 
 /*
   forwards
