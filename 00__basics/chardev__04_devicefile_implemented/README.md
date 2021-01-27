@@ -7,14 +7,28 @@ The source was tested compiled and running on 5.4.75.
 
 ```
 $ make
+$ sudo insmod ./hellochardev.ko
 
-$ sudo insmod ./hellofile.ko
+$ sudo ./tester.exe
+    READ: '' [0]
+    WRITING '123' [123]
+    READ: '123' [123]
+    READY.
 
-$ sudo rmmod hellofile
+$ sudo rmmod hellochardev
 
 $ dmesg | tail
-    
+    Jan 27 22:48:48 debian kernel: init_hello_chardev() initializing
+    Jan 27 22:48:48 debian kernel: init_hello_chardev() major = 244, minor = 3
+    Jan 27 22:48:48 debian kernel: init_hello_chardev() done.
 
+    Jan 27 22:48:55 debian kernel: hello_open()
+    Jan 27 22:48:55 debian kernel: hello_read()
+    Jan 27 22:48:55 debian kernel: hello_write()
+    Jan 27 22:48:55 debian kernel: hello_read()
+    Jan 27 22:48:55 debian kernel: hello_release()
+
+    Jan 27 22:49:03 debian kernel: cleanup_hello_chardev() READY.
 ```
 
 
