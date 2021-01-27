@@ -74,3 +74,4 @@ jobs:
       - run: cd 00__basics/chardev__01_mknod && make
       - run: cd 00__basics/chardev__02_devicefile && make
       - run: cd 00__basics/chardev__03_devicefile_and_chardev && make
+      - run: cd 00__basics/device__01_static_major_minor && make
