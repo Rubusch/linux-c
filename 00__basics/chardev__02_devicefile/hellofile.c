@@ -14,15 +14,15 @@
 static int __init mod_init(void);
 static void __exit mod_exit(void);
 
-int init_hello_devicefile(void);
-void cleanup_hello_devicefile(void);
+int init_hello_chardev(void);
+void cleanup_hello_chardev(void);
 
 
 /*
   globals
 */
 
-#define HELLO_DEVICEFILE_MINOR 123 /* any number */
+#define HELLO_CHARDEV_MINOR 123 /* any number */
 
 #define HELLO_CDEV_NAME "lothars_hello_cdev"
 #define HELLO_CLASS_NAME "lothars_hello_class"
@@ -44,7 +44,7 @@ static struct class *dev_class;
   start / stop module
 */
 
-int init_hello_devicefile(void)
+int init_hello_chardev(void)
 {
 	printk(KERN_INFO "%s() initializing\n", __func__);
 
@@ -60,7 +60,7 @@ int init_hello_devicefile(void)
 	 * chosen dynamically, and returned (along with the first minor number)
 	 * in @dev.  Returns zero or a negative error code.
 	 */
-	if (0 > alloc_chrdev_region(&dev, HELLO_DEVICEFILE_MINOR, 1, HELLO_CDEV_NAME)) {
+	if (0 > alloc_chrdev_region(&dev, HELLO_CHARDEV_MINOR, 1, HELLO_CDEV_NAME)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
@@ -132,7 +132,7 @@ err_class:
 	return -ENOMEM;
 }
 
-void cleanup_hello_devicefile(void)
+void cleanup_hello_chardev(void)
 {
 	/**
 	 * device_destroy - removes a device that was created with device_create()
@@ -174,12 +174,12 @@ void cleanup_hello_devicefile(void)
 
 static int __init mod_init(void)
 {
-	return init_hello_devicefile();
+	return init_hello_chardev();
 }
 
 static void __exit mod_exit(void)
 {
-	cleanup_hello_devicefile();
+	cleanup_hello_chardev();
 }
 
 module_init(mod_init);
