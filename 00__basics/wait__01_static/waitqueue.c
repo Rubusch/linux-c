@@ -240,7 +240,17 @@ int init_hello_chardev(void)
 	// initialize wait queue
 	init_waitqueue_head(&chardev_waitqueue);
 
+	// start kernel thread
 	
+	wait_thread = kthread_create(wait_routine, NULL, "WaitThread");
+	if (wait_thread) {
+		printk(KERN_INFO "thread created\n");
+		
+		wake_up_process(wait_thread);
+	} else {
+		printk(KERN_ERR "thread creation failed\n");
+		goto err_device;
+	}
 
 	printk(KERN_INFO "%s() done.\n", __func__);
 	return 0;
@@ -260,6 +270,10 @@ err_cdev:
 
 void cleanup_hello_chardev(void)
 {
+	chardev_waitqueue_flag = 2;
+	
+	wake_up_interruptible(&chardev_waitqueue);
+
 	/**
 	 * device_destroy - removes a device that was created with device_create()
 	 * @class: pointer to the struct class that this device was registered with
@@ -327,4 +341,4 @@ module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Demonstrates a character device driver and device file.");
+MODULE_DESCRIPTION("Demonstrates a character device driver and wait queue.");
