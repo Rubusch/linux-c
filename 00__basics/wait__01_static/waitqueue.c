@@ -73,8 +73,22 @@ static int wait_routine(void *unused)
 {
 	while (1) {
 		printk(KERN_INFO "waiting for event...\n");
-		
-		wait_event_interruptible(chardev_waitqueue, chardev_waitqueue_flag != 0);      
+		/**
+		 * wait_event_interruptible - sleep until a condition gets true
+		 * @wq_head: the waitqueue to wait on
+		 * @condition: a C expression for the event to wait for
+		 *
+		 * The process is put to sleep (TASK_INTERRUPTIBLE) until the
+		 * @condition evaluates to true or a signal is received.
+		 * The @condition is checked each time the waitqueue @wq_head is woken up.
+		 *
+		 * wake_up() has to be called after changing any variable that could
+		 * change the result of the wait condition.
+		 *
+		 * The function will return -ERESTARTSYS if it was interrupted by a
+		 * signal and 0 if @condition evaluated to true.
+		 */
+		wait_event_interruptible(chardev_waitqueue, chardev_waitqueue_flag != 0);
 		if (2 == chardev_waitqueue_flag) {
 			printk(KERN_INFO "event came from EXIT\n");
 			return 0;
@@ -82,7 +96,6 @@ static int wait_routine(void *unused)
 		printk(KERN_INFO "event came from READ - read count: %d\n", ++read_count);
 		chardev_waitqueue_flag = 0;
 	}
-	
 	do_exit(0);
 	return 0;
 }
@@ -113,7 +126,9 @@ static ssize_t hello_read(struct file *file, char __user *buf, size_t len, loff_
 {
 	printk(KERN_INFO "%s()\n", __func__);
 	chardev_waitqueue_flag = 1;
-	
+	/**
+	 * Wakeup macros to be used to report events to the targets.
+	 */
 	wake_up_interruptible(&chardev_waitqueue);
 	return 0;
 }
@@ -242,11 +257,20 @@ int init_hello_chardev(void)
 	init_waitqueue_head(&chardev_waitqueue);
 
 	// start kernel thread
-	
 	wait_thread = kthread_create(wait_routine, NULL, "WaitThread");
 	if (wait_thread) {
 		printk(KERN_INFO "thread created\n");
-		
+		/**
+		 * wake_up_process - Wake up a specific process
+		 * @p: The process to be woken up.
+		 *
+		 * Attempt to wake up the nominated process and move it to the set of runnable
+		 * processes.
+		 *
+		 * Return: 1 if the process was woken up, 0 if it was already running.
+		 *
+		 * This function executes a full memory barrier before accessing the task state.
+		 */
 		wake_up_process(wait_thread);
 	} else {
 		printk(KERN_ERR "thread creation failed\n");
