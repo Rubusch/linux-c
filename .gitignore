@@ -14,10 +14,11 @@ REMOVEME/*
 *.ko.cmd
 *.mod.cmd
 *.mod.o.cmd
-
-
 *.d
+
+## compile targets
 *.ko
+*.exe
 
 
 
