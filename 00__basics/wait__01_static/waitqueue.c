@@ -296,7 +296,9 @@ err_cdev:
 void cleanup_hello_chardev(void)
 {
 	chardev_waitqueue_flag = 2;
-	
+	/**
+	 * Wakeup macros to be used to report events to the targets.
+	 */
 	wake_up_interruptible(&chardev_waitqueue);
 
 	/**
