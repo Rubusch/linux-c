@@ -1,4 +1,4 @@
-# Event triggered Wait - Static Implementation
+# Event triggered Wait
 
 The source was tested compiled and running on 5.4.75.  
 
@@ -37,12 +37,9 @@ NB: make sure not to print function arguments of the device functions if they ar
 
 ## Notes
 
-Demonstrates a character device and a wait on reading event. This implementation shows the static approach.  
+Demonstrates a character device and a wait on several events.  
 
 ---
 
 ## References:
  * Linux kernel source, comented API and documentation
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
- * Highly inspired by / many thanks to www.embetronicx.com (2021)
- * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver

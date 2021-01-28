@@ -58,7 +58,11 @@ uint32_t read_count = 0;
 static struct task_struct *wait_thread;
 
 // wait queue
+//*
 DECLARE_WAIT_QUEUE_HEAD(chardev_waitqueue);
+/*/ // alternatively create a global instance directly
+wait_queue_head_t chardev_waitqueue;
+// */
 int chardev_waitqueue_flag = 0;
 
 
@@ -368,4 +372,4 @@ module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Demonstrates a character device driver and wait queue.");
+MODULE_DESCRIPTION("Demonstrates a character device driver and event wait queue.");
