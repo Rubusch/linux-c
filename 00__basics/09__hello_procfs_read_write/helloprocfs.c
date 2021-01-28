@@ -39,7 +39,7 @@ static ssize_t read_procfs(struct file *filp, char __user *ubuf, size_t count, l
 static ssize_t write_procfs(struct file *filp, const char __user *ubuf, size_t count, loff_t *offp)
 {
 	printk(KERN_INFO "write handler\n");
-	return 0; // NB: when this is set to -1, the write returns
+	return -1; // NB: when this is set to -1, the write returns
 		  // right away (with an error), if not, it will
 		  // freeze and stops only with a "sudo rmmod -f
 		  // helloprocfs" from another shell
@@ -48,10 +48,11 @@ static ssize_t write_procfs(struct file *filp, const char __user *ubuf, size_t c
 
 int start_procfs(void)
 {
+	printk(KERN_INFO "%s() initializing...\n", __func__);
 	if (NULL == (ent = proc_create(PROCFS_NAME, 0644, NULL, &proc_fops))) {
 		printk(KERN_ALERT "/proc/%s failed\n", PROCFS_NAME);
 	}
-	printk(KERN_INFO "/proc/%s created\n", PROCFS_NAME);
+	printk(KERN_INFO "%s() /proc/%s created\n", __func__, PROCFS_NAME);
 
 	return 0;
 }
@@ -60,7 +61,8 @@ int start_procfs(void)
 void stop_procfs(void)
 {
 	proc_remove(ent);
-	printk(KERN_INFO "/proc/%s removed\n", PROCFS_NAME);
+	printk(KERN_INFO "%s() /proc/%s removed\n", __func__, PROCFS_NAME);
+	printk(KERN_INFO "%s() READY.\n", __func__);
 }
 
 

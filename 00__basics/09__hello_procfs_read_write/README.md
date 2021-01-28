@@ -31,10 +31,14 @@ $ dmesg
     Jan 21 23:27:51 debian kernel: write handler
 ```
 
+## Notes
+
+Several upgrades, since linux 3.10 the ``create_proc_entry()`` was changed to the new function, then the mmap from userspace became obsolete, nowadays a parameter ``char __user*`` performs the mapping through ``copy_from/to_user()``.  
+
+
 ---
 
 ## References:
 
 * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
 
-Several upgrades, since 3.10 the create_proc_entry() was changed to the new function, then the mmap from userspace became obsolete, nowadays the param "char __user*" performs the mapping.
