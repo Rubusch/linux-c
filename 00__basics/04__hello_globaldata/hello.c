@@ -45,5 +45,5 @@ module_exit(exit_hello);
   modinfo stuff
 */
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Lothar Rubusch <lothar.rubusch@gmx.ch>");
+MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
 MODULE_DESCRIPTION("demonstration of initdata");

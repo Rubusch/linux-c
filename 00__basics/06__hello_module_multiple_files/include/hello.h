@@ -11,7 +11,7 @@
   macros - It is also possible place content for MODULE_* macros in a
            header file.
 */
-#define DRIVER_AUTHOR  "Lothar Rubusch <Lothar.Rubusch@gmx.ch>"
+#define DRIVER_AUTHOR  "Lothar Rubusch <l.rubusch@gmail.com>"
 #define DRIVER_DESC    "Distributed files kbuild setup"
 
 

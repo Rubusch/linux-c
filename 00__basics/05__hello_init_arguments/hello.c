@@ -107,6 +107,6 @@ static void __exit hello_exit(void)
 module_init(hello_init);
 module_exit(hello_exit);
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Lothar Rubusch <Lothar.Rubusch@gmx.ch>");
+MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
 MODULE_DESCRIPTION("Usage of init parameters");
 
