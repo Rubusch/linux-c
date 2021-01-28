@@ -79,3 +79,4 @@ jobs:
       - run: cd 00__basics/device__02_dynamic_major_minor && make
       - run: cd 00__basics/wait__01_static && make
       - run: cd 00__basics/wait__02_dynamic && make
+      - run: cd 00__basics/chardev__wait_on_events && make
