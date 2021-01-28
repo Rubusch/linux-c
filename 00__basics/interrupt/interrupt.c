@@ -100,6 +100,8 @@ static struct file_operations fops =
 */
 
 /*
+  chardev read()
+
   Simulates something similar as an interrupt from a device.
 
   This used to work on older kernel versions, but fails on later
