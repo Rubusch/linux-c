@@ -43,12 +43,8 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 
-#include <linux/kdev_t.h>
 #include <linux/fs.h>
 #include <linux/cdev.h>
-#include <linux/device.h>
-#include <linux/slab.h>
-#include <linux/uaccess.h>
 #include <linux/interrupt.h>
 #include <asm/io.h>
 #include <asm/hw_irq.h>

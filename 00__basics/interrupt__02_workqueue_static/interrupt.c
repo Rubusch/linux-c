@@ -46,6 +46,8 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/interrupt.h>
+#include <asm/io.h>
+#include <asm/hw_irq.h>
 
 /*
   forwards
