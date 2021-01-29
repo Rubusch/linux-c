@@ -80,3 +80,4 @@ jobs:
       - run: cd 00__basics/chardev__wait_on_events && make
       - run: cd 00__basics/interrupt && make
       - run: cd 00__basics/interrupt__01_workqueue_kernel && make
+      - run: cd 00__basics/interrupt__02_workqueue_customized && make
