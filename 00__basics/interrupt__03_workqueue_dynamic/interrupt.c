@@ -49,6 +49,9 @@
 #include <asm/io.h>
 #include <asm/hw_irq.h>
 
+// switch to enable/disable implementations
+#define STATIC_WORKQUEUE_APPROACH 123
+
 /*
   forwards
 */
@@ -65,10 +68,15 @@ static irqreturn_t irq_handler(int, void *);
 // chardev read()
 static ssize_t hello_interrupt_read(struct file *, char __user *, size_t, loff_t *);
 
-// workqueue (dynamic)
+// workqueue
+# ifdef STATIC_WORKQUEUE_APPROACH
+// 'static' definition approach
 static struct work_struct workqueue;
+# else
+// macro approach
+DECLARE_WORK(workqueue, workqueue_fn);    
+# endif /* STATIC_WORKQUEUE_APPROACH */
 void workqueue_fn(struct work_struct *work);
-
 
 /*
   globals
@@ -222,8 +230,10 @@ int init_hello_interrupt(void)
 		goto err_irq;
 	}
 
+# ifdef STATIC_WORKQUEUE_APPROACH
+// INIT_WORK() seems not to be needed if the workqueue was setup through macro.
 	INIT_WORK(&workqueue, workqueue_fn);
-
+# endif
 	return 0;
 
 

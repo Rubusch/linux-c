@@ -65,10 +65,15 @@ static irqreturn_t irq_handler(int, void *);
 // chardev read()
 static ssize_t hello_interrupt_read(struct file *, char __user *, size_t, loff_t *);
 
-// workqueue (static)
+// workqueue
+# ifdef STATIC_WORKQUEUE_APPROACH
+// 'static' definition approach
+static struct work_struct workqueue;
+# else
+// macro approach
+DECLARE_WORK(workqueue, workqueue_fn);    
+# endif /* STATIC_WORKQUEUE_APPROACH */
 void workqueue_fn(struct work_struct *work);
-DECLARE_WORK(workqueue, workqueue_fn);
-
 
 /*
   globals
@@ -138,7 +143,7 @@ static ssize_t hello_interrupt_read(struct file *filp, char __user *buf, size_t 
 
 	/* interrupt trick: issue IRQ11 at READ event on device */
 
-/* // TODO uncomment the following and rebuild your kernel... 
+/* // TODO uncomment the following and rebuild your kernel...
 	__this_cpu_write(vector_irq[59], desc); // won't compile
 						// unless 'vector_irq'
 						// was exported in the
@@ -222,6 +227,10 @@ int init_hello_interrupt(void)
 		goto err_irq;
 	}
 
+# ifdef STATIC_WORKQUEUE_APPROACH
+// INIT_WORK() seems not to be needed if the workqueue was setup through macro.
+	INIT_WORK(&workqueue, workqueue_fn);
+# endif
 	return 0;
 
 
