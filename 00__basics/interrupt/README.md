@@ -29,7 +29,17 @@ $ dmesg | tail
 
 ```
 
-NB: the ``vector_irq[]`` is not available right away.
+NB: the ``vector_irq[]`` is not available right away. Thus this part is commented out in the kernel due to compile it on the continuous integration (CI) system. In order to experiment with interrupts but without hardware, i.e. to misuse the IRQ 0x80, follow the comment from stack overflow:  
+
+__This used to work on older kernel versions, but fails on later versions. The reason is that the generic IRQ handler ``do_IRQ()`` has been changed for better IRQ handling performance. Instead of using the irq_to_``desc()`` function to get the IRQ descriptor, it reads it from the per-CPU data. The descriptor is put there during the physical device initialization. Since this pseudo device driver don't have a physical device, ``do_IRQ()`` don't find it there and returns with an error. If we want to simulate IRQ using software interrupt, we must first write the IRQ descriptor to the per-CPU data. Unfortunately, the symbol vector_irq, the array of the IRQ descriptors in the per-CPU data, is not exported to kernel modules during kernel compilation. The only way to change it, is to recompile the whole kernel. If you think it worth the effort, you can add the line:__  
+
+```
+    EXPORT_SYMBOL (vector_irq);
+```
+
+__in the file: arch/x86/kernel/irq.c right after all the include lines.__  
+
+https://stackoverflow.com/questions/57391628/error-while-raising-interrupt-11-with-inline-asm-into-kernel-module
 
 
 ## Notes
