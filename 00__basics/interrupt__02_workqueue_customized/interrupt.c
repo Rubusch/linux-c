@@ -229,6 +229,21 @@ int init_hello_interrupt(void)
 	}
 
 	// customized workqueue
+	/**
+	 * create_workqueue() is a macro:
+	 *
+	 * #define create_workqueue(name)                    
+	 * alloc_workqueue("%s", WQ_MEM_RECLAIM, 1, (name))
+	 * #define create_singlethread_workqueue(name)       
+	 * alloc_workqueue("%s", WQ_UNBOUND | WQ_MEM_RECLAIM, 1, (name))
+	 *
+	 * important flags for workqueues are the following:
+	 * WQ_UNBOUND
+	 * WQ_FREEZABLE
+	 * WQ_MEM_RECLAIM
+	 * WQ_HIGHPRI
+	 * WQ_CPU_INTENSIVE
+	 */
 	lothars_workqueue = create_workqueue(HELLO_WORKQUEUE_NAME);
 
 	return 0;
