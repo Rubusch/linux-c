@@ -46,10 +46,10 @@ Work queues are added in the Linux kernel 2.6 version. Work queues are a differe
 
 Code deferred to a work queue has all the usual benefits of process context. Most importantly, work queues are schedulable and can therefore sleep.  
 
-Normally, it is easy to decide between using workqueue and softirq/tasklet:  
+Normally, it is easy to **decide between using workqueue and softirq/taskl**:  
 
- * If the deferred work needs to sleep, then workqueue is used.
- * If the deferred work need not sleep, then softirq or tasklet are used.
+ * If the deferred work **needs to sleep, then workqueue** is used.
+ * If the deferred work **need not sleep, then softirq or tasklet** are used.
 
 There are two ways to implement Workqueue in Linux kernel.  
 
