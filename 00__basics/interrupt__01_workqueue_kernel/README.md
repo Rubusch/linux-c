@@ -63,8 +63,8 @@ Normally, it is easy to **decide between using workqueue and softirq/taskl**:
 
 There are two ways to implement Workqueue in Linux kernel.  
 
- * Using global workqueue (Static / Dynamic)
- * Creating Own workqueue (We will see in the next tutorial)
+ * Using global workqueue (Static / Dynamic)  
+ * Creating Customized Workqueues  
 
 ---
 
