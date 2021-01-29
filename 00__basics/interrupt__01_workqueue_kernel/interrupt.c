@@ -66,14 +66,19 @@ static irqreturn_t irq_handler(int, void *);
 static ssize_t hello_interrupt_read(struct file *, char __user *, size_t, loff_t *);
 
 // workqueue
+void workqueue_fn(struct work_struct *work);
+
 # ifdef STATIC_WORKQUEUE_APPROACH
+
 // 'static' definition approach
 static struct work_struct workqueue;
+
 # else
+
 // macro approach
 DECLARE_WORK(workqueue, workqueue_fn);    
+
 # endif /* STATIC_WORKQUEUE_APPROACH */
-void workqueue_fn(struct work_struct *work);
 
 /*
   globals
