@@ -46,8 +46,11 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/interrupt.h>
+#include <linux/slab.h>
 #include <asm/io.h>
 #include <asm/hw_irq.h>
+
+#define INTERRUPT_STATIC_TASKLET 777 /* tasklet in static memory, or dynamic allocated? */
 
 
 /*
@@ -68,8 +71,16 @@ static ssize_t hello_interrupt_read(struct file *, char __user *, size_t, loff_t
 
 // tasklet
 void tasklet_fn(unsigned long);
+
+# ifdef INTERRUPT_STATIC_TASKLET
+
 DECLARE_TASKLET(tasklet, tasklet_fn, 1);
 
+# else
+
+struct tasklet_struct *tasklet = NULL;
+
+# endif
 
 
 /*
@@ -192,7 +203,15 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
 	   wrt another tasklets. If client needs some intertask synchronization,
 	   he makes it with spinlocks.
 	*/
+# ifdef INTERRUPT_STATIC_TASKLET
+
 	tasklet_schedule(&tasklet);
+
+# else
+
+	tasklet_schedule(tasklet);
+
+# endif /* INTERRUPT_STATIC_TASKLET */
 
 	return IRQ_HANDLED;
 }
@@ -247,8 +266,21 @@ int init_hello_interrupt(void)
 		goto err_irq;
 	}
 
+# ifndef INTERRUPT_STATIC_TASKLET
+
+	// initialize tasklet in dynamic memory
+	tasklet = kmalloc(sizeof(*tasklet), GFP_KERNEL);
+	if (NULL == tasklet) {
+		printk(KERN_ERR "cannot allocate tasklet\n");
+		goto err_irq;
+	}
+	tasklet_init(tasklet, tasklet_fn, 0);
+# endif
+
 	return 0;
 
+err_irq:
+	free_irq(IRQ_NO, (void *)(irq_handler));
 
 err_device:
 	device_destroy(dev_class, dev);
@@ -260,15 +292,22 @@ err_cdev:
 	cdev_del(&hello_interrupt_cdev);
 	unregister_chrdev_region(dev, 1);
 
-err_irq:
-	free_irq(IRQ_NO, (void *)(irq_handler));
-
 	return -ENOMEM;
 }
 
 void cleanup_hello_interrupt(void)
 {
+# ifdef INTERRUPT_STATIC_TASKLET
+
 	tasklet_kill(&tasklet);
+
+# else
+
+	tasklet_kill(tasklet);
+	if (NULL != tasklet)
+		kfree(tasklet);
+
+# endif
 
 	/**
 	 *free_irq - free an interrupt allocated with request_irq
