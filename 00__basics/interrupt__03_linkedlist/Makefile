@@ -1,5 +1,5 @@
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
-obj-m += interrupt.o
+obj-m += linkedlist.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules

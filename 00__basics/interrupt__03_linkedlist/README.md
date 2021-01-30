@@ -7,49 +7,59 @@ The source was tested compiled and running on 5.4.75.
 
 ```
 $ make
-$ sudo insmod interrupt.ko
+$ sudo insmod ./linkedlist.ko
 
-// see interrupt handler registered for interrupt 11
-$ cat /proc/interrupts | grep lothar
-      11:          0          0          0          0          0          0          0          0  IR-IO-APIC   11-edge      lothars_device
+$ echo 7 | sudo tee -a /dev/lothars_device
+    7
 
-// start event
 $ sudo cat /dev/lothars_device
-    Message from syslogd@debian at Jan 28 22:53:07 ...
-    kernel:do_IRQ: 2.56 No irq handler for vector
 
-$ sudo rmmod interrupt
+$ echo 456 | sudo tee -a /dev/lothars_device
+    456
+
+$ sudo cat /dev/lothars_device
+
+$ echo asdf | sudo tee -a /dev/lothars_device
+    asdf
+    tee: /dev/lothars_device: Invalid argument
+
+$ sudo cat /dev/lothars_device
+
+$ sudo rmmod linkedlist
+
 
 $ dmesg | tail
-    Jan 28 22:52:55 debian kernel: init_hello_interrupt() initializing...
-    Jan 28 22:52:55 debian kernel: init_hello_interrupt() major = 244, minor = 123
-    Jan 28 22:53:07 debian kernel: hello_interrupt_read()
-    Jan 28 22:53:07 debian kernel: do_IRQ: 2.56 No irq handler for vector
-    Jan 28 22:53:37 debian kernel: cleanup_hello_interrupt() READY.
+    Jan 30 19:21:01 debian kernel: init_hello_linkedlist() initializing...
+    Jan 30 19:21:01 debian kernel: init_hello_linkedlist() major = 244, minor = 76
 
+    Jan 30 19:21:04 debian kernel: hello_linkedlist_write()
+    Jan 30 19:21:14 debian kernel: received 7
+
+    Jan 30 19:21:14 debian kernel: hello_linkedlist_read()
+    Jan 30 19:21:14 debian kernel: node 0 data = 7
+    Jan 30 19:21:14 debian kernel: total nodes: 1
+
+    Jan 30 19:21:30 debian kernel: hello_linkedlist_write()
+    Jan 30 19:21:36 debian kernel: received 456
+
+    Jan 30 19:21:36 debian kernel: hello_linkedlist_read()
+    Jan 30 19:21:36 debian kernel: node 0 data = 7
+    Jan 30 19:21:36 debian kernel: node 1 data = 456
+    Jan 30 19:21:36 debian kernel: total nodes: 2
+
+    Jan 30 19:21:52 debian kernel: hello_linkedlist_write()
+    Jan 30 19:21:52 debian kernel: invalid value
+
+    Jan 30 19:22:08 debian kernel: hello_linkedlist_read()
+    Jan 30 19:22:08 debian kernel: node 0 data = 7
+    Jan 30 19:22:08 debian kernel: node 1 data = 456
+    Jan 30 19:22:08 debian kernel: total nodes: 2
+
+    Jan 30 19:22:15 debian kernel: cleanup_hello_linkedlist() READY.
 ```
-
-NB: the ``vector_irq[]`` is not available right away. Thus this part is commented out in the kernel due to compile it on the continuous integration (CI) system. In order to experiment with interrupts but without hardware, i.e. to misuse the IRQ 0x80, follow the comment from stack overflow:  
-
-__This used to work on older kernel versions, but fails on later versions. The reason is that the generic IRQ handler ``do_IRQ()`` has been changed for better IRQ handling performance. Instead of using the irq_to_``desc()`` function to get the IRQ descriptor, it reads it from the per-CPU data. The descriptor is put there during the physical device initialization. Since this pseudo device driver don't have a physical device, ``do_IRQ()`` don't find it there and returns with an error. If we want to simulate IRQ using software interrupt, we must first write the IRQ descriptor to the per-CPU data. Unfortunately, the symbol vector_irq, the array of the IRQ descriptors in the per-CPU data, is not exported to kernel modules during kernel compilation. The only way to change it, is to recompile the whole kernel. If you think it worth the effort, you can add the line:__  
-
-```
-    EXPORT_SYMBOL (vector_irq);
-```
-
-__in the file: arch/x86/kernel/irq.c right after all the include lines.__  
-
-https://stackoverflow.com/questions/57391628/error-while-raising-interrupt-11-with-inline-asm-into-kernel-module
 
 
 ## Notes
-
-There are **4 bottom half mechanisms** are available in Linux:  
-
- * Workqueue
- * Threaded IRQs
- * Softirq
- * Tasklets
 
 A linked list is a data structure that consists of a sequence of nodes. Each node is composed of two fields: the data field and the reference field which is a pointer that points to the next node in the sequence.  
 
@@ -66,7 +76,8 @@ Disadvantages of Linked Lists
  * No element can be accessed randomly; it has to access each node sequentially.
  * Reverse Traversing is difficult in the linked list.
 
-The linux kernel has built-in Linked List which are **Double Linked List** defined in ``/lib/modules/$(uname -r)/build/include/linux/list.h``
+The linux kernel has built-in Linked List which are **Double Linked List** defined in ``/lib/modules/$(uname -r)/build/include/linux/list.h``  
+
 
 ---
 
