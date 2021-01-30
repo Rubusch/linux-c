@@ -44,7 +44,7 @@ https://stackoverflow.com/questions/57391628/error-while-raising-interrupt-11-wi
 
 ## Notes
 
-There are **4 bottom half mechanisms** are available in Linux:
+There are **4 bottom half mechanisms** are available in Linux:  
 
  * Workqueue
  * Threaded IRQs
@@ -55,6 +55,14 @@ This demo shows usage of tasklets, but the kernel developers recommend rather us
 
     _This API is deprecated. Please consider using threaded IRQs instead:_
     https://lore.kernel.org/lkml/20200716081538.2sivhkj4hcyrusem@linutronix.de
+
+
+Before using Tasklets, you should consider these below points.  
+
+ * Tasklets are atomic, so we cannot use sleep() and such synchronization primitives as mutexes, semaphores, etc. from them. But we can use spinlock.
+ * A tasklet only runs on the same core (CPU) that schedules it.
+ * Different tasklets can be running in parallel. But at the same time, a tasklet cannot be called concurrently with itself, as it runs on one CPU only.
+ * Tasklets are executed by the principle of non-preemptive scheduling, one by one, in turn. We can schedule them with two different priorities: normal and high.
 
 ---
 
