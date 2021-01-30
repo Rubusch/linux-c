@@ -5,13 +5,9 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 
-#include <linux/fs.h>
+#include <linux/fs.h> /* file_operations */
 #include <linux/slab.h>
 #include <linux/cdev.h>
-#include <linux/interrupt.h>
-#include <linux/list.h>
-#include <asm/io.h>
-#include <asm/hw_irq.h>
 
 
 /*
