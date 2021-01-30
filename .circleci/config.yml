@@ -83,3 +83,4 @@ jobs:
       - run: cd 00__basics/interrupt__workqueue01_kernel && make
       - run: cd 00__basics/interrupt__workqueue02_customized && make
       - run: cd 00__basics/interrupt__tasklet01 && make
+      - run: cd 00__basics/interrupt__tasklet02__dynamic_alloc && make
