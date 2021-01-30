@@ -81,5 +81,5 @@ jobs:
       - run: cd 00__basics/chardev__linkedlist && make
       - run: cd 00__basics/interrupt && make
       - run: cd 00__basics/interrupt__workqueue01_kernel && make
-      - run: cd 00__basics/interrupt__02_workqueue_customized && make
+      - run: cd 00__basics/interrupt__workqueue02_customized && make
 
