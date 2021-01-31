@@ -65,7 +65,8 @@ jobs:
       - run: cd 00__basics/09__hello_procfs_read_write && make
       - run: cd 00__basics/10__hello_procfs_fops && make
       - run: cd 00__basics/11__hello_procfs_seq_filesystem && make
-      - run: cd 00__basics/12__hello_ioctl_chardev && make
+      - run: cd 00__basics/chardev__ioctl01 && make
+      - run: cd 00__basics/chardev__ioctl02_string_disabled && make
       - run: cd 00__basics/kthread && make
       - run: cd 00__basics/kthread__atomic_operation && make
       - run: cd 00__basics/kthread__mutex && make
