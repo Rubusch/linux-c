@@ -207,6 +207,8 @@ int init_hello_interrupt(void)
 
 	return 0;
 
+err_irq:
+	free_irq(IRQ_NO, (void *)(irq_handler));
 
 err_device:
 	device_destroy(dev_class, dev);
@@ -217,9 +219,6 @@ err_class:
 err_cdev:
 	cdev_del(&hello_interrupt_cdev);
 	unregister_chrdev_region(dev, 1);
-
-err_irq:
-	free_irq(IRQ_NO, (void *)(irq_handler));
 
 	return -ENOMEM;
 }
