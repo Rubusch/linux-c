@@ -68,6 +68,7 @@ jobs:
       - run: cd 00__basics/12__hello_ioctl_chardev && make
       - run: cd 00__basics/kthread && make
       - run: cd 00__basics/kthread__atomic_operation && make
+      - run: cd 00__basics/kthread_mutex && make
       - run: cd 00__basics/19__hello_sysfs && make
       - run: cd 00__basics/03__module_load_arguments && make
       - run: cd 00__basics/chardev__01_mknod && make
