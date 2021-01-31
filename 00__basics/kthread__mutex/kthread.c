@@ -100,8 +100,8 @@ int kthread_routine(const char *thread_name)
 	return 0;
 
 }
-int kthread1(void *pv) { return kthread_routine("thread1"); }
-int kthread2(void *pv) { return kthread_routine("thread2"); }
+int kthread1(void *pv) { return kthread_routine(THREAD1_NAME); }
+int kthread2(void *pv) { return kthread_routine(THREAD2_NAME); }
 
 
 int init_hello_kernelthread(void)
