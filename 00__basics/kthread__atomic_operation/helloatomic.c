@@ -19,9 +19,9 @@ int init_hello_atomic(void);
 void cleanup_hello_atomic(void);
 
 // thread implementation
-void routine(const char *);
-int thread1(void *);
-int thread2(void *);
+int kthread_routine(const char *);
+int kthread1(void *);
+int kthread2(void *);
 
 
 /*
@@ -36,18 +36,18 @@ unsigned int hello_atomic_bit_check = 0;
 
 
 // kernelthread objects
-#define THREAD1_NAME "Thread1"
-static struct task_struct *thread1_task;
+#define THREAD1_NAME "thread1"
+static struct task_struct *kthread1_task;
 
-#define THREAD2_NAME "Thread2"
-static struct task_struct *thread2_task;
+#define THREAD2_NAME "thread2"
+static struct task_struct *kthread2_task;
 
 
 /*
   implementation
 */
 
-void routine(const char *thread_name)
+int kthread_routine(const char *thread_name)
 {
 	unsigned int prev = 0;
 
@@ -78,20 +78,19 @@ void routine(const char *thread_name)
 		printk(KERN_INFO "%s [value: %u] [bit: %u]\n", thread_name, atomic_read(&hello_atomic_global), prev);
 		msleep(1000);
 	}
-}
-
-
-int thread1(void *pv)
-{
-	routine("Thread1");
 	return 0;
 }
 
 
-int thread2(void *pv)
+int kthread1(void *pv)
 {
-	routine("Thread2");
-	return 0;
+	return kthread_routine(THREAD1_NAME);
+}
+
+
+int kthread2(void *pv)
+{
+	return kthread_routine(THREAD2_NAME);
 }
 
 
@@ -112,15 +111,15 @@ int init_hello_atomic(void)
 	 * Description: Convenient wrapper for kthread_create() followed by
 	 * wake_up_process().  Returns the kthread or ERR_PTR(-ENOMEM).
 	 */
-	thread1_task = kthread_run(thread1, NULL, THREAD1_NAME);
-	if (!thread1_task) {
+	kthread1_task = kthread_run(kthread1, NULL, THREAD1_NAME);
+	if (!kthread1_task) {
 		printk(KERN_ERR "first kthread creation failed\n");
 		goto err_thread1;
 	}
 	printk(KERN_INFO "%s created\n", THREAD1_NAME);
 
-	thread2_task = kthread_run(thread2, NULL, THREAD2_NAME);
-	if (!thread2_task) {
+	kthread2_task = kthread_run(kthread2, NULL, THREAD2_NAME);
+	if (!kthread2_task) {
 		printk(KERN_ERR "second kthread creation failed\n");
 		goto err_thread2;
 	}
@@ -129,7 +128,7 @@ int init_hello_atomic(void)
 	return 0;
 
 err_thread2:
-	kthread_stop(thread1_task);
+	kthread_stop(kthread1_task);
 
 err_thread1:
 	return -ENOMEM;
@@ -153,8 +152,8 @@ void cleanup_hello_atomic(void)
 	 * Returns the result of threadfn(), or %-EINTR if wake_up_process()
 	 * was never called.
 	 */
-	kthread_stop(thread1_task);
-	kthread_stop(thread2_task);
+	kthread_stop(kthread1_task);
+	kthread_stop(kthread2_task);
 	printk(KERN_INFO "READY.\n");
 }
 
