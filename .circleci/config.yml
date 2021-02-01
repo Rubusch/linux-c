@@ -78,6 +78,7 @@ jobs:
       - run: cd 00__basics/chardev__04_devicefile_implemented && make
       - run: cd 00__basics/chardev__ioctl01 && make
       - run: cd 00__basics/chardev__ioctl02_string_disabled && make
+      - run: cd 00__basics/chardev__ioctl03_signal && make
       - run: cd 00__basics/chardev__wait_on_events && make
       - run: cd 00__basics/chardev__linkedlist && make
       - run: cd 00__basics/device__01_static_major_minor && make
