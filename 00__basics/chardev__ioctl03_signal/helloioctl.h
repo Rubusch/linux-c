@@ -10,6 +10,7 @@
 
 # ifdef __KERNEL__
 
+
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/module.h>
@@ -17,29 +18,22 @@
 #include <linux/cdev.h> /* cdev_add(), cdev_del(),... */
 #include <linux/uaccess.h> /* copy_from_user(), copy_to_user() */
 #include <linux/ioctl.h>
-
-#include <linux/device.h>
-#include <linux/slab.h>
-#include <linux/ioctl.h>
-#include <linux/interrupt.h>
 #include <linux/sched/signal.h>
 
 
 # else /* __KERNEL__ */
 
+
 #define _XOPEN_SOURCE 600
-#define _GNU_SOURCE
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h> /* close() */
 #include <signal.h>
 #include <string.h>
-
-#include <sys/types.h> /* int32_t, ... */
 #include <fcntl.h> /* open() */
-#include <sys/stat.h>
 #include <sys/ioctl.h>
+
 
 # endif /* __KERNEL__ */
 
@@ -68,7 +62,6 @@
   The last is the type of data.
 */
 #define WR_VALUE _IOW('a','a',int32_t*)
-//#define RD_VALUE _IOR('a','b',int32_t*)        
 
 
 # ifdef __KERNEL__
