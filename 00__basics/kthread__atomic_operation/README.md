@@ -11,7 +11,7 @@ $ sudo insmod helloatomic.ko
 
 $ sudo rmmod helloatomic
 
-$ dmesg
+$ dmesg | tail
     Jan 25 18:02:30 debian kernel: initializing..
     Jan 25 18:02:30 debian kernel: Thread1 created
     Jan 25 18:02:30 debian kernel: Thread1 [value: 1] [bit: 0]
