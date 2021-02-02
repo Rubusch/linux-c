@@ -185,4 +185,4 @@ module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Demonstrates elementary usage of completion / waitpid.");
+MODULE_DESCRIPTION("Demonstrates elementary usage of completion / waitqueue.");
