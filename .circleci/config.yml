@@ -73,7 +73,7 @@ jobs:
       - run: cd 00__basics/kthread__completion && make
       - run: cd 00__basics/kthread__completion_dynamic && make
       - run: cd 00__basics/kthread__seqlock && make
-      - run: cd 00__basics/19__hello_sysfs && make
+      - run: cd 00__basics/sysfs && make
       - run: cd 00__basics/03__module_load_arguments && make
       - run: cd 00__basics/chardev__01_mknod && make
       - run: cd 00__basics/chardev__02_devicefile && make
