@@ -241,6 +241,12 @@ static int __init mod_init(void)
 	 *
 	 * This call allocates an interrupt and establishes a handler; see
 	 * the documentation for request_threaded_irq() for details.
+	 *
+	 * possible flags are:
+	 * IRQF_TRIGGER_RISING
+	 * IRQF_TRIGGER_FALLING
+	 * IRQF_TRIGGER_HIGH
+	 * IRQF_TRIGGER_LOW
 	 */
 	if (request_irq(gpio_irq, (void *)gpio_irq_handler, IRQF_TRIGGER_RISING, MINBLOWING_DEVICE_NAME, NULL)) {
 		printk(KERN_ERR "%s() - cannot register IRQ\n", __func__);
