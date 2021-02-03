@@ -10,10 +10,11 @@ First, adjust the vendorid and deviceid in the source to the specific device.
 ```
 $ make
 $ sudo insmod hello_usb.ko
+```
 
-$ sudo rmmod hello_usb
+Now plug the specified USB device and have a look into the ``/var/log/syslog``.  
 
-
+```
 $ sudo dmesg | tail
     Feb  3 15:33:54 debian kernel: lothars_usb_driver 1-4.3.2:1.4: usb driver probed - vendor id: 0x1366, product id: 0x1051
     Feb  3 15:33:54 debian kernel: USB INTERFACE DESCRIPTOR:
@@ -48,16 +49,10 @@ $ sudo dmesg | tail
     Feb  3 15:33:54 debian kernel: 
 ```
 
-Now plug the specified USB device and have a look into the ``/var/log/syslog``.  
-
-```
-$ dmesg | tail
-```
-
 Unload the driver as follows.  
 
 ```
-$ sudo rmmod usb
+$ sudo rmmod hello_usb
 ```
 
 
