@@ -66,6 +66,7 @@ jobs:
       - run: cd 00__basics/10__hello_procfs_fops && make
       - run: cd 00__basics/11__hello_procfs_seq_filesystem && make
       - run: cd 00__basics/gpio__raspi4_led && make
+      - run: cd 00__basics/gpio__raspi4_interrupt && make
       - run: cd 00__basics/kthread && make
       - run: cd 00__basics/kthread__atomic_operation && make
       - run: cd 00__basics/kthread__mutex && make
