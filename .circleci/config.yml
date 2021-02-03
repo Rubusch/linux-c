@@ -93,4 +93,6 @@ jobs:
       - run: cd 00__basics/interrupt__tasklet02__dynamic_alloc && make
       - run: cd 00__basics/timer && make
       - run: cd 00__basics/timer__hres_timer && make
+      - run: cd 00__basics/usb__basic && make
       - run: cd 00__basics/usb__descriptors && make
+
