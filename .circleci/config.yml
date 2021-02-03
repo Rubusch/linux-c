@@ -70,6 +70,7 @@ jobs:
       - run: cd 00__basics/kthread__mutex && make
       - run: cd 00__basics/kthread__spinlock && make
       - run: cd 00__basics/kthread__rwlock && make
+      - run: cd 00__basics/kthread__rcu && make
       - run: cd 00__basics/kthread__completion && make
       - run: cd 00__basics/kthread__completion_dynamic && make
       - run: cd 00__basics/kthread__seqlock && make
