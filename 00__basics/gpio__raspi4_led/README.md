@@ -13,7 +13,7 @@ TODO
 
 ## Notes
 
-This is fundamentally an implementation of the project to light a led as described on embetronicx.com, using my own module and my own Raspi4 build.
+This is basically an implementation of the project to light a led as described on embetronicx.com, using my own module and my own Raspi4 build.
 
 TODO         
 
