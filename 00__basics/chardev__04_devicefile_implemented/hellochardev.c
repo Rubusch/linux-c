@@ -85,7 +85,10 @@ static int hello_release(struct inode *inode, struct file *file)
 static ssize_t hello_read(struct file *file, char __user *buf, size_t len, loff_t *poff)
 {
 	printk(KERN_INFO "%s()\n", __func__);
-	copy_to_user(buf, kernel_buf, KERNEL_BUF_SIZE);
+	if (copy_to_user(buf, kernel_buf, KERNEL_BUF_SIZE)) {
+		printk("%s() failed\n", __func__);
+		return -EFAULT;
+	}
 	return 0;
 }
 
@@ -95,7 +98,10 @@ static ssize_t hello_read(struct file *file, char __user *buf, size_t len, loff_
 static ssize_t hello_write(struct file *file, const char __user *buf, size_t len, loff_t *poff)
 {
 	printk(KERN_INFO "%s()\n", __func__);
-	copy_from_user(kernel_buf, buf, len);
+	if (copy_from_user(kernel_buf, buf, len)) {
+		printk("%s() failed\n", __func__);
+		return -EFAULT;
+	}
 	return len; // if this is 0, it will spin around the "write"
 }
 
