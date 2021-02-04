@@ -94,8 +94,8 @@ jobs:
       - run: cd interrupt__workqueue02_customized && make
       - run: cd interrupt__tasklet01 && make
       - run: cd interrupt__tasklet02__dynamic_alloc && make
-      - run: cd 00__basics/timer && make
-      - run: cd 00__basics/timer__hres_timer && make
+      - run: cd timer && make
+      - run: cd timer__hres_timer && make
       - run: cd usb__basic && make
       - run: cd usb__descriptors && make
 
