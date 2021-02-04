@@ -87,8 +87,8 @@ jobs:
       - run: cd chardev__ioctl03_signal && make
       - run: cd chardev__wait_on_events && make
       - run: cd chardev__linkedlist && make
-      - run: cd 00__basics/device__01_static_major_minor && make
-      - run: cd 00__basics/device__02_dynamic_major_minor && make
+      - run: cd device__01_static_major_minor && make
+      - run: cd device__02_dynamic_major_minor && make
       - run: cd interrupt && make
       - run: cd interrupt__workqueue01_kernel && make
       - run: cd interrupt__workqueue02_customized && make
