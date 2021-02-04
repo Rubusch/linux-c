@@ -89,13 +89,13 @@ jobs:
       - run: cd chardev__linkedlist && make
       - run: cd 00__basics/device__01_static_major_minor && make
       - run: cd 00__basics/device__02_dynamic_major_minor && make
-      - run: cd 00__basics/interrupt && make
-      - run: cd 00__basics/interrupt__workqueue01_kernel && make
-      - run: cd 00__basics/interrupt__workqueue02_customized && make
-      - run: cd 00__basics/interrupt__tasklet01 && make
-      - run: cd 00__basics/interrupt__tasklet02__dynamic_alloc && make
+      - run: cd interrupt && make
+      - run: cd interrupt__workqueue01_kernel && make
+      - run: cd interrupt__workqueue02_customized && make
+      - run: cd interrupt__tasklet01 && make
+      - run: cd interrupt__tasklet02__dynamic_alloc && make
       - run: cd 00__basics/timer && make
       - run: cd 00__basics/timer__hres_timer && make
-      - run: cd 00__basics/usb__basic && make
-      - run: cd 00__basics/usb__descriptors && make
+      - run: cd usb__basic && make
+      - run: cd usb__descriptors && make
 
