@@ -68,15 +68,15 @@ jobs:
       - run: cd 00__basics/11__hello_procfs_seq_filesystem && make
       - run: cd 00__basics/gpio__raspi4_led && make
       - run: cd 00__basics/gpio__raspi4_interrupt && make
-      - run: cd 00__basics/kthread && make
-      - run: cd 00__basics/kthread__atomic_operation && make
-      - run: cd 00__basics/kthread__mutex && make
-      - run: cd 00__basics/kthread__spinlock && make
-      - run: cd 00__basics/kthread__rwlock && make
-      - run: cd 00__basics/kthread__rcu && make
-      - run: cd 00__basics/kthread__completion && make
-      - run: cd 00__basics/kthread__completion_dynamic && make
-      - run: cd 00__basics/kthread__seqlock && make
+      - run: cd kthread && make
+      - run: cd kthread__atomic_operation && make
+      - run: cd kthread__mutex && make
+      - run: cd kthread__spinlock && make
+      - run: cd kthread__rwlock && make
+      - run: cd kthread__rcu && make
+      - run: cd kthread__completion && make
+      - run: cd kthread__completion_dynamic && make
+      - run: cd kthread__seqlock && make
       - run: cd 00__basics/sysfs && make
       - run: cd chardev__01_mknod && make
       - run: cd chardev__02_devicefile && make
