@@ -77,7 +77,7 @@ jobs:
       - run: cd kthread__completion && make
       - run: cd kthread__completion_dynamic && make
       - run: cd kthread__seqlock && make
-      - run: cd 00__basics/sysfs && make
+      - run: cd sysfs && make
       - run: cd chardev__01_mknod && make
       - run: cd chardev__02_devicefile && make
       - run: cd chardev__03_devicefile_and_chardev && make
