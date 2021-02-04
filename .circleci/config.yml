@@ -53,9 +53,9 @@ jobs:
       - run: ln -s /usr/src/linux-headers-5.4.0-62-generic /lib/modules/$(uname -r)/build
 
 ## 00: basics
-      - run: cd 00__basics/01__hello && make
-      - run: cd 00__basics/02__hello && make
-      - run: cd 00__basics/03__hello_license && make
+      - run: cd 01__hello && make
+      - run: cd 02__hello && make
+      - run: cd 03__hello && make
       - run: cd 00__basics/03__symbol_export_to_another_module && make
       - run: cd 00__basics/04__hello_globaldata && make
       - run: cd 00__basics/05__hello_init_arguments && make
