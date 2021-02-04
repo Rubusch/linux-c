@@ -56,8 +56,8 @@ jobs:
       - run: cd basics01__hello && make
       - run: cd basics02__hello && make
       - run: cd basics03__hello && make
-      - run: cd basics04__hello_init_arguments && make
-      - run: cd basics05__hello_init_arguments && make
+      - run: cd basics04__hello_module_init_arguments && make
+      - run: cd basics05__hello_module_init_arguments && make
       - run: cd 00__basics/03__symbol_export_to_another_module && make
       - run: cd 00__basics/06__hello_module_multiple_files && make
       - run: cd 00__basics/07__hello_chardev_driver && make
