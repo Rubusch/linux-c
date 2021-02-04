@@ -20,7 +20,9 @@ void cleanup_hello(void);
   globals
 */
 
-///
+#define DRIVER_AUTHOR   "Lothar Rubusch <l.rubusch@gmail.com>"
+#define DRIVER_DESC     "A sample module."
+
 
 
 /*
@@ -65,5 +67,5 @@ module_exit(mod_exit);
 
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Demonstrates Hello World!");
+MODULE_AUTHOR(DRIVER_AUTHOR);
+MODULE_DESCRIPTION(DRIVER_DESC);

@@ -19,6 +19,8 @@ $ dmesg | tail
 
 ## Notes
 
+**This demo throws a warning about (still) missing license declaration.**
+
  * Apply a "void" in the declaration for empty function parameters necessary to avoid warnings!  
 
  * A "static" declaration for variables and functions necessary to avoid namespace conflicts with other functions by the same name (in same "common" namespace!).  

@@ -21,10 +21,11 @@ $ dmesg | tail
 
 ## Notes
 
-When directly implementing the init_module() and cleanup_module() no "static" return values allowed!!!
+The absolute minimum kernel driver.  
 
 
 ---
 
 ## References:
-Linux Kernel Module Programming Guide", Peter Jay Salzman, 2007-05-18
+
+* Linux Kernel Module Programming Guide", Peter Jay Salzman, 2007-05-18
