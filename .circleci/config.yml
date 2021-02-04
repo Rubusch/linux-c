@@ -63,9 +63,8 @@ jobs:
       - run: cd basics08__hello_procfs_read && make
       - run: cd basics09__hello_procfs_read_write && make
       - run: cd basics10__hello_procfs_fops && make
-
+      - run: cd basics11__hello_procfs_seq_filesystem && make
       - run: cd kbuild__symbol_export_to_another_module && make
-      - run: cd 00__basics/11__hello_procfs_seq_filesystem && make
       - run: cd gpio__raspi4_led && make
       - run: cd gpio__raspi4_interrupt && make
       - run: cd kthread && make
