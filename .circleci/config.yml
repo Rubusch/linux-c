@@ -53,12 +53,12 @@ jobs:
       - run: ln -s /usr/src/linux-headers-5.4.0-62-generic /lib/modules/$(uname -r)/build
 
 ## 00: basics
-      - run: cd 01__hello && make
-      - run: cd 02__hello && make
-      - run: cd 03__hello && make
+      - run: cd basics01__hello && make
+      - run: cd basics02__hello && make
+      - run: cd basics03__hello && make
+      - run: cd basics04__hello_init_arguments && make
+      - run: cd basics05__hello_init_arguments && make
       - run: cd 00__basics/03__symbol_export_to_another_module && make
-      - run: cd 00__basics/04__hello_globaldata && make
-      - run: cd 00__basics/05__hello_init_arguments && make
       - run: cd 00__basics/06__hello_module_multiple_files && make
       - run: cd 00__basics/07__hello_chardev_driver && make
       - run: cd 00__basics/08__hello_procfs_read && make
