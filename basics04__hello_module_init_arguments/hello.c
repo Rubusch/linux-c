@@ -1,22 +1,5 @@
 /*
-  Hello Module
-
-  A  linux kernel module, first tested: kernel 2.6.18.
-
-  Demonstrates passing of command line arguments through:
-  # insmod hello.ko mystring="foobar" mybyte=255 myintArray=1
-
-  This sets only the first element of the array.
-
-  A "static" declaration for variables and functions necessary to
-  avoid namespace conflicts with other functions by the same name (in
-  same "common" namespace!).
-
-  ---
-  References:
-  Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
 */
-// TODO: check out how to pass array elements e.g. in a list
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -75,8 +58,9 @@ MODULE_PARM_DESC(myintArray, "my array of integers");
 
 
 /*
-  Module macros.
+  init / exit
 */
+
 static int __init hello_init(void)
 {
 	int idx=0;
@@ -106,6 +90,8 @@ static void __exit hello_exit(void)
 
 module_init(hello_init);
 module_exit(hello_exit);
+
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
 MODULE_DESCRIPTION("Usage of init parameters");
