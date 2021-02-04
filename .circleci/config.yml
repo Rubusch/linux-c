@@ -59,16 +59,12 @@ jobs:
       - run: cd basics04__hello_module_init_arguments && make
       - run: cd basics05__hello_module_init_arguments && make
       - run: cd basics06__hello_multiple_files && make
-
+      - run: cd basics07__hello_chardev_driver && make
       - run: cd basics08__hello_procfs_read && make
       - run: cd basics09__hello_procfs_read_write && make
       - run: cd basics10__hello_procfs_fops && make
 
       - run: cd 00__basics/03__symbol_export_to_another_module && make
-
-      - run: cd 00__basics/07__hello_chardev_driver && make
-
-
       - run: cd 00__basics/11__hello_procfs_seq_filesystem && make
       - run: cd 00__basics/gpio__raspi4_led && make
       - run: cd 00__basics/gpio__raspi4_interrupt && make
