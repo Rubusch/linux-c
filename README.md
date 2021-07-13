@@ -4,7 +4,8 @@
 
 # Kernel Code Snippets
 
-No guarantee, use the code snippets at your own risk. This is just a collection code snippets. The sources are typically build by a Makefile as external kernel module.  
+No guarantee, use the code snippets at your own risk. This is just a collection code snippets, mostly basic things. Examples with some ressources and some references. The sources are typically build by a Makefile as external kernel module.  
+
 
 ## Usage
 
@@ -21,3 +22,4 @@ $ make
 $ sudo insmod *.ko
 ```
 
+Watch output in the ``/var/log/syslog``.  
