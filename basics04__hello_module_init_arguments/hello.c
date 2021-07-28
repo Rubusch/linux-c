@@ -25,7 +25,8 @@ static int arr_argc = 0;
 
       name = parameter's name (char*)
       type = datatype (int)
-      perm = permissions bit for exposing parameters in the sysfs later on (0000)
+      perm = permissions bit for exposing parameters in the sysfs
+             later on (0000)
       desc = description for modinfo (char*)
 */
 module_param(myshort, short, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
