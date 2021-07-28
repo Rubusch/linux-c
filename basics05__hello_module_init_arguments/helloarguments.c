@@ -29,9 +29,10 @@ int notify_param(const char *, const struct kernel_param *);
  * @type: the type of the parameter
  * @perm: visibility in sysfs.
  *
- * @name becomes the module parameter, or (prefixed by KBUILD_MODNAME and a
- * ".") the kernel commandline parameter.  Note that - is changed to _, so
- * the user can use "foo-bar=1" even for variable "foo_bar".
+ * @name becomes the module parameter, or (prefixed by KBUILD_MODNAME
+ * and a ".") the kernel commandline parameter.  Note that - is
+ * changed to _, so the user can use "foo-bar=1" even for variable
+ * "foo_bar".
  *
  * @perm is 0 if the variable is not to appear in sysfs, or 0444
  * for world-readable, 0644 for root-writable, etc.  Note that if it
@@ -39,8 +40,8 @@ int notify_param(const char *, const struct kernel_param *);
  * accesses (esp. charp, which can be kfreed when it changes).
  *
  * The @type is simply pasted to refer to a param_ops_##type and a
- * param_check_##type: for convenience many standard types are provided but
- * you can create your own by defining those variables.
+ * param_check_##type: for convenience many standard types are
+ * provided but you can create your own by defining those variables.
  *
  * Standard types are:
  *    byte, hexint, short, ushort, int, uint, long, ulong
