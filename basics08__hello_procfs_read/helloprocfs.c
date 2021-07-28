@@ -70,7 +70,8 @@ int start_procfs(void)
 	  name: The name of the proc entry
 	  mode: The access mode for proc entry
 	  parent: The name of the parent directory under /proc
-	  proc_fops: The structure in which the file operations for the proc entry will be created.
+	  proc_fops: The structure in which the file operations for
+	             the proc entry will be created.
 	*/
 	if (NULL == (ent = proc_create(PROCFS_NAME, 0644, NULL, &proc_fops))) {
 		printk(KERN_ALERT "/proc/%s failed\n", PROCFS_NAME);
