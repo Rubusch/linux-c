@@ -1,8 +1,5 @@
 /*
 */
-// TODO check if this needs some rework                            
-
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/fs.h>
@@ -133,7 +130,8 @@ static ssize_t device_read(struct file* filp, char* buffer, size_t length, loff_
 		++bytes_read;
 	}
 
-	// most read functions return the number of bytes put into the buffer
+	// most read functions return the number of bytes put into the
+	// buffer
 	return bytes_read;
 }
 
@@ -157,7 +155,8 @@ static ssize_t device_write(struct file* filp, const char* buff, size_t len, lof
 */
 int start_hello(void)
 {
-	// register the device to the kernel, by doing this the device gets a major number
+	// register the device to the kernel, by doing this the device
+	// gets a major number
 	if (0 > (Major = register_chrdev(0, DEVICE_NAME, &fops))) {
 		printk(KERN_ALERT "Registering char device failed with %d\n", Major);
 		return Major;
