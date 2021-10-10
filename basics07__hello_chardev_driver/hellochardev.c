@@ -5,19 +5,16 @@
 #include <linux/fs.h>
 #include <asm/uaccess.h>
 
-
-
 /*
   forwards
 */
 
 int start_hello(void);
 void stop_hello(void);
-static int device_open(struct inode*, struct file*);
-static int device_release(struct inode*, struct file*);
-static ssize_t device_read(struct file*, char*, size_t, loff_t*);
-static ssize_t device_write(struct file*, const char*, size_t, loff_t*);
-
+static int device_open(struct inode *, struct file *);
+static int device_release(struct inode *, struct file *);
+static ssize_t device_read(struct file *, char *, size_t, loff_t *);
+static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 
 /*
   globals (usually better placed in a .h file)
@@ -39,7 +36,7 @@ static int Device_Open = 0;
 static char msg[BUF_LEN];
 
 // pointer to write for sending messages
-static char* msg_Ptr;
+static char *msg_Ptr;
 
 /*
   Define the used file_operations fops.
@@ -52,7 +49,6 @@ static struct file_operations fops = {
 	.release = device_release,
 };
 
-
 /*
   Definitions and implementations (source)
 */
@@ -62,12 +58,13 @@ static struct file_operations fops = {
 
   Returns 0 if ok, else -EBUSY (device not available).
 */
-static int device_open(struct inode* inode, struct file* file)
+static int device_open(struct inode *inode, struct file *file)
 {
 	static int counter = 0; // C90 conformity and mixed declarations!
 
 	// check if the device is ok
-	if (Device_Open) return -EBUSY;
+	if (Device_Open)
+		return -EBUSY;
 
 	// increase the usage counter (Device_Open)
 	// and set a static (globally reused in this func) counter
@@ -82,13 +79,12 @@ static int device_open(struct inode* inode, struct file* file)
 	return 0;
 }
 
-
 /*
   Release the device.
 
   Returns 0 if ok.
 */
-static int device_release(struct inode* inode, struct file* file)
+static int device_release(struct inode *inode, struct file *file)
 {
 	// ready for next caller - decrement the usage counter
 	--Device_Open;
@@ -99,7 +95,6 @@ static int device_release(struct inode* inode, struct file* file)
 	return 0;
 }
 
-
 /*
   Read from the device.
 
@@ -107,13 +102,15 @@ static int device_release(struct inode* inode, struct file* file)
 
   Returns the number of bytes read from user space.
 */
-static ssize_t device_read(struct file* filp, char* buffer, size_t length, loff_t* offset)
+static ssize_t device_read(struct file *filp, char *buffer, size_t length,
+			   loff_t *offset)
 {
 	// number of bytes actually written to the buffer
 	int bytes_read = 0;
 
 	// if we're at the end of the message return 0 signifying end of file
-	if (0 == *msg_Ptr) return 0;
+	if (0 == *msg_Ptr)
+		return 0;
 
 	// actually put the data into the buffer
 	while (length && *msg_Ptr) {
@@ -135,20 +132,18 @@ static ssize_t device_read(struct file* filp, char* buffer, size_t length, loff_
 	return bytes_read;
 }
 
-
 /*
   Called when a process writes to dev file: echo "hi" > /dev/hello
 
   Returns -EINVAL error, the operation isn't implemented - this
   depends on the device.
 */
-static ssize_t device_write(struct file* filp, const char* buff, size_t len, loff_t* off)
+static ssize_t device_write(struct file *filp, const char *buff, size_t len,
+			    loff_t *off)
 {
 	printk(KERN_ALERT "Sorry, this operation isn't supported.\n");
 	return -EINVAL;
 }
-
-
 
 /*
   linux stuff: init and exit
@@ -158,7 +153,8 @@ int start_hello(void)
 	// register the device to the kernel, by doing this the device
 	// gets a major number
 	if (0 > (Major = register_chrdev(0, DEVICE_NAME, &fops))) {
-		printk(KERN_ALERT "Registering char device failed with %d\n", Major);
+		printk(KERN_ALERT "Registering char device failed with %d\n",
+		       Major);
 		return Major;
 	}
 
@@ -177,7 +173,6 @@ void stop_hello(void)
 	// and unregister the char dev driver and its major number
 	unregister_chrdev(Major, DEVICE_NAME);
 }
-
 
 /*
   init / exit

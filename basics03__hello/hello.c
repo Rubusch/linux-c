@@ -15,22 +15,18 @@ static void __exit mod_exit(void);
 int init_hello(void);
 void cleanup_hello(void);
 
-
 /*
   globals
 */
 
-#define DRIVER_AUTHOR   "Lothar Rubusch <l.rubusch@gmail.com>"
-#define DRIVER_DESC     "A sample module."
-
-
+#define DRIVER_AUTHOR "Lothar Rubusch <l.rubusch@gmail.com>"
+#define DRIVER_DESC "A sample module."
 
 /*
   implementation
 */
 
 ///
-
 
 /*
   start / stop module
@@ -46,7 +42,6 @@ void cleanup_hello(void)
 {
 	printk(KERN_INFO "Goodbye World!\n");
 }
-
 
 /*
   init / exit
@@ -64,7 +59,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR(DRIVER_AUTHOR);

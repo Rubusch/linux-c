@@ -8,7 +8,6 @@
 #include <linux/uaccess.h>
 #include <linux/gpio.h>
 
-
 /*
   forwards
 */
@@ -18,9 +17,8 @@ static void __exit mod_exit(void);
 
 // device
 static ssize_t mindblowing_read(struct file *, char __user *, size_t, loff_t *);
-static ssize_t mindblowing_write(struct file *, const char __user *, size_t, loff_t *);
-
-
+static ssize_t mindblowing_write(struct file *, const char __user *, size_t,
+				 loff_t *);
 
 /*
   globals
@@ -38,20 +36,18 @@ static struct class *dev_class;
 static struct cdev mindblowing_cdev;
 
 // device fops
-static struct file_operations fops =
-{
+static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = mindblowing_read,
 	.write = mindblowing_write,
 };
 
-
-
 /*
   implementation
 */
 
-static ssize_t mindblowing_read(struct file *filp, char __user *buf, size_t len, loff_t* poff)
+static ssize_t mindblowing_read(struct file *filp, char __user *buf, size_t len,
+				loff_t *poff)
 {
 	uint8_t gpio_state = 0;
 	gpio_state = gpio_get_value(GPIO_LED);
@@ -66,8 +62,8 @@ static ssize_t mindblowing_read(struct file *filp, char __user *buf, size_t len,
 	return 0;
 }
 
-
-static ssize_t mindblowing_write(struct file *filp, const char __user *buf, size_t len, loff_t* poff)
+static ssize_t mindblowing_write(struct file *filp, const char __user *buf,
+				 size_t len, loff_t *poff)
 {
 	uint8_t tmp_buf[10];
 	memset(tmp_buf, '\0', sizeof(tmp_buf));
@@ -76,20 +72,20 @@ static ssize_t mindblowing_write(struct file *filp, const char __user *buf, size
 		printk(KERN_ERR "%s() failed\n", __func__);
 		return -EFAULT;
 	}
-	printk(KERN_INFO "%s() gpio %d set to %c\n", __func__, GPIO_LED, tmp_buf[0]);
+	printk(KERN_INFO "%s() gpio %d set to %c\n", __func__, GPIO_LED,
+	       tmp_buf[0]);
 
 	if ('1' == tmp_buf[0]) {
 		gpio_set_value(GPIO_LED, 1);
 	} else if ('0' == tmp_buf[0]) {
 		gpio_set_value(GPIO_LED, 0);
 	} else {
-		printk(KERN_ERR "%s() invalid input, set gpio to '1' or '0'\n", __func__);
+		printk(KERN_ERR "%s() invalid input, set gpio to '1' or '0'\n",
+		       __func__);
 		return -EINVAL;
 	}
 	return len;
 }
-
-
 
 /*
   init / exit
@@ -97,11 +93,13 @@ static ssize_t mindblowing_write(struct file *filp, const char __user *buf, size
 
 static int __init mod_init(void)
 {
-	if (0  > alloc_chrdev_region(&dev, 0, MINBLOWING_DEVICE_MINOR, MINBLOWING_DEVICE_NAME)) {
+	if (0 > alloc_chrdev_region(&dev, 0, MINBLOWING_DEVICE_MINOR,
+				    MINBLOWING_DEVICE_NAME)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() - major %d, minor %d\n", __func__, MAJOR(dev), MINOR(dev));
+	printk(KERN_INFO "%s() - major %d, minor %d\n", __func__, MAJOR(dev),
+	       MINOR(dev));
 
 	cdev_init(&mindblowing_cdev, &fops);
 
@@ -116,11 +114,11 @@ static int __init mod_init(void)
 		goto err_class;
 	}
 
-	if (!device_create(dev_class, NULL, dev, NULL, MINBLOWING_DEVICE_NAME)) {
+	if (!device_create(dev_class, NULL, dev, NULL,
+			   MINBLOWING_DEVICE_NAME)) {
 		printk(KERN_ERR "%s() - device_create() failed\n", __func__);
 		goto err_device;
 	}
-
 
 	// gpio
 
@@ -133,7 +131,8 @@ static int __init mod_init(void)
 	 * platform data and other tables.
 	 */
 	if (!gpio_is_valid(GPIO_LED)) {
-		printk(KERN_ERR "%s() - gpio %d is not valid\n", __func__, GPIO_LED);
+		printk(KERN_ERR "%s() - gpio %d is not valid\n", __func__,
+		       GPIO_LED);
 		goto err_gpio;
 	}
 
@@ -160,7 +159,6 @@ static int __init mod_init(void)
 
 	printk(KERN_INFO "%s() done\n", __func__);
 	return 0;
-
 
 err_gpio:
 	device_destroy(dev_class, dev);
@@ -190,7 +188,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

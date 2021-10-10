@@ -6,7 +6,6 @@
 #include <linux/init.h>
 #include <linux/module.h>
 
-
 /*
   forwards
 */
@@ -21,7 +20,6 @@ void cleanup_module_a(void);
 void shared_func(void);
 EXPORT_SYMBOL(shared_func);
 
-
 /*
   globals
 */
@@ -29,7 +27,6 @@ EXPORT_SYMBOL(shared_func);
 // this global will be exported to other module
 int shared_counter = 0;
 EXPORT_SYMBOL(shared_counter);
-
 
 /*
   implementation
@@ -41,8 +38,6 @@ void shared_func(void)
 	shared_counter++;
 }
 
-
-
 /*
   start / stop module
 */
@@ -53,12 +48,10 @@ int init_module_a(void)
 	return 0;
 }
 
-
 void cleanup_module_a(void)
 {
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit
@@ -79,4 +72,5 @@ module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Demonstrates sharing functions and variables through symbols.");
+MODULE_DESCRIPTION(
+	"Demonstrates sharing functions and variables through symbols.");

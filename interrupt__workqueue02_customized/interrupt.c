@@ -49,7 +49,6 @@
 #include <asm/io.h>
 #include <asm/hw_irq.h>
 
-
 /*
   forwards
 */
@@ -64,14 +63,14 @@ void cleanup_hello_interrupt(void);
 static irqreturn_t irq_handler(int, void *);
 
 // chardev read()
-static ssize_t hello_interrupt_read(struct file *, char __user *, size_t, loff_t *);
+static ssize_t hello_interrupt_read(struct file *, char __user *, size_t,
+				    loff_t *);
 
 // workqueue
 void workqueue_fn(struct work_struct *work);
 
 // macro approach
 DECLARE_WORK(workqueue, workqueue_fn);
-
 
 /*
   globals
@@ -91,8 +90,7 @@ dev_t dev;
 static struct class *dev_class;
 static struct cdev hello_interrupt_cdev;
 
-static struct file_operations fops =
-{
+static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = hello_interrupt_read,
 };
@@ -100,7 +98,6 @@ static struct file_operations fops =
 // interrupt and workqueue
 #define IRQ_NO 11
 static struct workqueue_struct *lothars_workqueue;
-
 
 /*
   implementation
@@ -132,11 +129,12 @@ static struct workqueue_struct *lothars_workqueue;
 
   https://stackoverflow.com/questions/57391628/error-while-raising-interrupt-11-with-inline-asm-into-kernel-module
 */
-static ssize_t hello_interrupt_read(struct file *filp, char __user *buf, size_t len, loff_t *off)
+static ssize_t hello_interrupt_read(struct file *filp, char __user *buf,
+				    size_t len, loff_t *off)
 {
 	struct irq_desc *desc;
 
-	printk( KERN_INFO "%s()", __func__);
+	printk(KERN_INFO "%s()", __func__);
 	desc = irq_to_desc(IRQ_NO);
 	if (!desc) {
 		return -EINVAL;
@@ -144,7 +142,7 @@ static ssize_t hello_interrupt_read(struct file *filp, char __user *buf, size_t 
 
 	/* interrupt trick: issue IRQ11 at READ event on device */
 
-/* // TODO uncomment the following and rebuild your kernel...
+	/* // TODO uncomment the following and rebuild your kernel...
 	__this_cpu_write(vector_irq[59], desc); // won't compile
 						// unless 'vector_irq'
 						// was exported in the
@@ -178,7 +176,6 @@ void workqueue_fn(struct work_struct *work)
 	printk(KERN_INFO "%s()\n", __func__);
 }
 
-
 /*
   start / stop module
 */
@@ -186,11 +183,13 @@ void workqueue_fn(struct work_struct *work)
 int init_hello_interrupt(void)
 {
 	printk(KERN_INFO "%s() initializing...\n", __func__);
-	if (0 > alloc_chrdev_region(&dev, HELLO_DEVICE_MINOR, 1, HELLO_DEVICE_CHRDEV)) {
+	if (0 > alloc_chrdev_region(&dev, HELLO_DEVICE_MINOR, 1,
+				    HELLO_DEVICE_CHRDEV)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev), MINOR(dev));
+	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev),
+	       MINOR(dev));
 
 	cdev_init(&hello_interrupt_cdev, &fops);
 
@@ -205,7 +204,8 @@ int init_hello_interrupt(void)
 		goto err_class;
 	}
 
-	if (NULL == device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
+	if (NULL ==
+	    device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
 		printk(KERN_ERR "device_create() failed\n");
 		goto err_device;
 	}
@@ -223,7 +223,8 @@ int init_hello_interrupt(void)
 	 * This call allocates an interrupt and establishes a handler; see
 	 * the documentation for request_threaded_irq() for details.
 	 */
-	if (request_irq(IRQ_NO, irq_handler, IRQF_SHARED, HELLO_DEVICE_NAME, (void *)(irq_handler))) {
+	if (request_irq(IRQ_NO, irq_handler, IRQF_SHARED, HELLO_DEVICE_NAME,
+			(void *)(irq_handler))) {
 		printk(KERN_ERR "request_irq() failed!\n");
 		goto err_irq;
 	}
@@ -247,7 +248,6 @@ int init_hello_interrupt(void)
 	lothars_workqueue = create_workqueue(HELLO_WORKQUEUE_NAME);
 
 	return 0;
-
 
 err_irq:
 	free_irq(IRQ_NO, (void *)(irq_handler));
@@ -302,7 +302,6 @@ void cleanup_hello_interrupt(void)
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
 
-
 /*
   init / exit
 */
@@ -319,7 +318,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

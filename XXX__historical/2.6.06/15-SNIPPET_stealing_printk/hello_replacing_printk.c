@@ -30,7 +30,6 @@
   After Peter Jay Salzman (C) 2001
 //*/
 
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -43,25 +42,25 @@ MODULE_AUTHOR("Lothar Rubusch <lothar.rubusch@nsn.com>");
 MODULE_DESCRIPTION("does something usefull =)");
 
 // functions
-static void print_string(char* str)
+static void print_string(char *str)
 {
-  // tty struct went into signal struct in 2.6.6
-  struct tty_struct *my_tty = NULL;  
+	// tty struct went into signal struct in 2.6.6
+	struct tty_struct *my_tty = NULL;
 
-#if( LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,6) )
-  // the tty for the current task
-  my_tty = current->tty;
+#if (LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 6))
+	// the tty for the current task
+	my_tty = current->tty;
 
 #else
-  // the tty for the current task, for 2.6.6+ kernels
-  my_tty = current->signal->tty;
+	// the tty for the current task, for 2.6.6+ kernels
+	my_tty = current->signal->tty;
 
 #endif
-  
-  // if my_tty is NULL, the current task has no tty you can print to
-  // (ie, if it's a daemon) - if so, there's nothing we can do
-  if(my_tty != NULL){
-    /*
+
+	// if my_tty is NULL, the current task has no tty you can print to
+	// (ie, if it's a daemon) - if so, there's nothing we can do
+	if (my_tty != NULL) {
+		/*
       my_tty->driver is a struct which holds the tty's functions,
       one of which (write) is used to write strings to the tty.
       It can be used to take a string either from the user's or 
@@ -83,15 +82,18 @@ static void print_string(char* str)
       described in section 2 of linux/Documentation/SubmittingPatches
     //*/
 
-    // the tty itself:
-    ((my_tty->driver)->write) (my_tty
-#if(LINUX_VERSION_CODE <= KERNEL_VERSION(2.6.9))
-			       , 0 // don't take the string from userspace!
+		// the tty itself:
+		((my_tty->driver)->write)(
+			my_tty
+#if (LINUX_VERSION_CODE <= KERNEL_VERSION(2.6.9))
+			,
+			0 // don't take the string from userspace!
 #endif
-			       , str // string
-			       , strlen(str)); // length
+			,
+			str // string
+			,
+			strlen(str)); // length
 
-    // unchecked!
-  }
+		// unchecked!
+	}
 }
-

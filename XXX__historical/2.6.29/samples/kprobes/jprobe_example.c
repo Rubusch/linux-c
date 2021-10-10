@@ -24,11 +24,11 @@
 
 /* Proxy routine having the same arguments as actual do_fork() routine */
 static long jdo_fork(unsigned long clone_flags, unsigned long stack_start,
-	      struct pt_regs *regs, unsigned long stack_size,
-	      int __user *parent_tidptr, int __user *child_tidptr)
+		     struct pt_regs *regs, unsigned long stack_size,
+		     int __user *parent_tidptr, int __user *child_tidptr)
 {
 	printk(KERN_INFO "jprobe: clone_flags = 0x%lx, stack_size = 0x%lx,"
-			" regs = 0x%p\n",
+			 " regs = 0x%p\n",
 	       clone_flags, stack_size, regs);
 
 	/* Always end with a call to jprobe_return(). */
@@ -63,6 +63,4 @@ static void __exit jprobe_exit(void)
 	printk(KERN_INFO "jprobe at %p unregistered\n", my_jprobe.kp.addr);
 }
 
-module_init(jprobe_init)
-module_exit(jprobe_exit)
-MODULE_LICENSE("GPL");
+module_init(jprobe_init) module_exit(jprobe_exit) MODULE_LICENSE("GPL");

@@ -35,8 +35,7 @@ static struct file_operations mark_ops = {
 static int __init sample_init(void)
 {
 	printk(KERN_ALERT "sample init\n");
-	pentry_sample = proc_create("tracepoint-sample", 0444, NULL,
-		&mark_ops);
+	pentry_sample = proc_create("tracepoint-sample", 0444, NULL, &mark_ops);
 	if (!pentry_sample)
 		return -EPERM;
 	return 0;
@@ -48,9 +47,8 @@ static void __exit sample_exit(void)
 	remove_proc_entry("tracepoint-sample", NULL);
 }
 
-module_init(sample_init)
-module_exit(sample_exit)
+module_init(sample_init) module_exit(sample_exit)
 
-MODULE_LICENSE("GPL");
+	MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Mathieu Desnoyers");
 MODULE_DESCRIPTION("Tracepoint sample");

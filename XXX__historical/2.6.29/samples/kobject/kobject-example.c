@@ -72,21 +72,16 @@ static ssize_t b_store(struct kobject *kobj, struct kobj_attribute *attr,
 	return count;
 }
 
-static struct kobj_attribute baz_attribute =
-	__ATTR(baz, 0666, b_show, b_store);
-static struct kobj_attribute bar_attribute =
-	__ATTR(bar, 0666, b_show, b_store);
-
+static struct kobj_attribute baz_attribute = __ATTR(baz, 0666, b_show, b_store);
+static struct kobj_attribute bar_attribute = __ATTR(bar, 0666, b_show, b_store);
 
 /*
  * Create a group of attributes so that we can create and destory them all
  * at once.
  */
 static struct attribute *attrs[] = {
-	&foo_attribute.attr,
-	&baz_attribute.attr,
-	&bar_attribute.attr,
-	NULL,	/* need to NULL terminate the list of attributes */
+	&foo_attribute.attr, &baz_attribute.attr, &bar_attribute.attr,
+	NULL, /* need to NULL terminate the list of attributes */
 };
 
 /*

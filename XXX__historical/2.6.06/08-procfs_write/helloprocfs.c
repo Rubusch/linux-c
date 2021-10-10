@@ -37,10 +37,8 @@ MODULE_DESCRIPTION("demonstrates the usage of a procfs entry");
 
 #define PROCFS_NAME "lothars_procfs_entry"
 
-
 // the struct holds information about the /proc file
 struct proc_dir_entry *my_proc_file = NULL;
-
 
 /*
   func puts data into the proc fs file.
@@ -74,12 +72,13 @@ struct proc_dir_entry *my_proc_file = NULL;
   we have the great advantage of having the kernel source code for free - use it."
   [Salzman]
 //*/
-int procfile_read( char* buffer, char** buffer_location, off_t offset, int buffer_length, int* eof, void* data)
+int procfile_read(char *buffer, char **buffer_location, off_t offset,
+		  int buffer_length, int *eof, void *data)
 {
-  int ret = 0;  // C90
-  printk(KERN_INFO "procfile_read(/proc/%s) called\n", PROCFS_NAME);
+	int ret = 0; // C90
+	printk(KERN_INFO "procfile_read(/proc/%s) called\n", PROCFS_NAME);
 
-  /*
+	/*
     "we give all of our information in one go, so if the user asks us if we have 
     more information the answer should always be no!
 
@@ -89,48 +88,47 @@ int procfile_read( char* buffer, char** buffer_location, off_t offset, int buffe
     [Salzman]
   //*/
 
-  if(offset > 0){
-    // we have finished to read, return 0
-    ret = 0;
+	if (offset > 0) {
+		// we have finished to read, return 0
+		ret = 0;
 
-  }else{
-    // fill the buffer, return the buffer size
-    ret = sprintf(buffer, "HelloWorld!\n");
-  }
+	} else {
+		// fill the buffer, return the buffer size
+		ret = sprintf(buffer, "HelloWorld!\n");
+	}
 
-  return ret;
+	return ret;
 }
-
 
 /*
   linux stuff, init and exit
 //*/
 
-
 int init_module(void)
 {
-  // init proc file entry
-  if(NULL == (my_proc_file = create_proc_entry(PROCFS_NAME, 0644, NULL))){
-    remove_proc_entry(PROCFS_NAME, &proc_root);
-    printk(KERN_ALERT "Error: Counld not initialize /proc/%s\n", PROCFS_NAME);
-    return -ENOMEM;
-  }
+	// init proc file entry
+	if (NULL ==
+	    (my_proc_file = create_proc_entry(PROCFS_NAME, 0644, NULL))) {
+		remove_proc_entry(PROCFS_NAME, &proc_root);
+		printk(KERN_ALERT "Error: Counld not initialize /proc/%s\n",
+		       PROCFS_NAME);
+		return -ENOMEM;
+	}
 
-  my_proc_file->read_proc = procfile_read;
-  my_proc_file->owner     = THIS_MODULE;
-  my_proc_file->mode      = S_IFREG | S_IRUGO;
-  my_proc_file->uid       = 0;
-  my_proc_file->gid       = 0;
-  my_proc_file->size      = 37;
-  
-  printk(KERN_INFO "/proc/%s created\n", PROCFS_NAME);
+	my_proc_file->read_proc = procfile_read;
+	my_proc_file->owner = THIS_MODULE;
+	my_proc_file->mode = S_IFREG | S_IRUGO;
+	my_proc_file->uid = 0;
+	my_proc_file->gid = 0;
+	my_proc_file->size = 37;
 
-  return 0;
+	printk(KERN_INFO "/proc/%s created\n", PROCFS_NAME);
+
+	return 0;
 }
-
 
 void cleanup_module(void)
 {
-  remove_proc_entry(PROCFS_NAME, &proc_root);
-  printk(KERN_INFO "/proc/%s removed\n", PROCFS_NAME);
+	remove_proc_entry(PROCFS_NAME, &proc_root);
+	printk(KERN_INFO "/proc/%s removed\n", PROCFS_NAME);
 }

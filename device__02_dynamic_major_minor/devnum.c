@@ -16,7 +16,6 @@ static void __exit mod_exit(void);
 int init_devnum(void);
 void cleanup_devnum(void);
 
-
 /*
   globals
 */
@@ -27,13 +26,11 @@ void cleanup_devnum(void);
 // define a device node
 dev_t dev = 0;
 
-
 /*
   implementation
 */
 
 ///
-
 
 /*
   start / stop module
@@ -53,11 +50,13 @@ int init_devnum(void)
 	 * chosen dynamically, and returned (along with the first minor number)
 	 * in @dev.  Returns zero or a negative error code.
 	 */
-	if (0 > alloc_chrdev_region(&dev, DEVICE_MINOR_NUMBER, 1, LOTHARS_DEVICE_NAME)) {
+	if (0 > alloc_chrdev_region(&dev, DEVICE_MINOR_NUMBER, 1,
+				    LOTHARS_DEVICE_NAME)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev), MINOR(dev));
+	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev),
+	       MINOR(dev));
 	return 0;
 }
 
@@ -76,7 +75,6 @@ void cleanup_devnum(void)
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
 
-
 /*
   init / exit
 */
@@ -93,7 +91,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

@@ -18,7 +18,6 @@ void cleanup_hello_arguments(void);
 
 int notify_param(const char *, const struct kernel_param *);
 
-
 /*
   globals
 */
@@ -50,19 +49,18 @@ int notify_param(const char *, const struct kernel_param *);
  *    invbool: the above, only sense-reversed (N = true).
  */
 int hello_int_arg;
-module_param(hello_int_arg, int, S_IRUSR|S_IWUSR);
+module_param(hello_int_arg, int, S_IRUSR | S_IWUSR);
 
 int hello_int_array[3];
-module_param_array(hello_int_array, int, NULL, S_IRUSR|S_IWUSR);
+module_param_array(hello_int_array, int, NULL, S_IRUSR | S_IWUSR);
 
 char *hello_string_arg;
-module_param(hello_string_arg, charp, S_IRUSR|S_IWUSR);
+module_param(hello_string_arg, charp, S_IRUSR | S_IWUSR);
 
 // the callback value for the customized setter
 int hello_int_arg_cb = 0;
 
-const struct kernel_param_ops hello_param_ops =
-{
+const struct kernel_param_ops hello_param_ops = {
 	// the customized setter
 	.set = &notify_param,
 	.get = &param_get_int, // standard getter from linunx/moduleparam.h
@@ -77,7 +75,8 @@ const struct kernel_param_ops hello_param_ops =
  *
  * The ops can have NULL set or get functions.
  */
-module_param_cb(hello_int_arg_cb, &hello_param_ops, &hello_int_arg_cb, S_IRUGO|S_IWUSR);
+module_param_cb(hello_int_arg_cb, &hello_param_ops, &hello_int_arg_cb,
+		S_IRUGO | S_IWUSR);
 
 /*
   implementation
@@ -87,7 +86,7 @@ module_param_cb(hello_int_arg_cb, &hello_param_ops, &hello_int_arg_cb, S_IRUGO|S
   When setting values via /sys this callback function will be
   triggered.
 */
-int notify_param(const char* val, const struct kernel_param *kp)
+int notify_param(const char *val, const struct kernel_param *kp)
 {
 	/* The macro to do compile-time type checking */
 	int res = param_set_int(val, kp);
@@ -99,7 +98,6 @@ int notify_param(const char* val, const struct kernel_param *kp)
 	return 0;
 }
 
-
 /*
   start / stop module
 */
@@ -110,11 +108,15 @@ int init_hello_arguments(void)
 
 	printk(KERN_INFO "%s() initializing...\n", __func__);
 	printk(KERN_INFO "%s() hello_int_arg = %d\n", __func__, hello_int_arg);
-	printk(KERN_INFO "%s() hello_int_arg_cb = %d\n", __func__, hello_int_arg_cb);
-	for (idx=0; idx<sizeof(hello_int_array) / sizeof(*hello_int_array); ++idx) {
-		printk(KERN_INFO "%s() hello_int_array[%d] = %d\n", __func__, idx, hello_int_array[idx] );
+	printk(KERN_INFO "%s() hello_int_arg_cb = %d\n", __func__,
+	       hello_int_arg_cb);
+	for (idx = 0; idx < sizeof(hello_int_array) / sizeof(*hello_int_array);
+	     ++idx) {
+		printk(KERN_INFO "%s() hello_int_array[%d] = %d\n", __func__,
+		       idx, hello_int_array[idx]);
 	}
-	printk(KERN_INFO "%s() hello_string_arg = '%s'\n", __func__, hello_string_arg);
+	printk(KERN_INFO "%s() hello_string_arg = '%s'\n", __func__,
+	       hello_string_arg);
 	return 0;
 }
 
@@ -122,7 +124,6 @@ void cleanup_hello_arguments(void)
 {
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit
@@ -140,7 +141,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

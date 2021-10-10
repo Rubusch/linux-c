@@ -54,21 +54,20 @@
 #include <linux/uaccess.h> /* copy_to_user(), copy_from_user() */
 #include <linux/seq_file.h> /* struct seq_operations */
 
-
 /* forwards */
 
-static int open_procfs(struct inode*, struct file*);
-static ssize_t read_procfs(struct file *, char __user*, size_t, loff_t *);
-static ssize_t write_procfs(struct file *, const char __user*, size_t, loff_t *);
+static int open_procfs(struct inode *, struct file *);
+static ssize_t read_procfs(struct file *, char __user *, size_t, loff_t *);
+static ssize_t write_procfs(struct file *, const char __user *, size_t,
+			    loff_t *);
 
-static void* proper_seq_start(struct seq_file*, loff_t*);
-static void proper_seq_stop(struct seq_file*, void*);
-static void* proper_seq_next(struct seq_file*, void*, loff_t*);
-static int proper_seq_show(struct seq_file*, void*);
+static void *proper_seq_start(struct seq_file *, loff_t *);
+static void proper_seq_stop(struct seq_file *, void *);
+static void *proper_seq_next(struct seq_file *, void *, loff_t *);
+static int proper_seq_show(struct seq_file *, void *);
 
 int start_hello_procfs(void);
 void stop_hello_procfs(void);
-
 
 /* macros / globals */
 
@@ -95,18 +94,19 @@ static struct seq_operations proc_sops = {
 static char *message;
 static int read_p;
 
-
 /*
   implementation
 */
 
-static int open_procfs(struct inode* inode, struct file* file)
+static int open_procfs(struct inode *inode, struct file *file)
 {
 	printk(KERN_INFO "%s()", __func__);
-//*
+	//*
 	read_p = 1;
 
-	message = kmalloc(20 * sizeof(*message), GFP_KERNEL); // alternative use: __GFP_WAIT|__GFP_IO|__GFP_FS
+	message = kmalloc(
+		20 * sizeof(*message),
+		GFP_KERNEL); // alternative use: __GFP_WAIT|__GFP_IO|__GFP_FS
 	if (NULL == message) {
 		printk(KERN_ALERT "%s(): Error at allocation\n", __func__);
 		return -ENOMEM;
@@ -117,8 +117,8 @@ static int open_procfs(struct inode* inode, struct file* file)
 	return seq_open(file, &proc_sops);
 }
 
-
-static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count, loff_t *offp)
+static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
+			   loff_t *offp)
 {
 	int len = 0;
 
@@ -136,8 +136,8 @@ static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count, lo
 	return len;
 }
 
-
-static ssize_t write_procfs(struct file *filp, const char __user *buf, size_t count, loff_t *offp)
+static ssize_t write_procfs(struct file *filp, const char __user *buf,
+			    size_t count, loff_t *offp)
 {
 	printk(KERN_INFO "%s()\n", __func__);
 	return 0;
@@ -155,7 +155,7 @@ static ssize_t write_procfs(struct file *filp, const char __user *buf, size_t co
   Returns NULL at the end of a sequence or a "non-NULL" at the
   beginning of a sequence.
 */
-static void* proper_seq_start(struct seq_file* pseqfile, loff_t* pos)
+static void *proper_seq_start(struct seq_file *pseqfile, loff_t *pos)
 {
 	static unsigned long cnt = 0;
 
@@ -166,18 +166,16 @@ static void* proper_seq_start(struct seq_file* pseqfile, loff_t* pos)
 	return NULL;
 }
 
-
 /*
   The function is called at the end of a sequence.
 
   @pseqfile: 
   @ptr: 
 */
-static void proper_seq_stop(struct seq_file* pseqfile, void* ptr)
+static void proper_seq_stop(struct seq_file *pseqfile, void *ptr)
 {
 	// nothing to do, since we use just a static value in start()
 }
-
 
 /*
   The function is called after the beginning of a sequence, and called
@@ -189,15 +187,14 @@ static void proper_seq_stop(struct seq_file* pseqfile, void* ptr)
 
   Returns NULL
 */
-static void* proper_seq_next(struct seq_file* pseqfile, void* ptr, loff_t* pos)
+static void *proper_seq_next(struct seq_file *pseqfile, void *ptr, loff_t *pos)
 {
-	unsigned long *tmp_ptr = (unsigned long*) ptr;
+	unsigned long *tmp_ptr = (unsigned long *)ptr;
 	++(*tmp_ptr);
 	++(*pos);
 
 	return NULL;
 }
-
 
 /*
   This function is called for each "step of a sequence".
@@ -208,15 +205,14 @@ static void* proper_seq_next(struct seq_file* pseqfile, void* ptr, loff_t* pos)
 
   Returns 0.
 */
-static int proper_seq_show(struct seq_file* pseqfile, void* ptr)
+static int proper_seq_show(struct seq_file *pseqfile, void *ptr)
 {
-	loff_t* seq_ptr_offset = (loff_t*) ptr;
+	loff_t *seq_ptr_offset = (loff_t *)ptr;
 
 	seq_printf(pseqfile, "%Ld\n", *seq_ptr_offset);
 
 	return 0;
 }
-
 
 /*
   start/stop hello module
@@ -226,17 +222,18 @@ int start_hello_procfs(void)
 {
 	printk(KERN_INFO "%s()\n", __func__);
 
-	ent = proc_create(PROCFS_NAME, PROC_FILE_PERMS, PROC_PARENT_DIR, &proc_fops);
+	ent = proc_create(PROCFS_NAME, PROC_FILE_PERMS, PROC_PARENT_DIR,
+			  &proc_fops);
 	if (NULL == ent) {
 		printk(KERN_ALERT "/proc/%s failed\n", PROCFS_NAME);
-		proc_remove(ent); // alternative: remove_proc_entry(PROCFS_NAME, NULL);
+		proc_remove(
+			ent); // alternative: remove_proc_entry(PROCFS_NAME, NULL);
 		return -ENOMEM;
 	}
 	printk(KERN_INFO "/proc/%s created\n", PROCFS_NAME);
 
 	return 0;
 }
-
 
 void stop_hello_procfs(void)
 {
@@ -246,7 +243,6 @@ void stop_hello_procfs(void)
 	proc_remove(ent);
 	printk(KERN_INFO "/proc/%s removed\n", PROCFS_NAME);
 }
-
 
 /*
   init / exit

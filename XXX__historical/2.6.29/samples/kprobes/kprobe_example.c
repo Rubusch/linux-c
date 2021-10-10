@@ -16,7 +16,7 @@
 
 /* For each probe you need to allocate a kprobe structure */
 static struct kprobe kp = {
-	.symbol_name	= "do_fork",
+	.symbol_name = "do_fork",
 };
 
 /* kprobe pre_handler: called just before the probed instruction is executed */
@@ -24,13 +24,13 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
 #ifdef CONFIG_X86
 	printk(KERN_INFO "pre_handler: p->addr = 0x%p, ip = %lx,"
-			" flags = 0x%lx\n",
-		p->addr, regs->ip, regs->flags);
+			 " flags = 0x%lx\n",
+	       p->addr, regs->ip, regs->flags);
 #endif
 #ifdef CONFIG_PPC
 	printk(KERN_INFO "pre_handler: p->addr = 0x%p, nip = 0x%lx,"
-			" msr = 0x%lx\n",
-		p->addr, regs->nip, regs->msr);
+			 " msr = 0x%lx\n",
+	       p->addr, regs->nip, regs->msr);
 #endif
 
 	/* A dump_stack() here will give a stack backtrace */
@@ -39,15 +39,15 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs)
 
 /* kprobe post_handler: called after the probed instruction is executed */
 static void handler_post(struct kprobe *p, struct pt_regs *regs,
-				unsigned long flags)
+			 unsigned long flags)
 {
 #ifdef CONFIG_X86
 	printk(KERN_INFO "post_handler: p->addr = 0x%p, flags = 0x%lx\n",
-		p->addr, regs->flags);
+	       p->addr, regs->flags);
 #endif
 #ifdef CONFIG_PPC
-	printk(KERN_INFO "post_handler: p->addr = 0x%p, msr = 0x%lx\n",
-		p->addr, regs->msr);
+	printk(KERN_INFO "post_handler: p->addr = 0x%p, msr = 0x%lx\n", p->addr,
+	       regs->msr);
 #endif
 }
 
@@ -58,8 +58,8 @@ static void handler_post(struct kprobe *p, struct pt_regs *regs,
  */
 static int handler_fault(struct kprobe *p, struct pt_regs *regs, int trapnr)
 {
-	printk(KERN_INFO "fault_handler: p->addr = 0x%p, trap #%dn",
-		p->addr, trapnr);
+	printk(KERN_INFO "fault_handler: p->addr = 0x%p, trap #%dn", p->addr,
+	       trapnr);
 	/* Return 0 because we don't handle the fault. */
 	return 0;
 }
@@ -86,6 +86,4 @@ static void __exit kprobe_exit(void)
 	printk(KERN_INFO "kprobe at %p unregistered\n", kp.addr);
 }
 
-module_init(kprobe_init)
-module_exit(kprobe_exit)
-MODULE_LICENSE("GPL");
+module_init(kprobe_init) module_exit(kprobe_exit) MODULE_LICENSE("GPL");

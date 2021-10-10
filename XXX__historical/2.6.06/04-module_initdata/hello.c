@@ -17,7 +17,6 @@
   (C) Peter Jay Salzman, 2007-05-18
 //*/
 
-
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -34,20 +33,17 @@ MODULE_DESCRIPTION("demonstration of initdata");
 //*/
 MODULE_SUPPORTED_DEVICE("lothar_device");
 
-
 static int hello_data __initdata = 3;
-
 
 static int __init init_hello()
 {
-  printk(KERN_INFO "Hello World!\n");
-  return 0;
+	printk(KERN_INFO "Hello World!\n");
+	return 0;
 }
-
 
 static void __exit exit_hello()
 {
-  printk(KERN_INFO "Goodbye World!\n");
+	printk(KERN_INFO "Goodbye World!\n");
 }
 
 module_init(init_hello);

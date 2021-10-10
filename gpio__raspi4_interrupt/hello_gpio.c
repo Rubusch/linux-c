@@ -12,8 +12,6 @@
 
 //#include <linux/jiffies.h>
 
-
-
 /*
   forwards
 */
@@ -23,7 +21,8 @@ static void __exit mod_exit(void);
 
 // device
 static ssize_t mindblowing_read(struct file *, char __user *, size_t, loff_t *);
-static ssize_t mindblowing_write(struct file *, const char __user *, size_t, loff_t *);
+static ssize_t mindblowing_write(struct file *, const char __user *, size_t,
+				 loff_t *);
 
 // irq
 static irqreturn_t gpio_irq_handler(int, void *);
@@ -31,8 +30,6 @@ static irqreturn_t gpio_irq_handler(int, void *);
 // debouncing
 extern unsigned long volatile jiffies;
 unsigned long old_jiffie = 0;
-
-
 
 /*
   globals
@@ -59,14 +56,11 @@ static struct class *dev_class;
 static struct cdev mindblowing_cdev;
 
 // device fops
-static struct file_operations fops =
-{
+static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = mindblowing_read,
 	.write = mindblowing_write,
 };
-
-
 
 /*
   implementation
@@ -90,14 +84,15 @@ static irqreturn_t gpio_irq_handler(int irq, void *dev_id)
 	local_irq_save(flags);
 	led_toggle = (0x01 ^ led_toggle);
 	gpio_set_value(GPIO_OUT, led_toggle);
-	printk(KERN_INFO "interrupt occurred - GPIO_OUT: %d\n", gpio_get_value(GPIO_OUT));
+	printk(KERN_INFO "interrupt occurred - GPIO_OUT: %d\n",
+	       gpio_get_value(GPIO_OUT));
 	local_irq_restore(flags);
 
 	return IRQ_HANDLED;
 }
 
-
-static ssize_t mindblowing_read(struct file *filp, char __user *buf, size_t len, loff_t* poff)
+static ssize_t mindblowing_read(struct file *filp, char __user *buf, size_t len,
+				loff_t *poff)
 {
 	uint8_t gpio_state = 0;
 	gpio_state = gpio_get_value(GPIO_OUT);
@@ -113,8 +108,8 @@ static ssize_t mindblowing_read(struct file *filp, char __user *buf, size_t len,
 	return 0;
 }
 
-
-static ssize_t mindblowing_write(struct file *filp, const char __user *buf, size_t len, loff_t* poff)
+static ssize_t mindblowing_write(struct file *filp, const char __user *buf,
+				 size_t len, loff_t *poff)
 {
 	uint8_t tmp_buf[10];
 	memset(tmp_buf, '\0', sizeof(tmp_buf));
@@ -123,20 +118,20 @@ static ssize_t mindblowing_write(struct file *filp, const char __user *buf, size
 		printk(KERN_ERR "%s() failed\n", __func__);
 		return -EFAULT;
 	}
-	printk(KERN_INFO "%s() - GPIO_OUT [%d] set to %c\n", __func__, GPIO_OUT, tmp_buf[0]);
+	printk(KERN_INFO "%s() - GPIO_OUT [%d] set to %c\n", __func__, GPIO_OUT,
+	       tmp_buf[0]);
 
 	if ('1' == tmp_buf[0]) {
 		gpio_set_value(GPIO_OUT, 1);
 	} else if ('0' == tmp_buf[0]) {
 		gpio_set_value(GPIO_OUT, 0);
 	} else {
-		printk(KERN_ERR "%s() invalid input, set gpio to '1' or '0'\n", __func__);
+		printk(KERN_ERR "%s() invalid input, set gpio to '1' or '0'\n",
+		       __func__);
 		return -EINVAL;
 	}
 	return len;
 }
-
-
 
 /*
   init / exit
@@ -144,11 +139,13 @@ static ssize_t mindblowing_write(struct file *filp, const char __user *buf, size
 
 static int __init mod_init(void)
 {
-	if (0  > alloc_chrdev_region(&dev, 0, MINBLOWING_DEVICE_MINOR, MINBLOWING_DEVICE_NAME)) {
+	if (0 > alloc_chrdev_region(&dev, 0, MINBLOWING_DEVICE_MINOR,
+				    MINBLOWING_DEVICE_NAME)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() - major %d, minor %d\n", __func__, MAJOR(dev), MINOR(dev));
+	printk(KERN_INFO "%s() - major %d, minor %d\n", __func__, MAJOR(dev),
+	       MINOR(dev));
 
 	cdev_init(&mindblowing_cdev, &fops);
 
@@ -163,11 +160,11 @@ static int __init mod_init(void)
 		goto err_class;
 	}
 
-	if (!device_create(dev_class, NULL, dev, NULL, MINBLOWING_DEVICE_NAME)) {
+	if (!device_create(dev_class, NULL, dev, NULL,
+			   MINBLOWING_DEVICE_NAME)) {
 		printk(KERN_ERR "%s() - device_create() failed\n", __func__);
 		goto err_device;
 	}
-
 
 	/* GPIO_OUT */
 
@@ -180,7 +177,8 @@ static int __init mod_init(void)
 	 * platform data and other tables.
 	 */
 	if (!gpio_is_valid(GPIO_OUT)) {
-		printk(KERN_ERR "%s() - gpio %d is not valid\n", __func__, GPIO_OUT);
+		printk(KERN_ERR "%s() - gpio %d is not valid\n", __func__,
+		       GPIO_OUT);
 		goto err_gpio_out;
 	}
 
@@ -205,11 +203,11 @@ static int __init mod_init(void)
 	 */
 	gpio_export(GPIO_OUT, false);
 
-
 	/* GPIO_IN */
 
 	if (!gpio_is_valid(GPIO_IN)) {
-		printk(KERN_ERR "%s() - gpio %d is not valid\n", __func__, GPIO_IN);
+		printk(KERN_ERR "%s() - gpio %d is not valid\n", __func__,
+		       GPIO_IN);
 		goto err_gpio_in;
 	}
 
@@ -220,11 +218,11 @@ static int __init mod_init(void)
 
 	gpio_direction_input(GPIO_IN);
 
-// commented out, since debouncing is not supported on Raspi4
-//	if (0 > gpio_set_debounce(GPIO_IN, 200)) {
-//		printk(KERN_ERR "%s() - gpio_set_debounce() failed\n", __func__);
-//		goto err_gpio_in;
-//	}
+	// commented out, since debouncing is not supported on Raspi4
+	//	if (0 > gpio_set_debounce(GPIO_IN, 200)) {
+	//		printk(KERN_ERR "%s() - gpio_set_debounce() failed\n", __func__);
+	//		goto err_gpio_in;
+	//	}
 
 	gpio_irq = gpio_to_irq(GPIO_IN);
 	printk(KERN_INFO "gpio_irq = %d\n", gpio_irq);
@@ -248,14 +246,14 @@ static int __init mod_init(void)
 	 * IRQF_TRIGGER_HIGH
 	 * IRQF_TRIGGER_LOW
 	 */
-	if (request_irq(gpio_irq, (void *)gpio_irq_handler, IRQF_TRIGGER_RISING, MINBLOWING_DEVICE_NAME, NULL)) {
+	if (request_irq(gpio_irq, (void *)gpio_irq_handler, IRQF_TRIGGER_RISING,
+			MINBLOWING_DEVICE_NAME, NULL)) {
 		printk(KERN_ERR "%s() - cannot register IRQ\n", __func__);
 		goto err_gpio_in;
 	}
 
 	printk(KERN_INFO "%s() done\n", __func__);
 	return 0;
-
 
 err_gpio_in:
 	gpio_free(GPIO_OUT);
@@ -295,7 +293,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

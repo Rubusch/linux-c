@@ -17,7 +17,6 @@ static void __exit mod_exit(void);
 int init_hello_chardev(void);
 void cleanup_hello_chardev(void);
 
-
 /*
   globals
 */
@@ -32,13 +31,11 @@ void cleanup_hello_chardev(void);
 dev_t dev = 0;
 static struct class *dev_class;
 
-
 /*
   implementation
 */
 
 ///
-
 
 /*
   start / stop module
@@ -60,12 +57,13 @@ int init_hello_chardev(void)
 	 * chosen dynamically, and returned (along with the first minor number)
 	 * in @dev.  Returns zero or a negative error code.
 	 */
-	if (0 > alloc_chrdev_region(&dev, HELLO_CHARDEV_MINOR, 1, HELLO_CDEV_NAME)) {
+	if (0 > alloc_chrdev_region(&dev, HELLO_CHARDEV_MINOR, 1,
+				    HELLO_CDEV_NAME)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev), MINOR(dev));
-
+	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev),
+	       MINOR(dev));
 
 	// create class instance
 	/**
@@ -87,7 +85,6 @@ int init_hello_chardev(void)
 		printk(KERN_ERR "class_create() failed\n");
 		goto err_class;
 	}
-
 
 	// create device instance
 	/**
@@ -114,14 +111,14 @@ int init_hello_chardev(void)
 	 * Note: the struct class passed to this function must have previously
 	 * been created with a call to class_create().
 	 */
-	if (NULL == device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
+	if (NULL ==
+	    device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
 		printk(KERN_ERR "device_create() failed\n");
 		goto err_device;
 	}
 
 	printk(KERN_INFO "%s() done.\n", __func__);
 	return 0;
-
 
 err_device:
 	class_destroy(dev_class);
@@ -166,7 +163,6 @@ void cleanup_hello_chardev(void)
 
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit

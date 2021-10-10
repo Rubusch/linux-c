@@ -8,7 +8,6 @@
 #include <linux/delay.h> /* msleep() */
 #include <linux/mutex.h>
 
-
 /*
   forwards
 */
@@ -23,8 +22,6 @@ void cleanup_hello_kernelthread(void);
 int kthread_routine(const char *);
 int kthread1(void *);
 int kthread2(void *);
-
-
 
 /*
   globals
@@ -42,8 +39,6 @@ struct mutex lothars_mutex;
 
 // data
 unsigned long global_counter = 0;
-
-
 
 /*
   implementation
@@ -82,7 +77,8 @@ int kthread_routine(const char *thread_name)
 		 */
 		mutex_lock(&lothars_mutex);
 		global_counter++;
-		printk(KERN_INFO "%s - counter = %lu\n", thread_name, global_counter);
+		printk(KERN_INFO "%s - counter = %lu\n", thread_name,
+		       global_counter);
 		/**
 		 * mutex_unlock - release the mutex
 		 * @lock: the mutex to be released
@@ -98,11 +94,15 @@ int kthread_routine(const char *thread_name)
 		msleep(1000);
 	}
 	return 0;
-
 }
-int kthread1(void *pv) { return kthread_routine(THREAD1_NAME); }
-int kthread2(void *pv) { return kthread_routine(THREAD2_NAME); }
-
+int kthread1(void *pv)
+{
+	return kthread_routine(THREAD1_NAME);
+}
+int kthread2(void *pv)
+{
+	return kthread_routine(THREAD2_NAME);
+}
 
 int init_hello_kernelthread(void)
 {
@@ -148,7 +148,6 @@ err_thread1:
 	return -1;
 }
 
-
 void cleanup_hello_kernelthread(void)
 {
 	/**
@@ -171,7 +170,6 @@ void cleanup_hello_kernelthread(void)
 
 	printk("%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit

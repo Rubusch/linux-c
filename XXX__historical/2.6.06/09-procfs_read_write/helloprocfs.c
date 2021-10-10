@@ -36,8 +36,8 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <lothar.rubusch@nsn.com>");
 MODULE_DESCRIPTION("demonstrates the usage of a procfs entry");
 
-#define PROCFS_MAX_SIZE    1024
-#define PROCFS_NAME        "lothars_proc_entry"
+#define PROCFS_MAX_SIZE 1024
+#define PROCFS_NAME "lothars_proc_entry"
 
 // holds proc info
 static struct proc_dir_entry *my_proc_file;
@@ -48,78 +48,77 @@ static char procfs_buffer[PROCFS_MAX_SIZE];
 // size of the buffer
 static unsigned long procfs_buffer_size = 0;
 
-
 /*
   reads the procfs
 
   returns the buffersize, or 0 if finished
 //*/
-int procfile_read(char* buffer, char** buffer_location, off_t offset, int buffer_length, int* eof, void* data)
+int procfile_read(char *buffer, char **buffer_location, off_t offset,
+		  int buffer_length, int *eof, void *data)
 {
-  int ret;
-  printk(KERN_INFO "procfile_read (/proc/%s) called\n", PROCFS_NAME);
-  if(offset > 0){
-    // we have finished to read, return 0
-    ret = 0;
-  }else{
-    // fill the buffer, return the buffer size
-    memcpy(buffer, procfs_buffer, procfs_buffer_size);
-    ret = procfs_buffer_size;
-  }
+	int ret;
+	printk(KERN_INFO "procfile_read (/proc/%s) called\n", PROCFS_NAME);
+	if (offset > 0) {
+		// we have finished to read, return 0
+		ret = 0;
+	} else {
+		// fill the buffer, return the buffer size
+		memcpy(buffer, procfs_buffer, procfs_buffer_size);
+		ret = procfs_buffer_size;
+	}
 
-  return ret;
+	return ret;
 }
-
 
 /*
   writes to the procfs
   
   returns the written buffer size
 //*/
-int procfile_write(struct file* file, const char* buffer, unsigned long count, void* data)
+int procfile_write(struct file *file, const char *buffer, unsigned long count,
+		   void *data)
 {
-  // get buffer size
-  procfs_buffer_size = count;
-  if(procfs_buffer_size > PROCFS_MAX_SIZE){
-    procfs_buffer_size = PROCFS_MAX_SIZE;
-  }
-  
-  // write data to the buffer
-  if(copy_from_user(procfs_buffer, buffer, procfs_buffer_size)){
-    return -EFAULT;
-  }
-  return procfs_buffer_size;
-}
+	// get buffer size
+	procfs_buffer_size = count;
+	if (procfs_buffer_size > PROCFS_MAX_SIZE) {
+		procfs_buffer_size = PROCFS_MAX_SIZE;
+	}
 
+	// write data to the buffer
+	if (copy_from_user(procfs_buffer, buffer, procfs_buffer_size)) {
+		return -EFAULT;
+	}
+	return procfs_buffer_size;
+}
 
 /*
   linux stuff, init and cleanup
 //*/
 
-
 int init_module(void)
 {
-  // create the /proc entry
-  if(NULL == (my_proc_file = create_proc_entry(PROCFS_NAME, 0644, NULL))){
-    remove_proc_entry(PROCFS_NAME, &proc_root);
-    printk(KERN_ALERT "error: could not initialize /proc/%s\n", PROCFS_NAME);
-    return -ENOMEM;
-  }
-  my_proc_file->read_proc = procfile_read;
-  my_proc_file->write_proc = procfile_write;
-  my_proc_file->owner = THIS_MODULE;
-  my_proc_file->mode = S_IFREG | S_IRUGO;
-  my_proc_file->uid = 0;
-  my_proc_file->gid = 0;
-  my_proc_file->size = 37;
+	// create the /proc entry
+	if (NULL ==
+	    (my_proc_file = create_proc_entry(PROCFS_NAME, 0644, NULL))) {
+		remove_proc_entry(PROCFS_NAME, &proc_root);
+		printk(KERN_ALERT "error: could not initialize /proc/%s\n",
+		       PROCFS_NAME);
+		return -ENOMEM;
+	}
+	my_proc_file->read_proc = procfile_read;
+	my_proc_file->write_proc = procfile_write;
+	my_proc_file->owner = THIS_MODULE;
+	my_proc_file->mode = S_IFREG | S_IRUGO;
+	my_proc_file->uid = 0;
+	my_proc_file->gid = 0;
+	my_proc_file->size = 37;
 
-  printk(KERN_INFO "/proc/%s created\n", PROCFS_NAME);
-  return 0;
+	printk(KERN_INFO "/proc/%s created\n", PROCFS_NAME);
+	return 0;
 }
-
 
 void cleanup_module(void)
 {
-  remove_proc_entry(PROCFS_NAME, &proc_root);
-  printk(KERN_INFO "/proc/%s removed\n", PROCFS_NAME);
+	remove_proc_entry(PROCFS_NAME, &proc_root);
+	printk(KERN_INFO "/proc/%s removed\n", PROCFS_NAME);
 }

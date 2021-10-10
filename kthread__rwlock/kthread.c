@@ -7,7 +7,6 @@
 #include <linux/kthread.h> /* kthread_run(), kthread_create() */
 #include <linux/delay.h> /* msleep() */
 
-
 /*
   forwards
 */
@@ -21,8 +20,6 @@ void cleanup_hello_kernelthread(void);
 // kthread routines
 int kthread1(void *);
 int kthread2(void *);
-
-
 
 /*
   globals
@@ -41,8 +38,6 @@ DEFINE_RWLOCK(lothars_rwlock);
 // data
 unsigned long global_counter = 0;
 
-
-
 /*
   implementation
 */
@@ -50,7 +45,8 @@ unsigned long global_counter = 0;
 /*
   thread #1
 */
-int kthread1(void *pv) {
+int kthread1(void *pv)
+{
 	while (!kthread_should_stop()) {
 		/*
 		 * Define the various rw_lock methods.  Note we define these
@@ -67,11 +63,11 @@ int kthread1(void *pv) {
 	return 0;
 }
 
-
 /*
   thread #2
 */
-int kthread2(void *pv) {
+int kthread2(void *pv)
+{
 	while (!kthread_should_stop()) {
 		/*
 		 * Define the various rw_lock methods.  Note we define these
@@ -79,14 +75,14 @@ int kthread2(void *pv) {
 		 * methods are defined as nops in the case they are not required.
 		 */
 		read_lock(&lothars_rwlock);
-		printk(KERN_INFO "%s: read counter = %lu\n", THREAD2_NAME, global_counter);
+		printk(KERN_INFO "%s: read counter = %lu\n", THREAD2_NAME,
+		       global_counter);
 
 		read_unlock(&lothars_rwlock);
 		msleep(1000);
 	}
 	return 0;
 }
-
 
 int init_hello_kernelthread(void)
 {
@@ -122,7 +118,6 @@ err_thread1:
 	return -1;
 }
 
-
 void cleanup_hello_kernelthread(void)
 {
 	/**
@@ -145,7 +140,6 @@ void cleanup_hello_kernelthread(void)
 
 	printk("%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit

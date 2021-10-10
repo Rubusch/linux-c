@@ -7,8 +7,7 @@
 #ifndef HELLO_IOCTL_H
 #define HELLO_IOCTL_H
 
-
-# ifdef __KERNEL__
+#ifdef __KERNEL__
 
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -18,16 +17,13 @@
 #include <linux/uaccess.h> /* copy_from_user(), copy_to_user() */
 #include <linux/ioctl.h>
 
-# else
+#else
 
 #include <sys/ioctl.h>
 
-# endif
-
+#endif
 
 #define SUCCESS 0
-
-
 
 /*
 #define "ioctl name" __IOX("magic number","command number","argument type")
@@ -47,11 +43,10 @@
 
   The last is the type of data.
 */
-#define WR_VALUE _IOW('a','a',int32_t*)
-#define RD_VALUE _IOR('a','b',int32_t*)
+#define WR_VALUE _IOW('a', 'a', int32_t *)
+#define RD_VALUE _IOR('a', 'b', int32_t *)
 
-
-# ifdef __KERNEL__
+#ifdef __KERNEL__
 
 /*
   forwards
@@ -59,8 +54,7 @@
 int init_hello_ioctl(void);
 void cleanup_hello_ioctl(void);
 
-# endif
-
+#endif
 
 /*
   the major device number - we can't rely on dynamic registration
@@ -68,13 +62,11 @@ void cleanup_hello_ioctl(void);
 */
 #define MAJOR_NUM 100
 
-
 /*
   name of the device file
 */
 #define HELLO_DEVICE_FILENAME "lothars_chardev"
 #define HELLO_CLASS_NAME "lothars_chardev_class"
 #define HELLO_DEVICE_NAME "lothars_chardev_device"
-
 
 #endif

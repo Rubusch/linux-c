@@ -7,7 +7,6 @@
 #include <linux/hrtimer.h>
 #include <linux/ktime.h>
 
-
 /*
   forwards
 */
@@ -21,7 +20,6 @@ void cleanup_hello(void);
 // timer callback
 enum hrtimer_restart timer_callback(struct hrtimer *);
 
-
 /*
   globals
 */
@@ -32,7 +30,6 @@ static struct hrtimer lothars_timer;
 
 // data (demo)
 static unsigned int counter = 0;
-
 
 /*
   implementation
@@ -67,7 +64,6 @@ enum hrtimer_restart timer_callback(struct hrtimer *timer)
 	 */
 	return HRTIMER_RESTART;
 }
-
 
 /*
   start / stop module
@@ -132,7 +128,6 @@ void cleanup_hello(void)
 	printk(KERN_INFO "%s() - READY.\n", __func__);
 }
 
-
 /*
   init / exit
 */
@@ -149,7 +144,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

@@ -9,8 +9,6 @@
 #include <linux/fs.h>
 #include <linux/completion.h>
 
-
-
 /*
   forwards
 */
@@ -25,9 +23,7 @@ void cleanup_hello_completion(void);
 static int wait_function(void *);
 
 // chardev
-static ssize_t chardev_read(struct file*, char __user *, size_t, loff_t *);
-
-
+static ssize_t chardev_read(struct file *, char __user *, size_t, loff_t *);
 
 /*
   globals
@@ -52,13 +48,10 @@ dev_t dev = 0;
 static struct class *dev_class;
 static struct cdev chardev_cdev;
 
-static struct file_operations fops =
-{
+static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = chardev_read,
 };
-
-
 
 /*
   implementation
@@ -73,7 +66,9 @@ static int wait_function(void *vp)
 			printk(KERN_INFO "event came from exit function\n");
 			return 0;
 		} else {
-			printk(KERN_INFO "event came from READ function - %lu\n", read_counter++);
+			printk(KERN_INFO
+			       "event came from READ function - %lu\n",
+			       read_counter++);
 		}
 		completion_flag = 0;
 	} while (1);
@@ -81,8 +76,8 @@ static int wait_function(void *vp)
 	return 0;
 }
 
-
-static ssize_t chardev_read(struct file* filp, char __user *buf, size_t len, loff_t* poff)
+static ssize_t chardev_read(struct file *filp, char __user *buf, size_t len,
+			    loff_t *poff)
 {
 	printk(KERN_INFO "%s()\n", __func__);
 	completion_flag = 1;
@@ -92,7 +87,6 @@ static ssize_t chardev_read(struct file* filp, char __user *buf, size_t len, lof
 	return 0;
 }
 
-
 int init_hello_completion(void)
 {
 	printk(KERN_INFO "%s() started\n", __func__);
@@ -101,7 +95,8 @@ int init_hello_completion(void)
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() - major = %d, minor = %d\n", __func__, MAJOR(dev), MINOR(dev));
+	printk(KERN_INFO "%s() - major = %d, minor = %d\n", __func__,
+	       MAJOR(dev), MINOR(dev));
 
 	cdev_init(&chardev_cdev, &fops);
 	chardev_cdev.ops = &fops;
@@ -121,7 +116,6 @@ int init_hello_completion(void)
 		printk(KERN_ERR "device_create() failed\n");
 		goto err_device;
 	}
-
 
 	wait_thread = kthread_create(wait_function, NULL, THREAD_NAME);
 	if (NULL == wait_thread) {
@@ -147,7 +141,6 @@ err_cdev:
 	return -ENOMEM;
 }
 
-
 void cleanup_hello_completion(void)
 {
 	// wait / completion
@@ -164,7 +157,6 @@ void cleanup_hello_completion(void)
 
 	printk("%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit

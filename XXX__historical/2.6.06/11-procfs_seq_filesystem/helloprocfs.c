@@ -23,7 +23,6 @@
   (C) Peter Jay Salzman, 2007-05-18
 //*/
 
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/proc_fs.h>
@@ -38,29 +37,28 @@ MODULE_DESCRIPTION("demonstrates the usage of a procfs entry");
 // function declarations
 int init_module(void);
 void cleanup_module(void);
-static void* proper_seq_start(struct seq_file*, loff_t*);
-static void* proper_seq_next(struct seq_file*, void*, loff_t*);
-static void proper_seq_stop(struct seq_file*, void*);
-static int proper_seq_show(struct seq_file*, void*);
-static int open_procfile(struct inode*, struct file*);
+static void *proper_seq_start(struct seq_file *, loff_t *);
+static void *proper_seq_next(struct seq_file *, void *, loff_t *);
+static void proper_seq_stop(struct seq_file *, void *);
+static int proper_seq_show(struct seq_file *, void *);
+static int open_procfile(struct inode *, struct file *);
 
 // file ops
 static struct file_operations Fops_proc = {
-  .owner    = THIS_MODULE,
-  .open     = open_procfile,
-  .read     = seq_read,
-  .llseek   = seq_lseek,
-  .release  = seq_release,
+	.owner = THIS_MODULE,
+	.open = open_procfile,
+	.read = seq_read,
+	.llseek = seq_lseek,
+	.release = seq_release,
 };
 
 // seq ops
 static struct seq_operations Sops_proc = {
-  .start    = proper_seq_start,
-  .next     = proper_seq_next,
-  .stop     = proper_seq_stop,
-  .show     = proper_seq_show,
+	.start = proper_seq_start,
+	.next = proper_seq_next,
+	.stop = proper_seq_stop,
+	.show = proper_seq_show,
 };
-
 
 /*
   function is called at the beginning of a sequence, i.e. when
@@ -70,21 +68,20 @@ static struct seq_operations Sops_proc = {
   returns NULL at the end of a sequence 
   or non-NULL at the beginning of a sequence
 //*/
-static void* proper_seq_start(struct seq_file* ptr_seqfile, loff_t* pos)
+static void *proper_seq_start(struct seq_file *ptr_seqfile, loff_t *pos)
 {
-  static unsigned long cnt = 0;
-  
-  // beginning of a new sequence
-  if(0 == *pos){
-    // begin sequence, return a non-NULL
-    return &cnt;
-  }
+	static unsigned long cnt = 0;
 
-  // end of the sequence, set pos to 0, return NULL
-  *pos = 0;
-  return NULL;
-}  
+	// beginning of a new sequence
+	if (0 == *pos) {
+		// begin sequence, return a non-NULL
+		return &cnt;
+	}
 
+	// end of the sequence, set pos to 0, return NULL
+	*pos = 0;
+	return NULL;
+}
 
 /*
   function is called after the beginning of a sequence
@@ -92,67 +89,63 @@ static void* proper_seq_start(struct seq_file* ptr_seqfile, loff_t* pos)
 
   returns NULL
 //*/
-static void* proper_seq_next(struct seq_file* ptr_seqfile, void* ptr, loff_t* pos)
+static void *proper_seq_next(struct seq_file *ptr_seqfile, void *ptr,
+			     loff_t *pos)
 {
-  unsigned long *tmp_ptr = (unsigned long*) ptr;
-  ++(*tmp_ptr);
-  ++(*pos);
-  
-  return NULL;
-}
+	unsigned long *tmp_ptr = (unsigned long *)ptr;
+	++(*tmp_ptr);
+	++(*pos);
 
+	return NULL;
+}
 
 /*
   function is called at the end of a sequence
 //*/
-static void proper_seq_stop(struct seq_file* ptr_seqfile, void* ptr)
+static void proper_seq_stop(struct seq_file *ptr_seqfile, void *ptr)
 {
-  // nothing to do - we use a static value in start()
+	// nothing to do - we use a static value in start()
 }
-
 
 /*
   this function is called for each "step of a sequence"
 
   returns 0
 //*/
-static int proper_seq_show(struct seq_file* ptr_seqfile, void* ptr)
+static int proper_seq_show(struct seq_file *ptr_seqfile, void *ptr)
 {
-  loff_t* seq_ptr_offset = (loff_t*) ptr;
+	loff_t *seq_ptr_offset = (loff_t *)ptr;
 
-  seq_printf(ptr_seqfile, "%Ld\n", *seq_ptr_offset);
+	seq_printf(ptr_seqfile, "%Ld\n", *seq_ptr_offset);
 
-  return 0;
+	return 0;
 }
-
 
 /*
   function is called when /proc file is open
   
   returns the result of seq_open()
 //*/
-static int open_procfile(struct inode* inode, struct file* file)
+static int open_procfile(struct inode *inode, struct file *file)
 {
-  return seq_open(file, &Sops_proc);
+	return seq_open(file, &Sops_proc);
 }
-
 
 /*
   linux init & clean up
 //*/
 
-
 int init_module(void)
 {
-  struct proc_dir_entry *entry = NULL;
-  if(NULL != (entry = create_proc_entry(PROC_NAME, 0, NULL))){
-    entry->proc_fops = &Fops_proc;
-  }
-  return 0;
+	struct proc_dir_entry *entry = NULL;
+	if (NULL != (entry = create_proc_entry(PROC_NAME, 0, NULL))) {
+		entry->proc_fops = &Fops_proc;
+	}
+	return 0;
 }
 
 void cleanup_module(void)
 {
-  remove_proc_entry(PROC_NAME, NULL);
-  printk(KERN_INFO "/proc/%s removed\n", PROC_NAME);
+	remove_proc_entry(PROC_NAME, NULL);
+	printk(KERN_INFO "/proc/%s removed\n", PROC_NAME);
 }

@@ -8,8 +8,6 @@
 #include <linux/delay.h> /* msleep() */
 #include <linux/seqlock.h>
 
-
-
 /*
   forwards
 */
@@ -24,8 +22,6 @@ void cleanup_hello_atomic(void);
 int kthread1(void *);
 int kthread2(void *);
 
-
-
 /*
   globals
 */
@@ -36,7 +32,6 @@ seqlock_t lothars_seqlock;
 // bitfield for atomic bit operation
 unsigned int hello_atomic_bit_check = 0;
 
-
 // kernelthread objects
 #define THREAD1_NAME "thread1"
 static struct task_struct *kthread1_task;
@@ -46,8 +41,6 @@ static struct task_struct *kthread2_task;
 
 // data
 unsigned long global_counter = 0;
-
-
 
 /*
   implementation
@@ -85,7 +78,6 @@ int kthread1(void *pv)
 	}
 	return 0;
 }
-
 
 int kthread2(void *pv)
 {
@@ -126,7 +118,6 @@ int kthread2(void *pv)
 	return 0;
 }
 
-
 /*
   start / stop hello module
 */
@@ -157,7 +148,6 @@ err_thread2:
 err_thread1:
 	return -ENOMEM;
 }
-
 
 void cleanup_hello_atomic(void)
 {

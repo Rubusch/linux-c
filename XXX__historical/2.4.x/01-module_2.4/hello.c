@@ -19,11 +19,11 @@
 
 int init_module(void)
 {
-  printk(KERN_INFO "Hello World!\n");
-  return 0;
+	printk(KERN_INFO "Hello World!\n");
+	return 0;
 }
 
 void cleanup_module(void)
 {
-  printk(KERN_INFO "Goodbye World!\n");
+	printk(KERN_INFO "Goodbye World!\n");
 }

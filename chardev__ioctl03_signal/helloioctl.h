@@ -7,9 +7,7 @@
 #ifndef HELLO_IOCTL_H
 #define HELLO_IOCTL_H
 
-
-# ifdef __KERNEL__
-
+#ifdef __KERNEL__
 
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -20,9 +18,7 @@
 #include <linux/ioctl.h>
 #include <linux/sched/signal.h>
 
-
-# else /* __KERNEL__ */
-
+#else /* __KERNEL__ */
 
 #define _XOPEN_SOURCE 600
 
@@ -34,9 +30,7 @@
 #include <fcntl.h> /* open() */
 #include <sys/ioctl.h>
 
-
-# endif /* __KERNEL__ */
-
+#endif /* __KERNEL__ */
 
 #define SUCCESS 0
 
@@ -61,11 +55,9 @@
 
   The last is the type of data.
 */
-#define WR_VALUE _IOW('a','a',int32_t*)
+#define WR_VALUE _IOW('a', 'a', int32_t *)
 
-
-# ifdef __KERNEL__
-
+#ifdef __KERNEL__
 
 /*
   forwards
@@ -73,15 +65,12 @@
 int init_hello_ioctl(void);
 void cleanup_hello_ioctl(void);
 
-
-# endif /* __KERNEL__ */
-
+#endif /* __KERNEL__ */
 
 /*
   the minor number, where the major number of the device is allocated
 */
 #define MINOR_NUM 123
-
 
 /*
   name of the device file
@@ -89,6 +78,5 @@ void cleanup_hello_ioctl(void);
 #define HELLO_DEVICE_FILENAME "lothars_chardev"
 #define HELLO_CLASS_NAME "lothars_chardev_class"
 #define HELLO_DEVICE_NAME "lothars_chardev_device"
-
 
 #endif

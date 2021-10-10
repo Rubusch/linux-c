@@ -22,8 +22,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 
-
 void cleanup_module(void)
 {
-  printk(KERN_INFO "Goodbye Wolrd!\n");
+	printk(KERN_INFO "Goodbye Wolrd!\n");
 }

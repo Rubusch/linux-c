@@ -28,13 +28,11 @@
 
 #include <linux/kernel.h>
 
- 
 /*
   the major device number - we can't rely on dynamic registration 
   anymore, because ioctls need to know it!
 //*/
 #define MAJOR_NUM 100
-
 
 /*
   set the message of the device driver
@@ -50,8 +48,7 @@
 
   char* - type we want to get from the process to the kernel
 //*/
-#define IOCTL_SET_MSG _IOR(MAJOR_NUM, 0, char*)
-
+#define IOCTL_SET_MSG _IOR(MAJOR_NUM, 0, char *)
 
 /*
   get message of the device driver
@@ -61,8 +58,7 @@
   however, we still need the buffer to place the message in to be input, 
   as it is allocated by the process
 //*/
-#define IOCTL_GET_MSG _IOR(MAJOR_NUM, 1, char*)
-
+#define IOCTL_GET_MSG _IOR(MAJOR_NUM, 1, char *)
 
 /*
   get the n'th byte of the message
@@ -72,7 +68,6 @@
   it receives from the user a number, n, and returns "message[n]"
 //*/
 #define IOCTL_GET_NTH_BYTE _IOWR(MAJOR_NUM, 2, int)
-
 
 /*
   name of the device file

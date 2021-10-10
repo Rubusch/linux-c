@@ -31,9 +31,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-
 #include "helloioctl.h"
-
 
 /*
   ioctl call to set a message
@@ -100,19 +98,18 @@ int ioctl_get_nth_byte(int file_desc)
 */
 int main(void)
 {
-	int fd=0;
+	int fd = 0;
 	int32_t value;
 	int32_t number;
-//	int ret=0;
-//	char* msg = "message passed by ioctl\n";
+	//	int ret=0;
+	//	char* msg = "message passed by ioctl\n";
 	char device_name[32];
 
 	memset(device_name, '\0', sizeof(device_name));
 	strcat(device_name, "/dev/");
 	strcat(device_name, HELLO_DEVICE_NAME);
 
-
-	fprintf(stdout, "XXX device_name '%s'\n", device_name);             
+	fprintf(stdout, "XXX device_name '%s'\n", device_name);
 
 	if (0 > (fd = open(device_name, O_RDWR))) {
 		perror("open failed");
@@ -122,13 +119,13 @@ int main(void)
 	fprintf(stdout, "enter a character to send to ioctl device:\n");
 	scanf("%d", &number);
 	fprintf(stdout, "writing\n");
-	ioctl(fd, WR_VALUE, (int32_t*) &number);
+	ioctl(fd, WR_VALUE, (int32_t *)&number);
 
 	fprintf(stdout, "reading\n");
-	ioctl(fd, RD_VALUE, (int32_t*) &value);
+	ioctl(fd, RD_VALUE, (int32_t *)&value);
 	fprintf(stdout, "value = %d\n", value);
 
-/*
+	/*
 	fd = open(HELLO_DEVICE_FILENAME, 0);
 	if (0 > fd) {
 		printf("can't open device file: %s\n", DEVICE_FILE_NAME);

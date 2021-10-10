@@ -7,15 +7,13 @@
 #include <linux/init.h>
 #include <linux/stat.h>
 
-
 // 1. Set up globals as ".c-file-static" privates.
 static short int myshort = 1;
 static int myint = 420;
 static long int mylong = 9999;
 static char *mystring = "blah";
-static int myintArray[2] = {-1, -1};
+static int myintArray[2] = { -1, -1 };
 static int arr_argc = 0;
-
 
 /*
   2a. Set up a modinfo parameter:
@@ -41,7 +39,6 @@ MODULE_PARM_DESC(mylong, " my long integer");
 module_param(mystring, charp, 0000);
 MODULE_PARM_DESC(mystring, " my char pointer");
 
-
 /*
   2b. Set up the array.
 
@@ -57,14 +54,13 @@ MODULE_PARM_DESC(mystring, " my char pointer");
 module_param_array(myintArray, int, &arr_argc, 0000);
 MODULE_PARM_DESC(myintArray, "my array of integers");
 
-
 /*
   init / exit
 */
 
 static int __init hello_init(void)
 {
-	int idx=0;
+	int idx = 0;
 
 	printk(KERN_INFO "Hello World\n");
 
@@ -74,7 +70,7 @@ static int __init hello_init(void)
 	printk(KERN_INFO "mylong is a long integer: %ld\n", mylong);
 	printk(KERN_INFO "mystring is a string: %s\n", mystring);
 
-	for (idx=0; idx<(sizeof(myintArray) / sizeof(int)); ++idx) {
+	for (idx = 0; idx < (sizeof(myintArray) / sizeof(int)); ++idx) {
 		printk(KERN_INFO "myintArray[%d] = %d\n", idx, myintArray[idx]);
 	}
 	printk(KERN_INFO "got %d arguments for myintArray.\n", arr_argc);
@@ -82,18 +78,14 @@ static int __init hello_init(void)
 	return 0;
 }
 
-
 static void __exit hello_exit(void)
 {
 	printk(KERN_INFO "Goodbye World!\n");
 }
 
-
 module_init(hello_init);
 module_exit(hello_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
 MODULE_DESCRIPTION("Usage of init parameters");
-

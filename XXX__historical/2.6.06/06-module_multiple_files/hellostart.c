@@ -22,11 +22,8 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 
-
 int init_module(void)
 {
-  printk(KERN_INFO "Hello World!\n");
-  return 0;
+	printk(KERN_INFO "Hello World!\n");
+	return 0;
 }
-
-

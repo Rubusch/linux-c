@@ -53,16 +53,15 @@
 #include <linux/slab.h> /* kmalloc() */
 #include <linux/uaccess.h> /* copy_to_user(), copy_from_user() */
 
-
 /* forwards */
 
-static int open_procfs(struct inode*, struct file*);
-static ssize_t read_procfs(struct file *, char __user*, size_t, loff_t *);
-static ssize_t write_procfs(struct file *, const char __user*, size_t, loff_t *);
+static int open_procfs(struct inode *, struct file *);
+static ssize_t read_procfs(struct file *, char __user *, size_t, loff_t *);
+static ssize_t write_procfs(struct file *, const char __user *, size_t,
+			    loff_t *);
 
 int start_procfs(void);
 void stop_procfs(void);
-
 
 /* macros / globals */
 
@@ -89,22 +88,22 @@ static const struct proc_ops proc_ops = {
 };
 // */
 
-
 static char *message;
 static int read_p;
-
 
 /*
   implementation
 */
 
-static int open_procfs(struct inode* inode, struct file* file)
+static int open_procfs(struct inode *inode, struct file *file)
 {
 	printk(KERN_INFO "%s()", __func__);
 
 	read_p = 1;
 
-	message = kmalloc(20 * sizeof(*message), GFP_KERNEL); // alternative use: __GFP_WAIT|__GFP_IO|__GFP_FS
+	message = kmalloc(
+		20 * sizeof(*message),
+		GFP_KERNEL); // alternative use: __GFP_WAIT|__GFP_IO|__GFP_FS
 	if (NULL == message) {
 		printk(KERN_ALERT "%s(): Error at allocation\n", __func__);
 		return -ENOMEM;
@@ -115,8 +114,8 @@ static int open_procfs(struct inode* inode, struct file* file)
 	return 0;
 }
 
-
-static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count, loff_t *offp)
+static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
+			   loff_t *offp)
 {
 	int len = 0;
 
@@ -134,29 +133,29 @@ static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count, lo
 	return len;
 }
 
-
-static ssize_t write_procfs(struct file *filp, const char __user *buf, size_t count, loff_t *offp)
+static ssize_t write_procfs(struct file *filp, const char __user *buf,
+			    size_t count, loff_t *offp)
 {
 	printk(KERN_INFO "%s()\n", __func__);
 	return 0;
 }
 
-
 int start_procfs(void)
 {
 	printk(KERN_INFO "%s()\n", __func__);
 
-	ent = proc_create(PROCFS_NAME, PROC_FILE_PERMS, PROC_PARENT_DIR, &proc_ops);
+	ent = proc_create(PROCFS_NAME, PROC_FILE_PERMS, PROC_PARENT_DIR,
+			  &proc_ops);
 	if (NULL == ent) {
 		printk(KERN_ALERT "/proc/%s failed\n", PROCFS_NAME);
-		proc_remove(ent); // alternative: remove_proc_entry(PROCFS_NAME, NULL);
+		proc_remove(
+			ent); // alternative: remove_proc_entry(PROCFS_NAME, NULL);
 		return -ENOMEM;
 	}
 	printk(KERN_INFO "/proc/%s created\n", PROCFS_NAME);
 
 	return 0;
 }
-
 
 void stop_procfs(void)
 {
@@ -166,7 +165,6 @@ void stop_procfs(void)
 	proc_remove(ent);
 	printk(KERN_INFO "/proc/%s removed\n", PROCFS_NAME);
 }
-
 
 /*
   init / exit

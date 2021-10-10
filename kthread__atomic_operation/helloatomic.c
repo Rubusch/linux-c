@@ -7,7 +7,6 @@
 #include <linux/kthread.h> /* kthread_run(), kthread_stop(),... */
 #include <linux/delay.h> /* msleep() */
 
-
 /*
   forwards
 */
@@ -23,7 +22,6 @@ int kthread_routine(const char *);
 int kthread1(void *);
 int kthread2(void *);
 
-
 /*
   globals
 */
@@ -34,14 +32,12 @@ atomic_t hello_atomic_global = ATOMIC_INIT(0);
 // bitfield for atomic bit operation
 unsigned int hello_atomic_bit_check = 0;
 
-
 // kernelthread objects
 #define THREAD1_NAME "thread1"
 static struct task_struct *kthread1_task;
 
 #define THREAD2_NAME "thread2"
 static struct task_struct *kthread2_task;
-
 
 /*
   implementation
@@ -59,7 +55,6 @@ int kthread_routine(const char *thread_name)
 	 * value will be passed through to kthread_stop().
 	 */
 	while (!kthread_should_stop()) {
-
 		/**
 		 * atomic_inc - increment atomic variable
 		 * @v: pointer of type atomic_t
@@ -73,26 +68,24 @@ int kthread_routine(const char *thread_name)
 		 * @nr:  bit number to set
 		 * @addr:  pointer to memory
 		 */
-		prev = test_and_change_bit(1, (void*) &hello_atomic_bit_check);
+		prev = test_and_change_bit(1, (void *)&hello_atomic_bit_check);
 
-		printk(KERN_INFO "%s [value: %u] [bit: %u]\n", thread_name, atomic_read(&hello_atomic_global), prev);
+		printk(KERN_INFO "%s [value: %u] [bit: %u]\n", thread_name,
+		       atomic_read(&hello_atomic_global), prev);
 		msleep(1000);
 	}
 	return 0;
 }
-
 
 int kthread1(void *pv)
 {
 	return kthread_routine(THREAD1_NAME);
 }
 
-
 int kthread2(void *pv)
 {
 	return kthread_routine(THREAD2_NAME);
 }
-
 
 /*
   start / stop hello module
@@ -133,7 +126,6 @@ err_thread2:
 err_thread1:
 	return -ENOMEM;
 }
-
 
 void cleanup_hello_atomic(void)
 {

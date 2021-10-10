@@ -7,8 +7,7 @@
 #ifndef HELLO_IOCTL_H
 #define HELLO_IOCTL_H
 
-
-# ifdef __KERNEL__
+#ifdef __KERNEL__
 
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -21,16 +20,13 @@
 #include <linux/uaccess.h> /* copy_from_user(), copy_to_user() */
 #include <linux/ioctl.h>
 
-# else
+#else
 
 #include <sys/ioctl.h>
 
-# endif
-
+#endif
 
 #define SUCCESS 0
-
-
 
 /*
 #define "ioctl name" __IOX("magic number","command number","argument type")
@@ -50,9 +46,8 @@
 
   The last is the type of data.
 */
-#define WR_VALUE _IOW('a','a',int32_t*)
-#define RD_VALUE _IOR('a','b',int32_t*)
-
+#define WR_VALUE _IOW('a', 'a', int32_t *)
+#define RD_VALUE _IOR('a', 'b', int32_t *)
 
 #define BUF_SIZ 80
 
@@ -60,14 +55,11 @@
 int init_hello_ioctl(void);
 void cleanup_hello_ioctl(void);
 
-
-
 /*
   the major device number - we can't rely on dynamic registration
   anymore, because ioctls need to know it!
 */
 #define MAJOR_NUM 100
-
 
 /*
   set the message of the device driver
@@ -85,7 +77,6 @@ void cleanup_hello_ioctl(void);
 */
 //#define IOCTL_SET_MSG _IOR(MAJOR_NUM, 0, char*)
 
-
 /*
   get message of the device driver
 
@@ -97,7 +88,6 @@ void cleanup_hello_ioctl(void);
 */
 //#define IOCTL_GET_MSG _IOR(MAJOR_NUM, 1, char*)
 
-
 /*
   get the n'th byte of the message
 
@@ -107,13 +97,11 @@ void cleanup_hello_ioctl(void);
 */
 //#define IOCTL_GET_NTH_BYTE _IOWR(MAJOR_NUM, 2, int)
 
-
 /*
   name of the device file
 */
 #define HELLO_DEVICE_FILENAME "lothars_chardev"
 #define HELLO_CLASS_NAME "lothars_chardev_class"
 #define HELLO_DEVICE_NAME "lothars_chardev_device"
-
 
 #endif

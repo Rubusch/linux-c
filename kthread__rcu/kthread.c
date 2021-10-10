@@ -7,7 +7,6 @@
 #include <linux/kthread.h> /* kthread_run(), kthread_create() */
 #include <linux/delay.h> /* msleep() */
 
-
 /*
   forwards
 */
@@ -21,8 +20,6 @@ void cleanup_hello_kernelthread(void);
 // kthread routines
 int kthread1(void *);
 int kthread2(void *);
-
-
 
 /*
   globals
@@ -41,8 +38,6 @@ DEFINE_SPINLOCK(lothars_lock);
 // data
 unsigned long global_counter = 0;
 
-
-
 /*
   implementation
 */
@@ -50,7 +45,8 @@ unsigned long global_counter = 0;
 /*
   thread #1
 */
-int kthread1(void *pv) {
+int kthread1(void *pv)
+{
 	while (!kthread_should_stop()) {
 		/**
 		 * using rcu use
@@ -74,11 +70,11 @@ int kthread1(void *pv) {
 	return 0;
 }
 
-
 /*
   thread #2
 */
-int kthread2(void *pv) {
+int kthread2(void *pv)
+{
 	while (!kthread_should_stop()) {
 		/**
 		 * in case of working with list, with rcu use
@@ -91,14 +87,14 @@ int kthread2(void *pv) {
 		 * for syncing
 		 */
 		rcu_read_lock();
-		printk(KERN_INFO "%s: read counter = %lu\n", THREAD2_NAME, global_counter);
+		printk(KERN_INFO "%s: read counter = %lu\n", THREAD2_NAME,
+		       global_counter);
 
 		rcu_read_unlock();
 		msleep(1000);
 	}
 	return 0;
 }
-
 
 int init_hello_kernelthread(void)
 {
@@ -134,7 +130,6 @@ err_thread1:
 	return -1;
 }
 
-
 void cleanup_hello_kernelthread(void)
 {
 	/**
@@ -157,7 +152,6 @@ void cleanup_hello_kernelthread(void)
 
 	printk("%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit

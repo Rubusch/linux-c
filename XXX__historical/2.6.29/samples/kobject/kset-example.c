@@ -22,7 +22,6 @@
  * read out of it.
  */
 
-
 /*
  * This is our "object" that we will create a few of and register them with
  * sysfs.
@@ -38,8 +37,10 @@ struct foo_obj {
 /* a custom attribute that works just for a struct foo_obj. */
 struct foo_attribute {
 	struct attribute attr;
-	ssize_t (*show)(struct foo_obj *foo, struct foo_attribute *attr, char *buf);
-	ssize_t (*store)(struct foo_obj *foo, struct foo_attribute *attr, const char *buf, size_t count);
+	ssize_t (*show)(struct foo_obj *foo, struct foo_attribute *attr,
+			char *buf);
+	ssize_t (*store)(struct foo_obj *foo, struct foo_attribute *attr,
+			 const char *buf, size_t count);
 };
 #define to_foo_attr(x) container_of(x, struct foo_attribute, attr)
 
@@ -50,8 +51,7 @@ struct foo_attribute {
  * transpose back from a "default" kobject to our custom struct foo_obj and
  * then call the show function for that specific object.
  */
-static ssize_t foo_attr_show(struct kobject *kobj,
-			     struct attribute *attr,
+static ssize_t foo_attr_show(struct kobject *kobj, struct attribute *attr,
 			     char *buf)
 {
 	struct foo_attribute *attribute;
@@ -70,8 +70,7 @@ static ssize_t foo_attr_show(struct kobject *kobj,
  * Just like the default show function above, but this one is for when the
  * sysfs "store" is requested (when a value is written to a file.)
  */
-static ssize_t foo_attr_store(struct kobject *kobj,
-			      struct attribute *attr,
+static ssize_t foo_attr_store(struct kobject *kobj, struct attribute *attr,
 			      const char *buf, size_t len)
 {
 	struct foo_attribute *attribute;
@@ -155,20 +154,16 @@ static ssize_t b_store(struct foo_obj *foo_obj, struct foo_attribute *attr,
 	return count;
 }
 
-static struct foo_attribute baz_attribute =
-	__ATTR(baz, 0666, b_show, b_store);
-static struct foo_attribute bar_attribute =
-	__ATTR(bar, 0666, b_show, b_store);
+static struct foo_attribute baz_attribute = __ATTR(baz, 0666, b_show, b_store);
+static struct foo_attribute bar_attribute = __ATTR(bar, 0666, b_show, b_store);
 
 /*
  * Create a group of attributes so that we can create and destory them all
  * at once.
  */
 static struct attribute *foo_default_attrs[] = {
-	&foo_attribute.attr,
-	&baz_attribute.attr,
-	&bar_attribute.attr,
-	NULL,	/* need to NULL terminate the list of attributes */
+	&foo_attribute.attr, &baz_attribute.attr, &bar_attribute.attr,
+	NULL, /* need to NULL terminate the list of attributes */
 };
 
 /*

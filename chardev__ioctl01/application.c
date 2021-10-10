@@ -22,16 +22,14 @@
 #include <fcntl.h> /* open() */
 #include <unistd.h> /* close() */
 
-
 #include "helloioctl.h"
-
 
 /*
   main()
 */
 int main(void)
 {
-	int fd=0;
+	int fd = 0;
 	int32_t value;
 	int32_t number;
 	char device_name[32];
@@ -49,13 +47,13 @@ int main(void)
 	fprintf(stdout, "enter a number to be sent to the ioctl device:\n");
 	scanf("%d", &number);
 	fprintf(stdout, "writing\n");
-	ioctl(fd, WR_VALUE, (int32_t*) &number);
+	ioctl(fd, WR_VALUE, (int32_t *)&number);
 
 	fprintf(stdout, "reading\n");
-	ioctl(fd, RD_VALUE, (int32_t*) &value);
+	ioctl(fd, RD_VALUE, (int32_t *)&value);
 	fprintf(stdout, "value = %d\n", value);
 
-/*
+	/*
 	fd = open(HELLO_DEVICE_FILENAME, 0);
 	if (0 > fd) {
 		printf("can't open device file: %s\n", DEVICE_FILE_NAME);

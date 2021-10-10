@@ -15,13 +15,12 @@
 #include <linux/firmware.h>
 
 static struct device ghost_device = {
-	.bus_id    = "ghost0",
+	.bus_id = "ghost0",
 };
-
 
 static void sample_firmware_load(char *firmware, int size)
 {
-	u8 buf[size+1];
+	u8 buf[size + 1];
 	memcpy(buf, firmware, size);
 	buf[size] = '\0';
 	printk(KERN_INFO "firmware_sample_driver: firmware: %s\n", buf);
@@ -34,7 +33,7 @@ static void sample_probe_default(void)
 	int retval;
 
 	printk(KERN_INFO "firmware_sample_driver: "
-		"a ghost device got inserted :)\n");
+			 "a ghost device got inserted :)\n");
 
 	retval = request_firmware(&fw_entry, "sample_driver_fw", &ghost_device);
 	if (retval) {
@@ -59,7 +58,7 @@ static void sample_probe_specific(void)
 	/* NOTE: This currently doesn't work */
 
 	printk(KERN_INFO "firmware_sample_driver: "
-		"a ghost device got inserted :)\n");
+			 "a ghost device got inserted :)\n");
 
 	retval = request_firmware(NULL, "sample_driver_fw", &ghost_device);
 	if (retval) {
@@ -97,7 +96,7 @@ static void sample_probe_async(void)
 					sample_probe_async_cont);
 	if (error)
 		printk(KERN_ERR "firmware_sample_driver:"
-		       " request_firmware_nowait failed\n");
+				" request_firmware_nowait failed\n");
 }
 
 static int __init sample_init(void)

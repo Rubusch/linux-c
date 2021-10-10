@@ -9,7 +9,6 @@
 #include <linux/slab.h>
 #include <linux/cdev.h>
 
-
 /*
   forwards
 */
@@ -21,9 +20,10 @@ int init_hello_linkedlist(void);
 void cleanup_hello_linkedlist(void);
 
 // chardev read()
-static ssize_t hello_linkedlist_read(struct file *, char __user *, size_t, loff_t *);
-static ssize_t hello_linkedlist_write(struct file *, const char __user *, size_t, loff_t *);
-
+static ssize_t hello_linkedlist_read(struct file *, char __user *, size_t,
+				     loff_t *);
+static ssize_t hello_linkedlist_write(struct file *, const char __user *,
+				      size_t, loff_t *);
 
 /*
   globals
@@ -41,8 +41,7 @@ dev_t dev;
 static struct class *dev_class;
 static struct cdev hello_linkedlist_cdev;
 
-static struct file_operations fops =
-{
+static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = hello_linkedlist_read,
 	.write = hello_linkedlist_write,
@@ -55,7 +54,6 @@ struct lothars_list {
 };
 LIST_HEAD(head_node);
 
-
 /*
   implementation
 */
@@ -63,15 +61,16 @@ LIST_HEAD(head_node);
 /*
   chardev read
 */
-static ssize_t hello_linkedlist_read(struct file *filp, char __user *buf, size_t len, loff_t *off)
+static ssize_t hello_linkedlist_read(struct file *filp, char __user *buf,
+				     size_t len, loff_t *off)
 {
 	struct lothars_list *tmp;
 	int cnt = 0;
 
-	printk( KERN_INFO "%s()", __func__);
+	printk(KERN_INFO "%s()", __func__);
 
 	// traversing list [MACRO for a FOR loop]
-	list_for_each_entry(tmp, &head_node, list) {
+	list_for_each_entry (tmp, &head_node, list) {
 		printk(KERN_INFO "node %d data = %llu\n", cnt++, tmp->data);
 	}
 	printk(KERN_INFO "total nodes: %d\n", cnt);
@@ -82,7 +81,8 @@ static ssize_t hello_linkedlist_read(struct file *filp, char __user *buf, size_t
 /*
   chardev write
 */
-static ssize_t hello_linkedlist_write(struct file *filp, const char __user *buf, size_t len, loff_t *off)
+static ssize_t hello_linkedlist_write(struct file *filp, const char __user *buf,
+				      size_t len, loff_t *off)
 {
 	struct lothars_list *tmp_node = NULL;
 	int ret = -1;
@@ -127,11 +127,13 @@ int init_hello_linkedlist(void)
 {
 	printk(KERN_INFO "%s() initializing...\n", __func__);
 
-	if (0 > alloc_chrdev_region(&dev, HELLO_DEVICE_MINOR, 1, HELLO_DEVICE_CHRDEV)) {
+	if (0 > alloc_chrdev_region(&dev, HELLO_DEVICE_MINOR, 1,
+				    HELLO_DEVICE_CHRDEV)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev), MINOR(dev));
+	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev),
+	       MINOR(dev));
 
 	cdev_init(&hello_linkedlist_cdev, &fops);
 
@@ -146,7 +148,8 @@ int init_hello_linkedlist(void)
 		goto err_class;
 	}
 
-	if (NULL == device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
+	if (NULL ==
+	    device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
 		printk(KERN_ERR "device_create() failed\n");
 		goto err_device;
 	}
@@ -170,7 +173,7 @@ void cleanup_hello_linkedlist(void)
 {
 	// linked list
 	struct lothars_list *cursor, *tmp;
-	list_for_each_entry_safe(cursor, tmp, &head_node, list) {
+	list_for_each_entry_safe (cursor, tmp, &head_node, list) {
 		list_del(&cursor->list);
 		kfree(cursor);
 	}
@@ -183,7 +186,6 @@ void cleanup_hello_linkedlist(void)
 
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit
@@ -201,7 +203,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

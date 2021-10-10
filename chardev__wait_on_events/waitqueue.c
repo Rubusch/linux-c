@@ -23,16 +23,17 @@ void cleanup_hello_chardev(void);
 static int hello_open(struct inode *, struct file *);
 static int hello_release(struct inode *, struct file *);
 static ssize_t hello_read(struct file *, char __user *, size_t, loff_t *);
-static ssize_t hello_write(struct file *, const char __user *, size_t, loff_t *);
+static ssize_t hello_write(struct file *, const char __user *, size_t,
+			   loff_t *);
 
 static int wait_routine(void *);
-
 
 /*
   globals
 */
 
-#define HELLO_CHARDEV_MINOR 123 /* any number, the major number is allocated automatically */
+#define HELLO_CHARDEV_MINOR                                                    \
+	123 /* any number, the major number is allocated automatically */
 
 #define HELLO_CDEV_NAME "lothars_hello_cdev"
 #define HELLO_CLASS_NAME "lothars_hello_class"
@@ -43,15 +44,13 @@ dev_t dev = 0;
 static struct class *dev_class;
 static struct cdev hello_chardev_cdev;
 
-static struct file_operations fops =
-{
+static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.open = hello_open,
 	.release = hello_release,
 	.read = hello_read,
 	.write = hello_write,
 };
-
 
 // threading
 uint32_t read_count = 0;
@@ -64,7 +63,6 @@ DECLARE_WAIT_QUEUE_HEAD(chardev_waitqueue);
 wait_queue_head_t chardev_waitqueue;
 // */
 int chardev_waitqueue_flag = 0;
-
 
 /*
   implementation
@@ -92,18 +90,19 @@ static int wait_routine(void *unused)
 		 * The function will return -ERESTARTSYS if it was interrupted by a
 		 * signal and 0 if @condition evaluated to true.
 		 */
-		wait_event_interruptible(chardev_waitqueue, chardev_waitqueue_flag != 0);
+		wait_event_interruptible(chardev_waitqueue,
+					 chardev_waitqueue_flag != 0);
 		if (2 == chardev_waitqueue_flag) {
 			printk(KERN_INFO "event came from EXIT\n");
 			return 0;
 		}
-		printk(KERN_INFO "event came from READ - read count: %d\n", ++read_count);
+		printk(KERN_INFO "event came from READ - read count: %d\n",
+		       ++read_count);
 		chardev_waitqueue_flag = 0;
 	}
 	do_exit(0);
 	return 0;
 }
-
 
 /*
   Called when opening the device file.
@@ -126,7 +125,8 @@ static int hello_release(struct inode *inode, struct file *file)
 /*
   Called when someone (user/kernel) reads from the device file.
 */
-static ssize_t hello_read(struct file *file, char __user *buf, size_t len, loff_t *poff)
+static ssize_t hello_read(struct file *file, char __user *buf, size_t len,
+			  loff_t *poff)
 {
 	printk(KERN_INFO "%s()\n", __func__);
 	chardev_waitqueue_flag = 1;
@@ -140,13 +140,12 @@ static ssize_t hello_read(struct file *file, char __user *buf, size_t len, loff_
 /*
   Called when someone (user/kernel) writes into the device file.
 */
-static ssize_t hello_write(struct file *file, const char __user *buf, size_t len, loff_t *poff)
+static ssize_t hello_write(struct file *file, const char __user *buf,
+			   size_t len, loff_t *poff)
 {
 	printk(KERN_INFO "%s()\n", __func__);
 	return len; // if this is 0, it will spin around the "write"
 }
-
-
 
 /*
   start / stop module
@@ -168,12 +167,13 @@ int init_hello_chardev(void)
 	 * chosen dynamically, and returned (along with the first minor number)
 	 * in @dev.  Returns zero or a negative error code.
 	 */
-	if (0 > alloc_chrdev_region(&dev, HELLO_CHARDEV_MINOR, 1, HELLO_CDEV_NAME)) {
+	if (0 > alloc_chrdev_region(&dev, HELLO_CHARDEV_MINOR, 1,
+				    HELLO_CDEV_NAME)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev), MINOR(dev));
-
+	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev),
+	       MINOR(dev));
 
 	// create cdev structure (character device)
 	/**
@@ -185,7 +185,6 @@ int init_hello_chardev(void)
 	 * system with cdev_add().
 	 */
 	cdev_init(&hello_chardev_cdev, &fops);
-
 
 	// add cdev to system
 	/**
@@ -202,7 +201,6 @@ int init_hello_chardev(void)
 		printk(KERN_ERR "cdev_add() faied\n");
 		goto err_cdev;
 	}
-
 
 	// create class instance
 	/**
@@ -224,7 +222,6 @@ int init_hello_chardev(void)
 		printk(KERN_ERR "class_create() failed\n");
 		goto err_class;
 	}
-
 
 	// create device instance
 	/**
@@ -251,11 +248,11 @@ int init_hello_chardev(void)
 	 * Note: the struct class passed to this function must have previously
 	 * been created with a call to class_create().
 	 */
-	if (NULL == device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
+	if (NULL ==
+	    device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
 		printk(KERN_ERR "device_create() failed\n");
 		goto err_device;
 	}
-
 
 	// initialize wait queue
 	init_waitqueue_head(&chardev_waitqueue);
@@ -283,7 +280,6 @@ int init_hello_chardev(void)
 
 	printk(KERN_INFO "%s() done.\n", __func__);
 	return 0;
-
 
 err_device:
 	class_destroy(dev_class);
@@ -351,7 +347,6 @@ void cleanup_hello_chardev(void)
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
 
-
 /*
   init / exit
 */
@@ -369,7 +364,7 @@ static void __exit mod_exit(void)
 module_init(mod_init);
 module_exit(mod_exit);
 
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Demonstrates a character device driver and event wait queue.");
+MODULE_DESCRIPTION(
+	"Demonstrates a character device driver and event wait queue.");

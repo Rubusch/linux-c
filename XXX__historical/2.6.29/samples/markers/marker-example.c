@@ -20,7 +20,7 @@ static int my_open(struct inode *inode, struct file *file)
 	int i;
 
 	trace_mark(subsystem_event, "integer %d string %s", 123,
-		"example string");
+		   "example string");
 	for (i = 0; i < 10; i++)
 		trace_mark(subsystem_eventb, MARK_NOARGS);
 	return -EPERM;
@@ -45,9 +45,8 @@ static void __exit example_exit(void)
 	remove_proc_entry("marker-example", NULL);
 }
 
-module_init(example_init)
-module_exit(example_exit)
+module_init(example_init) module_exit(example_exit)
 
-MODULE_LICENSE("GPL");
+	MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Mathieu Desnoyers");
 MODULE_DESCRIPTION("Marker example");

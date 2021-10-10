@@ -22,22 +22,19 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 
-#define DRIVER_AUTHOR   "Lothar Rubusch <Lothar.Rubusch@nsn.com>"
-#define DRIVER_DESC     "a sample module"
-
+#define DRIVER_AUTHOR "Lothar Rubusch <Lothar.Rubusch@nsn.com>"
+#define DRIVER_DESC "a sample module"
 
 static int __init init_hello(void)
 {
-  printk(KERN_INFO "Hello World!\n");
-  return 0;
+	printk(KERN_INFO "Hello World!\n");
+	return 0;
 }
-
 
 static void __exit exit_hello(void)
 {
-  printk(KERN_INFO "Goodbye World!\n");
+	printk(KERN_INFO "Goodbye World!\n");
 }
-
 
 module_init(init_hello);
 module_exit(exit_hello);

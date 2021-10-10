@@ -18,7 +18,6 @@ void cleanup_hello(void);
 // timer callback
 void timer_callback(struct timer_list *);
 
-
 /*
   globals
 */
@@ -29,7 +28,6 @@ static struct timer_list lothars_timer;
 
 // data (demo)
 static unsigned int counter = 0;
-
 
 /*
   implementation
@@ -67,7 +65,6 @@ void timer_callback(struct timer_list *data)
 	 */
 	mod_timer(&lothars_timer, jiffies + msecs_to_jiffies(TIMEOUT));
 }
-
 
 /*
   start / stop module
@@ -137,7 +134,6 @@ void cleanup_hello(void)
 	printk(KERN_INFO "%s() - READY.\n", __func__);
 }
 
-
 /*
   init / exit
 */
@@ -154,7 +150,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

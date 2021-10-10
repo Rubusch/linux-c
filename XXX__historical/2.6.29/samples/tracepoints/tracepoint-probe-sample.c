@@ -18,7 +18,7 @@ static void probe_subsys_event(struct inode *inode, struct file *file)
 	path_get(&file->f_path);
 	dget(file->f_path.dentry);
 	printk(KERN_INFO "Event is encountered with filename %s\n",
-		file->f_path.dentry->d_name.name);
+	       file->f_path.dentry->d_name.name);
 	dput(file->f_path.dentry);
 	path_put(&file->f_path);
 }

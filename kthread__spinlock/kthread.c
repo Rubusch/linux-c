@@ -7,7 +7,6 @@
 #include <linux/kthread.h> /* kthread_run(), kthread_create() */
 #include <linux/delay.h> /* msleep() */
 
-
 /*
   forwards
 */
@@ -22,8 +21,6 @@ void cleanup_hello_kernelthread(void);
 int kthread_routine(const char *);
 int kthread1(void *);
 int kthread2(void *);
-
-
 
 /*
   globals
@@ -42,8 +39,6 @@ DEFINE_SPINLOCK(lothars_spinlock);
 // data
 unsigned long global_counter = 0;
 
-
-
 /*
   implementation
 */
@@ -58,31 +53,36 @@ int kthread_routine(const char *thread_name)
 	 * value will be passed through to kthread_stop().
 	 */
 	while (!kthread_should_stop()) {
-
 		if (!spin_is_locked(&lothars_spinlock)) {
-			printk(KERN_INFO "%s: spinlock is not locked\n", thread_name);
+			printk(KERN_INFO "%s: spinlock is not locked\n",
+			       thread_name);
 		}
 		spin_lock(&lothars_spinlock);
 		if (spin_is_locked(&lothars_spinlock)) {
-			printk(KERN_INFO "%s: spinlock is locked, now\n", thread_name);
+			printk(KERN_INFO "%s: spinlock is locked, now\n",
+			       thread_name);
 		}
 
 		global_counter++;
-		printk(KERN_INFO "%s - counter = %lu\n", thread_name, global_counter);
+		printk(KERN_INFO "%s - counter = %lu\n", thread_name,
+		       global_counter);
 		spin_unlock(&lothars_spinlock);
 		msleep(1000);
 	}
 	return 0;
-
 }
-int kthread1(void *pv) { return kthread_routine(THREAD1_NAME); }
-int kthread2(void *pv) { return kthread_routine(THREAD2_NAME); }
-
+int kthread1(void *pv)
+{
+	return kthread_routine(THREAD1_NAME);
+}
+int kthread2(void *pv)
+{
+	return kthread_routine(THREAD2_NAME);
+}
 
 int init_hello_kernelthread(void)
 {
 	printk(KERN_INFO "%s() started\n", __func__);
-
 
 	/**
 	 * kthread_run - create and wake a thread.
@@ -114,7 +114,6 @@ err_thread1:
 	return -1;
 }
 
-
 void cleanup_hello_kernelthread(void)
 {
 	/**
@@ -137,7 +136,6 @@ void cleanup_hello_kernelthread(void)
 
 	printk("%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit

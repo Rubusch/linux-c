@@ -7,7 +7,6 @@
 #include <linux/kthread.h> /* kthread_run(), kthread_create() */
 #include <linux/delay.h> /* msleep() */
 
-
 /*
   forwards
 */
@@ -20,7 +19,6 @@ void cleanup_hello_kernelthread(void);
 
 int kernelthread_routine(void *);
 
-
 /*
   globals
 */
@@ -30,7 +28,6 @@ int kernelthread_routine(void *);
 // pointer to kernelthread
 static struct task_struct *hello_kernelthread;
 
-
 /*
   implementation
 */
@@ -38,10 +35,9 @@ static struct task_struct *hello_kernelthread;
 /*
   Some thread worker routine.
 */
-int kernelthread_routine(void* pv)
+int kernelthread_routine(void *pv)
 {
-	int idx=0;
-
+	int idx = 0;
 
 	/**
 	 * kthread_should_stop() - should this kthread return now?
@@ -57,13 +53,11 @@ int kernelthread_routine(void* pv)
 	return 0;
 }
 
-
 int init_hello_kernelthread(void)
 {
 	printk(KERN_INFO "%s() started\n", __func__);
 
-
-# if 0   /* either, first create kernelthread */
+#if 0 /* either, first create kernelthread */
 	/**
 	 * kthread_create() - create a kthread on the current node
 	 * @threadfn: the function to run in the thread
@@ -95,7 +89,7 @@ int init_hello_kernelthread(void)
 	 */
 	wake_up_process(hello_kernelthread);
 
-# else /* alternatively, create and start kernelthread at once */
+#else /* alternatively, create and start kernelthread at once */
 
 	/**
 	 * kthread_run - create and wake a thread.
@@ -106,18 +100,18 @@ int init_hello_kernelthread(void)
 	 * Description: Convenient wrapper for kthread_create() followed by
 	 * wake_up_process().  Returns the kthread or ERR_PTR(-ENOMEM).
 	 */
-	hello_kernelthread = kthread_run(kernelthread_routine, NULL, KERNELTHREAD_NAME);
+	hello_kernelthread =
+		kthread_run(kernelthread_routine, NULL, KERNELTHREAD_NAME);
 	if (NULL == hello_kernelthread) {
 		printk(KERN_ALERT "kthread_create() failed.");
 		return -ENOMEM;
 	}
-# endif
+#endif
 
 	printk(KERN_INFO "%s() kernelthread initialized\n", __func__);
 
 	return 0;
 }
-
 
 void cleanup_hello_kernelthread(void)
 {
@@ -139,7 +133,6 @@ void cleanup_hello_kernelthread(void)
 	kthread_stop(hello_kernelthread);
 	printk("%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit

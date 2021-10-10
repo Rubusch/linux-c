@@ -7,7 +7,7 @@
   copyright (C) 1998 by Ori Pomeranz
 //*/
 
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -18,66 +18,62 @@
 
 #define MAX_BYTES 1024 * 4
 
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-  // file descriptor for the file to read
-  int fd = 0; 
-  
-  // the number of bytes read
-  size_t bytes = 0;
+	// file descriptor for the file to read
+	int fd = 0;
 
-  // buffer for the content to read
-  char buffer[MAX_BYTES];
-  memset(buffer, '\0', MAX_BYTES);
+	// the number of bytes read
+	size_t bytes = 0;
 
-  if(argc != 2){
-    printf("usage: %s <filename>\n", argv[0]);
-    puts("reads the content of a file, but doesn't wait for input");
-    exit(EXIT_FAILURE);
-  }
+	// buffer for the content to read
+	char buffer[MAX_BYTES];
+	memset(buffer, '\0', MAX_BYTES);
 
-  // open the file for reading in non blocking mode
-  fd = open(argv[1], O_RDONLY | O_NONBLOCK);
+	if (argc != 2) {
+		printf("usage: %s <filename>\n", argv[0]);
+		puts("reads the content of a file, but doesn't wait for input");
+		exit(EXIT_FAILURE);
+	}
 
-  // if open failed
-  if(fd == -1){
-    if(errno == EAGAIN){
-      puts("open would block");
-    }else{
-      puts("open failed");
-    }
-    exit(EXIT_FAILURE);
-  }
+	// open the file for reading in non blocking mode
+	fd = open(argv[1], O_RDONLY | O_NONBLOCK);
 
-  // read the file and output its contents
-  do{
-    int idx = 0;
-    
-    // read characters from the file
-    bytes = read(fd, buffer, MAX_BYTES);
-    
-    // if there's an error, report it and die
-    if(bytes == -1){
-      if(errno == EAGAIN){
-	puts("normally I'd block, but you told me not to");
-      }else{
-	puts("another read error");
-      }
-      exit(EXIT_FAILURE);
-    }
-    
-    // print the characters
-    if(bytes > 0){
-      for(idx = 0; idx < bytes; ++idx){
-	putchar(buffer[idx]);
-      }
-    } 
-      // while there are no errors and the file isn't over
-  }while(bytes > 0);
+	// if open failed
+	if (fd == -1) {
+		if (errno == EAGAIN) {
+			puts("open would block");
+		} else {
+			puts("open failed");
+		}
+		exit(EXIT_FAILURE);
+	}
 
-  exit(EXIT_SUCCESS);
+	// read the file and output its contents
+	do {
+		int idx = 0;
+
+		// read characters from the file
+		bytes = read(fd, buffer, MAX_BYTES);
+
+		// if there's an error, report it and die
+		if (bytes == -1) {
+			if (errno == EAGAIN) {
+				puts("normally I'd block, but you told me not to");
+			} else {
+				puts("another read error");
+			}
+			exit(EXIT_FAILURE);
+		}
+
+		// print the characters
+		if (bytes > 0) {
+			for (idx = 0; idx < bytes; ++idx) {
+				putchar(buffer[idx]);
+			}
+		}
+		// while there are no errors and the file isn't over
+	} while (bytes > 0);
+
+	exit(EXIT_SUCCESS);
 }
-
-	
-

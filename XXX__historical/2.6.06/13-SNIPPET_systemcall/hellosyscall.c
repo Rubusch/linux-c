@@ -35,7 +35,7 @@
 #include <linux/module.h>
 #include <linux/moduleparam.h> // params to the module
 #include <linux/unistd.h> // list of syscalls
-#include <linux/sched.h> 
+#include <linux/sched.h>
 #include <asm/uaccess.h>
 
 MODULE_LICENSE("GPL");
@@ -69,8 +69,7 @@ module_param(uid, int, 0644);
   -> another reason for this is that we can't get sys_open, it's
   a static variable, so it is not exported
 //*/
-asmlinkage int (*original_call) (const char*, int, int);
-
+asmlinkage int (*original_call)(const char *, int, int);
 
 /*
   anyway the function we'll replace is sys_open (the function called 
@@ -86,64 +85,61 @@ asmlinkage int (*original_call) (const char*, int, int);
   havoc and require programs to be recompiled, since the system calls 
   are the interface between the kernel and the processes)
 //*/
-asmlinkage int our_sys_open(const char* filename, int flags, int mode)
+asmlinkage int our_sys_open(const char *filename, int flags, int mode)
 {
-  int idx = 0;
-  char ch = 0;
+	int idx = 0;
+	char ch = 0;
 
-  // check if this is the user we're spying on 
-  if(uid == current->uid){
-    // report the file, if relevant
-    printk("opened file by %d: ", uid);
-    do{
-      get_user(ch, filename + idx);
-      ++idx;
-      printk("%c", ch);
-    }while(ch != 0);
-    printk("\n");
-  }
+	// check if this is the user we're spying on
+	if (uid == current->uid) {
+		// report the file, if relevant
+		printk("opened file by %d: ", uid);
+		do {
+			get_user(ch, filename + idx);
+			++idx;
+			printk("%c", ch);
+		} while (ch != 0);
+		printk("\n");
+	}
 
-  // call the original sys_open - otherwise, we lose the ability to open files
-  return original_call(filename, flags, mode);
+	// call the original sys_open - otherwise, we lose the ability to open files
+	return original_call(filename, flags, mode);
 }
-
 
 /*
   linux init & clean up
 //*/
 
-
 int init_module(void)
 {
-  printk(KERN_INFO "I'm dangerous. I hope you did a ");
-  printk(KERN_INFO "sync before you insmod'ed me\n");
-  printk(KERN_INFO "my counterpart, cleanup_module(), is even");
-  printk(KERN_INFO "more dangerous. If\n");
-  printk(KERN_INFO "you value your file system, it will ");
-  printk(KERN_INFO "be \"sync; rmmod\" \n");
-  printk(KERN_INFO "when you remove this module.\n");
+	printk(KERN_INFO "I'm dangerous. I hope you did a ");
+	printk(KERN_INFO "sync before you insmod'ed me\n");
+	printk(KERN_INFO "my counterpart, cleanup_module(), is even");
+	printk(KERN_INFO "more dangerous. If\n");
+	printk(KERN_INFO "you value your file system, it will ");
+	printk(KERN_INFO "be \"sync; rmmod\" \n");
+	printk(KERN_INFO "when you remove this module.\n");
 
-  // keep a pointer to the original function in original_call
-  original_call = sys_call_table[__NR_open];
+	// keep a pointer to the original function in original_call
+	original_call = sys_call_table[__NR_open];
 
-  // then replace the system call in the system call table with our_system_call
-  sys_call_table[__NR_open] = our_sys_open;
+	// then replace the system call in the system call table with our_system_call
+	sys_call_table[__NR_open] = our_sys_open;
 
-  // to get the address of the function for system call foo, go to sys_call_table[__NR_foo]
-  printk(KERN_INFO "spying on UID:%d\n", uid);
+	// to get the address of the function for system call foo, go to sys_call_table[__NR_foo]
+	printk(KERN_INFO "spying on UID:%d\n", uid);
 
-  return 0;
+	return 0;
 }
 
 void cleanup_module(void)
 {
-  if(sys_call_table[__NR_open] != our_sys_open){
-    printk(KERN_ALERT "somebody else also played with the ");
-    printk(KERN_ALERT "open system call\n");
-    printk(KERN_ALERT "the system may be left in ");
-    printk(KERN_ALERT "an unstble state\n");
-  }
+	if (sys_call_table[__NR_open] != our_sys_open) {
+		printk(KERN_ALERT "somebody else also played with the ");
+		printk(KERN_ALERT "open system call\n");
+		printk(KERN_ALERT "the system may be left in ");
+		printk(KERN_ALERT "an unstble state\n");
+	}
 
-  sys_call_table[__NR_open] = original_call;
+	sys_call_table[__NR_open] = original_call;
 }
-

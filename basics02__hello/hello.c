@@ -15,20 +15,17 @@ static void __exit mod_exit(void);
 int init_hello(void);
 void cleanup_hello(void);
 
-
 /*
   globals
 */
 
 ///
 
-
 /*
   implementation
 */
 
 ///
-
 
 /*
   start / stop module
@@ -44,7 +41,6 @@ void cleanup_hello(void)
 {
 	printk(KERN_INFO "Goodbye World!\n");
 }
-
 
 /*
   init / exit

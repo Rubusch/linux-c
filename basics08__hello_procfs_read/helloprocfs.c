@@ -30,14 +30,11 @@
 #include <linux/kernel.h>
 #include <linux/proc_fs.h>
 
-
 /* forwards */
 
-static ssize_t read_procfs(struct file *, char __user*, size_t, loff_t *);
+static ssize_t read_procfs(struct file *, char __user *, size_t, loff_t *);
 int start_procfs(void);
 void stop_procfs(void);
-
-
 
 /* macros / globals */
 
@@ -50,13 +47,12 @@ struct file_operations proc_fops = {
 	.read = read_procfs,
 };
 
-
-static ssize_t read_procfs(struct file *filp, char __user *ubuf, size_t count, loff_t *offp)
+static ssize_t read_procfs(struct file *filp, char __user *ubuf, size_t count,
+			   loff_t *offp)
 {
 	printk(KERN_INFO "read handler\n");
 	return count;
 }
-
 
 int start_procfs(void)
 {
@@ -81,13 +77,11 @@ int start_procfs(void)
 	return 0;
 }
 
-
 void stop_procfs(void)
 {
 	proc_remove(ent);
 	printk(KERN_INFO "/proc/%s removed\n", PROCFS_NAME);
 }
-
 
 /*
   init / exit

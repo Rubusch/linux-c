@@ -1,7 +1,6 @@
 #ifndef HELLOCHARDEV_H
 #define HELLOCHARDEV_H
 
-
 #define HELLO_CHARDEV_MINOR 3 /* any number */
 
 #define HELLO_CDEV_NAME "lothars_hello_cdev"
@@ -10,6 +9,5 @@
 
 // size in bytes (i.e. 'uint8_t elements' of kernel_buf)
 #define KERNEL_BUF_SIZE 1024
-
 
 #endif

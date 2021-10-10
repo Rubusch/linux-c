@@ -5,16 +5,14 @@
 #include <linux/kernel.h>
 #include <linux/proc_fs.h>
 
-
 /* forwards */
 
-static ssize_t read_procfs(struct file *, char __user*, size_t, loff_t *);
-static ssize_t write_procfs(struct file *, const char __user*, size_t, loff_t *);
+static ssize_t read_procfs(struct file *, char __user *, size_t, loff_t *);
+static ssize_t write_procfs(struct file *, const char __user *, size_t,
+			    loff_t *);
 
 int start_procfs(void);
 void stop_procfs(void);
-
-
 
 /* macros / globals */
 
@@ -28,23 +26,22 @@ struct file_operations proc_fops = {
 	.write = write_procfs,
 };
 
-
-static ssize_t read_procfs(struct file *filp, char __user *ubuf, size_t count, loff_t *offp)
+static ssize_t read_procfs(struct file *filp, char __user *ubuf, size_t count,
+			   loff_t *offp)
 {
 	printk(KERN_INFO "read handler\n");
 	return 0;
 }
 
-
-static ssize_t write_procfs(struct file *filp, const char __user *ubuf, size_t count, loff_t *offp)
+static ssize_t write_procfs(struct file *filp, const char __user *ubuf,
+			    size_t count, loff_t *offp)
 {
 	printk(KERN_INFO "write handler\n");
 	return -1; // NB: when this is set to -1, the write returns
-		  // right away (with an error), if not, it will
-		  // freeze and stops only with a "sudo rmmod -f
-		  // helloprocfs" from another shell
+		// right away (with an error), if not, it will
+		// freeze and stops only with a "sudo rmmod -f
+		// helloprocfs" from another shell
 }
-
 
 int start_procfs(void)
 {
@@ -57,14 +54,12 @@ int start_procfs(void)
 	return 0;
 }
 
-
 void stop_procfs(void)
 {
 	proc_remove(ent);
 	printk(KERN_INFO "%s() /proc/%s removed\n", __func__, PROCFS_NAME);
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
-
 
 /*
   init / exit

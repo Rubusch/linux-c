@@ -16,7 +16,6 @@ static void __exit mod_exit(void);
 int init_devnum(void);
 void cleanup_devnum(void);
 
-
 /*
   globals
 */
@@ -29,13 +28,11 @@ void cleanup_devnum(void);
 // (better use dynamic assignment of device numbers)
 dev_t dev = MKDEV(DEVICE_MAJOR_NUMBER, DEVICE_MINOR_NUMBER);
 
-
 /*
   implementation
 */
 
 ///
-
 
 /*
   start / stop module
@@ -54,7 +51,8 @@ int init_devnum(void)
 	 * Return value is zero on success, a negative error code on failure.
 	 */
 	register_chrdev_region(dev, 1, LOTHARS_DEVICE_NAME);
-	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev), MINOR(dev));
+	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev),
+	       MINOR(dev));
 	return 0;
 }
 
@@ -73,7 +71,6 @@ void cleanup_devnum(void)
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
 
-
 /*
   init / exit
 */
@@ -90,7 +87,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

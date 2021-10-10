@@ -16,7 +16,6 @@ static void __exit mod_exit(void);
 int init_hello_chardev(void);
 void cleanup_hello_chardev(void);
 
-
 /*
   globals
 */
@@ -28,7 +27,6 @@ void cleanup_hello_chardev(void);
 
 // device setup
 dev_t dev = 0;
-
 
 /*
   start / stop module
@@ -50,12 +48,13 @@ int init_hello_chardev(void)
 	 * chosen dynamically, and returned (along with the first minor number)
 	 * in @dev.  Returns zero or a negative error code.
 	 */
-	if (0 > alloc_chrdev_region(&dev, HELLO_CHARDEV_MAJOR, 1, HELLO_CDEV_NAME)) {
+	if (0 > alloc_chrdev_region(&dev, HELLO_CHARDEV_MAJOR, 1,
+				    HELLO_CDEV_NAME)) {
 		printk(KERN_ERR "alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev), MINOR(dev));
-
+	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev),
+	       MINOR(dev));
 
 	printk(KERN_INFO "%s() done.\n", __func__);
 	return 0;
@@ -77,7 +76,6 @@ void cleanup_hello_chardev(void)
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
 
-
 /*
   init / exit
 */
@@ -94,7 +92,6 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
