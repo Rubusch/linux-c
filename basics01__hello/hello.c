@@ -15,4 +15,4 @@ void cleanup_module(void)
 	printk(KERN_INFO "Goodbye World!\n");
 }
 
-MODULE_LICENSE("GPL")
+MODULE_LICENSE("GPL");
