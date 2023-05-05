@@ -44,8 +44,8 @@ jobs:
       - run: date
 
 ## preparations
-      - run: mkdir -p /lib/modules/`uname -r`
-      - run: ln -s /usr/src/linux-oem-6.1-headers-6.1.0-1010 /lib/modules/`uname -r`/build
+      - run: mkdir -p /lib/modules/$(uname -r)
+      - run: ln -s /usr/src/linux-oem-6.1-headers-6.1.0-1010 /lib/modules/$(uname -r)/build
 
 ## 00: basics
       - run: cd basics01__hello && make
