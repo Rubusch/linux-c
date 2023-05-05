@@ -46,6 +46,7 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/interrupt.h>
+#include <linux/irqnr.h> /* irq_to_desc() */
 #include <asm/io.h>
 #include <asm/hw_irq.h>
 
@@ -133,7 +134,7 @@ static ssize_t hello_interrupt_read(struct file *filp, char __user *buf,
 
 	/* interrupt trick: issue IRQ11 at READ event on device */
 
-	/* // TODO uncomment the following and rebuild your kernel... 
+/* // TODO uncomment the following and rebuild your kernel... 
 	__this_cpu_write(vector_irq[59], desc); // won't compile
 						// unless 'vector_irq'
 						// was exported in the
