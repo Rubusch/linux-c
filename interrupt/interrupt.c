@@ -46,7 +46,6 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/interrupt.h>
-#include <linux/irqnr.h> /* irq_to_desc() */
 #include <asm/io.h>
 #include <asm/hw_irq.h>
 
@@ -127,7 +126,7 @@ static ssize_t hello_interrupt_read(struct file *filp, char __user *buf,
 	struct irq_desc *desc;
 
 	printk(KERN_INFO "%s()", __func__);
-	desc = irq_to_desc(IRQ_NO);
+	desc = irq_data_to_desc(irq_get_irq_data(IRQ_NO));
 	if (!desc) {
 		return -EINVAL;
 	}
