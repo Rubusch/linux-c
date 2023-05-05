@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/Rubusch/c_linux.svg?style=shield)](https://circleci.com/gh/Rubusch/c_linux)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/Rubusch/c_linux/tree/v5%2E4.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/Rubusch/c_linux/tree/v5%2E4)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 
 
