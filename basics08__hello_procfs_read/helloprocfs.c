@@ -43,8 +43,7 @@ static struct proc_dir_entry *ent;
 #define PROCFS_NAME "lothars_procfs_entry"
 
 struct proc_ops proc_fops = {
-	.owner = THIS_MODULE,
-	.read = read_procfs,
+	.proc_read = read_procfs,
 };
 
 static ssize_t read_procfs(struct file *filp, char __user *ubuf, size_t count,
