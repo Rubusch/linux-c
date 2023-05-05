@@ -27,7 +27,7 @@ static int arr_argc = 0;
              later on (0000)
       desc = description for modinfo (char*)
 */
-module_param(myshort, short, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+module_param(myshort, short, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NB: S_IRUGO == S_IRUSR | S_IRGRP | S_IROTH
 MODULE_PARM_DESC(myshort, " my short integer");
 
 module_param(myint, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
