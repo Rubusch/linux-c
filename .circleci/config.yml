@@ -35,7 +35,13 @@ jobs:
             DEBIAN_FRONTEND: "noninteractive"
           command: 'apt-get update && apt-get install -y cmake'
 
+#      - run:
+#          name: Install NINJA
+#          command: 'apt-get update && apt-get install -y ninja-build'
+
       - checkout
+
+      - run: date
 
 ## preparations
       - run: mkdir -p /lib/modules/develop
