@@ -50,7 +50,7 @@ jobs:
 ## preparations
       - run:
           name: Preparations
-          command: "mkdir -p /lib/modules/$(uname -r) && ln -s /usr/src/linux-oem-6.1-headers-6.1.0-1010 /lib/modules/$(uname -r)/build"
+          command: "mkdir -p /lib/modules/$(uname -r) && cd /lib/modules/$(uname -r) && ln -s /usr/src/linux-oem-6.1-headers-6.1.0-1010/build build"
 
 ## 00: basics
       - run: cd basics01__hello && make
