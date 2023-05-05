@@ -59,4 +59,6 @@ static void __exit mod_exit(void)
 module_init(mod_init);
 module_exit(mod_exit);
 
-// NB: this will throw a warning about missing license
+// NB: originally this will throw a warning about missing license
+//     in kernel 6.x w/o module license it won't even compile
+MODULE_LICENSE("GPL");
