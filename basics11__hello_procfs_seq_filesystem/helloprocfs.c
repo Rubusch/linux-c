@@ -77,11 +77,10 @@ static struct proc_dir_entry *ent;
 #define PROC_FILE_PERMS 0644
 #define PROC_PARENT_DIR NULL
 
-static struct file_operations proc_fops = {
-	.owner = THIS_MODULE,
-	.open = open_procfs,
-	.read = read_procfs,
-	.write = write_procfs,
+static struct proc_ops proc_fops = {
+	.proc_open = open_procfs,
+	.proc_read = read_procfs,
+	.proc_write = write_procfs,
 };
 
 static struct seq_operations proc_sops = {

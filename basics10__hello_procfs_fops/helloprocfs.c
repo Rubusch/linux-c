@@ -71,7 +71,7 @@ static struct proc_dir_entry *ent;
 #define PROC_FILE_PERMS 0644
 #define PROC_PARENT_DIR NULL
 
-//*
+/* // The old legacy file_operations
 static struct file_operations proc_ops = {
 	.owner = THIS_MODULE,
 	.open = open_procfs,
@@ -80,8 +80,7 @@ static struct file_operations proc_ops = {
 };
 /*/
 // NB: the following needs totally different parameters
-static const struct proc_ops proc_ops = {
-	.proc_owner = THIS_MODULE,
+static const struct proc_ops proc_fops = {
 	.proc_open = open_procfs,
 	.proc_read = read_procfs,
 	.proc_write = write_procfs,
@@ -145,7 +144,7 @@ int start_procfs(void)
 	printk(KERN_INFO "%s()\n", __func__);
 
 	ent = proc_create(PROCFS_NAME, PROC_FILE_PERMS, PROC_PARENT_DIR,
-			  &proc_ops);
+			  &proc_fops);
 	if (NULL == ent) {
 		printk(KERN_ALERT "/proc/%s failed\n", PROCFS_NAME);
 		proc_remove(

@@ -20,10 +20,9 @@ static struct proc_dir_entry *ent;
 
 #define PROCFS_NAME "lothars_procfs_entry"
 
-struct file_operations proc_fops = {
-	.owner = THIS_MODULE,
-	.read = read_procfs,
-	.write = write_procfs,
+struct proc_ops proc_fops = {
+	.proc_read = read_procfs,
+	.proc_write = write_procfs,
 };
 
 static ssize_t read_procfs(struct file *filp, char __user *ubuf, size_t count,
