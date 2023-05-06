@@ -70,11 +70,12 @@ static ssize_t hello_interrupt_read(struct file *, char __user *, size_t,
 				    loff_t *);
 
 // tasklet
-void tasklet_fn(unsigned long);
+//void tasklet_fn(unsigned long);
+void tasklet_fn(struct tasklet_struct *unused);
 
 #ifdef INTERRUPT_STATIC_TASKLET
 
-DECLARE_TASKLET(tasklet, tasklet_fn);
+DECLARE_TASKLET(tasklet, &tasklet_fn);
 
 #else
 
@@ -110,9 +111,11 @@ static struct file_operations fops = {
   implementation
 */
 
-void tasklet_fn(unsigned long arg)
+void tasklet_fn(struct tasklet_struct *unused)
+//void tasklet_fn(unsigned long arg)
 {
-	printk(KERN_INFO "%s(%ld)\n", __func__, arg);
+	pr_info("tasklet_fn called\n");
+//	printk(KERN_INFO "%s(%ld)\n", __func__, arg);
 }
 
 /*
