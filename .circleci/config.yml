@@ -12,7 +12,7 @@ jobs:
 
       - run:
           name: Installing BUILD-ESSENTIAL
-          command: 'apt-get update && apt-get install -y build-essential crossbuild-essential-arm64'
+          command: 'apt-get update && apt-get install -y build-essential'
 
       - run:
           name: Install kernel soruces
@@ -51,7 +51,7 @@ jobs:
       - run: cd basics09__hello_procfs_read_write && make
       - run: cd basics10__hello_procfs_fops && make
       - run: cd basics11__hello_procfs_seq_filesystem && make
-      - run: cd basics12__hello-with-timing && KERNELDIR=/lib/modules/$(uname -r)/build make
+      - run: cd basics12__hello-with-timing && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
       - run: cd kbuild__symbol_export_to_another_module && make
       - run: cd gpio__raspi4_led && make
       - run: cd gpio__raspi4_interrupt && make
