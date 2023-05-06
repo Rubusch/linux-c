@@ -74,7 +74,7 @@ void tasklet_fn(unsigned long);
 
 #ifdef INTERRUPT_STATIC_TASKLET
 
-DECLARE_TASKLET(tasklet, tasklet_fn, 1);
+DECLARE_TASKLET(tasklet, tasklet_fn);
 
 #else
 
