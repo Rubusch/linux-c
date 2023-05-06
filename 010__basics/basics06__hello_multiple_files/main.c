@@ -1,8 +1,6 @@
 /*
   Hello Module
 
-  linux kernel module (2.6.18)
-
   Demonstrates a kbuild multiple files setup for a kernel module. Load
   it as usual with:
   $ sudo insmod ./multiple.ko
@@ -30,8 +28,10 @@
   same "common" namespace!).
 
   ---
-  References:
-  Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
+  REFERENCES:
+  - Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
+
+  VERIFIED: linux v2.6.18/x86
 */
 
 #include "hello.h"

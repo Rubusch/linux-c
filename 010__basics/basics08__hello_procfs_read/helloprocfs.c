@@ -18,9 +18,11 @@
   Writing to the procfs is (still) not supported.
 
   ---
-  References:
+  REFERENCES:
   Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
 
+  VERIFIED:
+  v3.10/x86
   Several upgrades, since 3.10 the create_proc_entry() was changed to
   the new function, then the mmap from userspace became obsolete,
   nowadays the param "char __user*" performs the mapping.
@@ -49,7 +51,7 @@ struct proc_ops proc_fops = {
 static ssize_t read_procfs(struct file *filp, char __user *ubuf, size_t count,
 			   loff_t *offp)
 {
-	printk(KERN_INFO "read handler\n");
+	pr_info("read handler\n");
 	return count;
 }
 
@@ -71,7 +73,7 @@ int start_procfs(void)
 	if (NULL == (ent = proc_create(PROCFS_NAME, 0644, NULL, &proc_fops))) {
 		printk(KERN_ALERT "/proc/%s failed\n", PROCFS_NAME);
 	}
-	printk(KERN_INFO "/proc/%s created\n", PROCFS_NAME);
+	pr_info("/proc/%s created\n", PROCFS_NAME);
 
 	return 0;
 }
@@ -79,7 +81,7 @@ int start_procfs(void)
 void stop_procfs(void)
 {
 	proc_remove(ent);
-	printk(KERN_INFO "/proc/%s removed\n", PROCFS_NAME);
+	pr_info("/proc/%s removed\n", PROCFS_NAME);
 }
 
 /*
@@ -99,4 +101,4 @@ module_init(mod_init);
 module_exit(mod_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("demonstrates the usage of a procfs entry");
+MODULE_DESCRIPTION("messing with procfs entries");

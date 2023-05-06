@@ -62,25 +62,25 @@ static int __init hello_init(void)
 {
 	int idx = 0;
 
-	printk(KERN_INFO "Hello World\n");
+	pr_info("Hello World\n");
 
 	// 3. Use the parameters and print them.
-	printk(KERN_INFO "myshort is a short integer: %hd\n", myshort);
-	printk(KERN_INFO "myint is a integer: %d\n", myint);
-	printk(KERN_INFO "mylong is a long integer: %ld\n", mylong);
-	printk(KERN_INFO "mystring is a string: %s\n", mystring);
+	pr_info("myshort is a short integer: %hd\n", myshort);
+	pr_info("myint is a integer: %d\n", myint);
+	pr_info("mylong is a long integer: %ld\n", mylong);
+	pr_info("mystring is a string: %s\n", mystring);
 
 	for (idx = 0; idx < (sizeof(myintArray) / sizeof(int)); ++idx) {
-		printk(KERN_INFO "myintArray[%d] = %d\n", idx, myintArray[idx]);
+		pr_info("myintArray[%d] = %d\n", idx, myintArray[idx]);
 	}
-	printk(KERN_INFO "got %d arguments for myintArray.\n", arr_argc);
+	pr_info("got %d arguments for myintArray.\n", arr_argc);
 
 	return 0;
 }
 
 static void __exit hello_exit(void)
 {
-	printk(KERN_INFO "Goodbye World!\n");
+	pr_info("Goodbye World!\n");
 }
 
 module_init(hello_init);
@@ -88,4 +88,4 @@ module_exit(hello_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Usage of init parameters");
+MODULE_DESCRIPTION("messing with init parameters");

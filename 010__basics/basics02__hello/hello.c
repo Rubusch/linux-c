@@ -33,13 +33,13 @@ void cleanup_hello(void);
 
 int init_hello(void)
 {
-	printk(KERN_INFO "Hello World!\n");
+	pr_info("Hello World!\n");
 	return 0;
 }
 
 void cleanup_hello(void)
 {
-	printk(KERN_INFO "Goodbye World!\n");
+	pr_info("Goodbye World!\n");
 }
 
 /*
@@ -59,6 +59,4 @@ static void __exit mod_exit(void)
 module_init(mod_init);
 module_exit(mod_exit);
 
-// NB: originally this will throw a warning about missing license
-//     in kernel 6.x w/o module license it won't even compile
 MODULE_LICENSE("GPL");

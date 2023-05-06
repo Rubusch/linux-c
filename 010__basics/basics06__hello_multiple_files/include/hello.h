@@ -10,7 +10,7 @@
            header file.
 */
 #define DRIVER_AUTHOR "Lothar Rubusch <l.rubusch@gmail.com>"
-#define DRIVER_DESC "Distributed files kbuild setup"
+#define DRIVER_DESC "messing with distributed files and a kbuild setup"
 
 /*
   forwards - The functions called from static init/exit functions.

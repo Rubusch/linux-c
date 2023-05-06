@@ -5,5 +5,5 @@
 
 void cleanup_hello(void)
 {
-	printk(KERN_INFO "Goodbye World!\n");
+	pr_info("Goodbye World!\n");
 }

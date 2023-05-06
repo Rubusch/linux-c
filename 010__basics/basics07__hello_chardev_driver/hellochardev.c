@@ -158,12 +158,12 @@ int start_hello(void)
 		return Major;
 	}
 
-	printk(KERN_INFO "I was assigned major number %d.\n", Major);
-	printk(KERN_INFO "To talk to the device, create a dev file with\n");
-	printk(KERN_INFO "'sudo mknod /dev/%s c %d 0'\n", DEVICE_NAME, Major);
-	printk(KERN_INFO "Try various minor numbers. Try to cat and echo to\n");
-	printk(KERN_INFO "the device file.\n");
-	printk(KERN_INFO "Remove the device file and module when done.\n");
+	pr_info("I was assigned major number %d.\n", Major);
+	pr_info("To talk to the device, create a dev file with\n");
+	pr_info("'sudo mknod /dev/%s c %d 0'\n", DEVICE_NAME, Major);
+	pr_info("Try various minor numbers. Try to cat and echo to\n");
+	pr_info("the device file.\n");
+	pr_info("Remove the device file and module when done.\n");
 
 	return 0;
 }
@@ -193,4 +193,4 @@ module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("demonstrates the usage of a character device");
+MODULE_DESCRIPTION("messing with a character device");

@@ -94,7 +94,7 @@ int notify_param(const char *val, const struct kernel_param *kp)
 		printk(KERN_ERR "%s() invalid argument\n", __func__);
 		return -EINVAL;
 	}
-	printk(KERN_INFO "new value: %d\n", hello_int_arg_cb);
+	pr_info("new value: %d\n", hello_int_arg_cb);
 	return 0;
 }
 
@@ -106,23 +106,23 @@ int init_hello_arguments(void)
 {
 	int idx;
 
-	printk(KERN_INFO "%s() initializing...\n", __func__);
-	printk(KERN_INFO "%s() hello_int_arg = %d\n", __func__, hello_int_arg);
-	printk(KERN_INFO "%s() hello_int_arg_cb = %d\n", __func__,
+	pr_info("%s() initializing...\n", __func__);
+	pr_info("%s() hello_int_arg = %d\n", __func__, hello_int_arg);
+	pr_info("%s() hello_int_arg_cb = %d\n", __func__,
 	       hello_int_arg_cb);
 	for (idx = 0; idx < sizeof(hello_int_array) / sizeof(*hello_int_array);
 	     ++idx) {
-		printk(KERN_INFO "%s() hello_int_array[%d] = %d\n", __func__,
+		pr_info("%s() hello_int_array[%d] = %d\n", __func__,
 		       idx, hello_int_array[idx]);
 	}
-	printk(KERN_INFO "%s() hello_string_arg = '%s'\n", __func__,
+	pr_info("%s() hello_string_arg = '%s'\n", __func__,
 	       hello_string_arg);
 	return 0;
 }
 
 void cleanup_hello_arguments(void)
 {
-	printk(KERN_INFO "%s() READY.\n", __func__);
+	pr_info("%s() READY.\n", __func__);
 }
 
 /*
@@ -144,4 +144,4 @@ module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Demonstrates module load arguments.");
+MODULE_DESCRIPTION("even more messing with module load arguments.");

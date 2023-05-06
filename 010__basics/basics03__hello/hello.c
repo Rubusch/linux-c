@@ -20,7 +20,7 @@ void cleanup_hello(void);
 */
 
 #define DRIVER_AUTHOR "Lothar Rubusch <l.rubusch@gmail.com>"
-#define DRIVER_DESC "A sample module."
+#define DRIVER_DESC "messing with sample modules"
 
 /*
   implementation
@@ -29,22 +29,22 @@ void cleanup_hello(void);
 ///
 
 /*
-  start / stop module
+  non-static start / stop module functions
 */
 
 int init_hello(void)
 {
-	printk(KERN_INFO "Hello World!\n");
+	pr_info("Hello World!\n");
 	return 0;
 }
 
 void cleanup_hello(void)
 {
-	printk(KERN_INFO "Goodbye World!\n");
+	pr_info("Goodbye World!\n");
 }
 
 /*
-  init / exit
+  static init / exit
 */
 
 static int __init mod_init(void)

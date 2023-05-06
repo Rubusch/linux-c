@@ -41,10 +41,11 @@
   - handles architecture specific issues
 
   ---
-  References:
-  Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
+  REFERENCES:
+  - Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
+  - https://www.cs.fsu.edu/~cop4610t/lectures/project2/procfs_module/proc_module.pdf
 
-  https://www.cs.fsu.edu/~cop4610t/lectures/project2/procfs_module/proc_module.pdf
+  VERIFIED: v3.10, v5.4
 */
 
 #include <linux/init.h>
@@ -96,7 +97,7 @@ static int read_p;
 
 static int open_procfs(struct inode *inode, struct file *file)
 {
-	printk(KERN_INFO "%s()", __func__);
+	pr_info("%s()", __func__);
 
 	read_p = 1;
 
@@ -104,7 +105,7 @@ static int open_procfs(struct inode *inode, struct file *file)
 		20 * sizeof(*message),
 		GFP_KERNEL); // alternative use: __GFP_WAIT|__GFP_IO|__GFP_FS
 	if (NULL == message) {
-		printk(KERN_ALERT "%s(): Error at allocation\n", __func__);
+		pr_alert("%s(): Error at allocation\n", __func__);
 		return -ENOMEM;
 	}
 
@@ -118,7 +119,7 @@ static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
 {
 	int len = 0;
 
-	printk(KERN_INFO "%s()\n", __func__);
+	pr_info("%s()\n", __func__);
 
 	len = strlen(message);
 
@@ -127,7 +128,7 @@ static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
 		return 0;
 	}
 
-	printk("READ\n");
+	pr_info("READ\n");
 	copy_to_user(buf, message, len);
 	return len;
 }
@@ -135,34 +136,34 @@ static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
 static ssize_t write_procfs(struct file *filp, const char __user *buf,
 			    size_t count, loff_t *offp)
 {
-	printk(KERN_INFO "%s()\n", __func__);
+	pr_info("%s()\n", __func__);
 	return 0;
 }
 
 int start_procfs(void)
 {
-	printk(KERN_INFO "%s()\n", __func__);
+	pr_info("%s()\n", __func__);
 
 	ent = proc_create(PROCFS_NAME, PROC_FILE_PERMS, PROC_PARENT_DIR,
 			  &proc_fops);
 	if (NULL == ent) {
 		printk(KERN_ALERT "/proc/%s failed\n", PROCFS_NAME);
-		proc_remove(
-			ent); // alternative: remove_proc_entry(PROCFS_NAME, NULL);
+		proc_remove(ent);
+		// alternative: remove_proc_entry(PROCFS_NAME, NULL);
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "/proc/%s created\n", PROCFS_NAME);
+	pr_info("/proc/%s created\n", PROCFS_NAME);
 
 	return 0;
 }
 
 void stop_procfs(void)
 {
-	printk(KERN_INFO "%s()\n", __func__);
+	pr_info("%s()\n", __func__);
 
 	kfree(message);
 	proc_remove(ent);
-	printk(KERN_INFO "/proc/%s removed\n", PROCFS_NAME);
+	pr_info("/proc/%s removed\n", PROCFS_NAME);
 }
 
 /*
@@ -182,4 +183,4 @@ module_init(mod_init);
 module_exit(mod_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("demonstrates the usage of a procfs entry");
+MODULE_DESCRIPTION("even more mess with procfs entries");
