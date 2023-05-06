@@ -39,8 +39,8 @@ jobs:
       - run:
           name: Preparations
           command: |
-              mkdir -p /lib/modules/$(uname -r)
-              cd /lib/modules/$(uname -r)
+              mkdir -p /lib/modules/${KERNELVER}
+              cd /lib/modules/${KERNELVER}
               ln -s /lib/modules/6.1.0-1010-oem/build build
 
 ## 00: basics
