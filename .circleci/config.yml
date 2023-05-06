@@ -4,6 +4,10 @@ jobs:
   build:
     docker:
       - image: ubuntu:22.04
+
+    environment:
+      KERNELDIR: "/lib/modules/$(uname -r)/build"
+
     steps:
       - run:
           name: Greeting
