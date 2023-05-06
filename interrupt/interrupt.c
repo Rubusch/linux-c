@@ -49,6 +49,9 @@
 #include <asm/io.h>
 #include <asm/hw_irq.h>
 
+#include <linux/irq.h>
+#include <linux/irqdomain.h>
+
 /*
   forwards
 */
@@ -126,7 +129,8 @@ static ssize_t hello_interrupt_read(struct file *filp, char __user *buf,
 	struct irq_desc *desc;
 
 	printk(KERN_INFO "%s()", __func__);
-	desc = irq_data_to_desc(irq_get_irq_data(IRQ_NO));
+	desc = irq_to_desc(IRQ_NO);
+//	desc = irq_data_to_desc(irq_get_irq_data(IRQ_NO));  
 	if (!desc) {
 		return -EINVAL;
 	}
