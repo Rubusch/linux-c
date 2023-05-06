@@ -40,18 +40,29 @@ jobs:
               ln -s /lib/modules/6.1.0-1010-oem/build build
 
 ## 00: basics
-      - run: cd basics01__hello && make
-      - run: cd basics02__hello && make
-      - run: cd basics03__hello && make
-      - run: cd basics04__hello_module_init_arguments && make
-      - run: cd basics05__hello_module_init_arguments && make
-      - run: cd basics06__hello_multiple_files && make
-      - run: cd basics07__hello_chardev_driver && make
-      - run: cd basics08__hello_procfs_read && make
-      - run: cd basics09__hello_procfs_read_write && make
-      - run: cd basics10__hello_procfs_fops && make
-      - run: cd basics11__hello_procfs_seq_filesystem && make
-      - run: cd basics12__hello-with-timing && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+      - run: cd 010__basics/basics01__hello && make
+      - run: cd 010__basics/basics02__hello && make
+      - run: cd 010__basics/basics03__hello && make
+      - run: cd 010__basics/basics04__hello_module_init_arguments && make
+      - run: cd 010__basics/basics05__hello_module_init_arguments && make
+      - run: cd 010__basics/basics06__hello_multiple_files && make
+      - run: cd 010__basics/basics07__hello_chardev_driver && make
+      - run: cd 010__basics/basics08__hello_procfs_read && make
+      - run: cd 010__basics/basics09__hello_procfs_read_write && make
+      - run: cd 010__basics/basics10__hello_procfs_fops && make
+      - run: cd 010__basics/basics11__hello_procfs_seq_filesystem && make
+      - run: cd 010__basics/basics12__hello-with-timing && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+
+      - run: cd 020__chardev/chardev__01_mknod && make
+      - run: cd 020__chardev/chardev__02_devicefile && make
+      - run: cd 020__chardev/chardev__03_devicefile_and_chardev && make
+      - run: cd 020__chardev/chardev__04_devicefile_implemented && make
+      - run: cd 020__chardev/chardev__ioctl01 && make
+      - run: cd 020__chardev/chardev__ioctl02_string_disabled && make
+      - run: cd 020__chardev/chardev__ioctl03_signal && make
+      - run: cd 020__chardev/chardev__wait_on_events && make
+      - run: cd 020__chardev/chardev__linkedlist && make
+
       - run: cd kbuild__symbol_export_to_another_module && make
       - run: cd gpio__raspi4_led && make
       - run: cd gpio__raspi4_interrupt && make
@@ -65,15 +76,6 @@ jobs:
       - run: cd kthread__completion_dynamic && make
       - run: cd kthread__seqlock && make
       - run: cd sysfs && make
-      - run: cd chardev__01_mknod && make
-      - run: cd chardev__02_devicefile && make
-      - run: cd chardev__03_devicefile_and_chardev && make
-      - run: cd chardev__04_devicefile_implemented && make
-      - run: cd chardev__ioctl01 && make
-      - run: cd chardev__ioctl02_string_disabled && make
-      - run: cd chardev__ioctl03_signal && make
-      - run: cd chardev__wait_on_events && make
-      - run: cd chardev__linkedlist && make
       - run: cd device__01_static_major_minor && make
       - run: cd device__02_dynamic_major_minor && make
       - run: cd interrupt && make
