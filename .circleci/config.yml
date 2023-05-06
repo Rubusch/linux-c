@@ -5,10 +5,6 @@ jobs:
     docker:
       - image: ubuntu:22.04
 
-    environment:
-      KERNELVER: $(shell uname -r)
-      KERNELDIR: /lib/modules/${KERNELVER}/build
-
     steps:
       - run:
           name: Greeting
@@ -39,8 +35,8 @@ jobs:
       - run:
           name: Preparations
           command: |
-              mkdir -p /lib/modules/${KERNELVER}
-              cd /lib/modules/${KERNELVER}
+              mkdir -p /lib/modules/$(uname -r)
+              cd /lib/modules/$(uname -r)
               ln -s /lib/modules/6.1.0-1010-oem/build build
 
 ## 00: basics
@@ -55,7 +51,7 @@ jobs:
       - run: cd basics09__hello_procfs_read_write && make
       - run: cd basics10__hello_procfs_fops && make
       - run: cd basics11__hello_procfs_seq_filesystem && make
-      - run: cd basics12__hello-with-timing && make
+      - run: cd basics12__hello-with-timing && KERNELDIR=/lib/modules/$(uname -r)/build make
       - run: cd kbuild__symbol_export_to_another_module && make
       - run: cd gpio__raspi4_led && make
       - run: cd gpio__raspi4_interrupt && make
