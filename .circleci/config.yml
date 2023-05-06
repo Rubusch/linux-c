@@ -50,6 +50,7 @@ jobs:
       - run: cd basics09__hello_procfs_read_write && make
       - run: cd basics10__hello_procfs_fops && make
       - run: cd basics11__hello_procfs_seq_filesystem && make
+      - run: cd basics12__hello-with-timing && make
       - run: cd kbuild__symbol_export_to_another_module && make
       - run: cd gpio__raspi4_led && make
       - run: cd gpio__raspi4_interrupt && make
