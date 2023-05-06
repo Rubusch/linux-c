@@ -6,7 +6,8 @@ jobs:
       - image: ubuntu:22.04
 
     environment:
-      KERNELDIR: "/lib/modules/$(uname -r)/build"
+      KERNELVER: $(shell uname -r)
+      KERNELDIR: /lib/modules/${KERNELVER}/build
 
     steps:
       - run:
