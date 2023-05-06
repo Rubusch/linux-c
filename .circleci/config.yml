@@ -60,6 +60,7 @@ jobs:
       - run: cd 020__chardev/chardev__ioctl01 && make
       - run: cd 020__chardev/chardev__ioctl02_string_disabled && make
       - run: cd 020__chardev/chardev__ioctl03_signal && make
+      - run: cd 020__chardev/chardev__ioctl04_demo/module && make
       - run: cd 020__chardev/chardev__wait_on_events && make
       - run: cd 020__chardev/chardev__linkedlist && make
 
