@@ -138,26 +138,8 @@ static struct file_operations fops = {
 static ssize_t hello_interrupt_read(struct file *filp, char __user *buf,
 				    size_t len, loff_t *off)
 {
-	struct irq_desc *desc;
-
 	printk(KERN_INFO "%s()", __func__);
-	desc = irq_to_desc(IRQ_NO);
-	if (!desc) {
-		return -EINVAL;
-	}
-
-	/* interrupt trick: issue IRQ11 at READ event on device */
-
-	/* // TODO uncomment the following and rebuild your kernel...
-	__this_cpu_write(vector_irq[59], desc); // won't compile
-						// unless 'vector_irq'
-						// was exported in the
-						// kernel and thus
-						// kernel recompiled
-// */
-
 	asm("int $0x38"); // corresponding to IRQ 11
-
 	return 0;
 }
 
