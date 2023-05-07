@@ -39,7 +39,7 @@ jobs:
               cd /lib/modules/$(uname -r)
               ln -s /lib/modules/6.1.0-1010-oem/build build
 
-## 00: basics
+## basics
       - run: cd 010__basics/basics01__hello && make
       - run: cd 010__basics/basics02__hello && make
       - run: cd 010__basics/basics03__hello && make
@@ -52,7 +52,11 @@ jobs:
       - run: cd 010__basics/basics10__hello_procfs_fops && make
       - run: cd 010__basics/basics11__hello_procfs_seq_filesystem && make
       - run: cd 010__basics/basics12__hello-with-timing && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+      - run: cd 010__basics/device__01_static_major_minor && make
+      - run: cd 010__basics/device__02_dynamic_major_minor && make
+      - run: cd 010__basics/kbuild__symbol_export_to_another_module && make
 
+## chardev
       - run: cd 020__chardev/010__mknod && make
       - run: cd 020__chardev/012__devicefile && make
       - run: cd 020__chardev/013__devicefile_and_chardev && make
@@ -66,28 +70,33 @@ jobs:
       - run: cd 020__chardev/121__using_devtmpfs_with_device_class/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
       - run: cd 020__chardev/122__using_miscdevice/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
 
-      - run: cd kbuild__symbol_export_to_another_module && make
-      - run: cd gpio__raspi4_led && make
-      - run: cd gpio__raspi4_interrupt && make
-      - run: cd kthread && make
-      - run: cd kthread__atomic_operation && make
-      - run: cd kthread__mutex && make
-      - run: cd kthread__spinlock && make
-      - run: cd kthread__rwlock && make
-      - run: cd kthread__rcu && make
-      - run: cd kthread__completion && make
-      - run: cd kthread__completion_dynamic && make
-      - run: cd kthread__seqlock && make
-      - run: cd sysfs && make
-      - run: cd device__01_static_major_minor && make
-      - run: cd device__02_dynamic_major_minor && make
-      - run: cd interrupt && make
-      - run: cd interrupt__workqueue01_kernel && make
-      - run: cd interrupt__workqueue02_customized && make
-      - run: cd interrupt__tasklet01 && make
-      - run: cd interrupt__tasklet02__dynamic_alloc && make
-      - run: cd timer && make
-      - run: cd timer__hres_timer && make
-      - run: cd usb__basic && make
-      - run: cd usb__descriptors && make
+## platform drivers and open firmware
+      - run: cd 030__platform-devices/gpio__raspi4_led && make
+      - run: cd 030__platform-devices/gpio__raspi4_interrupt && make
 
+## interrupts
+      - run: cd 050__interrupts/interrupt && make
+      - run: cd 050__interrupts/interrupt__workqueue01_kernel && make
+      - run: cd 050__interrupts/interrupt__workqueue02_customized && make
+      - run: cd 050__interrupts/interrupt__tasklet01 && make
+      - run: cd 050__interrupts/interrupt__tasklet02__dynamic_alloc && make
+
+## kthreads
+      - run: cd 080__kthreads/kthread && make
+      - run: cd 080__kthreads/kthread__atomic_operation && make
+      - run: cd 080__kthreads/kthread__mutex && make
+      - run: cd 080__kthreads/kthread__spinlock && make
+      - run: cd 080__kthreads/kthread__rwlock && make
+      - run: cd 080__kthreads/kthread__rcu && make
+      - run: cd 080__kthreads/kthread__completion && make
+      - run: cd 080__kthreads/kthread__completion_dynamic && make
+      - run: cd 080__kthreads/kthread__seqlock && make
+
+## misc
+      - run: cd 100__misc/sysfs && make
+      - run: cd 100__misc/timer && make
+      - run: cd 100__misc/timer__hres_timer && make
+
+## usb
+      - run: cd 140__usb/usb__basic && make
+      - run: cd 140__usb/usb__descriptors && make
