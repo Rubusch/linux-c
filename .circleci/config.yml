@@ -53,16 +53,17 @@ jobs:
       - run: cd 010__basics/basics11__hello_procfs_seq_filesystem && make
       - run: cd 010__basics/basics12__hello-with-timing && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
 
-      - run: cd 020__chardev/chardev__01_mknod && make
-      - run: cd 020__chardev/chardev__02_devicefile && make
-      - run: cd 020__chardev/chardev__03_devicefile_and_chardev && make
-      - run: cd 020__chardev/chardev__04_devicefile_implemented && make
-      - run: cd 020__chardev/chardev__ioctl01 && make
-      - run: cd 020__chardev/chardev__ioctl02_string_disabled && make
-      - run: cd 020__chardev/chardev__ioctl03_signal && make
-      - run: cd 020__chardev/chardev__ioctl04_demo/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
-      - run: cd 020__chardev/chardev__wait_on_events && make
-      - run: cd 020__chardev/chardev__linkedlist && make
+      - run: cd 020__chardev/010__mknod && make
+      - run: cd 020__chardev/012__devicefile && make
+      - run: cd 020__chardev/013__devicefile_and_chardev && make
+      - run: cd 020__chardev/014__devicefile_implemented && make
+      - run: cd 020__chardev/020__linkedlist && make
+      - run: cd 020__chardev/030__wait_on_events && make
+      - run: cd 020__chardev/110__ioctl && make
+      - run: cd 020__chardev/112__ioctl_string_disabled && make
+      - run: cd 020__chardev/113__ioctl_signal && make
+      - run: cd 020__chardev/120__ioctl_demo/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+      - run: cd 020__chardev/121__ioctl_with_device_class/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
 
       - run: cd kbuild__symbol_export_to_another_module && make
       - run: cd gpio__raspi4_led && make
