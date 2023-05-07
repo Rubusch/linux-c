@@ -63,7 +63,8 @@ jobs:
       - run: cd 020__chardev/112__ioctl_string_disabled && make
       - run: cd 020__chardev/113__ioctl_signal && make
       - run: cd 020__chardev/120__ioctl_demo/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
-      - run: cd 020__chardev/121__ioctl_with_device_class/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+      - run: cd 020__chardev/121__using_devtmpfs_with_device_class/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+      - run: cd 020__chardev/122__using_miscdevice/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
 
       - run: cd kbuild__symbol_export_to_another_module && make
       - run: cd gpio__raspi4_led && make
