@@ -55,6 +55,7 @@ jobs:
       - run: cd 010__basics/device__01_static_major_minor && make
       - run: cd 010__basics/device__02_dynamic_major_minor && make
       - run: cd 010__basics/kbuild__symbol_export_to_another_module && make
+      - run: cd 010__basics/types && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
 
 ## chardev
       - run: cd 020__chardev/010__mknod && make

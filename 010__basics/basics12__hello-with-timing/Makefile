@@ -10,8 +10,7 @@ all:
 	       	M=$(PWD) modules
 
 clean:
-	make -C $(KERNELDIR) \
-		ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) \
+	make -C $(KERNELDIR) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) \
 		M=$(PWD) clean
 
 .PHONY: all clean
