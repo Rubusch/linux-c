@@ -77,6 +77,7 @@ jobs:
       - run: cd 030__platform-devices/devicetree_binding_chardev/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
       - run: cd 030__platform-devices/devicetree_binding_leds/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
       - run: cd 030__platform-devices/devicetree_binding_ledsclass/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+      - run: cd 030__platform-devices/devicetree_binding_uio_led/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
 
 ## interrupts
       - run: cd 050__interrupts/interrupt && make
