@@ -232,7 +232,7 @@
 			linux,default-trigger = "heartbeat";
 		};
 
-		
+	};
 };
 
 &firmware {
