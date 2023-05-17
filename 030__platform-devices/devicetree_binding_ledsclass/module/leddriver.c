@@ -19,7 +19,6 @@
 #include <linux/leds.h>
 //#include <linux/miscdevice.h> /* now instead of the miscdevice use the new led class device */
 
-// define major number
 #define DEVICE_NAME "lothars_device"
 
 /* statics */
