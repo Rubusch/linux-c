@@ -1,4 +1,4 @@
-SOURCE = ioctl_test.c
+SOURCE = userland.c
 OBJECTS = $(SOURCE:.c=.o)
 TARGET = $(SOURCE:.c=.elf)
 
