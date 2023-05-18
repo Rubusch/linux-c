@@ -74,7 +74,7 @@ static int mod_remove(struct platform_device *pdev)
 	return 0;
 }
 
-static const struct of_device_ids mod_of_ids[] {
+static const struct of_device_id mod_of_ids[] = {
 	{ .compatible = "lothars,uio" },
 	{},
 };

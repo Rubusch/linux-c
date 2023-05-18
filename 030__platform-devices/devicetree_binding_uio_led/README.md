@@ -87,9 +87,12 @@ A copy of the modified DTS is provided, copy it to the specified location in the
 
 ```
 $ cd linux
+$ cp -arf ~/workspace/lothars-modules/030__platform/devicetree_binding_uio_led/devicetree/arch ./
+
 $ make dtbs
+  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
 ```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the /boot/bcm2710-rpi-3-b.dtb. In case make a safety backup first.  
+Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
 
 ## Linux Module
 Should crosscompile - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
@@ -107,7 +110,20 @@ rpi$ make
 ```
 
 ## Usage
-TODO  
+
+```
+pi@raspberrypi:~/sandbox$ sudo insmod ./leddriver.ko
+pi@raspberrypi:~/sandbox$ lsmod | grep leddriver
+leddriver              16384  0
+uio                    24576  2 uio_pdrv_genirq,leddriver
+pi@raspberrypi:~/sandbox$ ls /sys/class/uio/uio0/
+dev  device  event  maps  name  power  subsystem  uevent  version
+pi@raspberrypi:~/sandbox$ cat /sys/class/uio/uio0/name
+lothars_device
+pi@raspberrypi:~/sandbox$ cat /sys/class/uio/uio0/maps/map0/size
+0x0000000000001000
+
+```
 
 ## Verified
 * Verified against a RPI3 w/ aarch64
