@@ -19,8 +19,8 @@
 #define BUFFER_LENGTH         128
 
 #define GPIO_27               27
-#define GPIO_22               22
-#define GPIO_26               26
+//#define GPIO_22               22
+//#define GPIO_26               26
 
 #define GPFSEL2_offset        0x08
 #define GPSET0_offset         0x1C
@@ -51,7 +51,6 @@
 
 // obtain the uio size via sysfs
 #define SYSFS_UIO_SIZE "/sys/class/uio/uio0/maps/map0/size"
-
 
 /*
   fgetc() reads the next character from stream and returns it as an
@@ -104,6 +103,7 @@ void readstring(char *str, const unsigned int strsize, const char *prompt)
 		}
 
 	} while (0 == strlen(str));
+	fprintf(stderr, "%s(): input was '%s'\n", __func__, str);
 }
 
 
@@ -116,8 +116,8 @@ int main()
 	void *demo_driver_map; // the handle to the mapped memory
                                // in case use: char* demo_driver_map
 	char sendstring[BUFFER_LENGTH];
-	char *led_on = NULL;
-	char *led_off = NULL;
+	char *led_on = "on";
+	char *led_off = "off";
 	char *do_exit = "exit";
 
 	fprintf(stderr, "%s(): started\n", __func__);
