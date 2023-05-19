@@ -114,19 +114,40 @@ rpi$ make
 ```
 pi@raspberrypi:~/sandbox$ sudo insmod ./leddriver.ko
 pi@raspberrypi:~/sandbox$ lsmod | grep leddriver
-leddriver              16384  0
-uio                    24576  2 uio_pdrv_genirq,leddriver
+    leddriver              16384  0
+    uio                    24576  2 uio_pdrv_genirq,leddriver
 pi@raspberrypi:~/sandbox$ ls /sys/class/uio/uio0/
-dev  device  event  maps  name  power  subsystem  uevent  version
+    dev  device  event  maps  name  power  subsystem  uevent  version
 pi@raspberrypi:~/sandbox$ cat /sys/class/uio/uio0/name
-lothars_device
+    lothars_device
 pi@raspberrypi:~/sandbox$ cat /sys/class/uio/uio0/maps/map0/size
-0x0000000000001000
+    0x0000000000001000
 
+pi@raspberrypi:~/sandbox$ sudo ./userland.elf
+    main(): started
+    main(): /dev/mem opened
+    main(): /dev/uio0 opened
+    main(): the size read from '/sys/class/uio/uio0/maps/map0/size' is 0x4096
+    main(): memory mapped to 'demo_driver_map'
+    main(): enter a led value [on|off|exit]
+
+    on
+    readstring(): input was 'on'
+    main(): enter a led value [on|off|exit]
+
+    off
+    readstring(): input was 'off'
+    main(): enter a led value [on|off|exit]
+
+    exit
+    readstring(): input was 'exit'
+    main(): exit - terminating
+    main(): closing down
+    main(): done
 ```
 
 ## Verified
-* Verified against a RPI3 w/ aarch64
+* Verified against a RPI3 w/ aarch64  
 
 ## References
-* Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 176
+* Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 197  

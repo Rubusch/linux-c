@@ -19,8 +19,6 @@
 #define BUFFER_LENGTH         128
 
 #define GPIO_27               27
-//#define GPIO_22               22
-//#define GPIO_26               26
 
 #define GPFSEL2_offset        0x08
 #define GPSET0_offset         0x1C
@@ -28,25 +26,16 @@
 
 // specify set each individual color led
 #define GPIO_27_INDEX         1 << (GPIO_27 % 32)
-//#define GPIO_22_INDEX         1 << (GPIO_22 % 32)  
-//#define GPIO_26_INDEX         1 << (GPIO_26 % 32)  
 
 // select output function
 #define GPIO_27_FUNC          1 << ((GPIO_27 % 10) * 3)
-//#define GPIO_22_FUNC          1 << ((GPIO_22 % 10) * 3)  
-//#define GPIO_26_FUNC          1 << ((GPIO_26 % 10) * 3)  
 
 // specify mask for each individual color led
 #define FSEL_27_MASK          0b111 << ((GPIO_27 % 10) * 3)   /* red since bit 21 [FSEL27] */
-//#define FSEL_22_MASK          0b111 << ((GPIO_22 % 10) * 3)   /* green since bit 6 [FSEL22] */  
-//#define FSEL_26_MASK          0b111 << ((GPIO_26 % 10) * 3)   /* blue since bit 18 [FSEL26] */  
 
 // setup some convenience helpers
-//#define GPIO_SET_FUNCTION_LEDS (GPIO_27_FUNC | GPIO_22_FUNC | GPIO_26_FUNC)  
 #define GPIO_SET_FUNCTION_LEDS (GPIO_27_FUNC)
-//#define GPIO_MASK_ALL_LEDS (FSEL_27_MASK | FSEL_22_MASK | FSEL_26_MASK)  
 #define GPIO_MASK_ALL_LEDS (FSEL_27_MASK)
-//#define GPIO_SET_ALL_LEDS (GPIO_27_INDEX | GPIO_22_INDEX | GPIO_26_INDEX)  
 #define GPIO_SET_ALL_LEDS (GPIO_27_INDEX)
 
 // obtain the uio size via sysfs
@@ -105,7 +94,6 @@ void readstring(char *str, const unsigned int strsize, const char *prompt)
 	} while (0 == strlen(str));
 	fprintf(stderr, "%s(): input was '%s'\n", __func__, str);
 }
-
 
 int main()
 {
