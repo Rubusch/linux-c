@@ -7,6 +7,8 @@ SMBus adapters and I2C adapters (the SMBus command set is
 automatically translated to I2C on I2C adapters, but plain I2C
 commands cannot be handled at all on most pure SMBus adapters.  
 
+To test the driver, you want use something like the DC749A Demo Board (http://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/dc749a.html).  
+
 ### The Linux I2C Subsystem
 
 1. The I2C bus core: The core of the I2C subsystem is located in the i2c-core.c file under the `drivers/i2c/` directory. It is a collection of code that provides interface support between an individual client driver and some I2C bus masters such as the iMX7D I2C controllers. It manages bus arbitration, retry handling and various otehr protocol details. It is registered with the `bus_register()` function and declares the I2C `bus_type` structure. The I2C core API is then a set of functions used for an I2C client device driver to send and receive.  
