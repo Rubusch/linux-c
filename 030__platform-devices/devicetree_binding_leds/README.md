@@ -1,9 +1,22 @@
 # LED Module with Devicetree Binding (open firmware)
 
 Shows a mere copy for personal notes of A. Rios LED driver for the 5.4
-Kernel (originally).
+Kernel (originally).  
 
-[further details on IOMUX on NPX's iMX7D p125ff -> references]
+#### Notes on `container_of()`
+
+```
+    container_of(ptr, type, member)
+```
+
+* ptr – the pointer to an instance
+* type – the type of the container struct
+* member – the name of the member within the struct
+
+The `container_of` macro then returns the address of the member for the specified instance.  
+
+
+[further details on IOMUX on NPX's iMX7D p125ff -> references]  
 
 ## Linux
 
