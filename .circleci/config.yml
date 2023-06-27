@@ -74,10 +74,10 @@ jobs:
 ## platform drivers and open firmware
       - run: cd 030__platform-devices/gpio__raspi4_led && make
       - run: cd 030__platform-devices/gpio__raspi4_interrupt && make
-      - run: cd 030__platform-devices/devicetree_binding_chardev/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
-      - run: cd 030__platform-devices/devicetree_binding_leds/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
-      - run: cd 030__platform-devices/devicetree_binding_ledsclass/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
-      - run: cd 030__platform-devices/devicetree_binding_uio_led/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+      - run: cd 030__platform-devices/020__chardev_with_dt_binding/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+      - run: cd 030__platform-devices/021__leds_with_dt_binding/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+      - run: cd 030__platform-devices/022__leds_with_dt_binding_and_class/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
+      - run: cd 030__platform-devices/030__uio_demo_with_leds/module && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
 
 ## interrupts
       - run: cd 050__interrupts/interrupt && make
