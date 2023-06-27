@@ -1,7 +1,6 @@
 # LED Module with Devicetree Binding (open firmware)
 
-Shows a mere copy for personal notes of A. Rios LED driver for the 5.4
-Kernel (originally).  
+Shows a mere copy for personal notes of A. Rios LED driver for the 5.4 Kernel (originally), tested on 6.1.  
 
 #### Notes on `container_of()`
 
