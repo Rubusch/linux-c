@@ -15,12 +15,11 @@ REMOVEME/*
 *.mod.cmd
 *.mod.o.cmd
 *.d
+*.cmd
 
 ## compile targets
 *.ko
 *.exe
-
-
 
 ## backups
 .#*
