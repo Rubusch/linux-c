@@ -121,7 +121,7 @@ static int open_procfs(struct inode *inode, struct file *file)
 static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
 			   loff_t *offp)
 {
-	int len = 0;
+	int len = 0, ret;
 	pr_info("%s()\n", __func__);
 	len = strlen(message);
 
@@ -131,7 +131,10 @@ static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
 	}
 
 	pr_info("READ\n");
-	copy_to_user(buf, message, len);
+	ret = copy_to_user(buf, message, len);
+	if (0 > ret) {
+		return ret;
+	}
 	return len;
 }
 

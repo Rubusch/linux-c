@@ -130,7 +130,7 @@ static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
 
 	pr_info("READ\n");
 	ret = copy_to_user(buf, message, len);
-	if (!ret) {
+	if (0 > ret) {
 		return 0;
 	}
 	return len;
