@@ -1,4 +1,3 @@
-
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 
 ## userspace application
