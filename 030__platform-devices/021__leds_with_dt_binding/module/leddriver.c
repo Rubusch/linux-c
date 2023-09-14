@@ -73,6 +73,8 @@ struct led_dev
 #define GPCLR0               GPIO_BASE + 0x28
 
 /* declare __iomem pointers */
+// NB: __iomem is a smart cookie for the tool "sparse" to avoid mixing
+// device pointers with normal pointers
 static void __iomem *GPFSEL2_V;
 static void __iomem *GPSET0_V;
 static void __iomem *GPCLR0_V;
@@ -231,6 +233,7 @@ static int led_init(void)
 		return ret;
 	}
 
+	// NB: don't use ioremap() -> prefer the managed devm_ioremap()
 	GPFSEL2_V = ioremap(GPFSEL2, sizeof(u32));
 	GPSET0_V = ioremap(GPSET0, sizeof(u32));
 	GPCLR0_V = ioremap(GPCLR0, sizeof(u32));

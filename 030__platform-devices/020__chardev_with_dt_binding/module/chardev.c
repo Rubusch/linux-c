@@ -109,9 +109,9 @@ static struct platform_driver chardev_platform_driver = {
 // of - finally, register the platform driver
 module_platform_driver(chardev_platform_driver);
 
-// NB: there are no module_init() / module_exit() macros anymore!!! 
-//module_init(chardev_init);
-//module_exit(chardev_exit);
+// NB: there are no module_init() / module_exit() macros anymore!!!
+//module_init(chardev_init); -> chardev_probe()
+//module_exit(chardev_exit); -> chardev_remove()
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
