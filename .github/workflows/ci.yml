@@ -75,6 +75,8 @@ jobs:
 
       - run: date
 
+      - run: source ~/source-me.sh && cd $KERNELDIR && make $KDEFCONFIG
+
 ## 00: basics
       - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make && ./*.elf
 
