@@ -50,6 +50,18 @@ jobs:
         run: |
           sudo apt-get install -y cmake
 
+      - name: rpi kernel sources
+          sudo chown $(whoami):$(whoami) -R /usr/src
+          cd /usr/src
+          export LINUX_BRANCH="rpi-6.3.y"
+          export CROSS_COMPILE="aarch64-linux-gnu-"
+          export ARCH="arm64"
+          export KERNEL="kernel8"
+          export KDEFCONFIG_NAME="bcm2711_defconfig"
+          export KERNEL_URL="https://github.com/raspberrypi/linux"
+          git clone -j "$(nproc)" --depth=1 --branch "$LINUX_BRANCH" $KERNEL_URL "linux_${CROSS_COMPILE}${LINUX_BRANCH}"
+          ln -s "linux_${CROSS_COMPILE}${LINUX_BRANCH}" "linux"
+
       - run: date
 
 ## 00: basics
