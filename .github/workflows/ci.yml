@@ -16,23 +16,27 @@ jobs:
       - name: install build-essential
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential
+          sudo apt-get install -y crossbuild-essential-arm64
 
-      - name: install acl lib
-        run: |
-          sudo apt-get install -y libacl1-dev
+#      - name: install acl lib
+#        run: |
+#          sudo apt-get install -y libacl1-dev
 
-      - name: install caps lib (classic, not -ng)
-        run: |
-          sudo apt-get install -y libcap-dev
+#      - name: install caps lib (classic, not -ng)
+#        run: |
+#          sudo apt-get install -y libcap-dev
 
       - name: install gcc/g++
         run: |
           sudo apt-get install -y gcc g++
 
-      - name: install nasm
+#      - name: install nasm
+#        run: |
+#          sudo apt-get install -y nasm
+
+      - name: install DT compiler
         run: |
-          sudo apt-get install -y nasm
+          sudo apt-get install -y device-tree-compiler
 
       - name: install libc6-dev
         run: |
@@ -52,20 +56,25 @@ jobs:
 
       - name: rpi kernel sources
         run: |
-          sudo chown $(whoami):$(whoami) -R /usr/src
-          cd /usr/src
           export LINUX_BRANCH="rpi-6.3.y"
-          export CROSS_COMPILE="aarch64-linux-gnu-"
-          export ARCH="arm64"
-          export KERNEL="kernel8"
           export KDEFCONFIG_NAME="bcm2711_defconfig"
           export KERNEL_URL="https://github.com/raspberrypi/linux"
-          git clone -j "$(nproc)" --depth=1 --branch "$LINUX_BRANCH" $KERNEL_URL "linux_${CROSS_COMPILE}${LINUX_BRANCH}"
-          ln -s "linux_${CROSS_COMPILE}${LINUX_BRANCH}" "linux"
+          sudo chown $(whoami):$(whoami) -R /usr/src
+          cd /usr/src
+          git clone -j "$(nproc)" --depth=1 --branch "$LINUX_BRANCH" $KERNEL_URL "linux"
+
+      - name: provide source file
+        run: |
+          cat <<EOF > ~/source-me.sh
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export ARCH=arm64
+          export KERNEL=kernel8
+          export KDEFCONFIG_NAME=bcm2711_defconfig
+          export KERNELDIR=/usr/src/linux
+          EOF
 
       - run: date
 
 ## 00: basics
-## TODO
-#      - run: cd ./00_language-basics/atoi02 && make && ./*.elf
-# -> github__c_linux/010__basics/basics01__hello
+      - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make && ./*.elf
+

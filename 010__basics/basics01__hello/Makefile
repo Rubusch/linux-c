@@ -1,4 +1,5 @@
-KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+#KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+KERNELDIR ?= /usr/src/linux
 obj-m += hello.o
 
 all:
