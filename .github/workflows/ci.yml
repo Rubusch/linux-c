@@ -51,6 +51,7 @@ jobs:
           sudo apt-get install -y cmake
 
       - name: rpi kernel sources
+        run: |
           sudo chown $(whoami):$(whoami) -R /usr/src
           cd /usr/src
           export LINUX_BRANCH="rpi-6.3.y"
