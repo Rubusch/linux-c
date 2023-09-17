@@ -73,7 +73,7 @@ jobs:
           source ~/source-me.sh
           cd $KERNELDIR
           make $KDEFCONFIG_NAME
-          make -j16 Image.gz dtbs
+          make -j16 Image.gz modules dtbs
 
 ## 00: basics
       - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make
