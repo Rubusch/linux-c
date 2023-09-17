@@ -31,7 +31,7 @@ jobs:
               cd /usr/src
               git clone -j8 --depth=1 --branch "linux-6.3.y" git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git "linux"
               cd /usr/src/linux
-              make oldconfig
+              make defconfig
               make -j16 Image.gz modules dtbs
 
 ## basics (using default / x86 settings) - not crosscompiling!
