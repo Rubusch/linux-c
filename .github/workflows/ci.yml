@@ -18,21 +18,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y crossbuild-essential-arm64
 
-#      - name: install acl lib
-#        run: |
-#          sudo apt-get install -y libacl1-dev
-
-#      - name: install caps lib (classic, not -ng)
-#        run: |
-#          sudo apt-get install -y libcap-dev
-
       - name: install gcc/g++
         run: |
           sudo apt-get install -y gcc g++
 
-#      - name: install nasm
-#        run: |
-#          sudo apt-get install -y nasm
+      - name: install debhelper
+        run: |
+          sudo apt-get install -y debhelper
 
       - name: install DT compiler
         run: |
