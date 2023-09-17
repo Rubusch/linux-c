@@ -11,6 +11,10 @@ jobs:
           command: 'apt-get update && apt-get install -y build-essential'
 
       - run:
+          name: installing libelf
+          command: 'apt-get install -y libelf-dev'
+
+      - run:
           name: installing git
           environment:
             TZ: "America/Los_Angeles"
@@ -19,7 +23,7 @@ jobs:
 
       - run:
           name: Installing gcc
-          command: 'apt-get install -y gcc-12'
+          command: 'apt-get install -y gcc'
 
       - checkout
 
@@ -32,7 +36,7 @@ jobs:
               git clone -j8 --depth=1 --branch "linux-6.3.y" git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git "linux"
               cd /usr/src/linux
               make defconfig
-              make -j16 Image.gz modules dtbs
+              make -j16 bzImage modules dtbs
 
 ## basics (using default / x86 settings) - not crosscompiling!
       - run: cd 010__basics/basics01__hello && make
