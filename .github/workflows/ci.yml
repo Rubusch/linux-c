@@ -75,8 +75,13 @@ jobs:
 
       - run: date
 
-      - run: source ~/source-me.sh && cd $KERNELDIR && make $KDEFCONFIG_NAME
+      - name: build kernel sources once
+        run: |
+          source ~/source-me.sh
+          cd $KERNELDIR
+          make $KDEFCONFIG_NAME
+          make -j$(nproc) bindeb-pkg
 
 ## 00: basics
       - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make && ./*.elf
-
+# TODO
