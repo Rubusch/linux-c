@@ -54,6 +54,7 @@ jobs:
           sudo chown $(whoami):$(whoami) -R /usr/src
           cd /usr/src
           git clone -j "$(nproc)" --depth=1 --branch "$LINUX_BRANCH" $KERNEL_URL "linux"
+          cd -
 
       - name: provide source file
         run: |
@@ -72,8 +73,7 @@ jobs:
           source ~/source-me.sh
           cd $KERNELDIR
           make $KDEFCONFIG_NAME
-          #make -j$(nproc) Image.gz modules dtbs
-          make -j$(nproc) Image.gz dtbs
+          make -j16 Image.gz dtbs
 
 ## 00: basics
       - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make && ./*.elf
