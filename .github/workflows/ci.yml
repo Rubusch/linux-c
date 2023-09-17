@@ -80,7 +80,7 @@ jobs:
           source ~/source-me.sh
           cd $KERNELDIR
           make $KDEFCONFIG_NAME
-          make -j$(nproc) bindeb-pkg
+          make -j$(nproc) Image.gz modules dtbs
 
 ## 00: basics
       - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make && ./*.elf
