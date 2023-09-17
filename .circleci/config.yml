@@ -15,11 +15,11 @@ jobs:
           environment:
             TZ: "America/Los_Angeles"
             DEBIAN_FRONTEND: "noninteractive"
-          command: 'apt-get update && apt-get install -y git'
+          command: 'apt-get install -y git'
 
       - run:
           name: Installing gcc
-          command: 'apt-get update && apt-get install -y gcc-12'
+          command: 'apt-get install -y gcc-12'
 
       - checkout
 
@@ -28,12 +28,9 @@ jobs:
           name: Preparations
           command: |
               sudo chown $(whoami):$(whoami) -R /usr/src
-              KERNEL_URL="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
-              LINUX_BRANCH="linux-6.3.y"
-              KERNELDIR=/usr/src/linux
               cd /usr/src
-              git clone -j8 --depth=1 --branch "$LINUX_BRANCH" $KERNEL_URL "linux"
-              cd $KERNELDIR
+              git clone -j8 --depth=1 --branch "linux-6.3.y" git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git "linux"
+              cd /usr/src/linux
               make oldconfig
               make -j16 Image.gz modules dtbs
 
