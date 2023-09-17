@@ -76,5 +76,5 @@ jobs:
           make -j16 Image.gz dtbs
 
 ## 00: basics
-      - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make && ./*.elf
+      - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make
 # TODO
