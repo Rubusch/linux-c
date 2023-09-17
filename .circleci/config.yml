@@ -28,9 +28,9 @@ jobs:
           name: Preparations
           command: |
               sudo chown $(whoami):$(whoami) -R /usr/src
-              export KERNEL_URL="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
-              export LINUX_BRANCH="linux-6.3.y"
-              export KERNELDIR=/usr/src/linux
+              KERNEL_URL="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
+              LINUX_BRANCH="linux-6.3.y"
+              KERNELDIR=/usr/src/linux
               cd /usr/src
               git clone -j8 --depth=1 --branch "$LINUX_BRANCH" $KERNEL_URL "linux"
               cd $KERNELDIR
