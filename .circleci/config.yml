@@ -71,6 +71,12 @@ jobs:
               make defconfig
 
       - run:
+          name: configure CONFIG_UIO
+          command: |
+              cd /usr/src/linux
+              sed -i '|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
+
+      - run:
           name: building linux sources
           command: |
               cd /usr/src/linux

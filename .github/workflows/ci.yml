@@ -74,11 +74,21 @@ jobs:
 
       - run: date
 
-      - name: build kernel sources once
+      - name: prepare kernel sources
         run: |
           source ~/source-me.sh
           cd $KERNELDIR
           make $KDEFCONFIG_NAME
+
+     - name: configure kernel sources
+        run: |
+          cd $KERNELDIR
+          sed -i '|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
+
+     - name: build kernel sources
+        run: |
+          source ~/source-me.sh
+          cd $KERNELDIR
           make -j$(nproc) Image.gz modules dtbs
 
 ## basics
