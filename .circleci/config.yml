@@ -19,6 +19,10 @@ jobs:
           command: 'apt-get install -y flex'
 
       - run:
+          name: installing build bc
+          command: 'apt-get install -y bc'
+
+      - run:
           name: installing build bison
           command: 'apt-get install -y bison'
 
