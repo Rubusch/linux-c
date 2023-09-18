@@ -83,7 +83,7 @@ jobs:
       - name: configure kernel sources
         run: |
           cd $KERNELDIR
-          sed -i '|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
+          sed -i '\|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
 
       - name: build kernel sources
         run: |
