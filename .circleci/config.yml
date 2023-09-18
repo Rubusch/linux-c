@@ -78,22 +78,22 @@ jobs:
 
 ## basics (using default / x86 settings) - not crosscompiling!
       - run: cd 010__basics/basics01__hello && make
-#      - run: cd 010__basics/basics02__hello && make
-#      - run: cd 010__basics/basics03__hello && make
-#      - run: cd 010__basics/basics04__hello_module_init_arguments && make
-#      - run: cd 010__basics/basics05__hello_module_init_arguments && make
-#      - run: cd 010__basics/basics06__hello_multiple_files && make
-#      - run: cd 010__basics/basics07__hello_chardev_driver && make
-#      - run: cd 010__basics/basics08__hello_procfs_read && make
-#      - run: cd 010__basics/basics09__hello_procfs_read_write && make
-#      - run: cd 010__basics/basics10__hello_procfs_fops && make
-#      - run: cd 010__basics/basics11__hello_procfs_seq_filesystem && make
-#      - run: cd 010__basics/basics12__hello-with-timing && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
-#      - run: cd 010__basics/device__01_static_major_minor && make
-#      - run: cd 010__basics/device__02_dynamic_major_minor && make
-#      - run: cd 010__basics/kbuild__symbol_export_to_another_module && make
-#      - run: cd 010__basics/types && KERNELDIR=/lib/modules/$(uname -r)/build ARCH=x86 CROSS_COMPILE=" " make
-#
+      - run: cd 010__basics/basics02__hello && make
+      - run: cd 010__basics/basics03__hello && make
+      - run: cd 010__basics/basics04__hello_module_init_arguments && make
+      - run: cd 010__basics/basics05__hello_module_init_arguments && make
+      - run: cd 010__basics/basics06__hello_multiple_files && make
+      - run: cd 010__basics/basics07__hello_chardev_driver && make
+      - run: cd 010__basics/basics08__hello_procfs_read && make
+      - run: cd 010__basics/basics09__hello_procfs_read_write && make
+      - run: cd 010__basics/basics10__hello_procfs_fops && make
+      - run: cd 010__basics/basics11__hello_procfs_seq_filesystem && make
+      - run: cd 010__basics/basics12__hello-with-timing && make
+      - run: cd 010__basics/device__01_static_major_minor && make
+      - run: cd 010__basics/device__02_dynamic_major_minor && make
+      - run: cd 010__basics/kbuild__symbol_export_to_another_module && make
+      - run: cd 010__basics/types && make
+
 ### chardev
 #      - run: cd 020__chardev/010__mknod && make
 #      - run: cd 020__chardev/012__devicefile && make

@@ -8,9 +8,9 @@ The source was tested compiled and running on 5.4.75.
 ```
 $ make
 
-$ sudo insmod ./helloarguments.ko hello_int_arg=76 hello_int_array=1,2,3 hello_string_arg="Hello"
+$ sudo insmod ./hello.ko hello_int_arg=76 hello_int_array=1,2,3 hello_string_arg="Hello"
 
-$ sudo rmmod helloarguments
+$ sudo rmmod hello
 
 $ dmesg | tail
     Jan 26 17:52:32 debian kernel: init_hello_arguments() initializing...
@@ -28,17 +28,17 @@ NB: The string argument won't take spaces!
 NB: In case of a wrong argument, dmesg would show something like below. Just adjust the value fixes the issue.  
 
 ```
-    helloarguments: unknown parameter 'xyz' ignored
+    hello: unknown parameter 'xyz' ignored
 ```
 
 
 Setting values via `sysfs` is possible, too. When triggering the "callback" value, the callback function will get triggered.    
 
 ```
-$ echo '6' | sudo tee -a /sys/module/helloarguments/parameters/hello_int_arg_cb
+$ echo '6' | sudo tee -a /sys/module/hello/parameters/hello_int_arg_cb
     6
 
-$ echo '4' | sudo tee -a /sys/module/helloarguments/parameters/hello_int_arg
+$ echo '4' | sudo tee -a /sys/module/hello/parameters/hello_int_arg
     4
 
 
@@ -46,10 +46,10 @@ $ dmesg | tail
     Jan 26 18:13:53 debian kernel: new value: 6
 
 
-$ sudo cat /sys/module/helloarguments/parameters/hello_int_arg
+$ sudo cat /sys/module/hello/parameters/hello_int_arg
     4
 
-$ sudo cat /sys/module/helloarguments/parameters/hello_int_arg_cb
+$ sudo cat /sys/module/hello/parameters/hello_int_arg_cb
     6
 ```
 

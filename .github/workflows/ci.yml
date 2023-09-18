@@ -77,4 +77,20 @@ jobs:
 
 ## 00: basics
       - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics02__hello && make
+      - run: source ~/source-me.sh && cd ./basics03__hello && make
+      - run: source ~/source-me.sh && cd ./basics04__hello_module_init_arguments && make
+      - run: source ~/source-me.sh && cd ./basics05__hello_module_init_arguments && make
+      - run: source ~/source-me.sh && cd ./basics06__hello_multiple_files && make
+      - run: source ~/source-me.sh && cd ./basics07__hello_chardev_driver && make
+      - run: source ~/source-me.sh && cd ./basics08__hello_procfs_read && make
+      - run: source ~/source-me.sh && cd ./basics09__hello_procfs_read_write && make
+      - run: source ~/source-me.sh && cd ./basics10__hello_procfs_fops && make
+      - run: source ~/source-me.sh && cd ./basics11__hello_procfs_seq_filesystem && make
+      - run: source ~/source-me.sh && cd ./basics12__hello-with-timing && make
+      - run: source ~/source-me.sh && cd ./device__01_static_major_minor && make
+      - run: source ~/source-me.sh && cd ./device__02_dynamic_major_minor && make
+      - run: source ~/source-me.sh && cd ./kbuild__symbol_export_to_another_module && make
+      - run: source ~/source-me.sh && cd ./types && make
+
 # TODO

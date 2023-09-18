@@ -1,5 +1,4 @@
-## out of soure build
-KERNELDIR ?= $(HOME)/workspace/linux
+KERNELDIR ?= /usr/src/linux
 ARCH ?= aarch64
 CROSS_COMPILE ?= aarch64-linux-gnu-
 
