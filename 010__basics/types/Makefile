@@ -1,15 +1,11 @@
 KERNELDIR ?= /usr/src/linux
-ARCH ?= aarch64
-CROSS_COMPILE ?= aarch64-linux-gnu-
-
 obj-m += print_my_types.o
 
 all:
-	make -C $(KERNELDIR) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) \
-		M=$(PWD) modules
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 
 clean:
-	make -C $(KERNELDIR) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) \
-		M=$(PWD) clean
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
+	find $(SRC) -type f -name \*~ -delete
 
 .PHONY: all clean
