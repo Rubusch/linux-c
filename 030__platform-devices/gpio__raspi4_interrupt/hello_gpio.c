@@ -9,6 +9,7 @@
 #include <linux/uaccess.h>
 #include <linux/gpio.h>
 #include <linux/interrupt.h>
+#include <linux/fs.h>
 
 //#include <linux/jiffies.h>
 
