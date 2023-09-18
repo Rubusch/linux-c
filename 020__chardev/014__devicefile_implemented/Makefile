@@ -1,4 +1,4 @@
-KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+KERNELDIR ?= /usr/src/linux
 obj-m += hellochardev.o
 ccflags-y += -include $(kbuild-dir)/hellochardev.h
 

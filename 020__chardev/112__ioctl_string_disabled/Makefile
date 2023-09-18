@@ -1,8 +1,7 @@
-
-KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+KERNELDIR ?= /usr/src/linux
 
 ## userspace application
-APPLICATION ?= ioctl.exe
+APPLICATION ?= ioctl.elf
 HEADERS += ioctl.h
 CC ?= gcc
 

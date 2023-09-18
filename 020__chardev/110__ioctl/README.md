@@ -9,7 +9,7 @@ $ export KERNELDIR=~/workspace/linux
 
 $ make
 $ sudo insmod ./helloioctl.ko
-$ sudo ./ioctl.exe
+$ sudo ./ioctl.elf
     device name: '/dev/lothars_chardev_device'
     enter a number to be sent to the ioctl device:
     123

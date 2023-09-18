@@ -1,7 +1,7 @@
-KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+KERNELDIR ?= /usr/src/linux
 
 ## userspace application
-APPLICATION ?= ioctl.exe
+APPLICATION ?= ioctl.elf
 HEADERS += ioctl.h
 CC ?= gcc
 
@@ -19,6 +19,6 @@ $(APPLICATION): application.c
 clean:
 	make -C $(KERNELDIR) M=$(PWD) clean
 	find $(SRC) -type f -name \*~ -delete
-	rm -f *.exe
+	rm -f *.elf
 
 .PHONY: all default module clean

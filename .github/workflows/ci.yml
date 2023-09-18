@@ -81,7 +81,7 @@ jobs:
           make $KDEFCONFIG_NAME
           make -j$(nproc) Image.gz modules dtbs
 
-## 00: basics
+## basics
       - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make
       - run: source ~/source-me.sh && cd ./010__basics/basics02__hello && make
       - run: source ~/source-me.sh && cd ./010__basics/basics03__hello && make
@@ -98,5 +98,19 @@ jobs:
       - run: source ~/source-me.sh && cd ./010__basics/device__02_dynamic_major_minor && make
       - run: source ~/source-me.sh && cd ./010__basics/kbuild__symbol_export_to_another_module && make
       - run: source ~/source-me.sh && cd ./010__basics/types && make
+
+## character device
+      - run: source ~/source-me.sh && cd ./020__chardev/010__mknod && make
+      - run: source ~/source-me.sh && cd ./020__chardev/012__devicefile && make
+      - run: source ~/source-me.sh && cd ./020__chardev/013__devicefile_and_chardev && make
+      - run: source ~/source-me.sh && cd ./020__chardev/014__devicefile_implemented && make
+      - run: source ~/source-me.sh && cd ./020__chardev/020__linkedlist && make
+      - run: source ~/source-me.sh && cd ./020__chardev/030__wait_on_events && make
+      - run: source ~/source-me.sh && cd ./020__chardev/110__ioctl && make
+      - run: source ~/source-me.sh && cd ./020__chardev/112__ioctl_string_disabled && make
+      - run: source ~/source-me.sh && cd ./020__chardev/113__ioctl_signal && make
+      - run: source ~/source-me.sh && cd ./020__chardev/120__ioctl_demo && make
+      - run: source ~/source-me.sh && cd ./020__chardev/121__using_devtmpfs_with_device_class && make
+      - run: source ~/source-me.sh && cd ./020__chardev/122__using_miscdevice && make
 
 # TODO

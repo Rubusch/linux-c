@@ -10,7 +10,7 @@ $ make
 
 $ sudo insmod helloioctl.ko
 
-$ sudo ./ioctl.exe
+$ sudo ./ioctl.elf
     APP: device name: '/dev/lothars_chardev_device'
     APP: writing to ioctl (register application) 44
     APP: waiting for signal...
