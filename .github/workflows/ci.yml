@@ -82,6 +82,7 @@ jobs:
 
       - name: configure kernel sources
         run: |
+          source ~/source-me.sh
           cd $KERNELDIR
           sed -i '\|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
 
