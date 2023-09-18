@@ -7,6 +7,7 @@
 #include <linux/cdev.h>
 #include <linux/uaccess.h>
 #include <linux/gpio.h>
+#include <linux/fs.h>
 
 /*
   forwards
