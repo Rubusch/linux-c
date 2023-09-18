@@ -35,7 +35,7 @@ jobs:
       - run:
           name: cloning linux sources
           command: |
-              sudo chown $(whoami):$(whoami) -R /usr/src
+              sudo chown $(whoami) -R /usr/src
               cd /usr/src
               git clone -j8 --depth=1 --branch "linux-6.3.y" git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git "linux"
 
