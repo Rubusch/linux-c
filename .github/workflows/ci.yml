@@ -80,11 +80,11 @@ jobs:
           cd $KERNELDIR
           make $KDEFCONFIG_NAME
 
-#      - name: set CONFIG_UIO
-#        run: |
-#          source ~/source-me.sh
-#          cd $KERNELDIR
-#          sed -i '\|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
+      - name: set CONFIG_UIO
+        run: |
+          source ~/source-me.sh
+          cd $KERNELDIR
+          sed -i '\|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
 
       - name: build kernel sources
         run: |
@@ -178,7 +178,7 @@ jobs:
           make dtbs
           cd -
           cd ../module
-          make CONFIG_UIO=y
+          make
           cd ../userspace
           make
 
