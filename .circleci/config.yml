@@ -11,6 +11,10 @@ jobs:
           command: 'apt-get update && apt-get install -y build-essential'
 
       - run:
+          name: installing build device-tree-compiler
+          command: 'apt-get install -y device-tree-compiler'
+
+      - run:
           name: installing libelf
           command: 'apt-get install -y libelf-dev'
 
@@ -22,20 +26,29 @@ jobs:
           command: 'apt-get install -y git'
 
       - run:
-          name: Installing gcc
+          name: installing gcc
           command: 'apt-get install -y gcc'
 
       - checkout
 
 ## preparations
       - run:
-          name: Preparations
+          name: cloning linux sources
           command: |
               sudo chown $(whoami):$(whoami) -R /usr/src
               cd /usr/src
               git clone -j8 --depth=1 --branch "linux-6.3.y" git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git "linux"
+
+      - run:
+          name: preparing linux sources
+          command: |
               cd /usr/src/linux
               make defconfig
+
+      - run:
+          name: building linux sources
+          command: |
+              cd /usr/src/linux
               make -j16 bzImage modules dtbs
 
 ## basics (using default / x86 settings) - not crosscompiling!
