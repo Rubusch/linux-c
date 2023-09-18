@@ -1,5 +1,4 @@
 /*
-
   - A userspace application connects to this module (chardev driver)
     via device_ioctl() and writes the signal number which the
     application is capable to serve.
@@ -128,7 +127,8 @@ static long device_ioctl(struct file *file, unsigned int cmd,
 	switch (cmd) {
 	case WR_VALUE:
 		// the userspace application passes a signum (which itself may understand)
-		copy_from_user(&signum, (int32_t *)ioctl_param, sizeof(signum));
+		if (copy_from_user(&signum, (int32_t *)ioctl_param, sizeof(signum)))
+			return -EFAULT;
 		printk(KERN_INFO "CHARDEV: %s() sig = %d\n", __func__, signum);
 		task = get_current();
 		break;

@@ -111,11 +111,13 @@ static long device_ioctl(struct file *file, unsigned int ioctl_cmd,
 	       ioctl_param);
 	switch (ioctl_cmd) {
 	case WR_VALUE:
-		copy_from_user(&value, (int32_t *)ioctl_param, sizeof(value));
+		if (copy_from_user(&value, (int32_t *)ioctl_param, sizeof(value)))
+			return -EFAULT;
 		printk(KERN_INFO "%s() value = %d\n", __func__, value);
 		break;
 	case RD_VALUE:
-		copy_to_user((int32_t *)ioctl_param, &value, sizeof(value));
+		if (copy_to_user((int32_t *)ioctl_param, &value, sizeof(value)))
+			return -EFAULT;
 		break;
 	default:
 		printk(KERN_ALERT "%s() unknown ioctl_cmd\n", __func__);
