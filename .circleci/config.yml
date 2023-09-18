@@ -23,9 +23,12 @@ jobs:
           command: 'apt-get install -y bc'
 
       - run:
+          name: installing build libssl-dev
+          command: 'apt-get install -y libssl-dev'
+
+      - run:
           name: installing build bison
           command: 'apt-get install -y bison'
-
 
       - run:
           name: installing build device-tree-compiler
