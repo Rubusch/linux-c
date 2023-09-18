@@ -4,6 +4,7 @@ jobs:
   build:
     docker:
       - image: ubuntu:22.04
+        resource_class: xlarge
 
     steps:
       - run:
