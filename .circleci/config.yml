@@ -40,9 +40,7 @@ jobs:
       - run:
           name: prepare directory
           command: |
-              #sudo mkdir -p /usr/src
-              sudo chown $USER -R /usr/src
-              #test /usr/src/linux && mv /usr/src/linux{,.orig}
+              sudo chown $(whoami) -R /usr/src
 
       - run:
           name: cloning linux sources
