@@ -80,11 +80,11 @@ jobs:
           cd $KERNELDIR
           make $KDEFCONFIG_NAME
 
-      - name: configure kernel sources
-        run: |
-          source ~/source-me.sh
-          cd $KERNELDIR
-          sed -i '\|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
+#      - name: set CONFIG_UIO
+#        run: |
+#          source ~/source-me.sh
+#          cd $KERNELDIR
+#          sed -i '\|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
 
       - name: build kernel sources
         run: |
@@ -140,15 +140,17 @@ jobs:
           make
 
 ## platform devices and device tree
-      - run: source ~/030__platform-devices/gpio__raspi4_interrupt && make
-      - run: source ~/030__platform-devices/gpio__raspi4_led && make
+      - run: source ~/source-me.sh && cd 030__platform-devices/gpio__raspi4_interrupt && make
+      - run: source ~/source-me.sh && cd 030__platform-devices/gpio__raspi4_led && make
       - run: |
-          source ~/030__platform-devices/020__chardev_with_dt_binding/module
+          source ~/source-me.sh
+          cd 030__platform-devices/020__chardev_with_dt_binding/module
           make
           cd ../userspace
           make
       - run: |
-          source ~/030__platform-devices/021__leds_with_dt_binding/devicetree
+          source ~/source-me.sh
+          cd 030__platform-devices/021__leds_with_dt_binding/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
@@ -158,7 +160,8 @@ jobs:
           cd ../userspace
           make
       - run: |
-          source ~/030__platform-devices/022__leds_with_dt_binding_and_class/devicetree
+          source ~/source-me.sh
+          cd 030__platform-devices/022__leds_with_dt_binding_and_class/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
@@ -168,14 +171,52 @@ jobs:
           cd ../userspace
           make
       - run: |
-          source ~/030__platform-devices/030__uio_demo_with_leds
+          source ~/source-me.sh
+          cd 030__platform-devices/030__uio_demo_with_leds/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
           cd -
           cd ../module
-          make
+          make CONFIG_UIO=y
           cd ../userspace
           make
 
-# TODO
+## i2c
+      - run: |
+          source ~/source-me.sh
+          cd 040__i2c/00_i2c_client/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module
+          make
+
+## interrupts
+      - run: source ~/source-me.sh && cd 050__interrupts/interrupt && make
+      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__tasklet01 && make
+      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__tasklet02__dynamic_alloc && make
+      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__workqueue01_kernel && make
+      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__workqueue02_customized && make
+
+## kthreads
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__atomic_operation && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__completion && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__completion_dynamic && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__mutex && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__rcu && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__rwlock && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__seqlock && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__spinlock && make
+
+## misc
+      - run: source ~/source-me.sh && cd 100__misc/sysfs && make
+      - run: source ~/source-me.sh && cd 100__misc/timer && make
+      - run: source ~/source-me.sh && cd 100__misc/timer__hres_timer && make
+
+## usb
+      - run: source ~/source-me.sh && cd 140__usb/usb__basic && make
+      - run: source ~/source-me.sh && cd 140__usb/usb__descriptors && make
+

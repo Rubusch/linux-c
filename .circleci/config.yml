@@ -53,7 +53,6 @@ jobs:
       - checkout
 
 ## preparations
-
       - run:
           name: prepare directory
           command: |
@@ -71,11 +70,11 @@ jobs:
               cd /usr/src/linux
               make defconfig
 
-      - run:
-          name: configure CONFIG_UIO
-          command: |
-              cd /usr/src/linux
-              sed -i '\|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
+#      - run:
+#          name: configure CONFIG_UIO
+#          command: |
+#              cd /usr/src/linux
+#              sed -i '\|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
 
       - run:
           name: building linux sources
@@ -147,33 +146,36 @@ jobs:
           make
       - run: |
           cd 030__platform-devices/030__uio_demo_with_leds/module
-          make
+          make CONFIG_UIO=y
           cd ../userspace
           make
 
-### interrupts
-#      - run: cd 050__interrupts/interrupt && make
-#      - run: cd 050__interrupts/interrupt__workqueue01_kernel && make
-#      - run: cd 050__interrupts/interrupt__workqueue02_customized && make
-#      - run: cd 050__interrupts/interrupt__tasklet01 && make
-#      - run: cd 050__interrupts/interrupt__tasklet02__dynamic_alloc && make
-#
-### kthreads
-#      - run: cd 080__kthreads/kthread && make
-#      - run: cd 080__kthreads/kthread__atomic_operation && make
-#      - run: cd 080__kthreads/kthread__mutex && make
-#      - run: cd 080__kthreads/kthread__spinlock && make
-#      - run: cd 080__kthreads/kthread__rwlock && make
-#      - run: cd 080__kthreads/kthread__rcu && make
-#      - run: cd 080__kthreads/kthread__completion && make
-#      - run: cd 080__kthreads/kthread__completion_dynamic && make
-#      - run: cd 080__kthreads/kthread__seqlock && make
-#
-### misc
-#      - run: cd 100__misc/sysfs && make
-#      - run: cd 100__misc/timer && make
-#      - run: cd 100__misc/timer__hres_timer && make
-#
-### usb
-#      - run: cd 140__usb/usb__basic && make
-#      - run: cd 140__usb/usb__descriptors && make
+## i2c
+      - run: cd 040__i2c/00_i2c_client/module && make
+
+## interrupts
+      - run: cd 050__interrupts/interrupt && make
+      - run: cd 050__interrupts/interrupt__tasklet01 && make
+      - run: cd 050__interrupts/interrupt__tasklet02__dynamic_alloc && make
+      - run: cd 050__interrupts/interrupt__workqueue01_kernel && make
+      - run: cd 050__interrupts/interrupt__workqueue02_customized && make
+
+## kthreads
+      - run: cd 080__kthreads/kthread && make
+      - run: cd 080__kthreads/kthread__atomic_operation && make
+      - run: cd 080__kthreads/kthread__completion && make
+      - run: cd 080__kthreads/kthread__completion_dynamic && make
+      - run: cd 080__kthreads/kthread__mutex && make
+      - run: cd 080__kthreads/kthread__rcu && make
+      - run: cd 080__kthreads/kthread__rwlock && make
+      - run: cd 080__kthreads/kthread__seqlock && make
+      - run: cd 080__kthreads/kthread__spinlock && make
+
+## misc
+      - run: cd 100__misc/sysfs && make
+      - run: cd 100__misc/timer && make
+      - run: cd 100__misc/timer__hres_timer && make
+
+## usb
+      - run: cd 140__usb/usb__basic && make
+      - run: cd 140__usb/usb__descriptors && make
