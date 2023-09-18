@@ -37,7 +37,7 @@ jobs:
           name: prepare directory
           command: |
               sudo mkdir -p /usr/src
-              sudo chown $(whoami) -R /usr/src
+              sudo chown $USER -R /usr/src
               test /usr/src/linux && mv /usr/src/linux{,.orig}
 
       - run:
