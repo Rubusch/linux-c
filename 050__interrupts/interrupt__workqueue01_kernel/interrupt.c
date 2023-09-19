@@ -1,6 +1,9 @@
 /*
   Triggering Hardware Interrupt through Software
 
+  NB: x86 only
+  NB: tasklets are deprecated
+
   Intel processors handle interrupt using IDT (Interrupt Descriptor
   Table).  The IDT consists of 256 entries with each entry
   corresponding to a vector and of 8 bytes. All the entries are a

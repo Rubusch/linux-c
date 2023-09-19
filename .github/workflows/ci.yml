@@ -193,12 +193,12 @@ jobs:
           cd ../module
           make
 
-## interrupts
-      - run: source ~/source-me.sh && cd 050__interrupts/interrupt && make
-      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__tasklet01 && make
-      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__tasklet02__dynamic_alloc && make
-      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__workqueue01_kernel && make
-      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__workqueue02_customized && make
+## interrupts ( x86 only commented out!!! )
+#      - run: source ~/source-me.sh && cd 050__interrupts/interrupt && make
+#      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__tasklet01 && make
+#      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__tasklet02__dynamic_alloc && make
+#      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__workqueue01_kernel && make
+#      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__workqueue02_customized && make
 
 ## kthreads
       - run: source ~/source-me.sh && cd 080__kthreads/kthread && make
