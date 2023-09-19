@@ -1,3 +1,4 @@
+
 name: armhf-ci
 
 on:
@@ -65,10 +66,10 @@ jobs:
       - name: provide source file
         run: |
           cat <<EOF > ~/source-me.sh
-          export CROSS_COMPILE="arm-linux-gnueabihf-"
+          export CROSS_COMPILE=arm-linux-gnueabihf-
           export ARCH=arm
           export KERNEL=kernel7
-          export KDEFCONFIG_NAME="bcm2709_defconfig"
+          export KDEFCONFIG_NAME=bcm2709_defconfig
           export KERNELDIR=/usr/src/linux
           EOF
 
