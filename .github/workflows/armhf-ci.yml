@@ -1,4 +1,4 @@
-name: ci
+name: armhf-ci
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       - name: install build-essential
         run: |
           sudo apt-get update
-          sudo apt-get install -y crossbuild-essential-arm64
+          sudo apt-get install -y crossbuild-essential-armhf
 
       - name: install gcc/g++
         run: |
@@ -65,10 +65,10 @@ jobs:
       - name: provide source file
         run: |
           cat <<EOF > ~/source-me.sh
-          export CROSS_COMPILE=aarch64-linux-gnu-
-          export ARCH=arm64
-          export KERNEL=kernel8
-          export KDEFCONFIG_NAME=bcm2711_defconfig
+          export CROSS_COMPILE="arm-linux-gnueabihf-"
+          export ARCH=arm
+          export KERNEL=kernel7
+          export KDEFCONFIG_NAME="bcm2709_defconfig"
           export KERNELDIR=/usr/src/linux
           EOF
 

@@ -1,0 +1,222 @@
+name: aarch64-ci
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: tuning, disable initramfs update
+        run: sudo sed -i 's/yes/no/g' /etc/initramfs-tools/update-initramfs.conf
+
+      - name: tuning, disable man-db update
+        run: sudo rm -f /var/lib/man-db/auto-update
+
+      - name: install build-essential
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y crossbuild-essential-arm64
+
+      - name: install gcc/g++
+        run: |
+          sudo apt-get install -y gcc g++
+
+      - name: install debhelper
+        run: |
+          sudo apt-get install -y debhelper
+
+      - name: install DT compiler
+        run: |
+          sudo apt-get install -y device-tree-compiler
+
+      - name: install libc6-dev
+        run: |
+          sudo apt-get install -y libc6-dev
+
+      - name: install cunit
+        run: |
+          sudo apt-get install -y libcunit1-ncurses-dev
+
+      - name: install clang
+        run: |
+          sudo apt-get install -y clang clang-tools clang-format
+
+      - name: install cmake
+        run: |
+          sudo apt-get install -y cmake
+
+      - name: rpi kernel sources
+        run: |
+          export LINUX_BRANCH="rpi-6.3.y"
+          export KDEFCONFIG_NAME="bcm2711_defconfig"
+          export KERNEL_URL="https://github.com/raspberrypi/linux"
+          sudo chown $(whoami):$(whoami) -R /usr/src
+          cd /usr/src
+          git clone -j "$(nproc)" --depth=1 --branch "$LINUX_BRANCH" $KERNEL_URL "linux"
+          cd -
+
+      - name: provide source file
+        run: |
+          cat <<EOF > ~/source-me.sh
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export ARCH=arm64
+          export KERNEL=kernel8
+          export KDEFCONFIG_NAME=bcm2711_defconfig
+          export KERNELDIR=/usr/src/linux
+          EOF
+
+      - run: date
+
+      - name: prepare kernel sources
+        run: |
+          source ~/source-me.sh
+          cd $KERNELDIR
+          make $KDEFCONFIG_NAME
+
+      - name: set CONFIG_UIO
+        run: |
+          source ~/source-me.sh
+          cd $KERNELDIR
+          sed -i '\|CONFIG_UIO|s|.*|CONFIG_UIO=y|' .config
+
+      - name: build kernel sources
+        run: |
+          source ~/source-me.sh
+          cd $KERNELDIR
+          make -j$(nproc) Image.gz modules dtbs
+
+## basics
+      - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics02__hello && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics03__hello && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics04__hello_module_init_arguments && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics05__hello_module_init_arguments && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics06__hello_multiple_files && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics07__hello_chardev_driver && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics08__hello_procfs_read && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics09__hello_procfs_read_write && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics10__hello_procfs_fops && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics11__hello_procfs_seq_filesystem && make
+      - run: source ~/source-me.sh && cd ./010__basics/basics12__hello-with-timing && make
+      - run: source ~/source-me.sh && cd ./010__basics/device__01_static_major_minor && make
+      - run: source ~/source-me.sh && cd ./010__basics/device__02_dynamic_major_minor && make
+      - run: source ~/source-me.sh && cd ./010__basics/kbuild__symbol_export_to_another_module && make
+      - run: source ~/source-me.sh && cd ./010__basics/types && make
+
+## character device
+      - run: source ~/source-me.sh && cd ./020__chardev/010__mknod && make
+      - run: source ~/source-me.sh && cd ./020__chardev/012__devicefile && make
+      - run: source ~/source-me.sh && cd ./020__chardev/013__devicefile_and_chardev && make
+      - run: source ~/source-me.sh && cd ./020__chardev/014__devicefile_implemented && make
+      - run: source ~/source-me.sh && cd ./020__chardev/020__linkedlist && make
+      - run: source ~/source-me.sh && cd ./020__chardev/030__wait_on_events && make
+      - run: source ~/source-me.sh && cd ./020__chardev/110__ioctl && make
+      - run: source ~/source-me.sh && cd ./020__chardev/112__ioctl_string_disabled && make
+      - run: source ~/source-me.sh && cd ./020__chardev/113__ioctl_signal && make
+      - run: |
+          source ~/source-me.sh
+          cd ./020__chardev/120__ioctl_demo/module
+          make
+          cd ../userspace
+          make
+      - run: |
+          source ~/source-me.sh
+          cd ./020__chardev/121__using_devtmpfs_with_device_class/module
+          make
+          cd ../userspace
+          make
+      - run: |
+          source ~/source-me.sh
+          cd ./020__chardev/122__using_miscdevice/module
+          make
+          cd ../userspace
+          make
+
+## platform devices and device tree
+      - run: source ~/source-me.sh && cd 030__platform-devices/gpio__raspi4_interrupt && make
+      - run: source ~/source-me.sh && cd 030__platform-devices/gpio__raspi4_led && make
+      - run: |
+          source ~/source-me.sh
+          cd 030__platform-devices/020__chardev_with_dt_binding/module
+          make
+          cd ../userspace
+          make
+      - run: |
+          source ~/source-me.sh
+          cd 030__platform-devices/021__leds_with_dt_binding/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module
+          make
+          cd ../userspace
+          make
+      - run: |
+          source ~/source-me.sh
+          cd 030__platform-devices/022__leds_with_dt_binding_and_class/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module
+          make
+          cd ../userspace
+          make
+      - run: |
+          source ~/source-me.sh
+          cd 030__platform-devices/030__uio_demo_with_leds/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module
+          make
+          cd ../userspace
+          make
+
+## i2c
+      - run: |
+          source ~/source-me.sh
+          cd 040__i2c/00_i2c_client/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module
+          make
+
+## interrupts ( x86 only commented out!!! )
+#      - run: source ~/source-me.sh && cd 050__interrupts/interrupt && make
+#      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__tasklet01 && make
+#      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__tasklet02__dynamic_alloc && make
+#      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__workqueue01_kernel && make
+#      - run: source ~/source-me.sh && cd 050__interrupts/interrupt__workqueue02_customized && make
+
+## kthreads
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__atomic_operation && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__completion && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__completion_dynamic && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__mutex && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__rcu && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__rwlock && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__seqlock && make
+      - run: source ~/source-me.sh && cd 080__kthreads/kthread__spinlock && make
+
+## misc
+      - run: source ~/source-me.sh && cd 100__misc/sysfs && make
+      - run: source ~/source-me.sh && cd 100__misc/timer && make
+      - run: source ~/source-me.sh && cd 100__misc/timer__hres_timer && make
+
+## usb
+      - run: source ~/source-me.sh && cd 140__usb/usb__basic && make
+      - run: source ~/source-me.sh && cd 140__usb/usb__descriptors && make
+
