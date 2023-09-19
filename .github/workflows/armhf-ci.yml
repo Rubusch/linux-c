@@ -92,7 +92,7 @@ jobs:
         run: |
           source ~/source-me.sh
           cd $KERNELDIR
-          make -j$(nproc) Image.gz modules dtbs
+          make -j$(nproc) zImage modules dtbs
 
 ## basics
       - run: source ~/source-me.sh && cd ./010__basics/basics01__hello && make
