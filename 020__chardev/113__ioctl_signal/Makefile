@@ -4,6 +4,7 @@ KERNELDIR ?= /usr/src/linux
 APPLICATION ?= ioctl.elf
 HEADERS += ioctl.h
 CC ?= gcc
+HOSTCC ?= gcc
 
 all: default
 
@@ -14,7 +15,7 @@ module:
 
 ## userspace application
 $(APPLICATION): application.c
-	$(CC) -g -Wall -std=c11 -pedantic -Werror $^ -o $@
+	$(CROSS_COMPILE)$(HOSTCC) -g -Wall -std=c11 -pedantic -Werror $^ -o $@
 
 clean:
 	make -C $(KERNELDIR) M=$(PWD) clean
