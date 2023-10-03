@@ -7,6 +7,7 @@ The source was tested compiled and running on 5.4.75.
 
 ```
 $ make
+
 $ sudo insmod kthread.ko
 
 $ sudo rmmod kthread

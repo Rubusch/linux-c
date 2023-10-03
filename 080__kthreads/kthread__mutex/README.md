@@ -2,11 +2,11 @@
 
 The source was tested compiled and running on 5.4.75.  
 
-
 ## Usage
 
 ```
 $ make
+
 $ sudo insmod kthread.ko
 
 $ sudo rmmod kthread
@@ -24,11 +24,9 @@ $ dmesg | tail
     Jan 25 11:56:35 debian kernel: cleanup_hello_kernelthread() READY.
 ```
 
-
 ## Notes
 
 The demo shows elementary usage of mutex.
-
 
 ---
 

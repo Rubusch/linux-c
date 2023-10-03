@@ -7,14 +7,13 @@ The source was tested compiled and running on 5.4.75.
 
 ```
 $ make
+
 $ sudo insmod ./kthread.ko
 
 $ sudo cat /dev/lothars_chardev
-
 $ sudo cat /dev/lothars_chardev
 
 $ sudo rmmod ./kthread.ko
-
 
 $ dmesg | tail
     Feb  2 19:21:29 debian kernel: init_hello_completion() started
@@ -22,10 +21,12 @@ $ dmesg | tail
     Feb  2 19:21:29 debian kernel: kthread_create() successful
     Feb  2 19:21:29 debian kernel: waiting for event...
 
+## first read attempt
     Feb  2 19:21:40 debian kernel: chardev_read()
     Feb  2 19:21:40 debian kernel: event came from READ function - 0
     Feb  2 19:21:40 debian kernel: waiting for event...
 
+## second read attempt
     Feb  2 19:21:48 debian kernel: chardev_read()
     Feb  2 19:21:48 debian kernel: event came from READ function - 1
     Feb  2 19:21:48 debian kernel: waiting for event...

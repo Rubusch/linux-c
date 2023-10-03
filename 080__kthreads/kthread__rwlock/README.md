@@ -2,11 +2,11 @@
 
 The source was tested compiled and running on 5.4.75.  
 
-
 ## Usage
 
 ```
 $ make
+
 $ sudo insmod kthread.ko
 
 $ sudo rmmod kthread
@@ -24,7 +24,6 @@ $ dmesg | tail
     Jan 31 19:05:58 debian kernel: thread2: read counter = 4
     Jan 31 19:05:59 debian kernel: cleanup_hello_kernelthread() READY.
 ```
-
 
 ## Notes
 
@@ -70,7 +69,6 @@ NB: Many people can hold a read lock, but a writer must be the sole holder.
  * ``read_unlock_irqrestore(rwlock_t *lock, unsigned long flags)``
  * ``write_lock_irqsave(rwlock_t *lock, unsigned long flags)``
  * ``write_unlock_irqrestore(rwlock_t *lock, unsigned long flags)``
-
 
 ---
 

@@ -2,15 +2,14 @@
 
 The source was tested compiled and running on 5.4.75.  
 
-
 ## Usage
 
 ```
 $ make
+
 $ sudo insmod ./seqlock.ko
 
 $ sudo rmmod seqlock
-
 
 $ dmesg | tail
     Feb  2 22:50:28 debian kernel: initializing..
@@ -34,7 +33,6 @@ $ dmesg | tail
     Feb  2 22:50:44 debian kernel: kthread2() - read value 15
     Feb  2 22:50:44 debian kernel: READY.
 ```
-
 
 ## Notes
 
@@ -62,7 +60,6 @@ We cannot use this seqlock in any situations like normal spinlock or mutex. Beca
  * That data is simple (no pointers) that needs to be protected. Seqlocks generally cannot be used to protect data structures involving pointers, because the reader may be following a pointer that is invalid while the writer is changing the data structure.
 
 [taken from www.embetronicx.com]  
-
 
 ---
 

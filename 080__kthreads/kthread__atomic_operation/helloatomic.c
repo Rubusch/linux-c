@@ -5,7 +5,7 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kthread.h> /* kthread_run(), kthread_stop(),... */
-#include <linux/delay.h> /* msleep() */
+#include <linux/delay.h> /* mdelay() */
 
 /*
   forwards
@@ -27,7 +27,7 @@ int kthread2(void *);
 */
 
 // variable for atomic increment operation
-atomic_t hello_atomic_global = ATOMIC_INIT(0);
+static atomic_t hello_atomic_global = ATOMIC_INIT(0);
 
 // bitfield for atomic bit operation
 unsigned int hello_atomic_bit_check = 0;
@@ -45,8 +45,6 @@ static struct task_struct *kthread2_task;
 
 int kthread_routine(const char *thread_name)
 {
-	unsigned int prev = 0;
-
 	/**
 	 * kthread_should_stop - should this kthread return now?
 	 *
@@ -63,16 +61,9 @@ int kthread_routine(const char *thread_name)
 		 */
 		atomic_inc(&hello_atomic_global);
 
-		/**
-		 * test_and_change_bit - toggle a bit and return its old value
-		 * @nr:  bit number to set
-		 * @addr:  pointer to memory
-		 */
-		prev = test_and_change_bit(1, (void *)&hello_atomic_bit_check);
-
-		printk(KERN_INFO "%s [value: %u] [bit: %u]\n", thread_name,
-		       atomic_read(&hello_atomic_global), prev);
-		msleep(1000);
+		printk(KERN_INFO "%s [value: %u]\n",
+		       thread_name, atomic_read(&hello_atomic_global));
+		mdelay(1000);
 	}
 	return 0;
 }
@@ -105,14 +96,14 @@ int init_hello_atomic(void)
 	 * wake_up_process().  Returns the kthread or ERR_PTR(-ENOMEM).
 	 */
 	kthread1_task = kthread_run(kthread1, NULL, THREAD1_NAME);
-	if (!kthread1_task) {
+	if (IS_ERR(kthread1_task)) {
 		printk(KERN_ERR "first kthread creation failed\n");
 		goto err_thread1;
 	}
 	printk(KERN_INFO "%s created\n", THREAD1_NAME);
 
 	kthread2_task = kthread_run(kthread2, NULL, THREAD2_NAME);
-	if (!kthread2_task) {
+	if (IS_ERR(kthread2_task)) {
 		printk(KERN_ERR "second kthread creation failed\n");
 		goto err_thread2;
 	}
@@ -146,6 +137,7 @@ void cleanup_hello_atomic(void)
 	 */
 	kthread_stop(kthread1_task);
 	kthread_stop(kthread2_task);
+
 	printk(KERN_INFO "READY.\n");
 }
 
