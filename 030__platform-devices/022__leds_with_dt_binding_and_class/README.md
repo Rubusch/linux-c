@@ -1,6 +1,18 @@
 # LED Module with Devicetree Binding (LED class)
 
-The LED class driver demo of A. Rios (see references).  
+Now instead of the miscdevice, uses the self implemented "led class
+device". The driver now shows a blinking device.  
+
+## ColorClick Hardware: https://www.mikroe.com/color-click
+
+Connect the ColorClick device as follows:  
+- RPI: GPIO27 -> ColorClick: RD
+- RPI: GPIO22 -> ColorClick: GR
+- RPI: GPIO26 -> ColorClick: BL
+- RPI: GND 39 -> ColorClick: GND
+- RPI: 3V3 01 -> ColorClick: 3V3
+
+## The LED class driver demo of A. Rios (see references)
 
 The LED class will simplify the development of drivers that control
 LEDs. A "class" is both the implementation of a set of devices and the
@@ -36,18 +48,31 @@ Note, ledclass_dev is provided by the kernel.
 
 [further details on IOMUX on NPX's iMX7D p125ff -> references]
 
-## Linux
+# Build
 
-A copy of the modified DTS is provided, copy it to the specified location in the linux sources (6.3), then build it.  
-
+## Devicetree
+The `bcm2710-rpi-3-b.dts` file will be copied to ``arch/arm/boot/dts`` where
+there is another `arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dts` which just
+links via `include` to the 32-bit version. Thus copying over this file is
+sufficient.  
 ```
-$ cd linux
+$ cp -arf ./devicetree/arch /usr/src/linux/
+$ cd /usr/src/linux
+$ find . -name \*.dtb -delete
 $ make dtbs
+$ cd -
 ```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the /boot/bcm2710-rpi-3-b.dtb. In case make a safety backup first.  
+Do a backup of `/boot/bcm2710-rpi-3-b.dtb`. Copy the file `bcm2710-rpi-3-b.dtb`
+to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`.  
+```
+$ ssh root@10.1.10.203 cp /boot/bcm2710-rpi-3-b.dtb{,.orig}
+$ scp arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb root@10.1.10.203:/boot/
+```
+Then reboot.  
 
 ## Module
-Should compile cross - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
+Compile cross having `crossbuild-essentials-arm64` installed, with ARCH, and
+CROSS_COMPILE set, execute  
 ```
 $ cd ./module
 $ make
@@ -61,16 +86,24 @@ rpi$ cd ./userspace
 rpi$ make
 ```
 
-## Usage
+# Usage
 On the target perform the following to verify the functionality  
 ```
-pi@raspberrypi:~$ sudo insmod chardev.ko
+pi@ctrl001:/tmp $ sudo insmod ./leddriver.ko
 
-pi@raspberrypi:~$ sudo find /sys -name "*lothar*"
-    /sys/bus/platform/drivers/lotharskeys
-    /sys/module/chardev/drivers/platform:lotharskeys
+pi@ctrl001:/tmp $ sudo rmmod leddriver
 
-pi@raspberrypi:~$ rmmod chardev
+pi@ctrl001:/tmp $ dmesg | tail
+    [   32.537000] RGBclassleds 3f200000.ledclassRGB: ledclass_probe() started
+    [   32.537015] RGBclassleds 3f200000.ledclassRGB: res->start = 0x3f200000
+    [   32.537028] RGBclassleds 3f200000.ledclassRGB: res->end = 0x3f2000b3
+    [   32.537061] RGBclassleds 3f200000.ledclassRGB: there are 3 nodes
+    [   32.537407] RGBclassleds 3f200000.ledclassRGB: ledclass_probe() done
+    [   32.537686] led_init() done
+    [  354.392738] led_exit() started
+    [  354.392807] RGBclassleds 3f200000.ledclassRGB: ledclass_remove() started
+    [  354.392821] RGBclassleds 3f200000.ledclassRGB: ledclass_remove() done
+    [  354.411571] led_exit() done
 ```
 The module could be load, the devicetree binding would match.  
 
