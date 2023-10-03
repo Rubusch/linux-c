@@ -1,6 +1,8 @@
 # Chardev Module with Devicetree Binding (open firmware)
 
-For the RPI3b: add the keys with the following DT binding. NB: There is an arm and an arm64 version, anyway the 64 bit version  diverts to the 32 version (v6.3.1).  
+For the RPI3b: add the keys with the following DT binding. NB: There is an arm
+and an arm64 version, anyway the 64 bit version  diverts to the 32 version
+(v6.3.1).  
 ```
 $ vi ./linux/arch/arm/boot/dts/bcm2710-rpi-3-b.dts
     ...
@@ -56,7 +58,7 @@ $ make
 Copy the module over to the target  
 
 ## Userspace
-Easiest is to copy the folder `userspace`  to the target  
+Compile cross, then copy the .elf over to the target.   
 ```
 rpi$ cd ./userspace
 rpi$ make
@@ -71,9 +73,8 @@ pi@raspberrypi:~$ sudo find /sys -name "*lothar*"
     /sys/bus/platform/drivers/lotharskeys
     /sys/module/chardev/drivers/platform:lotharskeys
 
-pi@raspberrypi:~$ rmmod chardev
+pi@raspberrypi:~$ sudo rmmod chardev
 ```
-The module could be load, the devicetree binding would match.  
 
 ## Verified
 * Verified against a RPI3 w/ aarch64
