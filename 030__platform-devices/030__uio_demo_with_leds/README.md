@@ -27,37 +27,64 @@ Kernelspace driver disadvantages:
 There are distinct types of UIO device drivers.  
 
 #### UIO driver: `drivers/uio.c`
- - The UIO driver creates file attributes in the sysfs describing the UIO device. It also maps the device memory into the process address space using its mmap() function.
- - A minimal kernelspace driver `uio_pdrv_genirq` (i.e. **UIO platform driver with generic interrupts**), or **user provided kernel driver** is required to set up the UIO framework.
+
+Make sure /lib/modules are copied and the kernel name (`uname`) is at least there as symlink.  
+
+- The UIO driver creates file attributes in the sysfs describing the
+  UIO device. It also maps the device memory into the process address
+  space using its mmap() function.
+
+- A minimal kernelspace driver `uio_pdrv_genirq` (i.e. **UIO platform
+  driver with generic interrupts**), or **user provided kernel
+  driver** is required to set up the UIO framework.
 
 #### UIO platform driver: `drivers/uio_pdev_genirq.c`
- - Provides the required kernelspace driver for UIO
- - It works with the DT. The DT node needs to use `generic-uio` in its `compatible` property.
- - The UIO platform device driver is configured from the DT and registers an UIO device.
+- Provides the required kernelspace driver for UIO
+
+- It works with the DT. The DT node needs to use `generic-uio` in its
+  `compatible` property.
+
+- The UIO platform device driver is configured from the DT and
+  registers an UIO device.
 
 [further details on IOMUX on NPX's iMX7D p125ff -> references]
 
 ## UIO Workflow
 
 1. UIO device: `/sys/class/uio/uio0`
-2. The `/sys/class/uio/uio0/<name>/` directory contains the name of the device which correlates to the name in the `struct uio_info` structure
-3. The `/sys/class/uio/uio0/maps/` directory has all the memory ranges for the device.
+
+2. The `/sys/class/uio/uio0/<name>/` directory contains the name of
+   the device which correlates to the name in the `struct uio_info`
+   structure
+
+3. The `/sys/class/uio/uio0/maps/` directory has all the memory ranges
+   for the device.
+
 4. Each UIO device can make one or more memory regions available for memory mapping. Each mapping has its own directory in sysfs, the first mapping appears as `/sys/class/uio/uioX/maps/map0/`. Subsequent mappings create directories `map1/`, `map2/` and so on. These directories will only appear if the size of the mapping is not 0. Each `mapX/` directory contains four read-only files that show attributes of the memory:  
+
  - name: string identifier for the mapping
  - addr: address of memory that can be mapped
  - size: size in bytes of the memory pointed to
- - offset: offset in bytes that has to be added to the pointer returned by mmap() to get the actual device memory
+ - offset: offset in bytes that has to be added to the pointer
+   returned by mmap() to get the actual device memory
 
 
-The `offset` is important if the device's memory is not page aligned. Remember that **pointers returned by mmap() are always pagealigned**, so it is a good practice to always add this offset!!!   
+The `offset` is important if the device's memory is not page aligned. Remember that **pointers returned by mmap() are always pagealigned**, so it is a good practice to always add this offset!!!  
 
 NB: **Interrupts** are handled by reading from `/dev/uioX`. A blocking `read()` from `/dev/uioX` will return as soon as an interrupt occurs. You can also use `select()` on `/dev/uioX` to wait for an interrupt. The integer value read from `/dev/uioX` represents the total interrupt count. You can use this number to figure out if you missed some interrupts. Compare the interrupt counts also to `/proc/interrupts`  
 
 ## Some notes on Kernel UIO API (v5.4)
 
-- `long irq`: required. If your hardware generates an interrupt, it's your modules' task to determine the irq number during initialization. If you don't have a hardware generated interrupt but want to trigger the interrupt handler in some other way, set irq to `UIO_IRQ_CUSTOM`. If you had no interrupt at all, you could set irq to `UIO_IRQ_NONE`, though this rarely makes sense.
-- `int memtype`: Required if mapping is used. Set this to `UIO_MEM_PHYS` if you have physical memory to be mapped. Use `UIO_MEM_LOGICAL` for logical memory (for example, allocated with `kmalloc()`). There's also `UIO_MEM_VIRTUAL` for virtual memory.
-
+- `long irq`: required. If your hardware generates an interrupt, it's
+  your modules' task to determine the irq number during
+  initialization. If you don't have a hardware generated interrupt but
+  want to trigger the interrupt handler in some other way, set irq to
+  `UIO_IRQ_CUSTOM`. If you had no interrupt at all, you could set irq
+  to `UIO_IRQ_NONE`, though this rarely makes sense.
+- `int memtype`: Required if mapping is used. Set this to
+  `UIO_MEM_PHYS` if you have physical memory to be mapped. Use
+  `UIO_MEM_LOGICAL` for logical memory (for example, allocated with
+  `kmalloc()`). There's also `UIO_MEM_VIRTUAL` for virtual memory.
 
 ## Devicetree
 
@@ -85,16 +112,38 @@ NB: **Interrupts** are handled by reading from `/dev/uioX`. A blocking `read()` 
 
 A copy of the modified DTS is provided, copy it to the specified location in the linux sources (6.3), then build it.  
 
-```
-$ cd linux
-$ cp -arf ~/workspace/lothars-modules/030__platform/devicetree_binding_uio_led/devicetree/arch ./
+## ColorClick Hardware: https://www.mikroe.com/color-click
 
+Connect the ColorClick device as follows:  
+- RPI: GPIO27 -> ColorClick: RD
+- RPI: GPIO22 -> ColorClick: GR
+- RPI: GPIO26 -> ColorClick: BL
+- RPI: GND 39 -> ColorClick: GND
+- RPI: 3V3 01 -> ColorClick: 5V
+
+# Build
+
+## Devicetree
+The `bcm2710-rpi-3-b.dts` file will be copied to ``arch/arm/boot/dts`` where
+there is another `arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dts` which just
+links via `include` to the 32-bit version. Thus copying over this file is
+sufficient.  
+```
+$ cp -arf ./devicetree/arch /usr/src/linux/
+$ cd /usr/src/linux
+$ find . -name \*.dtb -delete
 $ make dtbs
-  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
+$ cd -
 ```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
+Do a backup of `/boot/bcm2710-rpi-3-b.dtb`. Copy the file `bcm2710-rpi-3-b.dtb`
+to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`.  
+```
+$ ssh root@10.1.10.203 cp /boot/bcm2710-rpi-3-b.dtb{,.orig}
+$ scp arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb root@10.1.10.203:/boot/
+```
+Then reboot.  
 
-## Linux Module
+## Module
 Should crosscompile - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
 ```
 $ cd ./module
@@ -109,17 +158,21 @@ rpi$ cd ./userspace
 rpi$ make
 ```
 
-## Usage
+# Usage
 
 ```
 pi@raspberrypi:~/sandbox$ sudo insmod ./leddriver.ko
+
 pi@raspberrypi:~/sandbox$ lsmod | grep leddriver
     leddriver              16384  0
     uio                    24576  2 uio_pdrv_genirq,leddriver
+
 pi@raspberrypi:~/sandbox$ ls /sys/class/uio/uio0/
     dev  device  event  maps  name  power  subsystem  uevent  version
+
 pi@raspberrypi:~/sandbox$ cat /sys/class/uio/uio0/name
     lothars_device
+
 pi@raspberrypi:~/sandbox$ cat /sys/class/uio/uio0/maps/map0/size
     0x0000000000001000
 
