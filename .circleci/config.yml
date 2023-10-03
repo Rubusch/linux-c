@@ -154,11 +154,11 @@ jobs:
       - run: cd 040__i2c/00_i2c_client/module && make
 
 ## interrupts
-      - run: cd 050__interrupts/interrupt && make
-      - run: cd 050__interrupts/interrupt__tasklet01 && make
-      - run: cd 050__interrupts/interrupt__tasklet02__dynamic_alloc && make
-      - run: cd 050__interrupts/interrupt__workqueue01_kernel && make
-      - run: cd 050__interrupts/interrupt__workqueue02_customized && make
+      - run: cd 050__interrupts/x86__interrupt && make
+      - run: cd 050__interrupts/x86__tasklet01 && make
+      - run: cd 050__interrupts/x86__tasklet02__dynamic_alloc && make
+      - run: cd 050__interrupts/x86__workqueue01_kernel && make
+      - run: cd 050__interrupts/x86__workqueue02_customized && make
 
 ## kthreads
       - run: cd 080__kthreads/kthread && make

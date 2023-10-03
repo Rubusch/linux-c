@@ -1,5 +1,7 @@
 KERNELDIR ?= /usr/src/linux
 obj-m += interrupt.o
+## MUST BE x86
+CC = gcc
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules

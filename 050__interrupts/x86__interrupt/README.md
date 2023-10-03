@@ -1,6 +1,6 @@
 # Hello Interrupt Module
 
-The source was tested compiled and running on 5.4.75.  
+The source requires x86 (32-bit) toolchain and kernel. The source was tested compiled and running on 5.4.75.  
 
 
 ## Usage
