@@ -2,6 +2,7 @@
 
 The source was tested compiled and running on 5.4.75.  
 
+TODO: Unsure if this still works or simply does nothing  
 
 ## Usage
 
@@ -47,12 +48,10 @@ Unload the driver as follows.
 $ sudo rmmod usb
 ```
 
-
 ## Notes
 
 This is a basic instance of the usb driver skeleton. Find some more elaborated usb device driver example e.g. here:  
 https://sysplay.github.io/books/LinuxDrivers/book/Content/Part11.html
-
 
 ---
 

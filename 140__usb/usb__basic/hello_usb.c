@@ -8,9 +8,6 @@
   forwards
 */
 
-static int __init pen_init(void);
-static void __exit pen_exit(void);
-
 static int pen_probe(struct usb_interface *, const struct usb_device_id *);
 static void pen_disconnect(struct usb_interface *);
 
@@ -18,9 +15,10 @@ static void pen_disconnect(struct usb_interface *);
   globals
 */
 
-#define USB_DEVICE_NAME "mindblowing_usb_device"
-#define USB_VENDOR_ID 0x1366
-#define USB_PRODUCT_ID 0x1051
+#define USB_DEVICE_NAME "lothars_usb"
+
+#define USB_VENDOR_ID 0x346d
+#define USB_PRODUCT_ID 0x5678
 
 static struct usb_device_id pen_table[] = {
 	{ USB_DEVICE(USB_VENDOR_ID, USB_PRODUCT_ID) },
@@ -56,18 +54,7 @@ static void pen_disconnect(struct usb_interface *interface)
   init / exit
 */
 
-static int __init pen_init(void)
-{
-	return usb_register(&pen_driver);
-}
-
-static void __exit pen_exit(void)
-{
-	usb_deregister(&pen_driver);
-}
-
-module_init(pen_init);
-module_exit(pen_exit);
+module_usb_driver(pen_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

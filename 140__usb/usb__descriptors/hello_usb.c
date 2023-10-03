@@ -24,10 +24,11 @@ static void lothars_usb_disconnect(struct usb_interface *);
 
 // e.g. using my SONY usbstick
 #define USB_DRIVER_NAME "lothars_usb_driver"
-//#define USB_VENDORID  0x054c /* usb stick, failed to be detected */
-//#define USB_PRODUCTID 0x0439
-#define USB_VENDORID 0x1366 /* HiFive1 DevKit Board, detected */
-#define USB_PRODUCTID 0x1051
+
+// XXX adjust here XXX
+#define USB_VENDORID 0x346d
+#define USB_PRODUCTID 0x5678
+
 
 #define PRINT_USB_IFACE_DESCRIPTOR(i)                                          \
 	printk(KERN_INFO "USB INTERFACE DESCRIPTOR:\n");                       \
@@ -59,9 +60,7 @@ const struct usb_device_id lothars_usb_table[] = {
 	{ USB_DEVICE(USB_VENDORID, USB_PRODUCTID) },
 	{} /* terminating endtry */
 };
-MODULE_DEVICE_TABLE(
-	hello_usb,
-	lothars_usb_table); // enables usb hotplug system, to load the driver automatically
+MODULE_DEVICE_TABLE(hello_usb, lothars_usb_table); // enables usb hotplug system, to load the driver automatically
 
 static struct usb_driver lothars_usb_driver = {
 	.name = USB_DRIVER_NAME,

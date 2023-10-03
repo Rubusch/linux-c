@@ -5,7 +5,7 @@ The source was tested compiled and running on 5.4.75.
 
 ## Usage
 
-First, adjust the vendorid and deviceid in the source to the specific device.  
+First, **adjust the vendorid and deviceid** in the source to the specific device.  
 
 ```
 $ make
