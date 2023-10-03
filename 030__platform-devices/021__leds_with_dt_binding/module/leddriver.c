@@ -208,6 +208,7 @@ static const struct of_device_id led_of_ids[] = {
 	{},
 };
 MODULE_DEVICE_TABLE(of, led_of_ids);
+
 static struct platform_driver led_platform_driver = {
 	.probe = led_probe,
 	.remove = led_remove,

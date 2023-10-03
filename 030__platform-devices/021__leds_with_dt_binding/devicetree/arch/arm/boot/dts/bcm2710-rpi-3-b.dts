@@ -198,11 +198,13 @@
 	ledgreen {
 		compatible = "lothars,RGBleds";
 		label = "ledgreen";
+		// TODO
 	};
 
 	ledblue {
 		compatible = "lothars,RGBleds";
 		label = "labelblue";
+		// TODO
 	};
 };
 

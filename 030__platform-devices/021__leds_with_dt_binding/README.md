@@ -1,8 +1,17 @@
 # LED Module with Devicetree Binding (open firmware)
 
-The demo prepares the led driver for external hardware (color click hat for RPI). This demo only shows the binding of DT to the kernel module, w/o blinking.  
+The demo prepares the led driver for external hardware (color click hat for RPI) using a `struct miscdevice`. This demo only shows the binding of DT to the kernel module, w/o blinking.  
 
 Shows a mere copy for personal notes of A. Rios LED driver for the 5.4 Kernel (originally), tested on 6.1.  
+
+## ColorClick Hardware: https://www.mikroe.com/color-click
+
+Connect the ColorClick device as follows:  
+- RPI: GPIO27 -> ColorClick: RD
+- RPI: GPIO22 -> ColorClick: GR
+- RPI: GPIO26 -> ColorClick: BL
+- RPI: GND 39 -> ColorClick: GND
+- RPI: 3V3 01 -> ColorClick: 3V3
 
 #### Notes on `container_of()`
 
@@ -15,9 +24,10 @@ Shows a mere copy for personal notes of A. Rios LED driver for the 5.4 Kernel (o
 * member – the name of the member within the struct
 
 The `container_of` macro then returns the address of the member for the specified instance.  
-
-
 [further details on IOMUX on NPX's iMX7D p125ff -> references]  
+
+
+# Build
 
 ## Devicetree
 The `bcm2710-rpi-3-b.dts` file will be copied to ``arch/arm/boot/dts`` where there is another `arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dts` which just links via `include` to the 32-bit version. Thus copying over this file is sufficient.  
@@ -50,7 +60,7 @@ rpi$ cd ./userspace
 rpi$ make
 ```
 
-## Usage
+# Usage
 On the target perform the following to verify the functionality  
 ```
 pi@raspberrypi:~$ sudo insmod chardev.ko
@@ -59,8 +69,13 @@ pi@raspberrypi:~$ sudo find /sys -name "*lothar*"
     /sys/bus/platform/drivers/lotharskeys
     /sys/module/chardev/drivers/platform:lotharskeys
 
+pi@ctrl001:/tmp $ sudo mknod /dev/mydev c 202 0
+
+pi@ctrl001:/tmp $ sudo ./ioctl_test.elf
+
 pi@raspberrypi:~$ sudo rmmod chardev
 ```
+FIXME: no blinking device, are the node numbers correct? shall ioctl app be used at all?   
 The module could be load, the devicetree binding would match.  
 
 ## Verified
