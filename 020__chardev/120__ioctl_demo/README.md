@@ -23,7 +23,7 @@ pi@raspberrypi:~$ sudo insmod ./chardev.ko
 
 pi@raspberrypi:~$ sudo mknod /dev/mydev c 202 0
 
-pi@raspberrypi:~$ sudo ./userspace/ioctl_test.elf
+pi@raspberrypi:~$ sudo ./ioctl_test.elf
 
 pi@raspberrypi:~$ sudo rmmod chardev
 
