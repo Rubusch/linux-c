@@ -19,6 +19,7 @@ REMOVEME/*
 
 ## compile targets
 *.ko
+*.elf
 *.exe
 
 ## backups
