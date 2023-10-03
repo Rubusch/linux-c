@@ -9,8 +9,8 @@ The source was tested compiled and running on 5.4.75.
 $ make
 $ sudo insmod ./hellochardev.ko
 
-$ sudo ./tester.exe
-    READ: '' [0]
+$ sudo ./tester.elf
+    READ: '###...###' [0]
     WRITING '123' [123]
     READ: '123' [123]
     READY.
