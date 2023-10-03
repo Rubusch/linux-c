@@ -11,8 +11,6 @@
 #include <linux/interrupt.h>
 #include <linux/fs.h>
 
-//#include <linux/jiffies.h>
-
 /*
   forwards
 */
@@ -297,4 +295,4 @@ module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Demonstrates a GPIO driver!");
+MODULE_DESCRIPTION("Demonstrates a GPIO driver on RPI4!");
