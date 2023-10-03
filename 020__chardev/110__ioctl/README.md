@@ -8,7 +8,9 @@ The source was tested compiled and running on 5.4.75.
 $ export KERNELDIR=~/workspace/linux
 
 $ make
+
 $ sudo insmod ./helloioctl.ko
+
 $ sudo ./ioctl.elf
     device name: '/dev/lothars_chardev_device'
     enter a number to be sent to the ioctl device:
@@ -18,9 +20,9 @@ $ sudo ./ioctl.elf
     value = 123
     READY.
 
-$ sudo rmmod ioctl
+$ sudo rmmod helloioctl
 
-$ dmesg
+$ dmesg | tail
     [83289.938018] init_hello_ioctl() - major = 244, minor = 100
     [83289.938049] init_hello_ioctl() device driver init - OK
     [83289.938049] If you want to talk to the device driver,
@@ -37,7 +39,6 @@ $ dmesg
     [83359.091206] character device unregistered
     [83359.091208] READY.
 ```
-
 
 ## Notes
 
