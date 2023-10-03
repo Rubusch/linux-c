@@ -14,7 +14,6 @@ $ sudo cat /dev/lothars_hello_device
 $ sudo rmmod waitqueue
 
 $ dmesg | tail
-
     Jan 27 23:56:24 debian kernel: init_hello_chardev() initializing
     Jan 27 23:56:24 debian kernel: init_hello_chardev() major = 244, minor = 123
     Jan 27 23:56:24 debian kernel: thread created
