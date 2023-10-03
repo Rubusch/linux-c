@@ -16,45 +16,41 @@ $ make
 Copy the module over to the target  
 
 ## Userspace
-Easiest is to copy the folder `userspace`  to the target  
+Compile cross as well, set ``$CROSS_COMPILE``.   
 ```
 rpi$ cd ./userspace
 rpi$ make
 ```
+Copy the module over to the target  
 
 ## Usage
-On the target perform the following to verify the functionality  
 ```
-pi@raspberrypi:~$ cd ./userspace/
+pi@ctrl001:/tmp $ sudo insmod chardev.ko
 
-pi@raspberrypi:~/userspace$ make
-    gcc -g -Wall   -c -o ioctl_test.o ioctl_test.c
-    gcc -g -Wall -o ioctl_test.elf ioctl_test.o
+pi@ctrl001:/tmp $ sudo ./ioctl_test.elf 
 
-pi@raspberrypi:~/userspace$ cd ..
+pi@ctrl001:/tmp $ ls -l /dev/lothars_device
+    crw------- 1 root root 10, 122 Oct  3 15:45 /dev/lothars_device
 
-pi@raspberrypi:~$ sudo insmod chardev.ko
+pi@ctrl001:/tmp $ cat /sys/class/misc/lothars_device/dev
+    10:122
 
-pi@raspberrypi:~$ sudo ./userspace/ioctl_test.elf
+pi@ctrl001:/tmp $ ls -l /sys/class/misc/lothars_device
+    lrwxrwxrwx 1 root root 0 Oct  3 15:46 /sys/class/misc/lothars_device -> ../../devices/virtual/misc/lothars_device
 
-pi@raspberrypi:~$ ls -l /dev/lothars_device
-    crw------- 1 root root 10, 121 May  7 14:55 /dev/lothars_device
+pi@ctrl001:/tmp $ sudo rmmod chardev
 
-pi@raspberrypi:~$ cat /sys/class/misc/lothars_device/dev
-    10:121
-
-pi@raspberrypi:~$ ls -l /sys/class/misc/lothars_device
-    lrwxrwxrwx 1 root root 0 May  7 14:56 /sys/class/misc/lothars_device -> ../../devices/virtual/misc/lothars_device
-
-pi@raspberrypi:~$ sudo rmmod chardev
-
-pi@raspberrypi:~$ dmesg | tail
-    [ 9656.926328] chardev_init(): hello chardev init
-    [ 9656.927167] chardev_init(): got minor 121
-    [ 9669.830434] chardev_open(): called
-    [ 9669.830489] chardev_ioctl(): called, cmd = 100, arg = 110
-    [ 9669.830529] chardev_close(): called
-    [ 9702.654548] chardev_exit(): hello chardev exit
+pi@ctrl001:/tmp $ dmesg | tail
+    [  734.176532] chardev_open(): called
+    [  734.176582] chardev_ioctl(): called, cmd = 100, arg = 110
+    [  734.176617] chardev_close(): called
+    [  801.709206] chardev_exit(): hello chardev exit
+    [  994.089506] chardev_init(): hello chardev init
+    [  994.089889] chardev_init(): got minor 122
+    [ 1003.358642] chardev_open(): called
+    [ 1003.358699] chardev_ioctl(): called, cmd = 100, arg = 110
+    [ 1003.358736] chardev_close(): called
+    [ 1068.685229] chardev_exit(): hello chardev exit
 ```
 
 ## Verified
