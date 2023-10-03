@@ -10,7 +10,7 @@ Connect the ColorClick device as follows:
 - RPI: GPIO22 -> ColorClick: GR
 - RPI: GPIO26 -> ColorClick: BL
 - RPI: GND 39 -> ColorClick: GND
-- RPI: 3V3 01 -> ColorClick: 3V3
+- RPI: 3V3 01 -> ColorClick: 5V
 
 ## The LED class driver demo of A. Rios (see references)
 
