@@ -2,7 +2,6 @@
 
 The source was tested compiled and running on 5.4.75.  
 
-
 ## Usage
 
 ```
@@ -30,7 +29,6 @@ $ dmesg | tail
     Jan 26 11:03:06 debian kernel: sysfs_show(000000001c4ef222, 000000003ba4d8b1, '7
     Jan 26 11:03:06 debian kernel: ') - Read!
     Jan 26 11:03:10 debian kernel: cleanup_hello_sysfs() READY.
-
 ```
 
 ## Notes
@@ -52,7 +50,6 @@ When creating a sysfs entry
  * Second create a sysfs file
 
 (Notes taken from https://embetronicx.com/tutorials/linux/device-drivers/sysfs-in-linux-kernel/)
-
 
 ---
 

@@ -2,15 +2,14 @@
 
 The source was tested compiled and running on 5.4.75.  
 
-
 ## Usage
 
 ```
 $ make
+
 $ sudo insmod timer.ko
 
 $ sudo rmmod timer
-
 
 $ dmesg | tail
     Feb  1 23:54:32 debian kernel: init_hello() - initializing...
@@ -24,7 +23,6 @@ $ dmesg | tail
 
     Feb  1 23:54:36 debian kernel: cleanup_hello() - READY.
 ```
-
 
 ## Notes
 
