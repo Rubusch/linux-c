@@ -7,7 +7,7 @@ A  linux kernel module, first tested: kernel 2.6.18.
 
 ```
 $ make
-$ sudo insmod hello.ko mystring="foobar" mybyte=255 myintArray=1
+$ sudo insmod hello.ko mystring="foobar" myshort=255 myintArray=1
 
 $ sudo rmmod hello
 ```

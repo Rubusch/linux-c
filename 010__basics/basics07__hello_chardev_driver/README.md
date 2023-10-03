@@ -5,7 +5,7 @@ The loadable kernel module, tested on 5.4.75.
 ## Usage
 ```
 $ make
-$ sudo insmod chardev.ko
+$ sudo insmod hello.ko
 $ dmesg
     (...)
     [198458.510364] I was assigned major number 244.
