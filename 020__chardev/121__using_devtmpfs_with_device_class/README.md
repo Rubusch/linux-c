@@ -20,50 +20,34 @@ $ make
 Copy the module over to the target  
 
 ## Userspace
-Easiest is to copy the folder `userspace`  to the target  
+Cross compile the source, setting CROSS_COMPILE as for the kernel.  
 ```
 rpi$ cd ./userspace
 rpi$ make
 ```
+Then copy the .elf file over to the target.  
 
 ## Usage
-On the target perform the following to verify the functionality  
-```
-pi@raspberrypi:~$ cd ./userspace/
+pi@ctrl001:/tmp $ sudo insmod ./chardev.ko
 
-pi@raspberrypi:~/userspace$ make
-    gcc -g -Wall   -c -o ioctl_test.o ioctl_test.c
-    gcc -g -Wall -o ioctl_test.elf ioctl_test.o
+pi@ctrl001:/tmp $ sudo ./ioctl_test.elf
 
-pi@raspberrypi:~/userspace$ cd ..
+pi@ctrl001:/tmp $ ls -l /sys/class/lothars_class/lothars_device
+    lrwxrwxrwx 1 root root 0 Oct  3 15:41 /sys/class/lothars_class/lothars_device -> ../../devices/virtual/lothars_class/lothars_device
 
-pi@raspberrypi:~$ ll
-    total 36616
-    -rw-r--r-- 1 pi pi    11104 May  7 13:29 chardev.ko
-    -rw-r--r-- 1 pi pi  8426768 May  5 16:19 linux-headers-6.3.1-lothar008+_6.3.1-g9ea5c8b206e2-3_arm64.deb
-    -rw-r--r-- 1 pi pi 27782824 May  5 16:19 linux-image-6.3.1-lothar008+_6.3.1-g9ea5c8b206e2-3_arm64.deb
-    -rw-r--r-- 1 pi pi  1262628 May  5 16:19 linux-libc-dev_6.3.1-g9ea5c8b206e2-3_arm64.deb
-    drwxr-xr-x 2 pi pi     4096 May  7 13:30 userspace
+pi@ctrl001:/tmp $ sudo rmmod chardev
 
-pi@raspberrypi:~$ sudo insmod chardev.ko
-
-pi@raspberrypi:~$ sudo ./userspace/ioctl_test.elf
-
-pi@raspberrypi:~$ ls -l /sys/class/lothars_class/lothars_device
-    lrwxrwxrwx 1 root root 0 May  7 13:31 /sys/class/lothars_class/lothars_device -> ../../devices/virtual/lothars_class/lothars_device
-
-pi@raspberrypi:~$ sudo rmmod chardev
-
-pi@raspberrypi:~$ dmesg
-    [ 4566.355582] chardev: loading out-of-tree module taints kernel.
-    [ 4566.356139] chardev_init(): hello chardev init
-    [ 4566.356154] chardev_init(): allocated correctly with major number 236
-    [ 4566.356242] chardev_init(): device class registered correctly
-    [ 4566.356444] chardev_init(): the device is created correctly
-    [ 4576.642901] chardev_open(): called
-    [ 4576.642949] chardev_ioctl(): called, cmd = 100, arg = 110
-    [ 4576.642984] chardev_close(): called
-    [ 4616.264658] chardev_exit(): hello chardev exit
+pi@ctrl001:/tmp $ dmesg | tail
+    [  424.096496] my_dev_close(): called
+    [  448.599004] hello chardev exit
+    [  708.336141] chardev_init(): hello chardev init
+    [  708.336190] chardev_init(): allocated correctly with major number 239
+    [  708.336313] chardev_init(): device class registered correctly
+    [  708.336704] chardev_init(): the device is created correctly
+    [  734.176532] chardev_open(): called
+    [  734.176582] chardev_ioctl(): called, cmd = 100, arg = 110
+    [  734.176617] chardev_close(): called
+    [  801.709206] chardev_exit(): hello chardev exit
 ```
 
 ## Verified
