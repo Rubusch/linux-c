@@ -108,8 +108,8 @@
 	};
 
 	i2c1_pins: i2c1 {
-		brcm,pins = <2 3>;
-		brcm,function = <4>;
+		brcm,pins = <2 3>;   /* gpio2 and gpio3 pins */
+		brcm,function = <4>; /* alt0 mux function */
 	};
 
 	i2s_pins: i2s {
@@ -306,6 +306,16 @@
 	pinctrl-0 = <&i2c1_pins>;
 	clock-frequency = <100000>;
         status = "okay"; // turned on
+
+	ioexp@38 {
+		compatible = "lothars,ioexp";
+		reg = <0x38>;
+	};
+
+	ioexp@39 {
+		compatible = "lothars,ioexp";
+		reg = <0x39>;
+	};
 };
 
 &i2c2 {

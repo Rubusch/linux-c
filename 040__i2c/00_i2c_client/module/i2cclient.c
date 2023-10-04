@@ -16,9 +16,6 @@
 #include <linux/of.h>
 #include <linux/uaccess.h>
 
-
-#define DEVICE_NAME "lothars_device"
-
 /* private device structure */
 struct ioexp_dev {
 	struct i2c_client *client;
@@ -173,14 +170,14 @@ static const struct i2c_device_id i2c_ids[] = {
 MODULE_DEVICE_TABLE(i2c, i2c_ids);
 
 static struct i2c_driver ioexp_driver = {
+	.probe = ioexp_probe,
+	.remove = ioexp_remove,
+	.id_table = i2c_ids,
 	.driver = {
 		.name = "ioexp",
 		.owner = THIS_MODULE,
 		.of_match_table = ioexp_dt_ids,
 	},
-	.probe = ioexp_probe,
-	.remove = ioexp_remove,
-	.id_table = i2c_ids,
 };
 
 module_i2c_driver(ioexp_driver);
