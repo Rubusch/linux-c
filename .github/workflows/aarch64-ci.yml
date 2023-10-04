@@ -168,8 +168,6 @@ jobs:
           cd -
           cd ../module
           make
-          cd ../userspace
-          make
       - run: |
           source ~/source-me.sh
           cd 030__platform-devices/030__uio_demo_with_leds/devicetree

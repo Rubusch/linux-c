@@ -142,8 +142,6 @@ jobs:
       - run: |
           cd 030__platform-devices/022__leds_with_dt_binding_and_class/module
           make
-          cd ../userspace
-          make
       - run: |
           cd 030__platform-devices/030__uio_demo_with_leds/module
           make
