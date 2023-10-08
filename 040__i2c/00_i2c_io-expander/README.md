@@ -10,14 +10,31 @@ commands cannot be handled at all on most pure SMBus adapters.
 ## Hardware: PCF8574 I/O Expander Device
 
 PCF8574 I2C Portexpander I/O Erweiterung 8 Pin  
-https://www.bastelgarage.ch/pcf8574-i2c-portexpander-i-o-erweiterung-8-pin?search=PCF8574%20I2C%20Portexpander%20I%2FO%20Erweiterung%208%20Pin
+https://www.mikrocontroller.net/articles/Port-Expander_PCF8574
 
-connect:  
+Shop:  
+https://www.waveshare.com/pcf8574-io-expansion-board.htm
+
+...and codes:  
+https://www.waveshare.com/wiki/PCF8574_IO_Expansion_Board
+
+Connect:  
 
 - GPIO2   -> SDA1
 - GPIO3   -> SCL1
 - VCC3.3V -> 3.3V
 - GND     -> GND
+
+If you piggy-back several of those devices, adjust the address of each of them by setting the jumper bars `A0`, `A1` and `A2`. Set them either to `low` (-) or to `high` (+)  
+
+The I2C slave addressy byte then looks as follows:  
+ +--+--+--+--+------+------+------+---+  
+ |A6|A5|A4|A3|**A2**|**A1**|**A0**|R/W|  
+ +--+--+--+--+------+------+------+---+  
+
+Where `A0`, `A1` and `A2` are configurable by the jumpers.  
+`R/W`: high means a _read_ was selected, low meands a _write_ was selected.  
+Measure the outputs on the `P0` through `P7` pins.  
 
 ## The Linux I2C Subsystem
 
@@ -75,8 +92,53 @@ Copy the module over to the target
 
 ## Usage
 
+Load the module, `probe()` is called, the devices `ioexp00` and `ioexp01` are created  
 ```
-TODO      
+# insmod i2cclient.ko
+# ls -l /dev/ioexp0*
+    crw------- 1 root root 10, 121 Oct  8 20:31 /dev/ioexp00
+    crw------- 1 root root 10, 120 Oct  8 20:31 /dev/ioexp01
+```
+Set all outputs to '0'  
+
+```
+# echo 0 > /dev/ioexp00
+```
+
+Now, set all outputs to '1'  
+```
+# echo 255 > /dev/ioexp01
+```
+
+Unload the module  
+```
+# rmmod i2cclient
+```
+
+The corresponding log `/var/log/messages` of the above.  
+```
+Oct  8 20:31:47 ctrl001 kernel: [ 7602.869894] ioexp 1-0038: ioexp_probe() started
+Oct  8 20:31:47 ctrl001 kernel: [ 7602.869946] ioexp 1-0038: ioexp_probe() is entered on ioexp00
+Oct  8 20:31:47 ctrl001 kernel: [ 7602.870670] ioexp 1-0039: ioexp_probe() started
+Oct  8 20:31:47 ctrl001 kernel: [ 7602.870705] ioexp 1-0039: ioexp_probe() is entered on ioexp01
+Oct  8 20:32:03 ctrl001 kernel: [ 7618.909642] ioexp 1-0038: ioexp_write_file() started, entered on ioexp00
+Oct  8 20:32:03 ctrl001 kernel: [ 7618.909689] ioexp 1-0038: ioexp_write_file() we have written 2 characters
+Oct  8 20:32:03 ctrl001 kernel: [ 7618.909882] ioexp 1-0038: ioexp_write_file() convert str to unsigned long, the value is 0
+Oct  8 20:32:03 ctrl001 kernel: [ 7618.910182] ioexp 1-0038: ioexp_write_file() exited on ioexp00
+Oct  8 20:32:03 ctrl001 kernel: [ 7618.910204] ioexp 1-0038: ioexp_write_file() done
+Oct  8 20:32:10 ctrl001 kernel: [ 7625.890659] ioexp 1-0039: ioexp_write_file() started, entered on ioexp01
+Oct  8 20:32:10 ctrl001 kernel: [ 7625.890702] ioexp 1-0039: ioexp_write_file() we have written 4 characters
+Oct  8 20:32:10 ctrl001 kernel: [ 7625.890731] ioexp 1-0039: ioexp_write_file() convert str to unsigned long, the value is 255
+Oct  8 20:32:10 ctrl001 kernel: [ 7625.891044] ioexp 1-0039: ioexp_write_file() exited on ioexp01
+Oct  8 20:32:10 ctrl001 kernel: [ 7625.891067] ioexp 1-0039: ioexp_write_file() done
+Oct  8 20:32:16 ctrl001 kernel: [ 7631.566383] ioexp 1-0039: ioexp_remove() started
+Oct  8 20:32:16 ctrl001 kernel: [ 7631.566424] ioexp 1-0039: ioexp_remove() is entered on ioexp01
+Oct  8 20:32:16 ctrl001 kernel: [ 7631.567838] ioexp 1-0039: ioexp_remove() is exited on ioexp01
+Oct  8 20:32:16 ctrl001 kernel: [ 7631.567877] ioexp 1-0039: ioexp_remove() done
+Oct  8 20:32:16 ctrl001 kernel: [ 7631.568101] ioexp 1-0038: ioexp_remove() started
+Oct  8 20:32:16 ctrl001 kernel: [ 7631.568124] ioexp 1-0038: ioexp_remove() is entered on ioexp00
+Oct  8 20:32:16 ctrl001 kernel: [ 7631.568628] ioexp 1-0038: ioexp_remove() is exited on ioexp00
+Oct  8 20:32:16 ctrl001 kernel: [ 7631.568660] ioexp 1-0038: ioexp_remove() done
 ```
 
 ## Verified
