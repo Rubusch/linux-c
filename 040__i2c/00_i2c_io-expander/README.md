@@ -1,4 +1,4 @@
-# I2C Client Demo
+# I2C Client: IO Expander Demo
 
 If you write a driver for an I2C device, try to use the SMBus commands
 if at all possible (if the device uses only that subset of the I2C
@@ -20,8 +20,8 @@ https://www.waveshare.com/wiki/PCF8574_IO_Expansion_Board
 
 Connect:  
 
-- GPIO2   -> SDA1
-- GPIO3   -> SCL1
+- GPIO2   -> SDA
+- GPIO3   -> SCL
 - VCC3.3V -> 3.3V
 - GND     -> GND
 
