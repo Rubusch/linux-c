@@ -1,5 +1,5 @@
 /*
-  I2C Client Demo
+  I2C Client Demo: PCF8574
 
   ---
   REFERENCES:
@@ -31,6 +31,7 @@ ioexp_read_file(struct file *file, char __user *userbuf, size_t count, loff_t *p
 	char buf[3];
 	struct ioexp_dev *ioexp;
 
+	// obtain ioexp device from file->private_data
 	ioexp = container_of(file->private_data, struct ioexp_dev, ioexp_miscdevice);
 
 	// store io expander input to expval int variable
@@ -68,17 +69,16 @@ static ssize_t ioexp_write_file(struct file *file, const char __user *userbuf, s
 
 	ioexp = container_of(file->private_data, struct ioexp_dev, ioexp_miscdevice);
 	dev_info(&ioexp->client->dev, "ioexp_write_file() started, entered on %s\n", ioexp->name);
-
 	dev_info(&ioexp->client->dev, "ioexp_write_file() we have written %zu characters\n", count);
 
+	// convert "char __user*" to kernel pointer: copy_from_user() => buf
 	if (copy_from_user(buf, userbuf, count)) {
 		dev_err(&ioexp->client->dev, "ioexp_write_file() bad copied value\n");
 		return -EFAULT;
 	}
-
 	buf[count-1] = '\0'; // replace \n with \0
 
-	// convert the string to an unsigned long
+	// convert the string to an unsigned long [string is supposed to be a number] => val
 	ret = kstrtoul(buf, 0, &val);
 	if (ret) {
 		return -EINVAL;
@@ -87,6 +87,7 @@ static ssize_t ioexp_write_file(struct file *file, const char __user *userbuf, s
 	dev_info(&ioexp->client->dev, "ioexp_write_file() convert str to unsigned long, the value is %lu\n", val);
 
 	// generally prefer the '..._smbus_...()' functions for i2c
+	// initiate an smbus write byte process with val
 	ret = i2c_smbus_write_byte(ioexp->client, val);
 	if (0 > ret)
 		dev_err(&ioexp->client->dev, "ioexp_write_file() the device is not found\n");
@@ -113,6 +114,7 @@ static int ioexp_probe(struct i2c_client* client)
 	dev_info(&client->dev, "ioexp_probe() started\n");
 
 	// allocate new private structure
+	// use devm_kzalloc() inside *_probe() as device scope alloc
 	ioexp = devm_kzalloc(&client->dev, sizeof(struct ioexp_dev), GFP_KERNEL);
 
 	// store pointer to the device-structure in bus device context
@@ -184,4 +186,4 @@ module_i2c_driver(ioexp_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("messing with the i2c client device");
+MODULE_DESCRIPTION("i2c smbus demo on the pcf8574");
