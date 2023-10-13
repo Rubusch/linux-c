@@ -183,7 +183,7 @@ jobs:
 ## i2c
       - run: |
           source ~/source-me.sh
-          cd 040__i2c/00_i2c_io-expander/devicetree
+          cd 040__i2c/00_i2c-smbus_io-expander/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
