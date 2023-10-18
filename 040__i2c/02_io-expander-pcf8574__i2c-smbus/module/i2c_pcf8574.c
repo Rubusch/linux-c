@@ -1,6 +1,7 @@
 /*
   I2C Client Demo: PCF8574
 
+  Demonstrates the communication via smbus routines
   ---
   REFERENCES:
   - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
@@ -66,7 +67,6 @@ ioexp_read_file(struct file *file, char __user *userbuf, size_t count, loff_t *p
 // writing from the terminal command line to /dev/lothars_device, \n is added
 static ssize_t ioexp_write_file(struct file *file, const char __user *userbuf, size_t count, loff_t *ppos)
 {
-//*
 	int ret = -1;
 	unsigned long val;
 	char buf[4];
@@ -78,8 +78,6 @@ static ssize_t ioexp_write_file(struct file *file, const char __user *userbuf, s
 			     ioexp_miscdevice);
 
 	client = ioexp->client;
-//	client->addr = 0x20;
-
 	dev_info(&ioexp->client->dev,
 		 "ioexp_write_file() started, entered on '%s'\n", ioexp->name);
 
@@ -106,51 +104,6 @@ static ssize_t ioexp_write_file(struct file *file, const char __user *userbuf, s
 	ret = i2c_smbus_write_byte(ioexp->client, val);
 	udelay(500);
 
-/*/
-// DEBUGGING
-
-	int ret = -1;
-	struct ioexp_dev *ioexp;
-	struct i2c_client *client;
-	u8 command[1];
-//	struct i2c_msg i2c_msg; // Debugging
-
-	ioexp = container_of(file->private_data,
-			     struct ioexp_dev,
-			     ioexp_miscdevice);
-
-	client = ioexp->client;
-
-	dev_info(&client->dev,
-		 "ioexp_write_file() started, entered on '%s'\n", ioexp->name);
-
-	command[0] = 0xff;
-
-//	ret = i2c_master_send(ioexp->client, command, 3);
-	dev_info(&client->dev, "ioexp_write_file() calling: i2c_master_send(ioexp->client, '%02x', '%d');\n", *command, 1);
-
-// sending: smbus
-	client->addr = 0x20;
-	ret = i2c_smbus_write_byte(ioexp->client, command[0]);
-
-// sending: i2c (basic)
-//	client->addr = 0x20;
-//	ret = i2c_master_send(client, command, 1);
-
-// debugging: construct a message
-//	command[0] = 0xff;
-//	i2c_msg.len = sizeof(command);
-//	i2c_msg.addr = 0x20; // working address (ID + jumper 00-00-00)
-//	i2c_msg.flags = 0;
-//	i2c_msg.buf = command;
-//	ret = i2c_transfer(client->adapter, &i2c_msg, 1);
-	udelay(500);
-
-// FIXME: message not even sent! -> CPHA/CPOL correct?
-//	ret = i2c_master_send(ioexp->client, NULL, 0);
-
-	dev_info(&client->dev, "ioexp_write_file() - ret == %d\n", ret);
-// */
 	if (0 > ret) {
 		dev_warn(&client->dev,
 			 "!!!ioexp_write_file() the device is not found!!!\n");
@@ -217,12 +170,6 @@ static int ioexp_probe(struct i2c_client* client)
 
 	// register misc device
 	return misc_register(&ioexp->ioexp_miscdevice);
-
-// TODO rm	
-//	dev_info(&client->dev, "ioexp_probe() is exited on %s\n", ioexp->name);
-//	dev_info(&client->dev, "ioexp_probe() done\n");
-//
-//	return 0;
 }
 
 static void ioexp_remove(struct i2c_client *client)
