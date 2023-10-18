@@ -1,5 +1,5 @@
 KERNELDIR ?= /usr/src/linux
-obj-m += ltc3206euf.o
+obj-m += i2c_ltc3206euf.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
