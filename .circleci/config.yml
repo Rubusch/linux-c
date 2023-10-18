@@ -149,7 +149,9 @@ jobs:
           make
 
 ## i2c
-      - run: cd 040__i2c/00_i2c-smbus_io-expander/module && make
+      - run: cd 040__i2c/00_io-expander-pcf8574__i2c-msg/module && make
+      - run: cd 040__i2c/01_io-expander-pcf8574__i2c-master-send/module && make
+      - run: cd 040__i2c/02_io-expander-pcf8574__i2c-smbus/module && make
 
 ## interrupts
       - run: cd 050__interrupts/x86__interrupt && make

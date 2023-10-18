@@ -185,7 +185,27 @@ jobs:
 ## i2c
       - run: |
           source ~/source-me.sh
-          cd 040__i2c/00_i2c-smbus_io-expander/devicetree
+          cd 040__i2c/00_io-expander-pcf8574__i2c-msg/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module
+          make
+
+      - run: |
+          source ~/source-me.sh
+          cd 040__i2c/01_io-expander-pcf8574__i2c-master-send/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module
+          make
+
+      - run: |
+          source ~/source-me.sh
+          cd 040__i2c/02_io-expander-pcf8574__i2c-smbus/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
