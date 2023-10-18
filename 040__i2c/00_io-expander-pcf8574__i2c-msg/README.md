@@ -1,6 +1,6 @@
 # I2C Client: IO Expander Demo
 
-If you write a driver for an I2C device, try to use the SMBus commands
+When writing a driver for an I2C device, try to use the SMBus commands
 if at all possible (if the device uses only that subset of the I2C
 protocol). This makes it possible to use the device driver on both
 SMBus adapters and I2C adapters (the SMBus command set is
@@ -18,6 +18,9 @@ https://www.waveshare.com/pcf8574-io-expansion-board.htm
 ...and codes:  
 https://www.waveshare.com/wiki/PCF8574_IO_Expansion_Board
 
+TODO: pic device           
+
+
 Connect:  
 
 - GPIO2   -> SDA
@@ -25,16 +28,21 @@ Connect:
 - VCC3.3V -> 3.3V
 - GND     -> GND
 
-If you piggy-back several of those devices, adjust the address of each of them by setting the jumper bars `A0`, `A1` and `A2`. Set them either to `low` (-) or to `high` (+)  
+Piggy-back up to 8 pcf8574 devices, adjust the address of each of them by
+setting the jumper bars `A0`, `A1` and `A2`. Set them either to `low` (-) or
+to `high` (+)  
+
 
 The I2C slave addressy byte then looks as follows:  
- +--+--+--+--+------+------+------+---+  
- |A6|A5|A4|A3|**A2**|**A1**|**A0**|R/W|  
- +--+--+--+--+------+------+------+---+  
+ +--+--+--+--+--+------+------+------+---+  
+ |0 |0 |1 |0 |0 |**A2**|**A1**|**A0**|R/W|  
+ +--+--+--+--+--+------+------+------+---+  
 
 Where `A0`, `A1` and `A2` are configurable by the jumpers.  
 `R/W`: high means a _read_ was selected, low meands a _write_ was selected.  
 Measure the outputs on the `P0` through `P7` pins.  
+
+TODO: pic cabling           
 
 ## The Linux I2C Subsystem
 
@@ -49,18 +57,9 @@ Measure the outputs on the `P0` through `P7` pins.
 The demo uses the GPIO expansion connector, GPIO2 and GPIO3 pins to the corresponding pads.  
 
 NB: The GPIO2 and GPIO3 pins are set to the ALT0 function.  
-```
-    ...
-    &i2c1 {
-        pinctrl-names = "default";
-        pinctrl-0 = <&i2c1_pins>;
-        clock-frequency = <100000>;
-        status = "okay";
-        ...
-        ioexp#38 {
-            compatible = "lothars,ioexp";
-            reg = <&0x38>;
-        };
+``` ...  &i2c1 { pinctrl-names = "default"; pinctrl-0 = <&i2c1_pins>;
+    clock-frequency = <100000>; status = "okay"; ...  ioexp#38 {
+    compatible = "lothars,ioexp"; reg = <&0x38>; };
 
         ioexp@39 {
             compatible = "lothars,ioexp";
@@ -140,6 +139,7 @@ Oct  8 20:32:16 ctrl001 kernel: [ 7631.568124] ioexp 1-0038: ioexp_remove() is e
 Oct  8 20:32:16 ctrl001 kernel: [ 7631.568628] ioexp 1-0038: ioexp_remove() is exited on ioexp00
 Oct  8 20:32:16 ctrl001 kernel: [ 7631.568660] ioexp 1-0038: ioexp_remove() done
 ```
+TODO: pic rigol           
 
 ## Verified
 * Verified against a RPI3b w/ aarch64  
