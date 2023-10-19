@@ -91,7 +91,7 @@ Copy the module over to the target
 
 ## Usage
 
-Load the module, `probe()` is called, the devices `ioexp00` and `ioexp01` are created  
+Load the module, `probe()` is called, the devices `ioexp00` and `ioexp01` are created, in case provide address of the pcf8574 device as module param  
 ```
 # insmod i2cclient.ko
 # ls -l /dev/ioexp0*
