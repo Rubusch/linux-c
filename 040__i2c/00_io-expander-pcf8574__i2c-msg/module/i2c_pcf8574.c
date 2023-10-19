@@ -1,8 +1,12 @@
+
 /*
   I2C Client Demo: PCF8574
 
   This implements the PCF8574 communication using struct i2c_msg,
   which is helpful for bringup of the device and debugging.
+
+  load the module as follows
+  $ sudo insmod i2c_pcf8574.ko pcf8574_addr=0x20
 
   ---
   REFERENCES:
@@ -19,6 +23,10 @@
 #include <linux/of.h>
 #include <linux/uaccess.h>
 #include <linux/delay.h>
+
+static int pcf8574_addr;
+module_param(pcf8574_addr, int, S_IRUSR | S_IWUSR);
+MODULE_PARM_DESC(pcf8574_addr, " the pcf8574 address ored with 0x20 (type identifier of the pcf8574)");
 
 /* private device structure */
 struct ioexp_dev {
@@ -70,8 +78,10 @@ ioexp_read_file(struct file *file, char __user *userbuf, size_t count, loff_t *p
 static ssize_t ioexp_write_file(struct file *file, const char __user *userbuf, size_t count, loff_t *ppos)
 {
 	int ret = -1;
+	unsigned long val;
 	struct ioexp_dev *ioexp;
 	struct i2c_client *client;
+	char buf[4];
 	u8 command[1];
 	struct i2c_msg i2c_msg; // Debugging
 
@@ -80,18 +90,28 @@ static ssize_t ioexp_write_file(struct file *file, const char __user *userbuf, s
 			     ioexp_miscdevice);
 
 	client = ioexp->client;
-
 	dev_info(&client->dev,
 		 "ioexp_write_file() started, entered on '%s'\n", ioexp->name);
 
-	command[0] = 0xff;
+	if (copy_from_user(buf, userbuf, count)) {
+		dev_err(&client->dev, "ioexp_write_file() bad copied value\n");
+		return -EFAULT;
+	}
+	buf[count-1] = '\0'; // terminate string
 
+	// convert the string to an unsigned long [string is supposed
+	// to be a number] => val
+	ret = kstrtoul(buf, 0, &val);
+	if (ret) {
+		return -EINVAL;
+	}
+	command[0] = val;
 	dev_info(&client->dev, "ioexp_write_file() calling: i2c_master_send(ioexp->client, '%02x', '%d');\n", *command, 1);
 
         // debugging: construct a message
-	command[0] = 0xff;
+	dev_info(&client->dev, "ioexp_write_file() - pcf8574_addr == 0x%02x\n", pcf8574_addr);
 	i2c_msg.len = sizeof(command);
-	i2c_msg.addr = 0x20; // working address (ID + jumper 00-00-00)
+	i2c_msg.addr = pcf8574_addr; // working address (ID + jumper 00-00-00)
 	i2c_msg.flags = 0;
 	i2c_msg.buf = command;
 	ret = i2c_transfer(client->adapter, &i2c_msg, 1);
@@ -102,7 +122,6 @@ static ssize_t ioexp_write_file(struct file *file, const char __user *userbuf, s
 	udelay(500);
 
 	dev_info(&client->dev, "ioexp_write_file() - ret == %d\n", ret);
-
 
 	dev_info(&client->dev,
 		 "ioexp_write_file() we have written %d characters\n", ret);
