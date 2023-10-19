@@ -1,4 +1,3 @@
-
 /*
   I2C Client Demo: PCF8574
 

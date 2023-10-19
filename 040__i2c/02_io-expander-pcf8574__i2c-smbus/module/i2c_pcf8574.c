@@ -2,6 +2,10 @@
   I2C Client Demo: PCF8574
 
   Demonstrates the communication via smbus routines
+
+  load the module as follows
+  $ sudo insmod i2c_pcf8574.ko pcf8574_addr=0x20
+
   ---
   REFERENCES:
   - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
@@ -17,6 +21,10 @@
 #include <linux/of.h>
 #include <linux/uaccess.h>
 #include <linux/delay.h>
+
+static int pcf8574_addr;
+module_param(pcf8574_addr, int, S_IRUSR | S_IWUSR);
+MODULE_PARM_DESC(pcf8574_addr, " the pcf8574 address ored with 0x20 (type identifier of the pcf8574)");
 
 /* private device structure */
 struct ioexp_dev {
@@ -83,7 +91,7 @@ static ssize_t ioexp_write_file(struct file *file, const char __user *userbuf, s
 
 	// convert "char __user*" to kernel pointer: copy_from_user() => buf
 	if (copy_from_user(buf, userbuf, count)) {
-		dev_err(&ioexp->client->dev, "ioexp_write_file() bad copied value\n");
+		dev_err(&client->dev, "ioexp_write_file() bad copied value\n");
 		return -EFAULT;
 	}
 	buf[count-1] = '\0'; // replace \n with \0
@@ -94,7 +102,6 @@ static ssize_t ioexp_write_file(struct file *file, const char __user *userbuf, s
 	if (ret) {
 		return -EINVAL;
 	}
-
 	dev_info(&ioexp->client->dev,
 		 "ioexp_write_file() convert str to unsigned long, the value is %lu [0x%02lX]\n",
 		 val, val);
@@ -156,7 +163,8 @@ static int ioexp_probe(struct i2c_client* client)
 	// command: enable p0... will be or'ed
 	// ...
 	//
-	client->addr = 0x20;
+	dev_info(&client->dev, "ioexp_write_file() - pcf8574_addr == 0x%02x\n", pcf8574_addr);
+	client->addr = pcf8574_addr;
 
 	// store pointer to I2C client device in the private structure
 	ioexp->client = client;
