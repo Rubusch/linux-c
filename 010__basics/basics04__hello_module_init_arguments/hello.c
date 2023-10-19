@@ -2,7 +2,7 @@
 */
 
 #include <linux/module.h>
-#include <linux/moduleparam.h>
+#include <linux/moduleparam.h> /* module_param(), MODULE_PARAM_DESC() */
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/stat.h>
