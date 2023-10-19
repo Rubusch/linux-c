@@ -91,7 +91,7 @@ Copy the module over to the target
 
 ## Usage
 
-Load the module, `probe()` is called, the devices `ioexp00` and `ioexp01` are created, in case provide address of the pcf8574 device as module param  
+Load the module, `probe()` is called, the devices `ioexp00` and `ioexp01` are created, in case provide address of the pcf8574 as `pcf8574_addr=0x20` as module param. In case of setting the A0 jumper to `+`, load the module e.g. as follows: `$ sudo insmod i2c_pcf8574.ko pcf8574_addr=0x21`
 ```
 # insmod i2cclient.ko
 # ls -l /dev/ioexp0*
