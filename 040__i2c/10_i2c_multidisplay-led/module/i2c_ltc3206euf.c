@@ -10,14 +10,14 @@
 */
 
 #include <linux/module.h>
-#include <linux/miscdevice.h>  
+//#include <linux/miscdevice.h>  
 #include <linux/i2c.h>
 #include <linux/leds.h>
 #include <linux/gpio/consumer.h>
 #include <linux/delay.h>
-#include <linux/fs.h>  
-#include <linux/of.h>  
-#include <linux/uaccess.h>  
+//#include <linux/fs.h>  
+//#include <linux/of.h>  
+//#include <linux/uaccess.h>  
 
 #define LED_NAME_LEN        32
 #define CMD_RED_SHIFT       4
@@ -47,6 +47,7 @@ struct led_priv {
 
 /* function that writes to the i2c device */
 static int ltc3206_led_write(struct i2c_client *client, u8 *command)
+//static int ltc3206_led_write(struct i2c_client *client, const u8 *command)
 {
 	int ret = i2c_master_send(client, command, 3);
 	if (0 <= ret)
@@ -58,14 +59,14 @@ static int ltc3206_led_write(struct i2c_client *client, u8 *command)
 static ssize_t sub_select(struct device *dev, struct device_attribute *attr,
 			  const char *buf, size_t count)
 {
-	char *buffer;
+	const char *buffer = buf;
 	struct i2c_client *client;
 	struct led_priv *private;
 
-	buffer = buf;
+//	buffer = buf;
 
 	/* replace \n added from terminal with \0 */
-	*(buffer + (count - 1)) = '\0';
+//	*(buffer + (count - 1)) = '\0';
 
 	client = to_i2c_client(dev);
 	private = i2c_get_clientdata(client);
@@ -75,7 +76,7 @@ static ssize_t sub_select(struct device *dev, struct device_attribute *attr,
 
 	if (!strcmp(buffer, "on")) {
 		gpiod_set_value(private->display_cs, 1);  /* low */
-		usleep_range(100, 200);   /* a sleep 1ms - 20ms => usleep_range() */
+		usleep_range(100, 200);   /* a sleep 10us - 20ms => usleep_range() */
 		gpiod_set_value(private->display_cs, 0);  /* high */
 	} else if (!strcmp(buffer, "off")) {
 		gpiod_set_value(private->display_cs, 0);  /* high */
@@ -94,12 +95,11 @@ static DEVICE_ATTR(sub, S_IWUSR, NULL, sub_select);
 static ssize_t rgb_select(struct device *dev, struct device_attribute *attr,
 			  const char* buf, size_t count)
 {
-	char *buffer;
+	const char *buffer = buf;
 	struct i2c_client *client = to_i2c_client(dev);
 	struct led_priv *private = i2c_get_clientdata(client);
-	buffer = buf;
 
-	*(buffer + (count - 1)) = '\0';
+//	*(buffer + (count - 1)) = '\0';
 
 	private->command[0] &= ~(EN_CS_SHIFT);   /* clear the 3rd bit */
 	ltc3206_led_write(private->client, private->command);
@@ -163,8 +163,8 @@ static int led_control(struct led_classdev *led_cdev,
 		led->private->command[1] |= ((led->brightness << CMD_GREEN_SHIFT) & 0x0F);
 	} else if (0 == strcmp(cdev->name, "main")) {
 		led->private->command[2] &= 0x0F;   /* clear the upper nibble */
-		led->private->command[2] |= ((led->birghtness << CMD_MAIN_SHIFT) & 0xF0);
-	} else if (0 == strcmp(cdev->dev, "sub")) {
+		led->private->command[2] |= ((led->brightness << CMD_MAIN_SHIFT) & 0xF0);
+	} else if (0 == strcmp(cdev->name, "sub")) {
 		led->private->command[2] &= 0xF0;   /* clear the lower nibble */
 		led->private->command[2] |= ((led->brightness << CMD_SUB_SHIFT) & 0x0F);
 	} else
@@ -173,8 +173,7 @@ static int led_control(struct led_classdev *led_cdev,
 	return ltc3206_led_write(led->private->client, led->private->command);
 }
 
-static int __init ltc3206_probe(struct i2c_client *client,
-				const struct i2c_device_id *id)
+static int __init ltc3206_probe(struct i2c_client *client)
 {
 	int count, ret;
 	u8 value[3];
@@ -251,28 +250,28 @@ static int __init ltc3206_probe(struct i2c_client *client,
 			ret = devm_led_classdev_register(dev, &led_device->cdev);
 			if (ret)
 				goto err;
-			dev_info(cdev->dev, "the subsystem is %s and num is %s\n",
+			dev_info(cdev->dev, "the subsystem is %s and num is %d\n",
 				 cdev->name, private->num_leds);
 		} else if (0 == strcmp(cdev->name, "red")) {
 			led_device->cdev.brightness_set_blocking = led_control;
 			ret = devm_led_classdev_register(dev, &led_device->cdev);
 			if (ret)
 				goto err;
-			dev_info(cdev->dev, "the subsystem is %s and num is %s\n",
+			dev_info(cdev->dev, "the subsystem is %s and num is %d\n",
 				 cdev->name, private->num_leds);
 		} else if (0 == strcmp(cdev->name, "green")) {
 			led_device->cdev.brightness_set_blocking = led_control;
 			ret = devm_led_classdev_register(dev, &led_device->cdev);
 			if (ret)
 				goto err;
-			dev_info(cdev->dev, "the subsystem is %s and num is %s\n",
+			dev_info(cdev->dev, "the subsystem is %s and num is %d\n",
 				 cdev->name, private->num_leds);
 		} else if (0 == strcmp(cdev->name, "blue")) {
 			led_device->cdev.brightness_set_blocking = led_control;
 			ret = devm_led_classdev_register(dev, &led_device->cdev);
 			if (ret)
 				goto err;
-			dev_info(cdev->dev, "the subsystem is %s and num is %s\n",
+			dev_info(cdev->dev, "the subsystem is %s and num is %d\n",
 				 cdev->name, private->num_leds);
 		} else {
 			dev_err(dev, "bad devicetree value\n");
@@ -290,13 +289,11 @@ err:
 	return ret;
 }
 
-static int ltc3206_remove(struct i2c_client *client)
+static void ltc3206_remove(struct i2c_client *client)
 {
 	dev_info(&client->dev, "ltc3206_remove enter\n");
 	sysfs_remove_group(&client->dev.kobj, &display_cs_group);
 	dev_info(&client->dev, "ltc3206_remove() exit\n");
-
-	return 0;
 }
 
 static const struct of_device_id my_of_ids[] = {
@@ -312,7 +309,7 @@ static const struct i2c_device_id ltc3206_id[] = {
 MODULE_DEVICE_TABLE(i2c, ltc3206_id);
 
 static struct i2c_driver ltc3206_driver = {
-	.probbe = ltc3206_probe,
+	.probe = ltc3206_probe,
 	.remove = ltc3206_remove,
 	.id_table = ltc3206_id,
 	.driver = {
