@@ -55,7 +55,7 @@ int hello_int_array[3];
 module_param_array(hello_int_array, int, NULL, S_IRUSR | S_IWUSR);
 
 char *hello_string_arg;
-module_param(hello_string_arg, char, S_IRUSR | S_IWUSR);
+module_param(hello_string_arg, charp, S_IRUSR | S_IWUSR);
 
 // the callback value for the customized setter
 int hello_int_arg_cb = 0;
