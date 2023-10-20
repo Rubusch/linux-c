@@ -152,17 +152,6 @@
 		brcm,function = <4>;
 		brcm,pull = <0>;
 	};
-
-	/*
-	  leds: gpios
-
-	  led_pins can be used directly in the sections part of "soc"
-	*/
-	led_pins: led_pins {
-		brcm,pins = <27 22 26>;
-		brcm,function = <1>;   /* output */
-		brcm,pull = <1 1 1>;   /* pull down */
-	};
 };
 
 &mmcnr {
@@ -188,58 +177,6 @@
 		status = "okay";
 	};
 
-	chardev_keys {
-		comatible = "lothars,chardev_keys";
-	};
-
-	// leds: colors
-	ledred {
-		compatible = "lothars,RGBleds";
-		label = "ledred";
-		pinctrl-0 = <&led_pins>;
-	};
-
-	ledgreen {
-		compatible = "lothars,RGBleds";
-		label = "ledgreen";
-	};
-
-	ledblue {
-		compatible = "lothars,RGBleds";
-		label = "labelblue";
-	};
-
-	// leds: ledclass stuff also in "soc" section
-	ledclassRGB {
-		compatible = "lothars,RGBclassleds";
-		reg = <0x7e200000 0xb4>;
-		pinctrl-names = "default";
-
-//		pinctrl-0 = <&pinctrl_gpio_leds &pinctrl_gpio_led>;
-		// alternatively use the "led_pins" defined
-		// in gpio section
-		pinctrl-0 = <&led_pins>;
-		red {
-			label = "red";
-		};
-
-		green {
-			label = "green";
-		};
-
-		blue {
-			label = "blue";
-			linux,default-trigger = "heartbeat";
-		};
-
-	};
-
-	UIO {
-		compatible = "lothars,uio";
-		reg = <0x7e200000 0x1000>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins>;
-	};
 };
 
 &firmware {
