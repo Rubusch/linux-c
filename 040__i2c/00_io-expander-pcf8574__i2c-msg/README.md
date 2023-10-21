@@ -34,9 +34,9 @@ to `high` (+)
 
 
 The I2C slave addressy byte then looks as follows:  
- |--|--|--|--|--|------|------|------|---|  
- |0 |0 |1 |0 |0 |**A2**|**A1**|**A0**|R/W|  
- |--|--|--|--|--|------|------|------|---|  
+
+| 0 | 0 | 1 | 0 | A2 | A1 | A0 | R/W |  
+|---|---|---|---|----|----|----|-----|  
 
 Where `A0`, `A1` and `A2` are configurable by the jumpers.  
 `R/W`: high means a _read_ was selected, low meands a _write_ was selected.  
