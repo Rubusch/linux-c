@@ -6,6 +6,8 @@ Shows a mere copy for personal notes of A. Rios LED driver for the 5.4 Kernel (o
 
 ## ColorClick Hardware: https://www.mikroe.com/color-click
 
+![ColorClick Board](pics/colorclick.png)  
+
 Connect the ColorClick device as follows:  
 - RPI: GPIO27 -> ColorClick: RD
 - RPI: GPIO22 -> ColorClick: GR
@@ -61,6 +63,9 @@ rpi$ make
 ```
 
 # Usage
+
+![Setup](pics/setup.png)  
+
 On the target perform the following to verify the functionality  
 ```
 pi@raspberrypi:~$ sudo insmod chardev.ko
