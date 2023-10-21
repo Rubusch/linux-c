@@ -18,7 +18,7 @@ https://www.waveshare.com/pcf8574-io-expansion-board.htm
 ...and codes:  
 https://www.waveshare.com/wiki/PCF8574_IO_Expansion_Board
 
-TODO: pic device           
+![PCF8574 IO Expander Board](pics/pcf8574.png)  
 
 
 Connect:  
@@ -34,15 +34,18 @@ to `high` (+)
 
 
 The I2C slave addressy byte then looks as follows:  
- +--+--+--+--+--+------+------+------+---+  
+ |--|--|--|--|--|------|------|------|---|  
  |0 |0 |1 |0 |0 |**A2**|**A1**|**A0**|R/W|  
- +--+--+--+--+--+------+------+------+---+  
+ |--|--|--|--|--|------|------|------|---|  
 
 Where `A0`, `A1` and `A2` are configurable by the jumpers.  
 `R/W`: high means a _read_ was selected, low meands a _write_ was selected.  
 Measure the outputs on the `P0` through `P7` pins.  
 
-TODO: pic cabling           
+![Setup](pics/setup.png)  
+
+![RPI IO connection](pics/rpi3_connection.png)  
+
 
 ## The Linux I2C Subsystem
 
@@ -139,7 +142,8 @@ Oct  8 20:32:16 ctrl001 kernel: [ 7631.568124] ioexp 1-0038: ioexp_remove() is e
 Oct  8 20:32:16 ctrl001 kernel: [ 7631.568628] ioexp 1-0038: ioexp_remove() is exited on ioexp00
 Oct  8 20:32:16 ctrl001 kernel: [ 7631.568660] ioexp 1-0038: ioexp_remove() done
 ```
-TODO: pic rigol           
+![Measuring on the scope](pics/measuring.png)  
+
 
 ## Verified
 * Verified against a RPI3b w/ aarch64  
