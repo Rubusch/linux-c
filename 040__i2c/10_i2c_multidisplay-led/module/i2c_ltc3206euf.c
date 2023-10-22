@@ -184,13 +184,27 @@ static int __init ltc3206_probe(struct i2c_client *client)
 	dev_info(dev, "platform_probe enter\n");
 
 	/*
+	  set address
+	*/
+
+	// The LTC3206 responds to only one 7-bit address which
+	// has been factory programmed to 0011011.
+	// (LTC3206 datasheet)
+	//
+	// i.e. 0x36, since the last bit is 'r/w' which for the
+	// LTC3206 will always be 'w' i.e. 0
+	client->addr = 0x1B;  // 0|0|0|1|1|0|1|1
+	// NB: works, r/w bit is for the rpi at least "in front"!
+
+	/*
 	  set blue led maximum value for i2c testing
 	  ENRGB must be set to VCC to do the testing
 	*/
+// FIXME currently connect ENRGB to 3.3V, fix? actually, we should need GPIO11 [23] to enable it, if so, export manually then start driver works but sucks. Better enable by the driver, or DTS?
+
 	value[0] = 0x00;
 	value[1] = 0xF0;
 	value[2] = 0x00;
-
 	i2c_master_send(client, value, 3);
 
 	dev_info(dev, "led BLUE is ON\n");
@@ -238,6 +252,7 @@ static int __init ltc3206_probe(struct i2c_client *client)
 
 		fwnode_property_read_string(child, "label", &cdev->name);
 
+// TODO fix utterly redundant code   
 		if (0 == strcmp(cdev->name, "main")) {
 			led_device->cdev.brightness_set_blocking = led_control;
 			ret = devm_led_classdev_register(dev, &led_device->cdev);
@@ -279,8 +294,8 @@ static int __init ltc3206_probe(struct i2c_client *client)
 		}
 	}
 
-	dev_info(dev, "out of the devicetree\n");
-	dev_info(dev, "ltc3206_probe() function is exited\n");
+//	dev_info(dev, "out of the devicetree\n");
+	dev_info(dev, "ltc3206_probe() done\n");
 	return 0;
 
 err:
