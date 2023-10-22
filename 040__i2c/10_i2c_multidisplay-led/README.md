@@ -16,18 +16,93 @@ Connect:
 - VCC3.3V -> 3.3V Vin J2, and J20 DVCC
 - GND     -> GND
 
+Make sure the LTC3206 has a fixed address of 0x36, on my RPI it will be on **0x1B** (r/w bit in front then?).  
+
+NB: The device only will show up if it is correctly powered. The figure out the correct address, e.g. with i2cdetect  
+```
+root@ctrl001:/home/pi# i2cdetect -y 1
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                         -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- 1b -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+```
+
+NB: The ENRGB has to be high, either connect it to e.g. GPIO11 [23], export it and set it to '1'. Alternatively, connect it direcly to 3.3V. A better solution would be to export it either by DT overlay or enable it throught the driver.  
 
 # Build
 
 ## Devicetree
 
-TODO   
+copy it to the specified location in the linux sources (6.3), then build it  
+```
+$ cd linux
+$ cp -arf ~/workspace/lothars-modules/030__platform/devicetree_binding_uio_led/devicetree/arch ./
+
+$ make dtbs
+  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
+```
+Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
+
 
 ## Module
 
-TODO   
+Should crosscompile - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
+```
+$ cd ./module
+$ make
+```
+Copy the module over to the target  
 
 ## Usage
+```
+root@ctrl001:/home/pi# insmod ./i2c_ltc3206euf.ko
+root@ctrl001:/home/pi# ls -l /sys/class/leds
+    total 0
+    lrwxrwxrwx 1 root root 0 Oct 22 21:12 blue -> ../../devices/platform/soc/3f804000.i2c/i2c-1/1-001b/leds/blue
+    lrwxrwxrwx 1 root root 0 Oct 22 16:17 default-on -> ../../devices/virtual/leds/default-on
+    lrwxrwxrwx 1 root root 0 Oct 22 21:12 green -> ../../devices/platform/soc/3f804000.i2c/i2c-1/1-001b/leds/green
+    lrwxrwxrwx 1 root root 0 Oct 22 21:12 main -> ../../devices/platform/soc/3f804000.i2c/i2c-1/1-001b/leds/main
+    lrwxrwxrwx 1 root root 0 Oct 22 16:17 mmc0 -> ../../devices/virtual/leds/mmc0
+    lrwxrwxrwx 1 root root 0 Oct 22 21:12 red -> ../../devices/platform/soc/3f804000.i2c/i2c-1/1-001b/leds/red
+    lrwxrwxrwx 1 root root 0 Oct 22 21:12 sub -> ../../devices/platform/soc/3f804000.i2c/i2c-1/1-001b/leds/sub
 
-TODO   
+## color led: red (0 = off, 15 = max)
+root@ctrl001:/home/pi# echo 10 > /sys/class/leds/red/brightness
+root@ctrl001:/home/pi# echo 15 > /sys/class/leds/red/brightness
+root@ctrl001:/home/pi# echo 0 > /sys/class/leds/red/brightness
 
+## color led: blue
+root@ctrl001:/home/pi# echo 10 > /sys/class/leds/blue/brightness
+root@ctrl001:/home/pi# echo 15 > /sys/class/leds/blue/brightness
+root@ctrl001:/home/pi# echo 0 > /sys/class/leds/blue/brightness
+
+## color led: green
+root@ctrl001:/home/pi# echo 10 > /sys/class/leds/green/brightness
+root@ctrl001:/home/pi# echo 15 > /sys/class/leds/green/brightness
+root@ctrl001:/home/pi# echo 0 > /sys/class/leds/green/brightness
+
+## main led group
+root@ctrl001:/home/pi# echo 10 > /sys/class/leds/main/brightness
+root@ctrl001:/home/pi# echo 15 > /sys/class/leds/main/brightness
+root@ctrl001:/home/pi# echo 0 > /sys/class/leds/main/brightness
+
+## sub led group
+root@ctrl001:/home/pi# echo 10 > /sys/class/leds/sub/brightness
+root@ctrl001:/home/pi# echo 15 > /sys/class/leds/sub/brightness
+root@ctrl001:/home/pi# echo 0 > /sys/class/leds/sub/brightness
+
+## mixing color led
+root@ctrl001:/home/pi# echo 15 > /sys/class/leds/red/brightness
+root@ctrl001:/home/pi# echo 15 > /sys/class/leds/blue/brightness
+root@ctrl001:/home/pi# echo 15 > /sys/class/leds/green/brightness
+
+root@ctrl001:/home/pi# rmmod i2c_ltc3206euf.ko
+```
+
+## References
+* Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 246  
