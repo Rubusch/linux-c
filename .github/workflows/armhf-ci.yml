@@ -213,6 +213,16 @@ jobs:
           cd ../module
           make
 
+      - run: |
+          source ~/source-me.sh
+          cd 040__i2c/10_i2c_multidisplay-led/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module
+          make
+
 ## interrupts ( x86 only commented out!!! )
 #      - run: source ~/source-me.sh && cd 050__interrupts/x86__interrupt && make
 #      - run: source ~/source-me.sh && cd 050__interrupts/x86__tasklet01 && make
