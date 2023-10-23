@@ -25,7 +25,18 @@ aside the connector, connect on J2
 ![RPI](pics/connection_rpi3b.png)  
 ![DC749A connector](pics/connection_dc749a.png)  
 
-Make sure the LTC3206 has a fixed address of 0x36, on my RPI it will be on **0x1B** (r/w bit in front then?).  
+| start |   |   |   |   |   |   |   |     | red | r  | r  | r  | x1) | x2) | x3) | x4) |     | blue | b  | b  | b  | green | g  | g  | g  |     | main | m  | m  | m  | sub | s  | s  | s  |     |  
+|-------|---|---|---|---|---|---|---|-----|-----|----|----|----|-----|-----|-----|-----|-----|------|----|----|----|-------|----|----|----|-----|------|----|----|----|-----|----|----|----|-----|  
+| 0     | 0 | 0 | 1 | 1 | 0 | 1 | 1 | ACK | A7  | A6 | A5 | A4 | A3  | A2  | A1  | A0  | ACK | B7   | B6 | B5 | B4 | B3    | B2 | B1 | B0 | ACK | C7   | C6 | C5 | C4 | C3  | C2 | C1 | C0 | ACK |  
+
+- x1) force charge pump
+- x2) ensub ENRGB
+- x3) AUXSEL1
+- x4) AUXSEL0
+
+(for further details consult the datasheet)  
+
+NB: Make sure the LTC3206 has a fixed address of (actually) 0x36. On my RPI setup, it was shifted to be **0x1B**  
 ![ACKd signal](pics/signal_ack.png)  
 
 NB: The device only will show up if it is correctly powered. The figure out the correct address, first load the module _i2c-dev_, then use i2cdetect  
