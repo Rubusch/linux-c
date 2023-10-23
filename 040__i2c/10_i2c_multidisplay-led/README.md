@@ -9,16 +9,26 @@ https://www.analog.com/media/en/technical-documentation/data-sheets/3206f.pdf
 DC749A Demo Board (Analog)  
 https://www.analog.com/media/en/technical-documentation/user-guides/dc749A.pdf
 
-Connect:  
+![DC719A](pics/dc749a.png)  
+
+### Connect
+use the connector J20  
 - GPIO2   -> SDA
 - GPIO3   -> SCL
-- GPIO23  -> ENRGB
-- VCC3.3V -> 3.3V Vin J2, and J20 DVCC
+- GPIO23  -> ENRGB  ; optional, alternatively connect to a free 3.3V IO
+- 3.3V    -> DVCC
+
+aside the connector, connect on J2  
+- 3.3V    -> 3.3V VIN
 - GND     -> GND
 
-Make sure the LTC3206 has a fixed address of 0x36, on my RPI it will be on **0x1B** (r/w bit in front then?).  
+![RPI](pics/connection_rpi3b.png)  
+![DC749A connector](pics/connection_dc749a.png)  
 
-NB: The device only will show up if it is correctly powered. The figure out the correct address, e.g. with i2cdetect  
+Make sure the LTC3206 has a fixed address of 0x36, on my RPI it will be on **0x1B** (r/w bit in front then?).  
+![ACKd signal](pics/signal_ack.png)  
+
+NB: The device only will show up if it is correctly powered. The figure out the correct address, first load the module _i2c-dev_, then use i2cdetect  
 ```
 root@ctrl001:/home/pi# i2cdetect -y 1
      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
@@ -31,7 +41,6 @@ root@ctrl001:/home/pi# i2cdetect -y 1
 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 70: -- -- -- -- -- -- -- --
 ```
-
 NB: The ENRGB has to be high, either connect it to e.g. GPIO11 [23], export it and set it to '1'. Alternatively, connect it direcly to 3.3V. A better solution would be to export it either by DT overlay or enable it throught the driver.  
 
 # Build
@@ -70,33 +79,49 @@ root@ctrl001:/home/pi# ls -l /sys/class/leds
     lrwxrwxrwx 1 root root 0 Oct 22 16:17 mmc0 -> ../../devices/virtual/leds/mmc0
     lrwxrwxrwx 1 root root 0 Oct 22 21:12 red -> ../../devices/platform/soc/3f804000.i2c/i2c-1/1-001b/leds/red
     lrwxrwxrwx 1 root root 0 Oct 22 21:12 sub -> ../../devices/platform/soc/3f804000.i2c/i2c-1/1-001b/leds/sub
-
-## color led: red (0 = off, 15 = max)
+```
+color led: red (0 = off, 15 = max)  
+```
 root@ctrl001:/home/pi# echo 10 > /sys/class/leds/red/brightness
 root@ctrl001:/home/pi# echo 15 > /sys/class/leds/red/brightness
 root@ctrl001:/home/pi# echo 0 > /sys/class/leds/red/brightness
+```
+![Red](pics/red.png)  
 
-## color led: blue
+color led: blue  
+```
 root@ctrl001:/home/pi# echo 10 > /sys/class/leds/blue/brightness
 root@ctrl001:/home/pi# echo 15 > /sys/class/leds/blue/brightness
 root@ctrl001:/home/pi# echo 0 > /sys/class/leds/blue/brightness
+```
+![blue](pics/blue.png)  
 
-## color led: green
+color led: green  
+```
 root@ctrl001:/home/pi# echo 10 > /sys/class/leds/green/brightness
 root@ctrl001:/home/pi# echo 15 > /sys/class/leds/green/brightness
 root@ctrl001:/home/pi# echo 0 > /sys/class/leds/green/brightness
+```
+![green](pics/green.png)  
 
-## main led group
+main led group  
+```
 root@ctrl001:/home/pi# echo 10 > /sys/class/leds/main/brightness
 root@ctrl001:/home/pi# echo 15 > /sys/class/leds/main/brightness
 root@ctrl001:/home/pi# echo 0 > /sys/class/leds/main/brightness
+```
+![main](pics/main.png)  
 
-## sub led group
+sub led group  
+```
 root@ctrl001:/home/pi# echo 10 > /sys/class/leds/sub/brightness
 root@ctrl001:/home/pi# echo 15 > /sys/class/leds/sub/brightness
 root@ctrl001:/home/pi# echo 0 > /sys/class/leds/sub/brightness
+```
+![sub](pics/sub.png)  
 
-## mixing color led
+e.g. mixing color led, and unloading the module  
+```
 root@ctrl001:/home/pi# echo 15 > /sys/class/leds/red/brightness
 root@ctrl001:/home/pi# echo 15 > /sys/class/leds/blue/brightness
 root@ctrl001:/home/pi# echo 15 > /sys/class/leds/green/brightness
