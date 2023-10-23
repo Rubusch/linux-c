@@ -1,5 +1,8 @@
 /*
-  I2C LTC3206 Demo
+  I2C LTC3206 Demo for the DC749A Board
+
+  Based on the referred driver, there are some adjustments to my setup,
+  about address, ENRGB, etc.
 
   ---
   REFERENCES:
@@ -10,14 +13,10 @@
 */
 
 #include <linux/module.h>
-//#include <linux/miscdevice.h>  
 #include <linux/i2c.h>
 #include <linux/leds.h>
 #include <linux/gpio/consumer.h>
 #include <linux/delay.h>
-//#include <linux/fs.h>  
-//#include <linux/of.h>  
-//#include <linux/uaccess.h>  
 
 #define LED_NAME_LEN        32
 #define CMD_RED_SHIFT       4
@@ -46,8 +45,7 @@ struct led_priv {
 };
 
 /* function that writes to the i2c device */
-static int ltc3206_led_write(struct i2c_client *client, u8 *command)
-//static int ltc3206_led_write(struct i2c_client *client, const u8 *command)
+static int ltc3206_led_write(struct i2c_client *client, const u8 *command)
 {
 	int ret = i2c_master_send(client, command, 3);
 	if (0 <= ret)
@@ -55,18 +53,19 @@ static int ltc3206_led_write(struct i2c_client *client, u8 *command)
 	return ret;
 }
 
-/* the sysfs functions */
+/*
+  the sysfs functions
+
+  NB: declare a static device "sub"
+  static DEVICE_ATTR(sub, S_IWUSR, NULL, sub_select);
+  -> set sub_select() as struct device::store() of the "sub" object
+*/
 static ssize_t sub_select(struct device *dev, struct device_attribute *attr,
 			  const char *buf, size_t count)
 {
 	const char *buffer = buf;
 	struct i2c_client *client;
 	struct led_priv *private;
-
-//	buffer = buf;
-
-	/* replace \n added from terminal with \0 */
-//	*(buffer + (count - 1)) = '\0';
 
 	client = to_i2c_client(dev);
 	private = i2c_get_clientdata(client);
@@ -92,14 +91,17 @@ static ssize_t sub_select(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR(sub, S_IWUSR, NULL, sub_select);
 
+/*
+  NB: declare a static device "rgb"
+  static DEVICE_ATTR(rgb, S_IWUSR, NULL, rgb_select);
+  -> set rgb_select() as the store() of the "rgb" object
+*/
 static ssize_t rgb_select(struct device *dev, struct device_attribute *attr,
 			  const char* buf, size_t count)
 {
 	const char *buffer = buf;
 	struct i2c_client *client = to_i2c_client(dev);
 	struct led_priv *private = i2c_get_clientdata(client);
-
-//	*(buffer + (count - 1)) = '\0';
 
 	private->command[0] &= ~(EN_CS_SHIFT);   /* clear the 3rd bit */
 	ltc3206_led_write(private->client, private->command);
@@ -133,10 +135,9 @@ static struct attribute_group display_cs_group = {
 };
 
 /*
-  this is the function that is called for each led device when writing
-  the brightness file under each device the command parameters are
-  kept in the led_priv struct that is pointed inside each led_device
-  struct
+  called for each led device when writing the brightness file under
+  each device the command parameters are kept in the led_priv struct
+  that is pointed inside each led_device struct
 */
 static int led_control(struct led_classdev *led_cdev,
 		       enum led_brightness value)
@@ -200,8 +201,6 @@ static int __init ltc3206_probe(struct i2c_client *client)
 	  set blue led maximum value for i2c testing
 	  ENRGB must be set to VCC to do the testing
 	*/
-// FIXME currently connect ENRGB to 3.3V, fix? actually, we should need GPIO11 [23] to enable it, if so, export manually then start driver works but sucks. Better enable by the driver, or DTS?
-
 	value[0] = 0x00;
 	value[1] = 0xF0;
 	value[2] = 0x00;
@@ -219,16 +218,47 @@ static int __init ltc3206_probe(struct i2c_client *client)
 	if (!private)
 		return -ENOMEM;
 
+	// init i2c_client instance to object "private" [struct led_priv]
 	private->client = client;
+
+	// set object "private" as driver data to the client object
 	i2c_set_clientdata(client, private);
 
-	private->display_cs = devm_gpiod_get(dev, NULL, GPIOD_ASIS);
+	/*
+	  The flags parameter is used to optionally specify a
+	  direction and initial value for the GPIO. Values can be:
+
+	  GPIOD_ASIS or 0 to not initialize the GPIO at all. The
+	      direction must be set later with one of the dedicated
+	      functions.
+
+	  GPIOD_IN to initialize the GPIO as input.
+
+	  GPIOD_OUT_LOW to initialize the GPIO as output with a value
+	      of 0.
+
+	  GPIOD_OUT_HIGH to initialize the GPIO as output with a value
+ 	      of 1.
+
+	  GPIOD_OUT_LOW_OPEN_DRAIN same as GPIOD_OUT_LOW but also
+	      enforce the line to be electrically used with open
+	      drain.
+
+	  GPIOD_OUT_HIGH_OPEN_DRAIN same as GPIOD_OUT_HIGH but also
+  	      enforce the line to be electrically used with open drain
+	 */
+
+	// NB: (at least) the first insmod after boot up, will show
+	// the enable line from LOW to HIGH, while follow up rmmod and
+	// insmods simply will turn the LED off or light it up,
+	// respectively
+	private->display_cs = devm_gpiod_get(dev, NULL, GPIOD_OUT_HIGH);
+
 	if (IS_ERR(private->display_cs)) {   // evaluate with IS_ERR() macro
 		ret = PTR_ERR(private->display_cs);
 		dev_err(dev, "unable to claim gpio\n");
 		return ret;
 	}
-
 	gpiod_direction_output(private->display_cs, 1);
 
 	/* register sysfs hooks */
@@ -250,38 +280,16 @@ static int __init ltc3206_probe(struct i2c_client *client)
 		cdev = &led_device->cdev;
 		led_device->private = private;
 
+		// read property "label" from the given fwnode
+		// "child", and store the value into val "cdev->name")
 		fwnode_property_read_string(child, "label", &cdev->name);
 
-// TODO fix utterly redundant code   
-		if (0 == strcmp(cdev->name, "main")) {
-			led_device->cdev.brightness_set_blocking = led_control;
-			ret = devm_led_classdev_register(dev, &led_device->cdev);
-			if (ret)
-				goto err;
-			dev_info(cdev->dev, "the subsystem is %s and num is %d\n",
-				 cdev->name, private->num_leds);
-		} else if (0 == strcmp(cdev->name, "sub")) {
-			led_device->cdev.brightness_set_blocking = led_control;
-			ret = devm_led_classdev_register(dev, &led_device->cdev);
-			if (ret)
-				goto err;
-			dev_info(cdev->dev, "the subsystem is %s and num is %d\n",
-				 cdev->name, private->num_leds);
-		} else if (0 == strcmp(cdev->name, "red")) {
-			led_device->cdev.brightness_set_blocking = led_control;
-			ret = devm_led_classdev_register(dev, &led_device->cdev);
-			if (ret)
-				goto err;
-			dev_info(cdev->dev, "the subsystem is %s and num is %d\n",
-				 cdev->name, private->num_leds);
-		} else if (0 == strcmp(cdev->name, "green")) {
-			led_device->cdev.brightness_set_blocking = led_control;
-			ret = devm_led_classdev_register(dev, &led_device->cdev);
-			if (ret)
-				goto err;
-			dev_info(cdev->dev, "the subsystem is %s and num is %d\n",
-				 cdev->name, private->num_leds);
-		} else if (0 == strcmp(cdev->name, "blue")) {
+		// evaluate the extracted cdev->name
+		if ((0 == strcmp(cdev->name, "main"))
+		    || (0 == strcmp(cdev->name, "sub"))
+		    || (0 == strcmp(cdev->name, "red"))
+		    || (0 == strcmp(cdev->name, "blue"))
+		    || (0 == strcmp(cdev->name, "green")) ) {
 			led_device->cdev.brightness_set_blocking = led_control;
 			ret = devm_led_classdev_register(dev, &led_device->cdev);
 			if (ret)
@@ -294,7 +302,6 @@ static int __init ltc3206_probe(struct i2c_client *client)
 		}
 	}
 
-//	dev_info(dev, "out of the devicetree\n");
 	dev_info(dev, "ltc3206_probe() done\n");
 	return 0;
 
