@@ -13,14 +13,14 @@ https://www.analog.com/media/en/technical-documentation/user-guides/dc749A.pdf
 
 ### Connect
 use the connector J20  
-- GPIO2   -> SDA
-- GPIO3   -> SCL
-- GPIO23  -> ENRGB  ; optional, alternatively connect to a free 3.3V IO
-- 3.3V    -> DVCC
+- GPIO02 [03]  -> SDA
+- GPIO03 [05]  -> SCL
+- GPIO23 [16]  -> ENRGB  ; optional, alternatively connect to a free 3.3V IO
+- 3.3V   [01]  -> DVCC
 
 aside the connector, connect on J2  
-- 3.3V    -> 3.3V VIN
-- GND     -> GND
+- 3.3V   [17]  -> 3.3V VIN
+- GND    [39]  -> GND
 
 ![RPI](pics/connection_rpi3b.png)  
 ![DC749A connector](pics/connection_dc749a.png)  
@@ -41,7 +41,7 @@ root@ctrl001:/home/pi# i2cdetect -y 1
 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 70: -- -- -- -- -- -- -- --
 ```
-NB: The ENRGB has to be high, either connect it to e.g. GPIO11 [23], export it and set it to '1'. Alternatively, connect it direcly to 3.3V. A better solution would be to export it either by DT overlay or enable it throught the driver.  
+NB: The ENRGB has to be high, either connect it to e.g. GPIO23 [16], export it and set it to '1'. Alternatively, connect it direcly to 3.3V. A better solution would be to export it either by DT overlay or enable it throught the driver.  
 
 # Build
 
