@@ -77,7 +77,7 @@ A copy of the modified DTS is provided, copy it to the specified location in the
 
 ```
 $ cd linux
-$ cp -arf ~/workspace/lothars-modules/030__platform/devicetree_binding_uio_led/devicetree/arch ./
+$ cp -arf <SOURCES>/devicetree/arch ./
 
 $ make dtbs
   DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
