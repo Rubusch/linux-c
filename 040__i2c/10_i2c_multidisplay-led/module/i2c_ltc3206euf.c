@@ -174,7 +174,7 @@ static int led_control(struct led_classdev *led_cdev,
 	return ltc3206_led_write(led->private->client, led->private->command);
 }
 
-static int __init ltc3206_probe(struct i2c_client *client)
+static int ltc3206_probe(struct i2c_client *client)
 {
 	int count, ret;
 	u8 value[3];
