@@ -18,7 +18,9 @@
 
 static char *LOTHARS_KEY_NAME = "LOTHARS_KEY";
 
-/* interrupt handler */
+/*
+  interrupt handler
+ */
 static irqreturn_t lothars_isr(int irq, void* data)
 {
 	struct device *dev = data;
@@ -32,6 +34,19 @@ static struct miscdevice lothars_miscdevice = {
 	.name = "lothar_dev",
 };
 
+/*
+  Alloating the irq line
+
+  In the probe function devm_request_irq() is called to allocate the
+  interrupt line. When calling this function, you must specify as
+  parameters: a pointer to the device structure, the Linux irq number,
+  a handler that will be called when the interrupts is generated, a
+  flag that will instruct the kernel about the desired interrupt
+  behaviour e.g. IRQ_TRIGGER_FALLING, the name of the device using
+  this interrupt, LOTHARS_KEY_NAME, and a pointer that can be
+  configured to any value. void* dev_id will point to the specific
+  device structure.
+ */
 static int lothars_probe(struct platform_device *pdev)
 {
 	int ret, irq;
@@ -40,7 +55,21 @@ static int lothars_probe(struct platform_device *pdev)
 
 	dev_info(&pdev->dev, "lothars_probe() - called\n");
 
-	/* first method to get the virtual linux irq number */
+	/*
+	 * for teaching purposes here are two different ways shown to
+	 * obtain the Linux irq number in two different ways
+	 */
+
+	/*
+	  first method to get the virtual linux irq number
+
+	  the first method obtains the gpio descriptor from the gpios
+	  property of the int_key DT node by using the
+	  devm_gpiod_get() function, then the Linux irq number
+	  corresponding to the given gpio is returned by using the
+	  function gpiod_to_irq(), which takes the gpio desriptor as a
+	  parameter
+	*/
 	gpio = devm_gpiod_get(dev, NULL, GPIOD_IN);
 	if (IS_ERR(gpio)) {
 		dev_err(dev, "lothars_probe() - gpio_get() failed\n");
@@ -53,7 +82,13 @@ static int lothars_probe(struct platform_device *pdev)
 	dev_info(dev, "lothars_probe() - irq number is '%d' by gpiod_to_irq()\n",
 		 irq);
 
-	/* second method to get the firtual linux irq number */
+	/*
+	  second method to get the firtual linux irq number
+
+	  the second method uses the platform_get_irq() fucntion,
+	  which gets the hwirq number from the interrupts property of
+	  the int_key DT node, then returns the linux irq number
+	*/
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
 		dev_err(dev, "lothars_probe() - irq is not available\n");
@@ -92,12 +127,14 @@ static int lothars_remove(struct platform_device *pdev)
 	return 0;
 }
 
+// the list of devices supported by this driver
 static const struct of_device_id lothars_of_ids[] = {
 	{ .compatible = "lothars,intkey", }, // device-tree entry
 	{ },
 };
 MODULE_DEVICE_TABLE(of, lothars_of_ids);
 
+// add a platform_driver structure, registered to the platform bus
 static struct platform_driver lothars_platform_driver = {
 	.probe = lothars_probe,
 	.remove = lothars_remove,

@@ -1,9 +1,14 @@
 # IRQ Click Device
 
+  An intertupt will be generated and handled, a message will be
+  printed out to the console, each a button is pressed. In the
+  handler, the device structure will be recovered, which is used as a
+  parameter in the dev_info() function then.
 
 ## Hardware: MikroE Button-R-Click
 
-TODO         
+https://www.mikroe.com/button-r-click
+
 
 # Build
 
