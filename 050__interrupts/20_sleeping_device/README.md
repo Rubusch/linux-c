@@ -4,12 +4,16 @@
 
 https://www.mikroe.com/button-r-click
 
+Connection:  
+- GPIO23 -> INT
+- 3v3 -> 3v3
+- GND -> GND
 
 # Build
 
 ## Devicetree
 
-copy it to the specified location in the linux sources (6.3), then build it  
+Copy it to the specified location in the linux sources (6.3), then build it  
 ```
 $ cd linux
 $ cp -arf <SOURCES>/devicetree/arch ./
