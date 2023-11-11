@@ -9,6 +9,10 @@
 
 https://www.mikroe.com/button-r-click
 
+Connection:  
+- GPIO23 -> INT
+- 3v3 -> 3v3
+- GND -> GND
 
 # Build
 
