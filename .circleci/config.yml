@@ -155,6 +155,9 @@ jobs:
       - run: cd 040__i2c/10_i2c_multidisplay-led/module && make
 
 ## interrupts
+      - run: cd 050__interrupts/10_click_irq_device/module && make
+      - run: cd 050__interrupts/20_sleeping_device/module && make
+      - run: cd 050__interrupts/30_click_led_demo/module && make
       - run: cd 050__interrupts/x86__interrupt && make
       - run: cd 050__interrupts/x86__tasklet01 && make
       - run: cd 050__interrupts/x86__tasklet02__dynamic_alloc && make
