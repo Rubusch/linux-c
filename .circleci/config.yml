@@ -149,10 +149,10 @@ jobs:
           make
 
 ## i2c
-      - run: cd 040__i2c/00_io-expander-pcf8574__i2c-msg/module && make
-      - run: cd 040__i2c/01_io-expander-pcf8574__i2c-master-send/module && make
-      - run: cd 040__i2c/02_io-expander-pcf8574__i2c-smbus/module && make
-      - run: cd 040__i2c/10_i2c_multidisplay-led/module && make
+      - run: cd 040__i2c/10_io-expander-pcf8574__i2c-msg/module && make
+      - run: cd 040__i2c/11_io-expander-pcf8574__i2c-master-send/module && make
+      - run: cd 040__i2c/12_io-expander-pcf8574__i2c-smbus/module && make
+      - run: cd 040__i2c/20_i2c_multidisplay-led/module && make
 
 ## interrupts
       - run: cd 050__interrupts/10_click_irq_device/module && make

@@ -185,7 +185,7 @@ jobs:
 ## i2c
       - run: |
           source ~/source-me.sh
-          cd 040__i2c/00_io-expander-pcf8574__i2c-msg/devicetree
+          cd 040__i2c/10_io-expander-pcf8574__i2c-msg/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
@@ -195,7 +195,7 @@ jobs:
 
       - run: |
           source ~/source-me.sh
-          cd 040__i2c/01_io-expander-pcf8574__i2c-master-send/devicetree
+          cd 040__i2c/11_io-expander-pcf8574__i2c-master-send/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
@@ -205,7 +205,7 @@ jobs:
 
       - run: |
           source ~/source-me.sh
-          cd 040__i2c/02_io-expander-pcf8574__i2c-smbus/devicetree
+          cd 040__i2c/12_io-expander-pcf8574__i2c-smbus/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
@@ -215,7 +215,7 @@ jobs:
 
       - run: |
           source ~/source-me.sh
-          cd 040__i2c/10_i2c_multidisplay-led/devicetree
+          cd 040__i2c/20_i2c_multidisplay-led/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
