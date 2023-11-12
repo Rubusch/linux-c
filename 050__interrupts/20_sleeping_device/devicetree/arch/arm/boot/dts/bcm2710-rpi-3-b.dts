@@ -195,7 +195,6 @@
 
 	int_key_wait {
 		compatible = "lothars,intkeywait";
-
 		pinctrl-names = "default";
 		pinctrl-0 = <&key_pin>;
 		gpios = <&gpio 23 0>;

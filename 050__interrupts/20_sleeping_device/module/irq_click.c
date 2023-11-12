@@ -123,18 +123,22 @@ lothars_probe(struct platform_device* pdev)  // TODO try w/o __init
 
 	dev_info(dev, "lothars_probe() - called\n");
 
-	/* allocate new structure representing device */
-	priv = devm_kzalloc(dev, sizeof(struct key_priv), GFP_KERNEL);
+	/* allocate device structure */
+	dev_info(dev, "lothars_probe() - allocate device structure\n");
+//	priv = devm_kzalloc(dev, sizeof(struct key_priv), GFP_KERNEL); // TODO rm   
+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	priv->dev = dev;
-
-	platform_set_drvdata(pdev, priv);
+//	platform_set_drvdata(pdev, priv);  
+	dev_set_drvdata(dev, priv);  
 
 	/* init the wait queue head */
+	dev_info(dev, "lothars_probe() - init the wait queue head\n");
 	init_waitqueue_head(&priv->wq_data_available);
 
 	/* get virtual int number from device tree using two different methods */
+	dev_info(dev, "lothars_probe() - get virtual int number from device\n");
 
-	// first method
+/*	// first method
 	priv->gpio = devm_gpiod_get(dev, NULL, GPIOD_IN);
 	if (IS_ERR(priv->gpio)) {
 		dev_err(dev, "lothars_probe() - gpio get failed\n");
@@ -147,20 +151,21 @@ lothars_probe(struct platform_device* pdev)  // TODO try w/o __init
 	dev_info(dev, "lothars_probe() - irq number is '%d' by gpiod_to_irq\n",
 		 priv->irq);
 
-	// second method
+/*/	// second method
 	priv->irq = platform_get_irq(pdev, 0);
 	if (0 > priv->irq) {
 		dev_err(dev, "lothars_probe() - irq is not available\n");
 		return priv->irq;
 	}
-	dev_info(dev, "lothars_probe() - irq number is '%d' by platform_get_irq()\n",
+	dev_info(dev, "lothars_probe() - irq number '%d' by platform_get_irq()\n",
 		 priv->irq);
+// */
 
 	ret = devm_request_irq(dev, priv->irq, lothars_key_isr,
 			       IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
 			       LOTHARS_KEY_NAME, priv);
 	if (ret) {
-		dev_err(dev, "lothars_probe() -failed to request interrupt %d, error %d\n",
+		dev_err(dev, "lothars_probe() - failed to request interrupt %d, error %d\n",
 			priv->irq, ret);
 		return ret;
 	}
@@ -194,7 +199,7 @@ lothars_remove(struct platform_device* pdev)
 }
 
 static const struct of_device_id lothars_of_ids[] = {
-	{ .compatible = "lothars,intkeywait" },
+	{ .compatible = "lothars,intkeywait", },
 	{ },
 };
 MODULE_DEVICE_TABLE(of, lothars_of_ids);
