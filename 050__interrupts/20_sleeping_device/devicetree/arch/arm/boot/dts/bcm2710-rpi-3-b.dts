@@ -286,34 +286,6 @@
 	pinctrl-0 = <&i2c1_pins>;
 	clock-frequency = <100000>;
         status = "okay";
-
-//	// ltc3206 declaration // TODO rm
-//	ltc3206: ltc3206@1b {
-//		compatible = "lothars,ltc3206";
-//		reg = <0x1b>;
-//		pinctrl-0 = <&cs_pins>;
-//		gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
-//
-//		led1r {
-//			label = "red";
-//		};
-//
-//		led1b {
-//			label = "blue";
-//		};
-//
-//		led1g {
-//			label = "green";
-//		};
-//
-//		ledmain {
-//			label = "main";
-//		};
-//
-//		ledsub {
-//			label = "sub";
-//		};
-//	};
 };
 
 &i2c2 {
