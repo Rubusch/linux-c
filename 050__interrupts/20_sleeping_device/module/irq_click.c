@@ -18,7 +18,6 @@
 #include <linux/miscdevice.h>
 #include <linux/platform_device.h>
 #include <linux/wait.h>  /* include wait queue */
-//#include <linux/gpio/consumer.h> // TODO rm  
 
 #define MAX_KEY_STATES 256
 
@@ -80,9 +79,7 @@ lothars_dev_read(struct file* file, char __user *buff,
 
 	// obtain the private data by container_of() macro from file member
 	priv = container_of(file->private_data, struct key_priv, int_miscdevice);
-
 	dev = priv->dev;
-	dev_info(dev, "lothars_dev_read() - called\n");
 
 	/*
 	  put process to sleep - the condition is checked each time
@@ -109,13 +106,11 @@ lothars_dev_read(struct file* file, char __user *buff,
 }
 
 static const struct file_operations lothars_fops = {
-	.owner = THIS_MODULE, // TODO really needed?   
 	.read = lothars_dev_read,
 };
 
-//static int __init lothars_probe(struct platform_device* pdev)
 static int
-lothars_probe(struct platform_device* pdev)  // TODO try w/o __init   
+lothars_probe(struct platform_device* pdev)
 {
 	int ret;
 	struct key_priv *priv;
@@ -125,11 +120,9 @@ lothars_probe(struct platform_device* pdev)  // TODO try w/o __init
 
 	/* allocate device structure */
 	dev_info(dev, "lothars_probe() - allocate device structure\n");
-//	priv = devm_kzalloc(dev, sizeof(struct key_priv), GFP_KERNEL); // TODO rm   
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	priv->dev = dev;
-//	platform_set_drvdata(pdev, priv);  
-	dev_set_drvdata(dev, priv);  
+	dev_set_drvdata(dev, priv);
 
 	/* init the wait queue head */
 	dev_info(dev, "lothars_probe() - init the wait queue head\n");
@@ -185,17 +178,14 @@ lothars_probe(struct platform_device* pdev)  // TODO try w/o __init
 	return 0;
 }
 
-//static int __exit lothars_remove(struct platform_device* pdev)
 static int
 lothars_remove(struct platform_device* pdev)
-//static void lothars_remove(struct platform_device* pdev) // TODO try w/o __exit and probably return void
 {
 	struct key_priv *priv = platform_get_drvdata(pdev);
-
 	dev_info(&pdev->dev, "lothars_remove() - called\n");
 	misc_deregister(&priv->int_miscdevice);
 
-	return 0; // TODO rm?
+	return 0;
 }
 
 static const struct of_device_id lothars_of_ids[] = {
@@ -210,7 +200,6 @@ static struct platform_driver lothars_platform_driver = {
 	.driver = {
 		.name = "intkeywait",
 		.of_match_table = lothars_of_ids,
-//		.owner = THIS_MODULE, // TODO really still needed?    
 	},
 };
 module_platform_driver(lothars_platform_driver);
