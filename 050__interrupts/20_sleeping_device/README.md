@@ -23,6 +23,14 @@ $ make dtbs
 ```
 Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. Do a safety backup first.  
 
+Debug: Verify the currently loaded DT (or debug) by extracting the DT from the running system  
+```
+$ sudo reboot
+...
+
+$ dtc -I fs /sys/firmware/devicetree/base > ./devicetree.dts
+```
+
 ## Module
 
 Should crosscompile - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  

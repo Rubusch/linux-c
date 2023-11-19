@@ -30,16 +30,30 @@ static int buf_rd, buf_wr;
 */
 struct key_priv {
 	struct device *dev;
-	struct gpio_desc *gpio;
-	struct miscdevice int_miscdevice;
-	wait_queue_head_t wq_data_available;
-	int irq;
+	struct gpio_desc *gpio;            // the struct associated
+					   // with the button
+
+	struct miscdevice int_miscdevice;  // we're writing a char
+					   // device, so a miscdevice
+					   // structure will be
+					   // created
+
+	wait_queue_head_t wq_data_available;  // initialized within
+					      // the probe()
+
+	int irq;  // the linux irq number (virq)
 };
 
 /*
-  the interrupt service routine (isr)
+  The interrupt service routine (isr)
 
-  obtain button state and update the lothars_key_buf states
+  Obtain button state and update the lothars_key_buf states
+
+  An interrupt will be generated and handled here, each time a button
+  is pressed and released, respectively.  After reading the input the
+  process should be woken up by using the wake_up_interruptible()
+  function, which takes as its argument the wait queue head declared
+  in the private structure.
  */
 static irqreturn_t lothars_key_isr(int irq, void* data)
 {
@@ -54,20 +68,28 @@ static irqreturn_t lothars_key_isr(int irq, void* data)
 	dev_info(dev, "lothars_key_isr() - button state 0x%08x\n",
 		 val);
 
+	// note: this deals only with the buf_wr
 	if (1 == val)
 		lothars_key_buf[buf_wr++] = 'P';
 	else
-		lothars_key_buf[buf_rd++] = 'R';
+		lothars_key_buf[buf_wr++] = 'R';
 
 	if (buf_wr >= MAX_KEY_STATES)
 		buf_wr = 0;
 
-	/* wake up the process */
+	// wake up the process
 	wake_up_interruptible(&priv->wq_data_available);
 
 	return IRQ_HANDLED;
 }
 
+/* The function gets called whenever a user space read operation occurs
+
+   Recover the private structure via the container_of() trick. When
+   the process is woken up the 'P' or 'R' character (that was stored
+   in the isr function) is sent to the user space by using the
+   copy_to_user().
+*/
 static ssize_t
 lothars_dev_read(struct file* file, char __user *buff,
 		 size_t count, loff_t *off)
@@ -124,14 +146,24 @@ lothars_probe(struct platform_device* pdev)
 	priv->dev = dev;
 	dev_set_drvdata(dev, priv);
 
-	/* init the wait queue head */
+	/* init the wait queue head
+
+	   eventually results in a call to devm_request_irq(), with
+	   - a device structure
+	   - the interrupt number
+	   - a handler that will be called when the interrupt is generated
+	   - the IRQF_ flags: IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING
+	   - the name of the device which uses this interrupt
+	   - finally, a pointer to the private structure: "priv", and not "priv->dev"!
+	 */
 	dev_info(dev, "lothars_probe() - init the wait queue head\n");
 	init_waitqueue_head(&priv->wq_data_available);
 
 	/* get virtual int number from device tree using two different methods */
 	dev_info(dev, "lothars_probe() - get virtual int number from device\n");
 
-/*	// first method
+/* alternative implementations:
+	// first method
 	priv->gpio = devm_gpiod_get(dev, NULL, GPIOD_IN);
 	if (IS_ERR(priv->gpio)) {
 		dev_err(dev, "lothars_probe() - gpio get failed\n");
@@ -188,12 +220,14 @@ lothars_remove(struct platform_device* pdev)
 	return 0;
 }
 
+/* list of devices supported by the driver */
 static const struct of_device_id lothars_of_ids[] = {
 	{ .compatible = "lothars,intkeywait", },
 	{ },
 };
 MODULE_DEVICE_TABLE(of, lothars_of_ids);
 
+/* platform_driver structure to be registered to the platform bus */
 static struct platform_driver lothars_platform_driver = {
 	.probe = lothars_probe,
 	.remove = lothars_remove,
@@ -202,6 +236,8 @@ static struct platform_driver lothars_platform_driver = {
 		.of_match_table = lothars_of_ids,
 	},
 };
+
+/* register driver at the platform bus, generate init/exit() */
 module_platform_driver(lothars_platform_driver);
 
 MODULE_LICENSE("GPL");
