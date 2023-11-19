@@ -217,7 +217,7 @@
 		 *
 		 * IRQ_TYPE_PROBE		- Special flag for probing in progress
 		 */
-		interrupts = <23 1>;
+		interrupts = <23 IRQ_TYPE_EDGE_RISING>;
 		interrupt-parent = <&gpio>;
 	};
 };
