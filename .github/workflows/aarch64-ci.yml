@@ -190,7 +190,6 @@ jobs:
           cd -
           cd ../module
           make
-
       - run: |
           source ~/source-me.sh
           cd 040__i2c/11_io-expander-pcf8574__i2c-master-send/devicetree
@@ -200,7 +199,6 @@ jobs:
           cd -
           cd ../module
           make
-
       - run: |
           source ~/source-me.sh
           cd 040__i2c/12_io-expander-pcf8574__i2c-smbus/devicetree
@@ -210,7 +208,6 @@ jobs:
           cd -
           cd ../module
           make
-
       - run: |
           source ~/source-me.sh
           cd 040__i2c/20_i2c_multidisplay-led/devicetree
@@ -231,7 +228,6 @@ jobs:
           cd -
           cd ../module
           make
-
       - run: |
           source ~/source-me.sh
           cd 050__interrupts/20_sleeping_device/devicetree
@@ -241,7 +237,6 @@ jobs:
           cd -
           cd ../module
           make
-
       - run: |
           source ~/source-me.sh
           cd 050__interrupts/30_click_led_demo/devicetree
@@ -260,45 +255,42 @@ jobs:
 #      - run: source ~/source-me.sh && cd 050__interrupts/x86__workqueue02_customized && make
 
 ## memory
-     - run: |
-          source ~/source-me.sh
-          cd 060__memory/10_linked_list_memory_allocation/devicetree
-          cp -arf ./arch $KERNELDIR/
-          cd $KERNELDIR
-          make dtbs
-          cd -
-          cd ../module
-          make
-
-     - run: |
-          source ~/source-me.sh
-          cd 060__memory/20_streaming_dma/devicetree
-          cp -arf ./arch $KERNELDIR/
-          cd $KERNELDIR
-          make dtbs
-          cd -
-          cd ../module
-          make
-
-#     - run: |
-#          source ~/source-me.sh
-#          cd 060__memory/30_scatter_gather_dma/devicetree
-#          cp -arf ./arch $KERNELDIR/
-#          cd $KERNELDIR
-#          make dtbs
-#          cd -
-#          cd ../module
-#          make
-
-#     - run: |
-#          source ~/source-me.sh
-#          cd 060__memory/40_userspace_dma/devicetree
-#          cp -arf ./arch $KERNELDIR/
-#          cd $KERNELDIR
-#          make dtbs
-#          cd -
-#          cd ../module
-#          make
+      - run: |
+           source ~/source-me.sh
+           cd 060__memory/10_linked_list_memory_allocation/devicetree
+           cp -arf ./arch $KERNELDIR/
+           cd $KERNELDIR
+           make dtbs
+           cd -
+           cd ../module
+           make
+      - run: |
+           source ~/source-me.sh
+           cd 060__memory/20_streaming_dma/devicetree
+           cp -arf ./arch $KERNELDIR/
+           cd $KERNELDIR
+           make dtbs
+           cd -
+           cd ../module
+           make
+#      - run: |
+#           source ~/source-me.sh
+#           cd 060__memory/30_scatter_gather_dma/devicetree
+#           cp -arf ./arch $KERNELDIR/
+#           cd $KERNELDIR
+#           make dtbs
+#           cd -
+#           cd ../module
+#           make
+#      - run: |
+#           source ~/source-me.sh
+#           cd 060__memory/40_userspace_dma/devicetree
+#           cp -arf ./arch $KERNELDIR/
+#           cd $KERNELDIR
+#           make dtbs
+#           cd -
+#           cd ../module
+#           make
 
 ## kthreads
       - run: source ~/source-me.sh && cd 080__kthreads/kthread && make
