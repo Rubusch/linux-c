@@ -191,32 +191,32 @@ static int
 lothars_probe(struct platform_device* pdev)
 {
 	int ret;
-	struct dma_private *dma_device;
+	struct dma_private *dma_priv;
 	dma_cap_mask_t dma_m2m_mask;
 	struct device *dev = &pdev->dev;
 
 	dev_info(dev, "%s() - called", __func__);
 
-	dma_device = devm_kzalloc(&pdev->dev, sizeof(*dma_device), GFP_KERNEL);
-	if (!dma_device) {
-		dev_err(dev, "%s() - error allocating dma_device structure", __func__);
+	dma_priv = devm_kzalloc(&pdev->dev, sizeof(*dma_priv), GFP_KERNEL);
+	if (!dma_priv) {
+		dev_err(dev, "%s() - error allocating dma_priv structure", __func__);
 		return -ENOMEM;
 	}
 
-	dma_device->dma_misc_device.minor = MISC_DYNAMIC_MINOR;
-	dma_device->dma_misc_device.name = "sdma_test";
-	dma_device->dma_misc_device.fops = &dma_fops;
+	dma_priv->dma_misc_device.minor = MISC_DYNAMIC_MINOR;
+	dma_priv->dma_misc_device.name = "sdma_test";
+	dma_priv->dma_misc_device.fops = &dma_fops;
 
-	dma_device->dev = &pdev->dev;
+	dma_priv->dev = &pdev->dev;
 
-	dma_device->wbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_KERNEL);
-	if (!dma_device->wbuf) {
+	dma_priv->wbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_KERNEL);
+	if (!dma_priv->wbuf) {
 		dev_err(dev, "%s() - error allocating wbuf", __func__);
 		return -ENOMEM;
 	}
 
-	dma_device->rbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_KERNEL);
-	if (!dma_device->rbuf) {
+	dma_priv->rbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_KERNEL);
+	if (!dma_priv->rbuf) {
 		dev_err(dev, "%s() - error allocating rbuf", __func__);
 		return -ENOMEM;
 	}
@@ -231,15 +231,15 @@ lothars_probe(struct platform_device* pdev)
 	  - the dma_m2m_filter that helps to select a more specific
             channel between multiple channel possibilities
 	 */
-	dma_device->dma_m2m_chan = dma_request_channel(dma_m2m_mask, 0, NULL);
-	if (!dma_device->dma_m2m_chan) {
+	dma_priv->dma_m2m_chan = dma_request_channel(dma_m2m_mask, 0, NULL);
+	if (!dma_priv->dma_m2m_chan) {
 		dev_err(dev, "%s() - error opening the sDMA memory to memory channel", __func__);
 		return -EINVAL;
 	}
 
 	// register miscdevice structure and init private data
-	ret = misc_register(&dma_device->dma_misc_device);
-	platform_set_drvdata(pdev, dma_device);
+	ret = misc_register(&dma_priv->dma_misc_device);
+	platform_set_drvdata(pdev, dma_priv);
 	dev_info(dev, "%s() - done", __func__);
 
 	return ret;
@@ -249,7 +249,7 @@ static int
 lothars_remove(struct platform_device* pdev)
 {
 	struct dma_private *dma_priv = platform_get_drvdata(pdev);
-	dev_info(dma_priv->dev, "%s() - platform_remove_enter", __func__);
+	dev_info(dma_priv->dev, "%s() - called", __func__);
 	misc_deregister(&dma_priv->dma_misc_device);
 	dma_release_channel(dma_priv->dma_m2m_chan);
 	dev_info(dma_priv->dev, "%s() - done", __func__);
