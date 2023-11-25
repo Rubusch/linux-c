@@ -164,6 +164,12 @@ jobs:
       - run: cd 050__interrupts/x86__workqueue01_kernel && make
       - run: cd 050__interrupts/x86__workqueue02_customized && make
 
+## memory
+      - run: cd 060__memory/10_linked_list_memory_allocation/module && make
+      - run: cd 060__memory/20_streaming_dma/module && make
+#      - run: cd 060__memory/30_scatter_gather_dma && make
+#      - run: cd 060__memory/40_userspace_dma && make
+
 ## kthreads
       - run: cd 080__kthreads/kthread && make
       - run: cd 080__kthreads/kthread__atomic_operation && make
