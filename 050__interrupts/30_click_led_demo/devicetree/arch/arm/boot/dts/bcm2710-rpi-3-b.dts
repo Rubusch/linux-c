@@ -193,36 +193,6 @@
 		comatible = "lothars,chardev_keys";
 	};
 
-	int_key_wait {
-		compatible = "lothars,intkeywait";
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&key_pin>;
-		gpios = <&gpio 23 0>;
-		/*
-		 * IRQ line status (/include/linux/irq.h)
-		 *
- 		 * IRQ_TYPE_NONE		- default, unspecified type
-		 * IRQ_TYPE_EDGE_RISING		- rising edge triggered
-		 * IRQ_TYPE_EDGE_FALLING	- falling edge triggered
-		 * IRQ_TYPE_EDGE_BOTH		- rising and falling edge triggered
-		 * IRQ_TYPE_LEVEL_HIGH		- high level triggered
-		 * IRQ_TYPE_LEVEL_LOW		- low level triggered
-		 * IRQ_TYPE_LEVEL_MASK		- Mask to filter out the level bits
-		 * IRQ_TYPE_SENSE_MASK		- Mask for all the above bits
-		 * IRQ_TYPE_DEFAULT		- For use by some PICs to ask irq_set_type
-		 *				  to setup the HW to a sane default (used
-		 *                                by irqdomain map() callbacks to synchronize
-		 *                                the HW state and SW flags for a newly
-		 *                                allocated descriptor).
-		 *
-		 * IRQ_TYPE_PROBE		- Special flag for probing in progress
-		 */
-		interrupts = <23 IRQ_TYPE_EDGE_BOTH>;
-		interrupt-parent = <&gpio>;
-	};
-
-
 	ledpwm { /* keyled class demo */
 		compatible = "lothars,ledpwm";
 		pinctrl-names = "default";
@@ -231,7 +201,7 @@
 		bp1 {
 			label = "MIKROBUS_KEY_1";
 			gpios = <&gpio 23 GPIO_ACTIVE_LOW>;
-			trigger = "falling";  // TODO verify         
+			trigger = "falling";
 		};
 
 		bp2 {
@@ -242,67 +212,22 @@
 
 		ledred {
 			label = "led";
-			color = "red"; // TODO check: color or colour?          
+			color = "red";
 			gpios = <&gpio 27 GPIO_ACTIVE_LOW>;
 		};
 
 		ledgreen {
 			label = "led";
-			color = "green"; // TODO check: color or colour?          
+			color = "green";
 			gpios = <&gpio 22 GPIO_ACTIVE_LOW>;
 		};
 
 		ledblue {
 			label = "led";
-			color = "blue"; // TODO check: color or colour?          
+			color = "blue";
 			gpios = <&gpio 26 GPIO_ACTIVE_LOW>;
 		};
 	};
-
-	
-// TODO figure out what is needed from below              
-	ledred {
-		compatible = "arrow,RGBleds";
-		label = "ledred";
-		pinctrl-0 = <&led_pins>;
-	}; 
-
-	ledgreen {
-		compatible = "arrow,RGBleds";
-		label = "ledgreen";
-	}; 
-
-	ledblue {
-		compatible = "arrow,RGBleds";
-		label = "ledblue";
-	}; 
-
-	ledclassRGB {
-		compatible = "arrow,RGBclassleds";
-		reg = <0x7e200000 0xb4>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins>;
-
-		red {
-			label = "red";
-		}; 
-
-		green {
-			label = "green";
-		}; 
-
-		blue {
-			label = "blue";
-			//linux,default-trigger = "heartbeat";
-		}; 
-	}; 
-
-	UIO {
-		compatible = "arrow,UIO";
-		reg = <0x7e200000 0x1000>;	
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins>;
-	}; 
 };
 
 &firmware {
@@ -369,34 +294,6 @@
 	pinctrl-0 = <&i2c1_pins>;
 	clock-frequency = <100000>;
         status = "okay";
-
-//	// ltc3206 declaration // TODO rm
-//	ltc3206: ltc3206@1b {
-//		compatible = "lothars,ltc3206";
-//		reg = <0x1b>;
-//		pinctrl-0 = <&cs_pins>;
-//		gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
-//
-//		led1r {
-//			label = "red";
-//		};
-//
-//		led1b {
-//			label = "blue";
-//		};
-//
-//		led1g {
-//			label = "green";
-//		};
-//
-//		ledmain {
-//			label = "main";
-//		};
-//
-//		ledsub {
-//			label = "sub";
-//		};
-//	};
 };
 
 &i2c2 {
