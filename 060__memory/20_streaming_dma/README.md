@@ -1,6 +1,29 @@
 # Streaming DMA Demo
 
-TODO       
+The streaming DMA mapping routines can be called from interrupt context. There are two versions of each map/unmap, one which will map/unmap a single memory region, and one which will map/unmap a scatterlist.  
+
+To map a single region, you do:  
+```
+    struct device *dev = &my_dev->dev;
+    dma_addr_t dma_handle;
+    void *addr = buffer->ptr;
+    size_t size = buffer->len;
+
+    dma_handle = dma_map_single(dev, addr, size, direction);
+    if (dma_mapping_error(dev, dma_handle)) {
+            /*
+             * reduce current DMA mapping usage,
+             * delay and try again later or
+             * reset driver.
+             */
+            goto map_error_handling;
+    }
+```
+
+And unmap it:  
+```
+    dma_unmap_single(dev, dma_handle, size, direction);
+```
 
 # Build
 
@@ -79,4 +102,5 @@ Nov 21 21:29:21 ctrl001 kernel: [  260.471160] sdma_m2m soc:sdma_m2m: lothars_re
 ```
 
 ## References
+* https://www.kernel.org/doc/html/v6.3/core-api/dma-api-howto.html
 * Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 382  
