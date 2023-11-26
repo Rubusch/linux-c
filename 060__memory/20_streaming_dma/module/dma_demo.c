@@ -115,12 +115,20 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 				 dma_priv->wbuf,
 				 SDMA_BUF_SIZE,
 				 DMA_TO_DEVICE);
+	if (dma_mapping_error(dma_priv->dev, dma_src)) {
+		dev_err(dev, "%s() - mapping wbuf failed", __func__);
+		goto err;
+	}
 	dev_info(dev, "%s() - dma_src map optained", __func__);
 
 	dma_dst = dma_map_single(dma_priv->dev,
 				 dma_priv->rbuf,
 				 SDMA_BUF_SIZE,
 				 DMA_TO_DEVICE);
+	if (dma_mapping_error(dma_priv->dev, dma_src)) {
+		dev_err(dev, "%s() - mapping rbuf failed", __func__);
+		goto err;
+	}
 	dev_info(dev, "%s() - dma_dst map obtained", __func__);
 
 	// operation
@@ -170,6 +178,10 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	dma_unmap_single(dma_priv->dev, dma_dst, SDMA_BUF_SIZE, DMA_TO_DEVICE);
 
 	return count;
+
+err:
+	// mapping error occured
+	return -EINVAL;
 }
 
 struct file_operations dma_fops = {
