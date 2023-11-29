@@ -276,15 +276,15 @@ jobs:
            cd -
            cd ../module
            make
-#      - run: |
-#           source ~/source-me.sh
-#           cd 060__memory/30_scatter_gather_dma/devicetree
-#           cp -arf ./arch $KERNELDIR/
-#           cd $KERNELDIR
-#           make dtbs
-#           cd -
-#           cd ../module
-#           make
+      - run: |
+           source ~/source-me.sh
+           cd 060__memory/30_scatter_gather_dma/devicetree
+           cp -arf ./arch $KERNELDIR/
+           cd $KERNELDIR
+           make dtbs
+           cd -
+           cd ../module
+           make
 #      - run: |
 #           source ~/source-me.sh
 #           cd 060__memory/40_userspace_dma/devicetree
