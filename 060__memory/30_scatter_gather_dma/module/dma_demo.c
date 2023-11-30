@@ -2,6 +2,16 @@
 /*
   Scatter/Gather DMA Demo
 
+  This is kind of a "mocked" scatterlist demo. It only shall show the
+  typically needed function calls, since usually the scatterlist would
+  deal with different chunks of physically contiguous memory
+  pieces. The DMA hardware should be scatter-gather capable to be used
+  later from the dmaengine to do the work in hardware. If the hardware
+  is not scatter-gather capable, the CMA can be an alternative
+  solution.
+
+  For the purpose of showing scatterlist initialization a simple M2M
+  demo, a simple "copy" simulates the "dma coherence".
 
   scatterlist setup approach
   1. struct scatterlist *sg;
