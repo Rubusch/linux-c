@@ -1,5 +1,17 @@
 # Scatter/Gather DMA Demo
 
+Scatterlists are very old kernel structures for dealing with physically contiguous memory requirements. A `struct scatterlist` can deal with up to page size amount of memory. For further chained `struct scatterlist` objects, `struct sg_table` is used. This fundamental connection to page size is a major limitation for scatterlists' performance and dealing with contemporary implementations. Furthermore, DMA addressing is mainly based on 32-bit addresses due to historic capabilities of IOMMU, the used IOVAs (IO virtual addresses). Thus 64-bit addresses might be masked out to possible ranges. Two main reasons for this are described: originally performance at dealing with 32-bit addresses was better, it is unsure if all IOMMUs may deal easily with 64-bit addresses.  
+- ref: https://lwn.net/Articles/234617/  
+- ref: https://lwn.net/Articles/256368/  
+- ref: https://lwn.net/Articles/904210/  
+
+(written in times of Linux v6.3).  
+
+Currently the `phyr API`, but also `dma_alloc_noncontiguous()` additions, are discussed as auxiliary for scatterlists when problems are encountered.  
+ref: https://lwn.net/Articles/931943/  
+
+## Assorted Notes on DMA "slave" - FAQ
+
 The following post describes IMHO very well, one of the fundamental understanding issues of how the scatterlist concept works.  
 
 Q: How to use locks on DMA channels?  
