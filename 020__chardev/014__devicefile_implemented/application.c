@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
   The userspace application to test the chardev device file.
 */

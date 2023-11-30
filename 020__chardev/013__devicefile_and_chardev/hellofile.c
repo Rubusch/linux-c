@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
   NB: make sure not to print function arguments of the device
   functions if they are not set, this can make the entire PC hang!

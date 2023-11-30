@@ -1,6 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
   helloprocfs
-
 
   Demonstrates writing to the procfs. The implementation does a proc
   file entry, and implements a read handler.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
   - A userspace application connects to this module (chardev driver)
     via device_ioctl() and writes the signal number which the
