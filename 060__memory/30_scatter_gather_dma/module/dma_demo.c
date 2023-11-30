@@ -2,6 +2,42 @@
 /*
   Scatter/Gather DMA Demo
 
+
+  scatterlist setup approach
+  1. struct scatterlist *sg;
+  2. sg_init_table(sg, nents);
+
+  3. sg_set_buf(sg, buf, buflen)
+     or sg_set_page(...)
+     // prepare sg with content
+
+  4. dma_map_sg(dev, sg, nents, dir)
+     // map before dma transaction
+
+  5. dma_unmap_sg(dev, sg, nents, dir)
+     // in remove
+
+
+  dma slave setup approach
+  NB: "slave" usually means "peripheral DMA capable device"
+
+  1. chan = dma_request_chan(dev, name)
+     // in probe()
+
+  2. dmaengine_slave_config(chan, slave_config)
+     // in probe(), prepare scatterlist sg
+
+  3. desc = dmaengine_prep_slave_sg(chan, sg, num, dir)
+     // also other slave modes are possible here:
+     // - dma_cyclic
+     // - interleaved_dma
+     // - slave_sg
+
+  4. cookie = dmaengine_submit(desc)
+     // opt: check cookie
+
+  5. dma_async_issue_pending(chan)
+
   ---
   REFERENCES:
   - kernel.org / documentation
