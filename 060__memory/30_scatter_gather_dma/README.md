@@ -143,6 +143,7 @@ Nov 29 22:59:53 ctrl001 kernel: [  756.679768] smda_m2m soc:sdma_m2m: lothars_re
 
 ## References
 * https://www.kernel.org/doc/html/v6.3/core-api/dma-api-howto.html
+* https://docs.kernel.org/core-api/dma-api.html
 * https://static.lwn.net/kerneldoc/driver-api/dmaengine/client.html
 * https://stackoverflow.com
 * https://github.com/fandahao17/Raspberry-Pi-DMA-Tutorial
