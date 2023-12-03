@@ -8,6 +8,8 @@ Debug: This is demo code, for a project always check a driver using memcheck (if
 
 ## Hardware:
 
+![color-click](pics/mikroe-color-click.png)
+
 MikroE Color-Click: https://www.mikroe.com/color-click  
 Connect:  
 - GPIO27 -> RD pin  
@@ -16,11 +18,21 @@ Connect:
 - 3V3 -> 5V, or connect 5V directly (won't show up when connected to 3V3) 
 - GND -> GND  
 
+![button-r-click](pics/mikroe-button-r-click.png)
+
 MikroE Button-R-Click: https://www.mikroe.com/button-r-click  
 Connect:  
 - GPIO23 -> INT (Button-R-Click)  
 - 3V3 -> 3V3  
 - GND -> GND  
+
+![setup](pics/setup-interrupt-led.png)
+
+Connection details:  
+
+![rpi connect](pics/connect-interrupt-led-rpi.png)
+![board connect](pics/connect-interrupt-led-board.png)
+
 
 # Build
 
