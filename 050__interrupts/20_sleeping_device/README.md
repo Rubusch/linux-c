@@ -2,12 +2,17 @@
 
 ## Hardware: MikroE Button-R-Click
 
+![button-r-click](pics/mikroe-button-r-click.png)
+
 https://www.mikroe.com/button-r-click
 
 Connection:  
 - GPIO23 -> INT
 - 3v3 -> 3v3
 - GND -> GND
+
+![setup](pics/setup-interrupt-button.png)
+
 
 # Build
 
