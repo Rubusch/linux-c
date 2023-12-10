@@ -180,13 +180,13 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	dev_info(dev, "%s() - mapping", __func__);
 	// NB: our issue here: "slave" is usually a piece of dma hardware!
 	// in M2M dma, this won't be a device, and later down neither a "slave"
-	n_sg_cpu = dma_map_sg(dev, dma_priv->sg_cpu, sg_len, 0);// DMA_TO_DEVICE);
+	n_sg_cpu = dma_map_sg(dev, dma_priv->sg_cpu, sg_len, DMA_TO_DEVICE);
 	if (0 == n_sg_cpu) {
 		dev_err(dev, "%s() - mapping sg_cpu to dma failed", __func__);
 		return -EINVAL;
 	}
 
-	n_sg_device = dma_map_sg(dev, sg_device, sg_len, 0); //DMA_FROM_DEVICE);
+	n_sg_device = dma_map_sg(dev, sg_device, sg_len, DMA_FROM_DEVICE);
 	if (0 == n_sg_device) {
 		dev_err(dev, "%s() - mapping sg_device to dma failed", __func__);
 		return -EINVAL;
@@ -287,7 +287,8 @@ lothars_probe(struct platform_device *pdev)
 	}
 
 	dma_cap_zero(dma_m2m_mask);
-	dma_cap_set(DMA_MEMCPY, dma_m2m_mask);
+//	dma_cap_set(DMA_MEMCPY, dma_m2m_mask);    
+	dma_cap_set(DMA_SLAVE | DMA_PRIVATE, dma_m2m_mask);
 
 	// NB: instead use here dma_request_slave_channel(<dev>, <name>);
 	dma_priv->dma_m2m_chan = dma_request_channel(dma_m2m_mask, 0, NULL);
@@ -299,7 +300,6 @@ lothars_probe(struct platform_device *pdev)
 	// register miscdevice
 	ret = misc_register(&dma_priv->dma_misc_device);
 	platform_set_drvdata(pdev, dma_priv);
-	dev_info(dev, "%s() - done", __func__);
 
 	// setup config and init dma slaves
 	// (in case of a real dma device involved, this slave config
@@ -323,7 +323,7 @@ lothars_remove(struct platform_device *pdev)
 	dev_info(dma_priv->dev, "%s() - called", __func__);
 	misc_deregister(&dma_priv->dma_misc_device);
 	dma_release_channel(dma_priv->dma_m2m_chan);
-	dev_info(dma_priv->dev, "%s() - done", __func__);
+
 	return 0;
 }
 
