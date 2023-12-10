@@ -1,8 +1,9 @@
 /*
-  Streaming DMA Demo (m2m DMA is considered to be async)
+  Streaming DMA Demo
 
   ---
   REFERENCES:
+  - John Linn (Xilinx), Linux DMA in Device Drivers, v3.14, https://www.youtube.com/watch?v=yJg-DkyH5CM
   - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
 */
 
@@ -23,6 +24,8 @@
 
 #include <linux/of_device.h>  /* struct of_device_id */
 
+#include <linux/delay.h>
+
 /* private data structure to hold the miscdevice structure */
 struct dma_private
 {
@@ -30,6 +33,8 @@ struct dma_private
 	struct device *dev;
 	char *wbuf; // the wbuf and rbuf pointers will hold the..
 	char *rbuf; // ...addresses of the allocated buffers
+	dma_addr_t dma_src;
+	dma_addr_t dma_dst;
 	struct dma_chan *dma_m2m_chan;
 	/*
 	   completions are a lightweight mechanism with one task:
@@ -54,7 +59,7 @@ struct dma_private
 static void
 dma_m2m_callback(void *data)
 {
-	struct dma_private *dma_priv = data;
+	struct dma_private *dma_priv = (struct dma_private *) data;
 	dev_info(dma_priv->dev, "%s() - called", __func__);
 
 	// signal the completion of the event inside this function
@@ -63,9 +68,9 @@ dma_m2m_callback(void *data)
 	if (*(dma_priv->rbuf) != *(dma_priv->wbuf))
 		dev_err(dma_priv->dev, "%s() - buffer copy failed!", __func__);
 
-	dev_info(dma_priv->dev, "%s() - buffer copy passed!", __func__);
-	dev_info(dma_priv->dev, "%s() - wbuf = '%s'", __func__, dma_priv->wbuf);
-	dev_info(dma_priv->dev, "%s() - rbuf = '%s'", __func__, dma_priv->rbuf);
+//	dev_info(dma_priv->dev, "%s() - buffer copy passed!", __func__);  
+//	dev_info(dma_priv->dev, "%s() - wbuf = '%s'", __func__, dma_priv->wbuf);  
+//	dev_info(dma_priv->dev, "%s() - rbuf = '%s'", __func__, dma_priv->rbuf);  
 }
 
 /*
@@ -87,8 +92,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	struct dma_private *dma_priv;
 	struct device *dev;
 	dma_cookie_t cookie;
-	dma_addr_t dma_src;
-	dma_addr_t dma_dst;
+	int status;
 
 	pr_info("%s() - called", __func__);
 
@@ -100,56 +104,80 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	// obtain the dma_device
 	dma_dev = dma_priv->dma_m2m_chan->device;
 
+	// obtain data from userspace
 	if (copy_from_user(dma_priv->wbuf, buf, count))
 		return -EFAULT;
 
+	// obtain a handle to the device for dev_info() and CO
 	dev = dma_priv->dev;
-	dev_info(dev, "%s() - the wbuf string is '%s'",
+	dev_info(dev, "%s() - the wbuf string is '%s' (initially)",
 		 __func__, dma_priv->wbuf);
+	dev_info(dev, "%s() - the rbuf string is '%s' (initially)",
+		 __func__, dma_priv->rbuf);
 
-	// mapping
-	//
-	// obtain source address using dma_map_single()
-	// setup a dma_src and a dma_dst as a single mapped dma memory
-	dma_src = dma_map_single(dma_priv->dev,
+	/* 2. DMA mapping
+
+	   obtain source address using dma_map_single() setup a
+	   dma_src and a dma_dst as a single mapped dma memory
+	*/
+	dev_info(dev, "%s() - 2. DMA mapping", __func__);
+
+	// map DMA src
+	dma_priv->dma_src = dma_map_single(dma_priv->dev,
 				 dma_priv->wbuf,
 				 SDMA_BUF_SIZE,
 				 DMA_TO_DEVICE);
-	if (dma_mapping_error(dma_priv->dev, dma_src)) {
+	if (dma_mapping_error(dma_priv->dev, dma_priv->dma_src)) {
 		dev_err(dev, "%s() - mapping wbuf failed", __func__);
 		goto err;
 	}
-	dev_info(dev, "%s() - dma_src map optained", __func__);
+	dev_info(dev, "%s() - dma_src map optained: 0x%08llX",
+		 __func__, dma_priv->dma_src);
 
-	dma_dst = dma_map_single(dma_priv->dev,
+	// map DMA dst
+	dma_priv->dma_dst = dma_map_single(dma_priv->dev,
 				 dma_priv->rbuf,
 				 SDMA_BUF_SIZE,
 				 DMA_TO_DEVICE);
-	if (dma_mapping_error(dma_priv->dev, dma_src)) {
+	if (dma_mapping_error(dma_priv->dev, dma_priv->dma_dst)) {
 		dev_err(dev, "%s() - mapping rbuf failed", __func__);
 		goto err;
 	}
-	dev_info(dev, "%s() - dma_dst map obtained", __func__);
+	dev_info(dev, "%s() - dma_dst map obtained: 0x%08llX",
+		 __func__, dma_priv->dma_dst);
 
-	// operation
-	//
-	// perform a memcpy, then get a descriptor for the transaction
-	dma_m2m_desc = dma_dev->device_prep_dma_memcpy(dma_priv->dma_m2m_chan,
-						       dma_dst,
-						       dma_src,
+	/* 3. DMA transaction: memcpy()
+
+	   prepare a DMA memcpy transaction, then get a descriptor for
+	   the transaction
+	*/
+	dev_info(dev, "%s() - 3. DMA transaction memcpy()", __func__);
+	dma_m2m_desc = dmaengine_prep_dma_memcpy(dma_priv->dma_m2m_chan,
+						       dma_priv->dma_dst,
+						       dma_priv->dma_src,
 						       SDMA_BUF_SIZE,
-						       DMA_CTRL_ACK
+						       DMA_MEM_TO_MEM | DMA_CTRL_ACK
 						       | DMA_PREP_INTERRUPT);
 
-	dev_info(dev, "%s() - successful descriptor obtained", __func__);
+	/* 4. setup a DMA callback
 
-	// setup the dma_callback (called when operation done)
+	   - called when operation done
+	   - an alternative design might be to setup a regular
+             completion, where the dmaengine API comes with the more
+             specified callback appraoch
+	*/
+	dev_info(dev, "%s() - 4. setup a DMA callback", __func__);
+	init_completion(&dma_priv->dma_m2m_ok);
 	dma_m2m_desc->callback = dma_m2m_callback;
 	dma_m2m_desc->callback_param = dma_priv;
-	init_completion(&dma_priv->dma_m2m_ok);
 
-	// submit the obtained descriptor with demaengine_submit()
-	// then check the returned transaction cookie with dma_submit_error()
+	/* 5. submit the DMA transaction
+
+	   Submit the obtained descriptor with demaengine_submit()
+	   then check the returned transaction cookie with
+	   dma_submit_error()
+	*/
+	dev_info(dev, "%s() - 5. submit the DMA transaction", __func__);
 	cookie = dmaengine_submit(dma_m2m_desc);
 	if (dma_submit_error(cookie)) {
 		dev_err(dev, "%s() - failed to submit DMA", __func__);
@@ -157,7 +185,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	}
 
 	/*
-	  dma_async_issue_pending()
+	  6. start DMA transaction
 
 	  The transaction in the pending queue can be activated by
 	  calling the issue_pending API. If the channel is idle, then
@@ -166,19 +194,66 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	  next in queue isstarted and a tasklet triggered. The tasklet
 	  will then call the client driver's completion callback
 	  routine for notification.
+
+	  NB: This is the older dma_async... API
 	*/
+	dev_info(dev, "%s() - 6. start DMA transaction", __func__);
 	dma_async_issue_pending(dma_priv->dma_m2m_chan);
 
+	/* miscellaneous approachs here possible
+
+	   - wait for the transaction: wait_for_completion(), or
+	   - use alternative a timeout as here: wait_for_completion_timeout()
+	   - check if the DMA status: dma_async_is_tx_complete()
+	*/
+
+	// wait on transaction...
+/*
 	wait_for_completion(&dma_priv->dma_m2m_ok);
-	dma_async_is_tx_complete(dma_priv->dma_m2m_chan, cookie, NULL, NULL);
+/*/
+	status = wait_for_completion_timeout(&dma_priv->dma_m2m_ok, msecs_to_jiffies(5000));
+	if (0 >= status) {
+		dev_err(dev, "%s() - wait_for_completion() failed, or timeout", __func__);
 
-	dev_info(dev, "%s() - the rbuf string is '%s'", __func__, dma_priv->rbuf);
+		dma_unmap_single(dma_priv->dev, dma_priv->dma_src, SDMA_BUF_SIZE, DMA_TO_DEVICE);
+		dma_unmap_single(dma_priv->dev, dma_priv->dma_dst, SDMA_BUF_SIZE, DMA_TO_DEVICE);
 
-	dma_unmap_single(dma_priv->dev, dma_src, SDMA_BUF_SIZE, DMA_TO_DEVICE);
-	dma_unmap_single(dma_priv->dev, dma_dst, SDMA_BUF_SIZE, DMA_TO_DEVICE);
+		dmaengine_terminate_sync(dma_priv->dma_m2m_chan);
+		return -ETIMEDOUT;
+	}
+// */
+
+	// check status...
+	status = dma_async_is_tx_complete(dma_priv->dma_m2m_chan, cookie, NULL, NULL);
+	if (DMA_COMPLETE == status) {
+		dev_info(dev, "%s() - dma transaction has completed: DMA_COMPLETE", __func__);
+	} else {
+		dev_err(dev, "%s() - dma transaction did not complete: %d", __func__, status);
+	}
+
+	dmaengine_terminate_all(dma_priv->dma_m2m_chan);        
+
+// FIXME: completion does not seem to wait
+	mdelay(1000);
+
+	dev_info(dev, "%s() - wbuf = '%s'", __func__, dma_priv->wbuf);
+	dev_info(dev, "%s() - rbuf = '%s'", __func__, dma_priv->rbuf);
+
+	/* 7. unmap DMA chunks
+
+	   unmap the single chunks used for the dma transaction
+
+	   NB: if we used dma_alloc_coherent() instead of kzalloc() in
+	   the probe(), we probably would have needed an evaluation at
+	   preparation of transaction and in case of failure
+	   dma_free_coherent() the wbuf and rbuf memories,
+	   respectively.
+	 */
+	dev_info(dev, "%s() - 7. unmap DMA chunks", __func__);
+	dma_unmap_single(dma_priv->dev, dma_priv->dma_src, SDMA_BUF_SIZE, DMA_TO_DEVICE);
+	dma_unmap_single(dma_priv->dev, dma_priv->dma_dst, SDMA_BUF_SIZE, DMA_TO_DEVICE);
 
 	return count;
-
 err:
 	// mapping error occured
 	return -EINVAL;
@@ -209,6 +284,7 @@ lothars_probe(struct platform_device* pdev)
 
 	dev_info(dev, "%s() - called", __func__);
 
+	// prepare a char device
 	dma_priv = devm_kzalloc(&pdev->dev, sizeof(*dma_priv), GFP_KERNEL);
 	if (!dma_priv) {
 		dev_err(dev, "%s() - error allocating dma_priv structure", __func__);
@@ -221,38 +297,56 @@ lothars_probe(struct platform_device* pdev)
 
 	dma_priv->dev = &pdev->dev;
 
+	/* allocation
+
+	   note, an alternative (typically) for dma here - if the
+	   memory is bigger, use dma_alloc_coherent() which allocates
+	   unbuffered. Unbuffered allocation makes sense if the memory
+	   is huge and involves DMA. Be aware that unbuffering usually
+	   and in most other cases would not be a good idea, since it
+	   usually is rather slowing things down. Not so in the
+	   described case above!
+	*/
 	dma_priv->wbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_KERNEL);
 	if (!dma_priv->wbuf) {
 		dev_err(dev, "%s() - error allocating wbuf", __func__);
 		return -ENOMEM;
 	}
-
 	dma_priv->rbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_KERNEL);
 	if (!dma_priv->rbuf) {
 		dev_err(dev, "%s() - error allocating rbuf", __func__);
 		return -ENOMEM;
 	}
 
-	dma_cap_zero(dma_m2m_mask);
-	dma_cap_set(DMA_MEMCPY, dma_m2m_mask);
+	/* 0. specify DMA channel caps
 
-	/*
+	- specify cap: DMA_MEMCPY
+	- alternatively specify a private channel:
+	  DMA_SLAVE | DMA_PRIVATE
+	*/
+	dev_info(dev, "%s() - 0. specify DMA channel caps", __func__);
+	dma_cap_zero(dma_m2m_mask);
+	dma_cap_set(DMA_MEMCPY, dma_m2m_mask);  
+//	dma_cap_set(DMA_SLAVE | DMA_PRIVATE, dma_m2m_mask);  
+
+	/* 1. request DMA channel
+
 	  the dma_request_channel() function takes three parameters
 	  - the dma_m2m_mask, that holds the channel capabilities
 	  - the m2m_dma_data, custom data structure
 	  - the dma_m2m_filter that helps to select a more specific
             channel between multiple channel possibilities
 	 */
+	dev_info(dev, "%s() - 1. request DMA channel", __func__);
 	dma_priv->dma_m2m_chan = dma_request_channel(dma_m2m_mask, 0, NULL);
 	if (!dma_priv->dma_m2m_chan) {
 		dev_err(dev, "%s() - error opening the sDMA memory to memory channel", __func__);
 		return -EINVAL;
 	}
 
-	// register miscdevice structure and init private data
+	// char dev: register miscdevice structure and init private data
 	ret = misc_register(&dma_priv->dma_misc_device);
 	platform_set_drvdata(pdev, dma_priv);
-	dev_info(dev, "%s() - done", __func__);
 
 	return ret;
 }
@@ -264,7 +358,7 @@ lothars_remove(struct platform_device* pdev)
 	dev_info(dma_priv->dev, "%s() - called", __func__);
 	misc_deregister(&dma_priv->dma_misc_device);
 	dma_release_channel(dma_priv->dma_m2m_chan);
-	dev_info(dma_priv->dev, "%s() - done", __func__);
+
 	return 0;
 }
 
