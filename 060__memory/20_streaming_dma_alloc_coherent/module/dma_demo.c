@@ -1,9 +1,10 @@
 /*
   Streaming DMA Demo
 
-  A variant using dma_alloc_coherent() and dma_free_coherent(). This
-  fixes actually the original idea represented in the referenced book
-  of A. L. Rios (2018) which did not work out for me.
+  A variant using dma_alloc_coherent() and dma_free_coherent().
+
+  This fixes actually the original idea represented in the referenced
+  book of A. L. Rios (2018) which did not work out for me.
 
   ---
   REFERENCES:
@@ -263,12 +264,12 @@ lothars_probe(struct platform_device* pdev)
 
 	dma_priv->dev = &pdev->dev;
 
-	/* 0. allocation and 2. mapping: dma_alloc_coherent()
+	/* 0. Preparation: allocation and 2. mapping: dma_alloc_coherent()
 
 	   For huge memories use dma_alloc_coherent() which allocates
 	   and maps DMA memory for unbuffered transactions
 	*/
-	dev_info(dev, "%s() - 0. allocation and 2. mapping: dma_alloc_coherent()",
+	dev_info(dev, "%s() - 0. preparation: allocation and 2. mapping: dma_alloc_coherent()",
 		 __func__);
 	dma_priv->wbuf = dma_alloc_coherent(&pdev->dev, SDMA_BUF_SIZE, &(dma_priv->dma_src), GFP_KERNEL);
 	if (!dma_priv->wbuf) {
@@ -281,19 +282,19 @@ lothars_probe(struct platform_device* pdev)
 		return -ENOMEM;
 	}
 
-	/* 0. specify DMA channel caps
+	/* 0. Preparation: specify DMA channel caps
 
 	- specify cap: DMA_MEMCPY
 	- alternatively specify a private channel:
             DMA_SLAVE | DMA_PRIVATE
 	*/
-	dev_info(dev, "%s() - 0. specify DMA channel caps", __func__);
+	dev_info(dev, "%s() - 0. preparation: specify DMA channel caps", __func__);
 	dma_cap_zero(dma_m2m_mask);
 	dma_cap_set(DMA_MEMCPY, dma_m2m_mask);
 	// as alternative use the following for a private channel
 //	dma_cap_set(DMA_SLAVE | DMA_PRIVATE, dma_m2m_mask);
 
-	/* 1. request DMA channel
+	/* 1. Request DMA channel
 
 	  the dma_request_channel() function takes three parameters
 	  - the dma_m2m_mask, that holds the channel capabilities
