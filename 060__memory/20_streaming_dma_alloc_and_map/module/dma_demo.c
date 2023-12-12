@@ -1,6 +1,8 @@
 /*
   Streaming DMA Demo
 
+  Using allocated memory, then mapped into DMA.
+
   ---
   REFERENCES:
   - John Linn (Xilinx), Linux DMA in Device Drivers, v3.14, https://www.youtube.com/watch?v=yJg-DkyH5CM
@@ -13,7 +15,7 @@
 #include <linux/dma-mapping.h> /* DMA mapping functions */
 
 /*
-  functions needed to allocate a DMA slave channel, set slave and
+  Functions needed to allocate a DMA slave channel, set slave and
   controller specific parameters, get a desriptor for transaction,
   submit the transaction , issue pending requests and wait for
   callback notification
@@ -26,7 +28,7 @@
 
 #include <linux/delay.h>
 
-/* private data structure to hold the miscdevice structure */
+/* Private data structure to hold the miscdevice structure */
 struct dma_private
 {
 	struct miscdevice dma_misc_device;
@@ -37,7 +39,7 @@ struct dma_private
 	dma_addr_t dma_dst;
 	struct dma_chan *dma_m2m_chan;
 	/*
-	   completions are a lightweight mechanism with one task:
+	   Completions are a lightweight mechanism with one task:
 	   allowing one thread to tell another that the job is
 	   done. The advantage of using completions (over e.g. a
 	   semaphore/mutex based approach) is to generate more
@@ -62,15 +64,14 @@ dma_m2m_callback(void *data)
 	struct dma_private *dma_priv = (struct dma_private *) data;
 	dev_info(dma_priv->dev, "%s() - called", __func__);
 
-	// signal the completion of the event inside this function
-	complete(&dma_priv->dma_m2m_ok);
-
 	if (*(dma_priv->rbuf) != *(dma_priv->wbuf))
 		dev_err(dma_priv->dev, "%s() - buffer copy failed!", __func__);
 
-//	dev_info(dma_priv->dev, "%s() - buffer copy passed!", __func__);  
-//	dev_info(dma_priv->dev, "%s() - wbuf = '%s'", __func__, dma_priv->wbuf);  
-//	dev_info(dma_priv->dev, "%s() - rbuf = '%s'", __func__, dma_priv->rbuf);  
+	dev_info(dma_priv->dev, "%s() - wbuf = '%s'", __func__, dma_priv->wbuf);
+	dev_info(dma_priv->dev, "%s() - rbuf = '%s'", __func__, dma_priv->rbuf);
+
+	// signal the completion of the event inside this function
+	complete(&dma_priv->dma_m2m_ok);
 }
 
 /*
@@ -159,14 +160,14 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 						       DMA_MEM_TO_MEM | DMA_CTRL_ACK
 						       | DMA_PREP_INTERRUPT);
 
-	/* 4. setup a DMA callback
+	/* 4. setup a DMA completion
 
 	   - called when operation done
 	   - an alternative design might be to setup a regular
              completion, where the dmaengine API comes with the more
              specified callback appraoch
 	*/
-	dev_info(dev, "%s() - 4. setup a DMA callback", __func__);
+	dev_info(dev, "%s() - 4. setup a DMA completion", __func__);
 	init_completion(&dma_priv->dma_m2m_ok);
 	dma_m2m_desc->callback = dma_m2m_callback;
 	dma_m2m_desc->callback_param = dma_priv;
@@ -198,7 +199,54 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	  NB: This is the older dma_async... API
 	*/
 	dev_info(dev, "%s() - 6. start DMA transaction", __func__);
-	dma_async_issue_pending(dma_priv->dma_m2m_chan);
+        dma_async_issue_pending(dma_priv->dma_m2m_chan);
+
+
+	/*
+	  !!! CAUTION !!!
+
+	  Issue: By observation of the author there are now situations
+	  where most of the time the memcpy will work, but from time
+	  to time it will fail. The completion works, and tells the
+	  operation succeeded, but the dma_dst will be empty. What
+	  happened?
+
+	  Debug: The issue can be put away when placing a msleep()
+	  before evaluation. Also, when injecting another time, the
+	  old value is now written to the dma_dst. This smells like
+	  buffering.
+	  Thinking about how this is implemented and the debug
+	  behavior, chances are that this has to do with the fact that
+	  we are now buffered.
+
+	  Since we allocated memory in the _probe(), and then mapped
+	  the allocated wbuf/rbuf dma_map_single(), this seems not to
+	  be the same as using dma_alloc_coherent() for allocating
+	  unbuffered memory directly and mapping it.
+
+	  Fix1: So, one fix might be to re-write the demo using
+	  dma_alloc_coherent() instead.
+
+	  Fix2: Another solution here, your author would recommend
+	  using a sync to pass ownership to the device.
+	*/
+	if (true == dma_need_sync(dma_priv->dev, dma_priv->dma_dst)) {
+		dev_info(dev, "%s() - !!! dma_priv->dma_dst device needs sync", __func__);
+	} else {
+		dev_info(dev, "%s() - dma_priv->dma_dst device is sync'd", __func__);
+	}
+
+	if (true == dma_need_sync(dma_priv->dev, dma_priv->dma_src)) {
+		dev_info(dev, "%s() - !!! dma_priv->dma_src device needs sync", __func__);
+	} else {
+		dev_info(dev, "%s() - dma_priv->dma_src device is sync'd", __func__);
+	}
+
+	// sync options
+//	dma_sync_single_for_cpu(dma_priv->dev, dma_priv->dma_dst,
+//				SDMA_BUF_SIZE, DMA_BIDIRECTIONAL);
+	dma_sync_single_for_cpu(dma_priv->dev, dma_priv->dma_dst,
+				SDMA_BUF_SIZE, DMA_FROM_DEVICE);
 
 	/* miscellaneous approachs here possible
 
@@ -208,9 +256,6 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	*/
 
 	// wait on transaction...
-/*
-	wait_for_completion(&dma_priv->dma_m2m_ok);
-/*/
 	status = wait_for_completion_timeout(&dma_priv->dma_m2m_ok, msecs_to_jiffies(5000));
 	if (0 >= status) {
 		dev_err(dev, "%s() - wait_for_completion() failed, or timeout", __func__);
@@ -221,7 +266,6 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 		dmaengine_terminate_sync(dma_priv->dma_m2m_chan);
 		return -ETIMEDOUT;
 	}
-// */
 
 	// check status...
 	status = dma_async_is_tx_complete(dma_priv->dma_m2m_chan, cookie, NULL, NULL);
@@ -231,15 +275,12 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 		dev_err(dev, "%s() - dma transaction did not complete: %d", __func__, status);
 	}
 
-	dmaengine_terminate_all(dma_priv->dma_m2m_chan);        
-
-// FIXME: completion does not seem to wait
-	mdelay(1000);
+	dmaengine_terminate_all(dma_priv->dma_m2m_chan);
 
 	dev_info(dev, "%s() - wbuf = '%s'", __func__, dma_priv->wbuf);
 	dev_info(dev, "%s() - rbuf = '%s'", __func__, dma_priv->rbuf);
 
-	/* 7. unmap DMA chunks
+	/* 7. Unmap DMA chunks
 
 	   unmap the single chunks used for the dma transaction
 
@@ -297,7 +338,7 @@ lothars_probe(struct platform_device* pdev)
 
 	dma_priv->dev = &pdev->dev;
 
-	/* allocation
+	/* 0. Preparation: allocation
 
 	   note, an alternative (typically) for dma here - if the
 	   memory is bigger, use dma_alloc_coherent() which allocates
@@ -307,6 +348,7 @@ lothars_probe(struct platform_device* pdev)
 	   usually is rather slowing things down. Not so in the
 	   described case above!
 	*/
+	dev_info(dev, "%s() - 0. preparation: allocation for DMA buffers", __func__);
 	dma_priv->wbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_KERNEL);
 	if (!dma_priv->wbuf) {
 		dev_err(dev, "%s() - error allocating wbuf", __func__);
@@ -318,18 +360,19 @@ lothars_probe(struct platform_device* pdev)
 		return -ENOMEM;
 	}
 
-	/* 0. specify DMA channel caps
+	/* 0. Preparation: specify DMA channel caps
 
 	- specify cap: DMA_MEMCPY
 	- alternatively specify a private channel:
 	  DMA_SLAVE | DMA_PRIVATE
 	*/
-	dev_info(dev, "%s() - 0. specify DMA channel caps", __func__);
+	dev_info(dev, "%s() - 0. preparation: specify DMA channel caps", __func__);
 	dma_cap_zero(dma_m2m_mask);
-	dma_cap_set(DMA_MEMCPY, dma_m2m_mask);  
-//	dma_cap_set(DMA_SLAVE | DMA_PRIVATE, dma_m2m_mask);  
+	dma_cap_set(DMA_SLAVE | DMA_PRIVATE, dma_m2m_mask);
+	// alternative: be more specific for the capability
+//	dma_cap_set(DMA_MEMCPY, dma_m2m_mask);
 
-	/* 1. request DMA channel
+	/* 1. Request DMA channel
 
 	  the dma_request_channel() function takes three parameters
 	  - the dma_m2m_mask, that holds the channel capabilities
@@ -340,7 +383,7 @@ lothars_probe(struct platform_device* pdev)
 	dev_info(dev, "%s() - 1. request DMA channel", __func__);
 	dma_priv->dma_m2m_chan = dma_request_channel(dma_m2m_mask, 0, NULL);
 	if (!dma_priv->dma_m2m_chan) {
-		dev_err(dev, "%s() - error opening the sDMA memory to memory channel", __func__);
+		dev_err(dev, "%s() - opening sDMA channel failed", __func__);
 		return -EINVAL;
 	}
 
@@ -380,4 +423,4 @@ module_platform_driver(lothars_platform_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("a streaming DMA demo");
+MODULE_DESCRIPTION("allocating memory and mapping it buffered into DMA");
