@@ -166,7 +166,8 @@ jobs:
 
 ## memory
       - run: cd 060__memory/10_linked_list_memory_allocation/module && make
-      - run: cd 060__memory/20_streaming_dma/module && make
+      - run: cd 060__memory/20_streaming_dma_alloc_and_map && make
+      - run: cd 060__memory/20_streaming_dma_alloc_coherent && make
       - run: cd 060__memory/30_scatter_gather_dma && make
 #      - run: cd 060__memory/40_userspace_dma && make
 

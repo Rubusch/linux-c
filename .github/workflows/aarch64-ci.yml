@@ -266,7 +266,16 @@ jobs:
            make
       - run: |
            source ~/source-me.sh
-           cd 060__memory/20_streaming_dma/devicetree
+           cd 060__memory/20_streaming_dma_alloc_and_map/devicetree
+           cp -arf ./arch $KERNELDIR/
+           cd $KERNELDIR
+           make dtbs
+           cd -
+           cd ../module
+           make
+      - run: |
+           source ~/source-me.sh
+           cd 060__memory/20_streaming_dma_alloc_coherent/devicetree
            cp -arf ./arch $KERNELDIR/
            cd $KERNELDIR
            make dtbs
