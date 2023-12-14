@@ -264,7 +264,7 @@ lothars_probe(struct platform_device* pdev)
 
 	dma_priv->dev = &pdev->dev;
 
-	/* 0. Preparation: allocation and 2. mapping: dma_alloc_coherent()
+	/* 0. Preparation: allocation and mapping: dma_alloc_coherent()
 
 	   For huge memories use dma_alloc_coherent() which allocates
 	   and maps DMA memory for unbuffered transactions
