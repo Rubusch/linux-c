@@ -111,7 +111,7 @@ dma_sg_callback(void* data)
 struct dma_async_tx_descriptor*
 lothars_prep_slave_sg( struct dma_chan *chan, struct scatterlist *sgl,
 		       unsigned int sg_len,
-		       enum dma_transfer_direction dir, unsigned long flags)       
+		       enum dma_transfer_direction dir, unsigned long flags)
 {
 	dma_addr_t dma_src = 0;
 	dma_addr_t dma_dst = 0;
@@ -277,7 +277,7 @@ lothars_probe(struct platform_device *pdev)
 	// prepare char device
 	dma_priv = devm_kzalloc(&pdev->dev, sizeof(*dma_priv), GFP_KERNEL);
 	if (!dma_priv) {
-		dev_err(dev, "%s() - allocating dma_riv failed", __func__);
+		dev_err(dev, "%s() - allocating dma_priv failed", __func__);
 		return -ENOMEM;
 	}
 
@@ -298,8 +298,7 @@ lothars_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 
-	dma_priv->rbuf = devm_kzalloc(&pdev->dev,
-				   SDMA_BUF_SIZE, GFP_ATOMIC);
+	dma_priv->rbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_ATOMIC);
 	if (!dma_priv->rbuf) {
 		dev_err(dev, "%s() - failed allocating rbuf", __func__);
 		return -ENOMEM;
