@@ -201,7 +201,6 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	dev_info(dev, "%s() - 6. start DMA transaction", __func__);
         dma_async_issue_pending(dma_priv->dma_m2m_chan);
 
-
 	/*
 	  !!! CAUTION !!!
 
@@ -231,15 +230,19 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	  using a sync to pass ownership to the device.
 	*/
 	if (true == dma_need_sync(dma_priv->dev, dma_priv->dma_dst)) {
-		dev_info(dev, "%s() - !!! dma_priv->dma_dst device needs sync", __func__);
+		dev_info(dev, "%s() - !!! dma_priv->dma_dst device needs sync",
+			 __func__);
 	} else {
-		dev_info(dev, "%s() - dma_priv->dma_dst device is sync'd", __func__);
+		dev_info(dev, "%s() - dma_priv->dma_dst device is sync'd",
+			 __func__);
 	}
 
 	if (true == dma_need_sync(dma_priv->dev, dma_priv->dma_src)) {
-		dev_info(dev, "%s() - !!! dma_priv->dma_src device needs sync", __func__);
+		dev_info(dev, "%s() - !!! dma_priv->dma_src device needs sync",
+			 __func__);
 	} else {
-		dev_info(dev, "%s() - dma_priv->dma_src device is sync'd", __func__);
+		dev_info(dev, "%s() - dma_priv->dma_src device is sync'd",
+			 __func__);
 	}
 
 	// sync options
@@ -256,23 +259,30 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	*/
 
 	// wait on transaction...
-	status = wait_for_completion_timeout(&dma_priv->dma_m2m_ok, msecs_to_jiffies(5000));
+	status = wait_for_completion_timeout(&dma_priv->dma_m2m_ok,
+					     msecs_to_jiffies(5000));
 	if (0 >= status) {
-		dev_err(dev, "%s() - wait_for_completion() failed, or timeout", __func__);
+		dev_err(dev, "%s() - wait_for_completion() failed, or timeout",
+			__func__);
 
-		dma_unmap_single(dma_priv->dev, dma_priv->dma_src, SDMA_BUF_SIZE, DMA_TO_DEVICE);
-		dma_unmap_single(dma_priv->dev, dma_priv->dma_dst, SDMA_BUF_SIZE, DMA_TO_DEVICE);
+		dma_unmap_single(dma_priv->dev, dma_priv->dma_src,
+				 SDMA_BUF_SIZE, DMA_TO_DEVICE);
+		dma_unmap_single(dma_priv->dev, dma_priv->dma_dst,
+				 SDMA_BUF_SIZE, DMA_TO_DEVICE);
 
 		dmaengine_terminate_sync(dma_priv->dma_m2m_chan);
 		return -ETIMEDOUT;
 	}
 
 	// check status...
-	status = dma_async_is_tx_complete(dma_priv->dma_m2m_chan, cookie, NULL, NULL);
+	status = dma_async_is_tx_complete(dma_priv->dma_m2m_chan,
+					  cookie, NULL, NULL);
 	if (DMA_COMPLETE == status) {
-		dev_info(dev, "%s() - dma transaction has completed: DMA_COMPLETE", __func__);
+		dev_info(dev, "%s() - dma transaction has completed: DMA_COMPLETE",
+			 __func__);
 	} else {
-		dev_err(dev, "%s() - dma transaction did not complete: %d", __func__, status);
+		dev_err(dev, "%s() - dma transaction did not complete: %d",
+			__func__, status);
 	}
 
 	dmaengine_terminate_all(dma_priv->dma_m2m_chan);
@@ -291,8 +301,10 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	   respectively.
 	 */
 	dev_info(dev, "%s() - 7. unmap DMA chunks", __func__);
-	dma_unmap_single(dma_priv->dev, dma_priv->dma_src, SDMA_BUF_SIZE, DMA_TO_DEVICE);
-	dma_unmap_single(dma_priv->dev, dma_priv->dma_dst, SDMA_BUF_SIZE, DMA_TO_DEVICE);
+	dma_unmap_single(dma_priv->dev, dma_priv->dma_src,
+			 SDMA_BUF_SIZE, DMA_TO_DEVICE);
+	dma_unmap_single(dma_priv->dev, dma_priv->dma_dst,
+			 SDMA_BUF_SIZE, DMA_TO_DEVICE);
 
 	return count;
 err:
@@ -328,7 +340,8 @@ lothars_probe(struct platform_device* pdev)
 	// prepare a char device
 	dma_priv = devm_kzalloc(&pdev->dev, sizeof(*dma_priv), GFP_KERNEL);
 	if (!dma_priv) {
-		dev_err(dev, "%s() - error allocating dma_priv structure", __func__);
+		dev_err(dev, "%s() - error allocating dma_priv structure",
+			__func__);
 		return -ENOMEM;
 	}
 
@@ -348,7 +361,8 @@ lothars_probe(struct platform_device* pdev)
 	   usually is rather slowing things down. Not so in the
 	   described case above!
 	*/
-	dev_info(dev, "%s() - 0. preparation: allocation for DMA buffers", __func__);
+	dev_info(dev, "%s() - 0. preparation: allocation for DMA buffers",
+		 __func__);
 	dma_priv->wbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_KERNEL);
 	if (!dma_priv->wbuf) {
 		dev_err(dev, "%s() - error allocating wbuf", __func__);
@@ -366,7 +380,8 @@ lothars_probe(struct platform_device* pdev)
 	- alternatively specify a private channel:
 	  DMA_SLAVE | DMA_PRIVATE
 	*/
-	dev_info(dev, "%s() - 0. preparation: specify DMA channel caps", __func__);
+	dev_info(dev, "%s() - 0. preparation: specify DMA channel caps",
+		 __func__);
 	dma_cap_zero(dma_m2m_mask);
 	dma_cap_set(DMA_SLAVE | DMA_PRIVATE, dma_m2m_mask);
 	// alternative: be more specific for the capability
