@@ -170,6 +170,7 @@ jobs:
       - run: cd 060__memory/20_consistent_dma_alloc_coherent && make
       - run: cd 060__memory/30_scatter_gather_dma && make
 #      - run: cd 060__memory/40_userspace_dma && make
+      - run: cd 060__memory/tools_dma && make
 
 ## kthreads
       - run: cd 080__kthreads/kthread && make
