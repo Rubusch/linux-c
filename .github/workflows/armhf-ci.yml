@@ -221,6 +221,17 @@ jobs:
           cd ../module
           make
 
+## input subsystem
+      - run: |
+          source ~/source-me.sh
+          cd 045__input-subsystem/10_input_subsystem_accelerometer_via_i2c/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module
+          make
+
 ## interrupts
       - run: |
           source ~/source-me.sh
