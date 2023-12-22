@@ -7,6 +7,8 @@
   implementation of a device driver thus, is fundamentally re-written
   and based on contemporary API.
 
+  This is the I2C version.
+
   ---
   REFERENCES:
   - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
@@ -25,12 +27,19 @@ struct ioaccel_dev {
 	struct i2c_client *i2c_client;
 };
 
+/*
+  set the measure bit (bit 3) in the POWER_CTL register, address 0x2d
+*/
 #define CMD_POWER_CTL 0x2D
 #define CMDARG_PCTL_MEASURE (1 << 3)
 #define OUT_X_MSB_REGISTER 0x33
 #define IOACCEL_POLL_INTERVAL 50
 
 /* poll function
+
+   this function will be called every 50ms to read the OUT_X_MSB
+   register (0x33) of the ADXL345 accelerometer by using the i2c/smbus
+   read byte data function
  */
 static void
 ioaccel_poll(struct input_dev* input)
