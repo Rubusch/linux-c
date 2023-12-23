@@ -1,4 +1,4 @@
-# DMA from user space
+# ADXL345 Accel polling driver based on the input system
 
 Use the ADXL345 Accel click mikroBUS accessory board connected to the I2C bus of the processor to verify the driver. The driver will scan periodially the value of one of the accelerometer axes, and depending on the tilt of the board, it will generate an event that is exposed to the application `evtest`. The accelerometer kernel module will use the polled input subclass. A polled input device provides a skeleton for supporting simple input devices that do not raise interrupts, but have to be periodically scanned or polled to detect changes in their state.  
 
