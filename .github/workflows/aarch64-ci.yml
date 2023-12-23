@@ -183,7 +183,7 @@ jobs:
 ## simple-busses (i2c, spi, input, regmap)
       - run: |
           source ~/source-me.sh
-          cd 040__simple-busses/10_io-expander-pcf8574__i2c-msg/devicetree
+          cd 040__simple-busses/10_i2c__io-expander-pcf8574__msg/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
@@ -192,7 +192,7 @@ jobs:
           make
       - run: |
           source ~/source-me.sh
-          cd 040__simple-busses/11_io-expander-pcf8574__i2c-master-send/devicetree
+          cd 040__simple-busses/11_i2c__io-expander-pcf8574__master-send/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
@@ -201,7 +201,7 @@ jobs:
           make
       - run: |
           source ~/source-me.sh
-          cd 040__simple-busses/12_io-expander-pcf8574__i2c-smbus/devicetree
+          cd 040__simple-busses/12_i2c__io-expander-pcf8574__smbus/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs

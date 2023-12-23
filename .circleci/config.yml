@@ -149,9 +149,9 @@ jobs:
           make
 
 ## i2c
-      - run: cd 040__simple-busses/10_io-expander-pcf8574__i2c-msg/module && make
-      - run: cd 040__simple-busses/11_io-expander-pcf8574__i2c-master-send/module && make
-      - run: cd 040__simple-busses/12_io-expander-pcf8574__i2c-smbus/module && make
+      - run: cd 040__simple-busses/10_i2c__io-expander-pcf8574__msg/module && make
+      - run: cd 040__simple-busses/11_i2c__io-expander-pcf8574__master-send/module && make
+      - run: cd 040__simple-busses/12_i2c__io-expander-pcf8574__smbus/module && make
       - run: cd 040__simple-busses/20_i2c_multidisplay-led/module && make
       - run: cd 040__simple-busses/input-subsystem__adxl345-accel-via-i2c-polling/module && make
 
