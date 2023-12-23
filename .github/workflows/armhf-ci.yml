@@ -182,20 +182,10 @@ jobs:
           cd ../userspace
           make
 
-## i2c
+## simple-busses (i2c, spi, input, regmap)
       - run: |
           source ~/source-me.sh
-          cd 040__i2c/10_io-expander-pcf8574__i2c-msg/devicetree
-          cp -arf ./arch $KERNELDIR/
-          cd $KERNELDIR
-          make dtbs
-          cd -
-          cd ../module
-          make
-
-      - run: |
-          source ~/source-me.sh
-          cd 040__i2c/11_io-expander-pcf8574__i2c-master-send/devicetree
+          cd 040__simple-busses/10_io-expander-pcf8574__i2c-msg/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
@@ -204,7 +194,7 @@ jobs:
           make
       - run: |
           source ~/source-me.sh
-          cd 040__i2c/12_io-expander-pcf8574__i2c-smbus/devicetree
+          cd 040__simple-busses/11_io-expander-pcf8574__i2c-master-send/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
@@ -213,18 +203,25 @@ jobs:
           make
       - run: |
           source ~/source-me.sh
-          cd 040__i2c/20_i2c_multidisplay-led/devicetree
+          cd 040__simple-busses/12_io-expander-pcf8574__i2c-smbus/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
           cd -
           cd ../module
           make
-
-## input subsystem
       - run: |
           source ~/source-me.sh
-          cd 045__input-subsystem/10_input_subsystem_accelerometer_via_i2c/devicetree
+          cd 040__simple-busses/20_i2c_multidisplay-led/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module
+          make
+      - run: |
+          source ~/source-me.sh
+          cd 040__simple-busses/input-subsystem__adxl345-accel-via-i2c/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
