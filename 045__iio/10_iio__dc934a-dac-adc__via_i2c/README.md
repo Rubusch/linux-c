@@ -1,6 +1,38 @@
-# LTC2607: 
+# LTC2607
 
-TODO
+The LTC2607 DAC outputs are connected to both LTC2422 ADC inputs.
+
+The LTC2422 Analog device is a 2-channel 2.7V to 5.5V micropower
+20-bit analogt-to-digital converter with an integrated oscillator,
+8ppm INL and 1.2ppm RMS noise. The device uses delta-sigma
+technology and a new digital filter architecture that settles in a
+single cycle. This eliminates the latency found in conventional
+sigma delta converters and simplifies multiplexed applications. The
+converter accepts an external reference voltage from 0.1V to VCC.
+
+The LTC2422 serial output data stream is 24 bits long. The first 4
+bits represent status information indicating the sign, selected
+channel, input range and conversion state. the next 20 bits are the
+conversion result, MSB first:
+
+- Bit 23 (first output bit): The end of conversion (EOC)
+  indicator. This bit is available at the SDO pin during the
+  conversion and sleep states whenever the CS pin is LOW. This bit
+  is HIGH during the conversion and goes LOw when the conversion is
+  complete.
+- Bit 22 (second output bit): for the LtC2422, this bit is LOW if
+  the last conversion was performed on CH0 and HIGH for CH1. This
+  bit is always LOW for the LTC2422
+- Bit 21 (third output bit): The conversion result sign indicator
+  (SIG). If VIN is > 0, this bit is HIGH. If VIN is <0, this bit is
+  LOW. The sign bit changes state during the zero code.
+- Bit 20 (fourth output bit): The extended input range (EXR)
+  indicator. If the input is within the normal input range 0 <= VIN
+  <= VREF, this bit is LOW. If the input is outside the normal input
+  range, VIN > VREF or VIN < 0, this bit is HIGH.
+- Bit 19 (fifth output bit): The most significant bit (MSB).
+- Bits 19-0: The 20 bit conversion result MSB first.
+- Bit 0: The last significant bit (LSB).
 
 ## Hardware: Eval Board dc934a
 

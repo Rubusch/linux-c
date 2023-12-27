@@ -1,5 +1,5 @@
 KERNELDIR ?= /usr/src/linux
-obj-m += iio_demo.o
+obj-m += ./iio-ltc2607-dac.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
