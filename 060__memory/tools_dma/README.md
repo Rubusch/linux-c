@@ -1,6 +1,6 @@
 # Instrumentation and Debug Code DMA Demo
 
-TODO	
+Demonstrates some API functions to be used to print more information. In general for debugging DMA, use the extended debug output, and/or core PFN dump option.  
 
 # Build
 
