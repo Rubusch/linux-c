@@ -222,7 +222,7 @@
 		reg = <0>;	/* CE0 */
 		#address-cells = <1>;
 		#size-cells = <0>;
-		spi-max-frequency = <125000000>;
+		spi-max-frequency = <500000>;
 	};
 
 	spidev1: spidev@1{
