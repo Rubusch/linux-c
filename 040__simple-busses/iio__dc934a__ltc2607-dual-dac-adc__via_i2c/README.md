@@ -58,8 +58,11 @@ DC934a Eval Board: https://www.analog.com/en/design-center/evaluation-hardware-a
 Connection:  
 - 5V -> V+ (connector j1: 1)
 - GND -> GND
-- GPIO02 (i2c SDA) -> SDA
+- GPIO02 (i2c SDA) -> SDA [LTC2607/DAC on the DC934a]
 - GPIO03 (i2c SCL) -> SCL
+- GPIO08 (SPI_CE0_N) -> CS [LTC2422/ADC on the DC934a]
+- GPIO11 (SPI_SCLK) -> SCK
+- GPIO09 (SPI_MISO) -> MISO
 
 Use the device's LT1790ACS6-5 5V output (see _U3_ in schema) as the VREF, i.e.  
 - jumper _5V_ at _JP1 VREFA_
