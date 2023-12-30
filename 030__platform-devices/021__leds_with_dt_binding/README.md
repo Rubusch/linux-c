@@ -48,7 +48,7 @@ $ scp arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb root@10.1.10.203:/boot/
 Then reboot.  
 
 ## Module
-Compile cross having ``crossbuild-essentials-arm64`` installed. ARCH, and CROSS_COMPILE are set, then execute  
+Compile cross having ``crossbuild-essentials-arm64`` installed. `ARCH`, and `CROSS_COMPILE` are set, then execute  
 ```
 $ cd ./module
 $ make

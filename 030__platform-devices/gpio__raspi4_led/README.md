@@ -2,8 +2,6 @@
 
 The source was tested compiled and running on 5.4.75.  
 
-TODO: verification on RPI4 hardware pending   
-
 # Build
 
 ```
