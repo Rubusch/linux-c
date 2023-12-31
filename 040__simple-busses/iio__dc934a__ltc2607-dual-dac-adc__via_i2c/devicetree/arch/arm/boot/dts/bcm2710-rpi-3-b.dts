@@ -242,6 +242,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins>;
 	clock-frequency = <100000>;
+	status = "okay";
 
 	ltc2607@72 {
 		compatible = "lothars,ltc2607";
