@@ -41,15 +41,13 @@ struct ltc2607_device {
 
 /*
   An iio device channel is a representation of a data channel. An iio
-  device can have one or more channels.
-
-  The iio channel definitions will generate the following data channel
-  access attributes for each iio:device
+  device can have one or more channels. The iio channel definitions
+  will generate the following data channel access attributes for
+  iio:device0 and iio:device1
 
   /sys/bus/iio/devices/iio:device0/out_voltage0_raw
   /sys/bus/iio/devices/iio:device0/out_voltage1_raw
   /sys/bus/iio/devices/iio:device0/out_voltage2_raw
-
   /sys/bus/iio/devices/iio:device1/out_voltage0_raw
   /sys/bus/iio/devices/iio:device1/out_voltage1_raw
   /sys/bus/iio/devices/iio:device1/out_voltage2_raw
@@ -82,7 +80,7 @@ static const struct iio_chan_spec ltc2607_channel[] = {
 
    initialize the iio_device structure
  */
-int
+static int
 ltc2607_set_value(struct iio_dev* indio_dev, int val, int channel)
 {
 	struct ltc2607_device *data = iio_priv(indio_dev);
@@ -152,7 +150,7 @@ ltc2607_set_value(struct iio_dev* indio_dev, int val, int channel)
     0  | 0  | 0  | 1  | DAC b
     1  | 1  | 1  | 1  | all DACs
  */
-int
+static int
 ltc2607_write_raw(struct iio_dev* indio_dev, struct iio_chan_spec const *chan, int val, int val2, long mask)
 {
 	int ret;
@@ -174,23 +172,19 @@ static const struct iio_info ltc2607_info = {
 
 /*
  */
-int
+static int
 ltc2607_probe(struct i2c_client *client)
 {
 	static int counter = 0;
 	struct iio_dev *indio_dev;
 	struct ltc2607_device *data;
+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
 	struct device *dev = &client->dev;
 	u8 inbuf[3];
 	u8 command_byte;
 	int ret;
 
 	dev_info(dev, "%s() - called", __func__);
-
-	command_byte = 0x30 | 0x00; // write and update register with value 0xff
-	inbuf[0] = command_byte;
-	inbuf[1] = 0xff;
-	inbuf[2] = 0xff;
 
 	// allocate the struct iio_dev
 	indio_dev = devm_iio_device_alloc(dev, sizeof(*data));
@@ -199,7 +193,7 @@ ltc2607_probe(struct i2c_client *client)
 		return -ENOMEM;
 	}
 
-	/* iio - init
+	/* iio/i2c - initialization (1/8)
 
 	  To be able to access the private data structure in other
 	  parts of the driver you need to attach it to the iio_dev
@@ -209,7 +203,7 @@ ltc2607_probe(struct i2c_client *client)
 	*/
 	data = iio_priv(indio_dev);
 
-	/* iio - init
+	/* iio/i2c - init (2/8)
 
 	  Keep pointer to the i2c device, needed for exchanging data
 	  with the LTC2607 device.
@@ -217,7 +211,7 @@ ltc2607_probe(struct i2c_client *client)
 	i2c_set_clientdata(client, data);
 	data->client = client;
 
-	/* iio - init
+	/* iio/i2c - init (3/8)
 
 	   Create a different name for each device attached to the
 	   DT. In the driver two DAC names will be created, one for
@@ -228,48 +222,53 @@ ltc2607_probe(struct i2c_client *client)
 	sprintf(data->name, "DAC%02d", counter++);
 	dev_info(dev, "%s() - was called from %s", __func__, data->name);
 
-	/* iio - init
+	/* iio/i2c - init (4/8)
 
 	   Store the name in the iio device
 	*/
-	indio_dev->name = data->name;
+	indio_dev->name = id->name;
 
-	/* iio - init
+	/* iio/i2c - init (5/8)
 
 	   Keep pointers between physical devices (devices as handled
 	   by the physical bus, I2C in this case) and logical devices
 	*/
 	indio_dev->dev.parent = &client->dev;
 
-	/* iio - init
+	/* iio/i2c - init (6/8)
 
 	   Store the address of the iio_info structure which contains
 	   a pointer variable to the IIO raw writing callback
 	*/
 	indio_dev->info = &ltc2607_info;
 
-	/* iio - init
+	/* iio/i2c - init (7/8)
 
 	   Store address of the iio_chan_spec structure which stores
 	   each channel info for the LTC2607 dual DAC
 	*/
 	indio_dev->channels = ltc2607_channel;
 
-	/* iio - init
+	/* iio/i2c - init (8/8)
 
-	   Set number of the channels of the device
+	   Set number of the channels of the device: 3
+	   (the number of the elements in the array ltc2607_channel, top)
 	*/
-	indio_dev->num_channels = 3;
+	indio_dev->num_channels = (sizeof(ltc2607_channel)/sizeof(*ltc2607_channel));
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
-	ret = i2c_master_send(client, inbuf, 3);  // write DAC value
+	command_byte = 0x30 | 0x00; // write and update register with value 0xff
+	inbuf[0] = command_byte;
+	inbuf[1] = 0xff;
+	inbuf[2] = 0xff;
+
+        // write DAC value
+	ret = i2c_master_send(client, inbuf, indio_dev->num_channels);
 	if (0 > ret) {
 		dev_err(dev, "%s() - i2c_master_send() failed", __func__);
 		return ret;
 	}
-
 	dev_info(dev, "%s() - the DAC answer is '%x'", __func__, ret);
-
 
 	ret = devm_iio_device_register(dev, indio_dev);
 	if (ret) {
@@ -282,7 +281,7 @@ ltc2607_probe(struct i2c_client *client)
 	return 0;
 }
 
-void
+static void
 ltc2607_remove(struct i2c_client *client)
 {
 	dev_info(&client->dev, "%s() - called", __func__);
