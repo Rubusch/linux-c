@@ -12,8 +12,9 @@
 
 int8_t read_adc();
 
-// demo board name
-//char demo_board[] = "DC934";   
+// SPI channel name
+const char demo_device[] = "/dev/spidev0.0";
+//const char demo_device[] = "/dev/spidev0.1";
 
 // global variable - the LTC2422 LSB value with 5V full-scale
 float LTC2422_lsb = 4.7683761E-6;
@@ -26,9 +27,6 @@ const uint16_t LTC2422_TIMEOUT = 1000;
 #define SPI_DATA_CHANNEL_OFFSET 22
 #define SPI_DATA_CHANNEL_MASK (1 << SPI_DATA_CHANNEL_OFFSET)
 #define LTC2422_CONVERSION_TIME (137 * 1000)
-
-// MISO timeout in ms
-#define MISO_TIMEOUT 1000
 
 int8_t ltc2422_read(uint8_t *adc_channel, int32_t *code, uint16_t timeout);
 float ltc2422_voltage(uint32_t adc_code, float ltc2422_lsb);
@@ -49,6 +47,7 @@ ltc2422_read(uint8_t *adc_channel, int32_t *code, uint16_t timeout)
 	int32_t value;
 	uint8_t buffer[4];
 
+	memset(buffer, 0, sizeof(buffer));
 	struct spi_ioc_transfer tr = {
 		.tx_buf = 0,                       /* no data to send */
 		.rx_buf = (unsigned long) buffer,  /* store received data */
@@ -59,7 +58,7 @@ ltc2422_read(uint8_t *adc_channel, int32_t *code, uint16_t timeout)
 	};
 
 	// open the device
-	fd = open("/dev/spidev0.0", O_RDWR);
+	fd = open(demo_device, O_RDWR);
 	if (0 > fd) {
 		perror("open()");
 		exit(EXIT_FAILURE);
@@ -70,7 +69,7 @@ ltc2422_read(uint8_t *adc_channel, int32_t *code, uint16_t timeout)
 	if (1 > ret) {
 		perror("ioctl()");
 		close(fd);
-		return 1;
+		return ret;
 	}
 
 	// close the device
@@ -82,7 +81,8 @@ ltc2422_read(uint8_t *adc_channel, int32_t *code, uint16_t timeout)
 
 	// determine the channel number
 	*adc_channel = (value & SPI_DATA_CHANNEL_MASK) ? 1 : 0;
-	fprintf(stderr, "the value is %x\n", value);
+	fprintf(stderr, "%s() - value: %x\n", __func__, value);
+	fprintf(stderr, "%s() - adc_channel: %d\n", __func__, *adc_channel);
 
 	// return the code
 	*code = value;
@@ -119,7 +119,7 @@ read_adc()
 {
 	float adc_voltage;
 	int32_t adc_code;
-	uint8_t adc_channel;
+	uint8_t adc_channel = 0;
 
 	/* array for ADC data
 
@@ -127,21 +127,35 @@ read_adc()
 	   ltc2422 tells you
 	*/
 	int32_t adc_code_array[2];
-	int8_t return_code;
+	int8_t ret;
 
 	// read adc - throw out the stale data
-	ltc2422_read(&adc_channel, &adc_code, LTC2422_TIMEOUT);
-	usleep(LTC2422_CONVERSION_TIME);  
+	fprintf(stderr, "%s() - adc_channel %d\n", __func__, adc_channel);
+	ret = ltc2422_read(&adc_channel, &adc_code, LTC2422_TIMEOUT);
+	if (0 > ret) {
+		fprintf(stderr, "%s() - ltc2422_read() failed, %d\n", __func__, ret);
+		return ret;
+	}
+	usleep(LTC2422_CONVERSION_TIME);
+	fprintf(stderr, "%s() - adc_channel %d\n", __func__, adc_channel);
 
 	// get current data for both channels
-	return_code = ltc2422_read(&adc_channel, &adc_code, LTC2422_TIMEOUT);
+	ret = ltc2422_read(&adc_channel, &adc_code, LTC2422_TIMEOUT);
+	if (0 > ret) {
+		fprintf(stderr, "%s() - ltc2422_read() failed, %d\n", __func__, ret);
+		return ret;
+	}
 
 	// note that channels may return in any order
 	adc_code_array[adc_channel] = adc_code;
-	usleep(LTC2422_CONVERSION_TIME);  
+	usleep(LTC2422_CONVERSION_TIME);
 
 	// that is, adc_channel will toggle each reading
-	return_code = ltc2422_read(&adc_channel, &adc_code, LTC2422_TIMEOUT);
+	ret = ltc2422_read(&adc_channel, &adc_code, LTC2422_TIMEOUT);
+	if (0 > ret) {
+		fprintf(stderr, "%s() - ltc2422_read() failed, %d\n", __func__, ret);
+		return ret;
+	}
 	adc_code_array[adc_channel] = adc_code;
 
 	// the dc934a board connects VOUTA to CH1
@@ -152,7 +166,7 @@ read_adc()
 	adc_voltage = ltc2422_voltage(adc_code_array[0], LTC2422_lsb);
 	fprintf(stderr, "\tADC B : %6.4f\n", adc_voltage);
 
-	return return_code;
+	return ret;
 }
 
 int
