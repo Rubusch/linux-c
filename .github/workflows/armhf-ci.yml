@@ -212,7 +212,7 @@ jobs:
           make
       - run: |
           source ~/source-me.sh
-          cd 040__simple-busses/20_i2c_multidisplay-led/devicetree
+          cd 040__simple-busses/20_i2c__multidisplay-led/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
@@ -227,6 +227,18 @@ jobs:
           make dtbs
           cd -
           cd ../module
+          make
+      - run: |
+          source ~/source-me.sh
+          cd 040__simple-busses/iio__dc934a__ltc2607-dual-dac-adc__via_i2c/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module*
+          make
+          cd -
+          cd ../userspace*
           make
 
 ## interrupts

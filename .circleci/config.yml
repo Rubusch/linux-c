@@ -152,8 +152,9 @@ jobs:
       - run: cd 040__simple-busses/10_i2c__io-expander-pcf8574__msg/module && make
       - run: cd 040__simple-busses/11_i2c__io-expander-pcf8574__master-send/module && make
       - run: cd 040__simple-busses/12_i2c__io-expander-pcf8574__smbus/module && make
-      - run: cd 040__simple-busses/20_i2c_multidisplay-led/module && make
+      - run: cd 040__simple-busses/20_i2c__multidisplay-led/module && make
       - run: cd 040__simple-busses/input-subsystem__adxl345-accel-via-i2c-polling/module && make
+      - run: cd 040__simple-busses/iio__dc934a__ltc2607-dual-dac-adc__via_i2c/module__ltc2607-dual-dac && make && cd ../userspace__ltc2422-adc && make
 
 ## interrupts
       - run: cd 050__interrupts/10_click_irq_device/module && make
