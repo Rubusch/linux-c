@@ -210,7 +210,7 @@ jobs:
           make
       - run: |
           source ~/source-me.sh
-          cd 040__simple-busses/20__i2c_multidisplay-led/devicetree
+          cd 040__simple-busses/20__i2c__multidisplay-led/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs

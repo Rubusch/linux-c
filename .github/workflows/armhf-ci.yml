@@ -221,7 +221,7 @@ jobs:
           make
       - run: |
           source ~/source-me.sh
-          cd 040__simple-busses/input-subsystem__adxl345-accel-via-i2c/devicetree
+          cd 040__simple-busses/input-subsystem__adxl345-accel-via-i2c-polling/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
