@@ -1,18 +1,31 @@
 # ADXL345 Accel polling driver based on the input system
 
-Use the ADXL345 Accel click mikroBUS accessory board connected to the I2C bus of the processor to verify the driver. The driver will scan periodially the value of one of the accelerometer axes, and depending on the tilt of the board, it will generate an event that is exposed to the application `evtest`. The accelerometer kernel module will use the polled input subclass. A polled input device provides a skeleton for supporting simple input devices that do not raise interrupts, but have to be periodically scanned or polled to detect changes in their state.  
+Use the ADXL345 Accel click mikroBUS accessory board connected to the
+I2C bus of the processor to verify the driver. The driver will scan
+periodially the value of one of the accelerometer axes, and depending
+on the tilt of the board, it will generate an event that is exposed to
+the application `evtest`. The accelerometer kernel module will use the
+polled input subclass. A polled input device provides a skeleton for
+supporting simple input devices that do not raise interrupts, but have
+to be periodically scanned or polled to detect changes in their state.  
 
-The book example is based on the old input api. Nowadays the driver would look differently. This is an implementation with current kernel API of the given exercise theme.  
+The book example is based on the old input api. Nowadays the driver
+would look differently. This is an implementation with current kernel
+API of the given exercise theme.  
 
 ## Hardware
 
 - ADXL345 Accel click mikroBUS: https://www.mikroe.com/accel-spi-board
 
-Connection:  
+![DC934a Board](pics/adxl345.png)  
+
+#### Connection:
 - GPIO02 -> SDA
 - GPIO03 -> SCL
 - 3v3 -> 3v3
 - GND -> GND
+
+![DC934a Board](pics/adxl345_connected.png)  
 
 # Build
 
@@ -42,15 +55,15 @@ Copy the module over to the target
 See the connected Accel Click appears on `1d` (i2c).  
 ```
 $ sudo su
-root@ctrl001:/home/pi# modprobe i2c-dev
+# modprobe i2c-dev
 
-root@ctrl001:/home/pi# i2cdetect -l
+# i2cdetect -l
     i2c-10	i2c       	i2c-11-mux (chan_id 1)          	I2C adapter
     i2c-1	i2c       	bcm2835 (i2c@7e804000)          	I2C adapter
     i2c-11	i2c       	bcm2835 (i2c@7e205000)          	I2C adapter
     i2c-0	i2c       	i2c-11-mux (chan_id 0)          	I2C adapter
 
-root@ctrl001:/home/pi# i2cdetect -y 1
+# i2cdetect -y 1
          0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
     00:                         -- -- -- -- -- -- -- --
     10: -- -- -- -- -- -- -- -- -- -- -- -- -- 1d -- --
@@ -64,8 +77,8 @@ root@ctrl001:/home/pi# i2cdetect -y 1
 
 Check functionality of the accelerometer.  
 ```
-root@ctrl001:/home/pi# i2cset -y 1 0x1d 0x2d 0x08
-root@ctrl001:/home/pi# while true; do i2cget -y 1 0x1d 0x33; sleep 1; done
+# i2cset -y 1 0x1d 0x2d 0x08
+# while true; do i2cget -y 1 0x1d 0x33; sleep 1; done
     0xff
     0xff
     0xff
@@ -85,9 +98,9 @@ root@ctrl001:/home/pi# while true; do i2cget -y 1 0x1d 0x33; sleep 1; done
 
 Load the module and observe incoming data on i2c with the tool evtest.  
 ```
-root@ctrl001:/home/pi# insmod input_demo.ko
+# insmod input_demo.ko
 
-root@ctrl001:/home/pi# evtest /dev/input/event0
+# evtest /dev/input/event0
     Input driver version is 1.0.1
     Input device ID: bus 0x18 vendor 0x0 product 0x0 version 0x0
     Input device name: "IOACCEL keyboard"
@@ -118,7 +131,7 @@ root@ctrl001:/home/pi# evtest /dev/input/event0
     Event: time 1703185721.972838, -------------- SYN_REPORT ------------
     ^C
 
-root@ctrl001:/home/pi# rmmod input_demo
+# rmmod input_demo
 ```
 
 Follow the logs   
