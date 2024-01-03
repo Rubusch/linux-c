@@ -1,11 +1,81 @@
 # Scatter/Gather DMA Demo
 
-Scatterlists serve to map non-contiguous memory to contiguous slave memory. Several `struct scatterlist` can be queued using a `struct sg_table`.  
+Scatterlists serve to map non-contiguous memory to contiguous slave
+memory. Several `struct scatterlist` can be queued using a `struct
+sg_table`.  
 
-Scatterlists are very old kernel structures for dealing with physically contiguous memory requirements. A `struct scatterlist` can deal with up to page size amount of memory. For further chained `struct scatterlist` objects, `struct sg_table` is used. This fundamental connection to page size is a major limitation for scatterlists' performance and dealing with contemporary implementations. Furthermore, DMA addressing is mainly based on 32-bit addresses due to historic capabilities of IOMMU, the used IOVAs (IO virtual addresses). Thus 64-bit addresses might be masked out to possible ranges. Two main reasons for this are described: originally performance at dealing with 32-bit addresses was better, it is unsure if all IOMMUs may deal easily with 64-bit addresses.  
+Scatterlists are very old kernel structures for dealing with
+physically contiguous memory requirements. A `struct scatterlist` can
+deal with up to page size amount of memory. For further chained
+`struct scatterlist` objects, `struct sg_table` is used. This
+fundamental connection to page size is a major limitation for
+scatterlists' performance and dealing with contemporary
+implementations. Furthermore, DMA addressing is mainly based on 32-bit
+addresses due to historic capabilities of IOMMU, the used IOVAs (IO
+virtual addresses). Thus 64-bit addresses might be masked out to
+possible ranges. Two main reasons for this are described: originally
+performance at dealing with 32-bit addresses was better, it is unsure
+if all IOMMUs may deal easily with 64-bit addresses.  
+
 - ref: https://lwn.net/Articles/234617/  
 - ref: https://lwn.net/Articles/256368/  
 - ref: https://lwn.net/Articles/904210/  
+
+# Build
+
+## Devicetree
+
+Copy it to the specified location in the linux sources (6.3), then build it  
+```
+$ cd linux
+$ cp -arf <SOURCES>/devicetree/arch ./
+
+$ make dtbs
+  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
+```
+Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
+
+## Module
+
+Should crosscompile - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
+```
+$ cd ./module
+$ make
+```
+Copy the module over to the target  
+
+## Usage
+
+```
+root@ctrl001:/home/pi# insmod ./dma_demo.ko 
+root@ctrl001:/home/pi# echo 123 > /dev/sdma_test 
+root@ctrl001:/home/pi# rmmod dma_demo
+```
+watch the log  
+```
+Nov 29 22:59:30 ctrl001 kernel: [  733.838605] smda_m2m soc:sdma_m2m: lothars_probe() - called
+Nov 29 22:59:30 ctrl001 kernel: [  733.839184] smda_m2m soc:sdma_m2m: lothars_probe() - done
+
+Nov 29 22:59:33 ctrl001 kernel: [  736.631104] sdma_write() - called
+Nov 29 22:59:33 ctrl001 kernel: [  736.631147] smda_m2m soc:sdma_m2m: sdma_write() - the dma_buf_src string is '123
+Nov 29 22:59:33 ctrl001 kernel: [  736.631147] '
+Nov 29 22:59:33 ctrl001 kernel: [  736.631177] smda_m2m soc:sdma_m2m: sdma_write() - scatterlist setup
+Nov 29 22:59:33 ctrl001 kernel: [  736.631202] smda_m2m soc:sdma_m2m: sdma_write() - mapping
+Nov 29 22:59:33 ctrl001 kernel: [  736.631307] smda_m2m soc:sdma_m2m: sdma_write() - init completion
+Nov 29 22:59:33 ctrl001 kernel: [  736.631332] smda_m2m soc:sdma_m2m: sdma_write() - call dmaengine_submit()
+Nov 29 22:59:33 ctrl001 kernel: [  736.631360] smda_m2m soc:sdma_m2m: sdma_write() - call dma_async_issue_pending()
+Nov 29 22:59:33 ctrl001 kernel: [  736.631577] smda_m2m soc:sdma_m2m: dma_sg_callback() - finished SG DMA transaction
+Nov 29 22:59:33 ctrl001 kernel: [  736.631694] smda_m2m soc:sdma_m2m: sdma_write() - the device can read '123
+Nov 29 22:59:33 ctrl001 kernel: [  736.631694] '
+Nov 29 22:59:33 ctrl001 kernel: [  736.631723] sdma_write() - buffer coherent sg copy successful
+
+Nov 29 22:59:53 ctrl001 kernel: [  736.631741] sdma_write() - dma_buf_src is '123
+Nov 29 22:59:53 ctrl001 kernel: [  736.631741] '
+Nov 29 22:59:53 ctrl001 kernel: [  756.679095] smda_m2m soc:sdma_m2m: lothars_remove() - called
+Nov 29 22:59:53 ctrl001 kernel: [  756.679768] smda_m2m soc:sdma_m2m: lothars_remove() - done
+```
+
+## Notes on Scatterlists
 
 (written in times of Linux v6.3).  
 
@@ -89,59 +159,6 @@ This, due to DMA controller constraints, become...
 
 ...and DMA controller will service the 5 separate data blocks.  
 
-# Build
-
-## Devicetree
-
-Copy it to the specified location in the linux sources (6.3), then build it  
-```
-$ cd linux
-$ cp -arf <SOURCES>/devicetree/arch ./
-
-$ make dtbs
-  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
-```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
-
-## Module
-
-Should crosscompile - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
-```
-$ cd ./module
-$ make
-```
-Copy the module over to the target  
-
-## Usage
-
-```
-root@ctrl001:/home/pi# insmod ./dma_demo.ko 
-root@ctrl001:/home/pi# echo 123 > /dev/sdma_test 
-root@ctrl001:/home/pi# rmmod dma_demo
-```
-watch the log  
-```
-Nov 29 22:59:30 ctrl001 kernel: [  733.838605] smda_m2m soc:sdma_m2m: lothars_probe() - called
-Nov 29 22:59:30 ctrl001 kernel: [  733.839184] smda_m2m soc:sdma_m2m: lothars_probe() - done
-
-Nov 29 22:59:33 ctrl001 kernel: [  736.631104] sdma_write() - called
-Nov 29 22:59:33 ctrl001 kernel: [  736.631147] smda_m2m soc:sdma_m2m: sdma_write() - the dma_buf_src string is '123
-Nov 29 22:59:33 ctrl001 kernel: [  736.631147] '
-Nov 29 22:59:33 ctrl001 kernel: [  736.631177] smda_m2m soc:sdma_m2m: sdma_write() - scatterlist setup
-Nov 29 22:59:33 ctrl001 kernel: [  736.631202] smda_m2m soc:sdma_m2m: sdma_write() - mapping
-Nov 29 22:59:33 ctrl001 kernel: [  736.631307] smda_m2m soc:sdma_m2m: sdma_write() - init completion
-Nov 29 22:59:33 ctrl001 kernel: [  736.631332] smda_m2m soc:sdma_m2m: sdma_write() - call dmaengine_submit()
-Nov 29 22:59:33 ctrl001 kernel: [  736.631360] smda_m2m soc:sdma_m2m: sdma_write() - call dma_async_issue_pending()
-Nov 29 22:59:33 ctrl001 kernel: [  736.631577] smda_m2m soc:sdma_m2m: dma_sg_callback() - finished SG DMA transaction
-Nov 29 22:59:33 ctrl001 kernel: [  736.631694] smda_m2m soc:sdma_m2m: sdma_write() - the device can read '123
-Nov 29 22:59:33 ctrl001 kernel: [  736.631694] '
-Nov 29 22:59:33 ctrl001 kernel: [  736.631723] sdma_write() - buffer coherent sg copy successful
-
-Nov 29 22:59:53 ctrl001 kernel: [  736.631741] sdma_write() - dma_buf_src is '123
-Nov 29 22:59:53 ctrl001 kernel: [  736.631741] '
-Nov 29 22:59:53 ctrl001 kernel: [  756.679095] smda_m2m soc:sdma_m2m: lothars_remove() - called
-Nov 29 22:59:53 ctrl001 kernel: [  756.679768] smda_m2m soc:sdma_m2m: lothars_remove() - done
-```
 
 ## References
 * https://www.kernel.org/doc/html/v6.3/core-api/dma-api-howto.html
