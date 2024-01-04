@@ -213,7 +213,7 @@ Jan  2 18:54:33 ctrl001 kernel: [ 1557.745634] ltc2607 1-0073: ltc2607_remove() 
 Jan  2 18:54:33 ctrl001 kernel: [ 1557.749287] ltc2607 1-0072: ltc2607_remove() - called
 ```
 
-## Conclusion
+## TODO
 
 The voltage will not change, neither when setting 655335 (0xffff), nor when setting all handles to 0 (0x0).  
 
