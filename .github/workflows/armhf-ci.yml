@@ -228,18 +228,39 @@ jobs:
           cd -
           cd ../module
           make
+      ## iio dc934a demos depend on each other... (1/3)
       - run: |
           source ~/source-me.sh
-          cd 040__simple-busses/iio__dc934a__ltc2607-dual-dac-adc__via_i2c/devicetree
+          cd 040__simple-busses/iio__dc934a__ltc2607-dac-ltc2422-adc-hw-triggering/devicetree
           cp -arf ./arch $KERNELDIR/
           cd $KERNELDIR
           make dtbs
           cd -
-          cd ../module*
+          cd ../module__ltc2422-hw-trigger
           make
+      ## iio dc934a demos depend on each other... (2/3)
+      - run: |
+          source ~/source-me.sh
+          cd 040__simple-busses/iio__dc934a__ltc2607-dac-ltc2422-adc-via-app/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
           cd -
-          cd ../userspace*
+          cd ../module__ltc2422-dual-adc
           make
+          cd ../userspace
+          make
+      ## iio dc934a demos depend on each other... (3/3)
+      - run: |
+          source ~/source-me.sh
+          cd 040__simple-busses/iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/devicetree
+          cp -arf ./arch $KERNELDIR/
+          cd $KERNELDIR
+          make dtbs
+          cd -
+          cd ../module__ltc2607-dual-dac
+          make
+          cd ../userspace__ltc2422-adc
 
 ## interrupts
       - run: |
