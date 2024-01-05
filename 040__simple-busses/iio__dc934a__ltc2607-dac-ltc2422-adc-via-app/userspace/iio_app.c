@@ -18,7 +18,7 @@ float LTC2422_lsb = 4.7683761E-6;
 
 // check which number is the ADC iio:deviceX and replace 'X' by the
 // number
-#define LTC2422_FILE_VOLTAGE "/sys/bus/iio/devices/iio:device4/out_voltage0_raw"
+#define LTC2422_FILE_VOLTAGE "/sys/bus/iio/devices/iio:device2/out_voltage0_raw"
 #define SPI_DATA_CHANNEL_OFFSET 22
 #define SPI_DATA_CHANNEL_MASK (1 << SPI_DATA_CHANNEL_OFFSET)
 #define LTC2422_CONVERSION_TIME (137 * 1000)  /* ms */
