@@ -18,7 +18,7 @@ https://www.waveshare.com/pcf8574-io-expansion-board.htm
 ...and codes:  
 https://www.waveshare.com/wiki/PCF8574_IO_Expansion_Board
 
-![PCF8574 IO Expander Board](../10_i2c__io-expander-pcf8574__msg/pics/pcf8574.png)  
+![PCF8574 IO Expander Board](../i2c__io-expander-pcf8574__msg/pics/pcf8574.png)  
 
 
 Connect:  
@@ -42,9 +42,9 @@ Where `A0`, `A1` and `A2` are configurable by the jumpers.
 `R/W`: high means a _read_ was selected, low meands a _write_ was selected.  
 Measure the outputs on the `P0` through `P7` pins.  
 
-![Setup](../10_i2c__io-expander-pcf8574__msg/pics/setup.png)  
+![Setup](../i2c__io-expander-pcf8574__msg/pics/setup.png)  
 
-![RPI IO connection](../10_i2c__io-expander-pcf8574__msg/pics/rpi3_connection.png)  
+![RPI IO connection](../i2c__io-expander-pcf8574__msg/pics/rpi3_connection.png)  
 
 
 ## The Linux I2C Subsystem
@@ -142,8 +142,7 @@ Oct  8 20:32:16 ctrl001 kernel: [ 7631.568124] ioexp 1-0038: ioexp_remove() is e
 Oct  8 20:32:16 ctrl001 kernel: [ 7631.568628] ioexp 1-0038: ioexp_remove() is exited on ioexp00
 Oct  8 20:32:16 ctrl001 kernel: [ 7631.568660] ioexp 1-0038: ioexp_remove() done
 ```
-![Measuring on the scope](../10_i2c__io-expander-pcf8574__msg/pics/measuring.png)  
-
+![Measuring on the scope](../i2c__io-expander-pcf8574__msg/pics/measuring.png)  
 
 ## Verified
 * Verified against a RPI3b w/ aarch64  

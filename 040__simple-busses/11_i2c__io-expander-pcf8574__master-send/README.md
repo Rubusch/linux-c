@@ -1,1 +1,0 @@
-../10_i2c__io-expander-pcf8574__msg/README.md
