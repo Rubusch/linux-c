@@ -6,10 +6,14 @@
 
 # Lothar's Kernel Codes
 
-No guarantees! Use the code snippets at your own risk.
+No guarantees! Use the code snippets at your own risk.  
 
 Many codes or ideas are literature examples or found on the web. I
-tried to provide references for the examples to my best understanding.
+tried to provide references for the examples to my best understanding.  
 
 From what I took as notes - from what I learned, the reader may find
-here my personal collection of kernel codes.
+here my personal collection of kernel codes.  
+
+The verification platform is RPi 3b, 64-bit.  
+
+Sunshine!  
