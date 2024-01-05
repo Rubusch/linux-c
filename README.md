@@ -4,9 +4,12 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 
 
-# Kernel Code Snippets
+# Lothar's Kernel Codes
 
-No guarantee, use the code snippets at your own risk. This is just a collection
-code snippets, mostly basic things. Examples with some ressources and some
-references. The sources are typically build by a Makefile as external kernel
-module.   
+No guarantees! Use the code snippets at your own risk.
+
+Many codes or ideas are literature examples or found on the web. I
+tried to provide references for the examples to my best understanding.
+
+From what I took as notes - from what I learned, the reader may find
+here my personal collection of kernel codes.
