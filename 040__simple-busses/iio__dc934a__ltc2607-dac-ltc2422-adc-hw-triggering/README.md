@@ -7,7 +7,9 @@ outputs are connected to both LTC2422 ADC inputs.
 IIO subsystem ADC with hardware triggering - the ltc2422-dual-adc
 driver will be started using a hardware trigger.  
 
-Further the HW Button will be used to generate the HW trigger.  
+Further the HW Button will be used to generate the HW trigger. After
+the button is pressed the results will be available for the userspace
+application.  
 
 #### DAC LTC2607
 
@@ -121,18 +123,53 @@ $ sudo su
 
 # insmod ./iio-ltc2607-dac.ko
 # insmod ./iio-ltc2422-adc.ko
+# ls -l /sys/bus/iio/devices/
+    total 0
+    lrwxrwxrwx 1 root root 0 Jan  5 23:23 iio:device0 -> ../../../devices/platform/soc/3f804000.i2c/i2c-1/1-0072/iio:device0
+    lrwxrwxrwx 1 root root 0 Jan  5 23:23 iio:device1 -> ../../../devices/platform/soc/3f804000.i2c/i2c-1/1-0073/iio:device1
+    lrwxrwxrwx 1 root root 0 Jan  5 23:23 iio:device2 -> ../../../devices/platform/soc/3f204000.spi/spi_master/spi0/spi0.0/iio:device2
 
-TODO         
+# echo 65535 > /sys/bus/iio/devices/iio\:device1/out_voltage2_raw
+
+# ./iio_app.elf                       <--- in the following press the button 3x
+    the value of the ADC channel 1
+    	is : 3.7287
+    the value of the ADC channel 0
+    	is : 3.7226
+    READY.
+
+# rmmod iio-ltc2607-dac.ko
+# rmmod iio-ltc2422-adc.ko
 ```
 
 Follow the logs   
 ```
-TODO         
+Jan  5 23:21:29 ctrl001 kernel: [  120.674231] i2c_dev: i2c /dev entries driver
+
+Jan  5 23:22:05 ctrl001 kernel: [  156.447807] iio_ltc2607_dac: loading out-of-tree module taints kernel.
+Jan  5 23:22:05 ctrl001 kernel: [  156.449196] ltc2607 1-0072: ltc2607_probe() - called
+Jan  5 23:22:05 ctrl001 kernel: [  156.449266] ltc2607 1-0072: ltc2607_probe() - was called from DAC00
+Jan  5 23:22:05 ctrl001 kernel: [  156.450070] ltc2607 1-0072: ltc2607_probe() - the DAC answer is '3'
+Jan  5 23:22:05 ctrl001 kernel: [  156.450534] ltc2607 1-0072: ltc2607_probe() - ltc2607 DAC registered
+Jan  5 23:22:05 ctrl001 kernel: [  156.451052] ltc2607 1-0073: ltc2607_probe() - called
+Jan  5 23:22:05 ctrl001 kernel: [  156.451108] ltc2607 1-0073: ltc2607_probe() - was called from DAC01
+Jan  5 23:22:05 ctrl001 kernel: [  156.452176] ltc2607 1-0073: ltc2607_probe() - the DAC answer is '3'
+Jan  5 23:22:05 ctrl001 kernel: [  156.452677] ltc2607 1-0073: ltc2607_probe() - ltc2607 DAC registered
+
+Jan  5 23:22:23 ctrl001 kernel: [  174.759118] ltc2422 spi0.0: ltc2422_probe() - called
+Jan  5 23:22:23 ctrl001 kernel: [  174.759336] ltc2422 spi0.0: ltc2422_probe() - the irq number is '185;
+
+Jan  5 23:28:42 ctrl001 kernel: [  553.575933] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  5 23:28:42 ctrl001 kernel: [  553.575981] ltc2422 spi0.0: ltc2422_read_raw() - press microbus key to start conversion
+Jan  5 23:28:42 ctrl001 kernel: [  553.713591] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  5 23:28:42 ctrl001 kernel: [  553.713631] ltc2422 spi0.0: ltc2422_read_raw() - press microbus key to start conversion
+Jan  5 23:28:45 ctrl001 kernel: [  556.736734] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  5 23:28:45 ctrl001 kernel: [  556.736775] ltc2422 spi0.0: ltc2422_read_raw() - press microbus key to start conversion
+
+Jan  5 23:30:02 ctrl001 kernel: [  633.503189] ltc2607 1-0073: ltc2607_remove() - called
+Jan  5 23:30:02 ctrl001 kernel: [  633.506368] ltc2607 1-0072: ltc2607_remove() - called
+Jan  5 23:30:08 ctrl001 kernel: [  639.772405] ltc2422 spi0.0: ltc2422_remove() - called
 ```
-
-## TODO
-
-- verify
 
 ## References
 * Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 494ff, 508ff and 540  
