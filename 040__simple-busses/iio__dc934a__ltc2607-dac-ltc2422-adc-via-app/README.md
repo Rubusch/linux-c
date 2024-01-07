@@ -208,9 +208,5 @@ Jan  3 22:42:55 ctrl001 kernel: [  377.474030] ltc2607 1-0073: ltc2607_remove() 
 Jan  3 22:42:55 ctrl001 kernel: [  377.474592] ltc2607 1-0072: ltc2607_remove() - called
 ```
 
-## TODO
-
-- voltage does not change, figure out why, in case fix
-
 ## References
 * Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 494ff, 508ff and 529  
