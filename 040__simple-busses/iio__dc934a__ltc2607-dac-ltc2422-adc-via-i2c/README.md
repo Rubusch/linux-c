@@ -96,7 +96,7 @@ Copy it to the specified location in the linux sources, then build it
 ```
 $ cd linux
 $ cp -arf <SOURCES>/devicetree/arch ./
-
+$ find . -name \*.dtb -delete
 $ make dtbs
   DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
 ```
