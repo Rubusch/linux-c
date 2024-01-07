@@ -77,7 +77,7 @@ Use the device's LT1790ACS6-5 5V output (see _U3_ in schema) as the VREF, i.e.
 - jumper _JP1 VREFA_ to _5V_
 - jumper _JP2_ to 5V REF
 - jumper _JP5_ to _REFLO_
-- jumper _JP4_, _JP6_, _JP7_ to VCC (connect 1 with middle), i.e. CA0, CA1, CA2 are set to VCC, this matches with the next I2C slave address 0x72
+- jumper _JP4_, _JP6_, _JP7_ to VCC (connect 1 with middle), to configure the address i.e. CA0, CA1, CA2 are set to VCC, this matches with the next I2C slave address 0x72
 
 NB: Using the 5V regulator (_5V REG_ in _JP2_) as the source for VCC
 has the limitation that VCC may be slightly lower than VREF, which may
