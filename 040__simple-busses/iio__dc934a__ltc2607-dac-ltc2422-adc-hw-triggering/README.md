@@ -113,7 +113,6 @@ rpi$ make
 
 ## Usage
 
-See the connected Accel Click appears on `1d` (i2c).  
 ```
 $ sudo su
 # modprobe i2c-dev
