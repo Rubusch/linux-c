@@ -154,44 +154,43 @@ $ sudo su
 
 # ./iio_spidev.elf
     read_adc() - adc_channel 0
-    ltc2422_read() - value: 2b8034
+    ltc2422_read() - value: 200064
     ltc2422_read() - adc_channel: 0
     read_adc() - adc_channel 0
-    ltc2422_read() - value: 6bee2e
+    ltc2422_read() - value: 6ffad3
     ltc2422_read() - adc_channel: 1
-    ltc2422_read() - value: 2be858
+    ltc2422_read() - value: 2ff916
     ltc2422_read() - adc_channel: 0
-    	ADC A : 3.7283
-    	ADC B : 3.7211
+    	ADC A : 4.9937
+    	ADC B : 4.9916
     READY.
 
-# echo 0 > /sys/bus/iio/devices/iio\:device1/out_voltage0_raw 
-    root@ctrl001:/home/pi# ./iio_spidev.elf 
+# echo 0 > /sys/bus/iio/devices/iio\:device1/out_voltage0_raw
+# ./iio_spidev.elf
     read_adc() - adc_channel 0
-    ltc2422_read() - value: 6bee28
+    ltc2422_read() - value: 6ffae7
     ltc2422_read() - adc_channel: 1
     read_adc() - adc_channel 1
-    ltc2422_read() - value: 2be810
+    ltc2422_read() - value: 2ff901
     ltc2422_read() - adc_channel: 0
-    ltc2422_read() - value: 6becfb
+    ltc2422_read() - value: 6000d8
     ltc2422_read() - adc_channel: 1
-    	ADC A : 0.0001    <--- should be 0, now
-    	ADC B : 3.7208
+    	ADC A : 0.0010
+    	ADC B : 4.9915
     READY.
 
 # echo 0 > /sys/bus/iio/devices/iio\:device1/out_voltage1_raw
-
 # ./iio_spidev.elf
     read_adc() - adc_channel 0
-    ltc2422_read() - value: 2be88c
+    ltc2422_read() - value: 2ff914
     ltc2422_read() - adc_channel: 0
     read_adc() - adc_channel 0
-    ltc2422_read() - value: 6beef7
+    ltc2422_read() - value: 6000ce
     ltc2422_read() - adc_channel: 1
-    ltc2422_read() - value: 2be2b2
+    ltc2422_read() - value: 20008d
     ltc2422_read() - adc_channel: 0
-    	ADC A : -0.0006   <--- should be 0
-    	ADC B : -0.0000   <--- shoudl be 0 now, too
+    	ADC A : 0.0010
+    	ADC B : 0.0007
     READY.
 
 # rmmod iio-ltc2607-dac
@@ -199,7 +198,6 @@ $ sudo su
 
 Follow the logs   
 ```
-
 Jan  6 19:29:35 ctrl001 kernel: [25963.018180] ltc2607 1-0072: ltc2607_probe() - called
 Jan  6 19:29:35 ctrl001 kernel: [25963.018237] ltc2607 1-0072: ltc2607_probe() - was called from DAC00
 Jan  6 19:29:35 ctrl001 kernel: [25963.018945] ltc2607 1-0072: ltc2607_probe() - the DAC answer is '3'
@@ -209,35 +207,35 @@ Jan  6 19:29:35 ctrl001 kernel: [25963.019954] ltc2607 1-0073: ltc2607_probe() -
 Jan  6 19:29:35 ctrl001 kernel: [25963.022341] ltc2607 1-0073: ltc2607_probe() - the DAC answer is '3'
 Jan  6 19:29:35 ctrl001 kernel: [25963.022933] ltc2607 1-0073: ltc2607_probe() - ltc2607 DAC registered
 
-Jan  6 19:29:47 ctrl001 kernel: [25974.559866] ltc2607 1-0073: ltc2607_write_raw() - called
-Jan  6 19:29:47 ctrl001 kernel: [25974.559918] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '65535', chan->channel '2'
-Jan  6 19:29:47 ctrl001 kernel: [25974.559952] ltc2607 1-0073: ltc2607_set_value() - called
-Jan  6 19:29:47 ctrl001 kernel: [25974.559977] ltc2607 1-0073: ltc2607_set_value() - val '65535', channel '2'
-Jan  6 19:29:47 ctrl001 kernel: [25974.560004] ltc2607 1-0073: ltc2607_set_value() - chan '0f' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
-Jan  6 19:29:47 ctrl001 kernel: [25974.560032] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '3f'
-Jan  6 19:29:47 ctrl001 kernel: [25974.560057] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] 'ff'
-Jan  6 19:29:47 ctrl001 kernel: [25974.560082] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] 'ff'
+Jan  7 17:16:28 ctrl001 kernel: [  630.925472] ltc2607 1-0073: ltc2607_write_raw() - called
+Jan  7 17:16:28 ctrl001 kernel: [  630.925518] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '65535', chan->channel '2'
+Jan  7 17:16:28 ctrl001 kernel: [  630.925551] ltc2607 1-0073: ltc2607_set_value() - called
+Jan  7 17:16:28 ctrl001 kernel: [  630.925575] ltc2607 1-0073: ltc2607_set_value() - val '65535', channel '2'
+Jan  7 17:16:28 ctrl001 kernel: [  630.925602] ltc2607 1-0073: ltc2607_set_value() - chan '0f' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
+Jan  7 17:16:28 ctrl001 kernel: [  630.925629] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '3f'
+Jan  7 17:16:28 ctrl001 kernel: [  630.925654] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] 'ff'
+Jan  7 17:16:28 ctrl001 kernel: [  630.925679] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] 'ff'
 
-Jan  6 19:34:22 ctrl001 kernel: [26249.834596] ltc2607 1-0073: ltc2607_write_raw() - called
-Jan  6 19:34:22 ctrl001 kernel: [26249.834647] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '0', chan->channel '0'
-Jan  6 19:34:22 ctrl001 kernel: [26249.834679] ltc2607 1-0073: ltc2607_set_value() - called
-Jan  6 19:34:22 ctrl001 kernel: [26249.834703] ltc2607 1-0073: ltc2607_set_value() - val '0', channel '0'
-Jan  6 19:34:22 ctrl001 kernel: [26249.834729] ltc2607 1-0073: ltc2607_set_value() - chan '00' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
-Jan  6 19:34:22 ctrl001 kernel: [26249.834756] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '30'
-Jan  6 19:34:22 ctrl001 kernel: [26249.834782] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] '00'
-Jan  6 19:34:22 ctrl001 kernel: [26249.834806] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] '00'
+Jan  7 17:17:24 ctrl001 kernel: [  686.833720] ltc2607 1-0073: ltc2607_write_raw() - called
+Jan  7 17:17:24 ctrl001 kernel: [  686.833748] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '0', chan->channel '0'
+Jan  7 17:17:24 ctrl001 kernel: [  686.833771] ltc2607 1-0073: ltc2607_set_value() - called
+Jan  7 17:17:24 ctrl001 kernel: [  686.833784] ltc2607 1-0073: ltc2607_set_value() - val '0', channel '0'
+Jan  7 17:17:24 ctrl001 kernel: [  686.833797] ltc2607 1-0073: ltc2607_set_value() - chan '00' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
+Jan  7 17:17:24 ctrl001 kernel: [  686.833810] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '30'
+Jan  7 17:17:24 ctrl001 kernel: [  686.833823] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] '00'
+Jan  7 17:17:24 ctrl001 kernel: [  686.833835] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] '00'
 
-Jan  6 19:34:28 ctrl001 kernel: [26255.483403] ltc2607 1-0073: ltc2607_write_raw() - called
-Jan  6 19:34:28 ctrl001 kernel: [26255.483454] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '0', chan->channel '1'
-Jan  6 19:34:28 ctrl001 kernel: [26255.483497] ltc2607 1-0073: ltc2607_set_value() - called
-Jan  6 19:34:28 ctrl001 kernel: [26255.483522] ltc2607 1-0073: ltc2607_set_value() - val '0', channel '1'
-Jan  6 19:34:28 ctrl001 kernel: [26255.483549] ltc2607 1-0073: ltc2607_set_value() - chan '01' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
-Jan  6 19:34:28 ctrl001 kernel: [26255.483576] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '31'
-Jan  6 19:34:28 ctrl001 kernel: [26255.483601] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] '00'
-Jan  6 19:34:28 ctrl001 kernel: [26255.483626] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] '00'
+Jan  7 17:18:28 ctrl001 kernel: [  750.792575] ltc2607 1-0073: ltc2607_write_raw() - called
+Jan  7 17:18:28 ctrl001 kernel: [  750.792622] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '0', chan->channel '1'
+Jan  7 17:18:28 ctrl001 kernel: [  750.792653] ltc2607 1-0073: ltc2607_set_value() - called
+Jan  7 17:18:28 ctrl001 kernel: [  750.792678] ltc2607 1-0073: ltc2607_set_value() - val '0', channel '1'
+Jan  7 17:18:28 ctrl001 kernel: [  750.792704] ltc2607 1-0073: ltc2607_set_value() - chan '01' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
+Jan  7 17:18:28 ctrl001 kernel: [  750.792731] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '31'
+Jan  7 17:18:28 ctrl001 kernel: [  750.792768] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] '00'
+Jan  7 17:18:28 ctrl001 kernel: [  750.792793] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] '00'
 
-Jan  6 19:34:49 ctrl001 kernel: [26276.621284] ltc2607 1-0073: ltc2607_remove() - called
-Jan  6 19:34:49 ctrl001 kernel: [26276.621872] ltc2607 1-0072: ltc2607_remove() - called
+Jan  7 17:19:18 ctrl001 kernel: [  800.697097] ltc2607 1-0073: ltc2607_remove() - called
+Jan  7 17:19:18 ctrl001 kernel: [  800.700803] ltc2607 1-0072: ltc2607_remove() - called
 ```
 
 ## Debugging

@@ -13,8 +13,8 @@
 int8_t read_adc();
 
 // SPI channel name
-//const char demo_device[] = "/dev/spidev0.0";
-const char demo_device[] = "/dev/spidev0.1";
+const char demo_device[] = "/dev/spidev0.0";
+//const char demo_device[] = "/dev/spidev0.1";
 
 // global variable - the LTC2422 LSB value with 5V full-scale
 float LTC2422_lsb = 4.7683761E-6;
