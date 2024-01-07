@@ -55,13 +55,13 @@ conversion result, MSB first:
 
 DC934a Eval Board: https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/dc934a.html
 
-![DC934a Board](pics/dc934a.png)  
+![DC934a Module](pics/dc934a.png)  
 
 #### Modification:
 Solder out the device _U7_ from the DC934A board and also the LTC2607 I2C pull-up resistors: _R10_ and _R11_  
 
-![DC934a Board](pics/dc934a_schema.png)  
-![DC934a Board](pics/dc934a_modified.png)  
+![DC934a Schema](pics/dc934a_schema.png)  
+![DC934a Modification](pics/dc934a_modified.png)  
 
 #### Connection:
 - 5V -> V+ (connector j1: 1)
@@ -85,8 +85,8 @@ affect the full-scale error. Selecting the 5V REF as the source for
 VCC overcomes this, however the total current that the LTC2607 can
 source will be limited approximately 5mA.  
 
-![DC934a Board](pics/dc934a_connected.png)  
-![DC934a Board](pics/rpi_connected.png)  
+![DC934a Connection](pics/dc934a_connected.png)  
+![DC934a RPI](pics/rpi_connected.png)  
 
 # Build
 
@@ -249,8 +249,8 @@ and communicates with the board as measured. The `spidev` based
 userspace program, communicates with the LTC2422 ADCs as seen in the
 output.  
 
-![DC934a Board](pics/debug_ltc2607.png)  
-![DC934a Board](pics/debug_ltc2607_signal_received.png)  
+![DC934a Debugging](pics/debug_ltc2607.png)  
+![DC934a Signal](pics/debug_ltc2607_signal_received.png)  
 
 There were still some issues with the `spidev` device, sometimes it
 appears on `/dev/spidev0.0`, sometimes on `/dev/spidev0.1`. Where the

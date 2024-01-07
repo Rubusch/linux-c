@@ -59,13 +59,13 @@ conversion result, MSB first:
 
 DC934a Eval Board: https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/dc934a.html
 
-![DC934a Board](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a.png)  
+![DC934a Module](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a.png)  
 
 #### Modification:
 Solder out the device _U7_ from the DC934A board and also the LTC2607 I2C pull-up resistors: _R10_ and _R11_  
 
-![DC934a Board](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a_schema.png)  
-![DC934a Board](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a_modified.png)  
+![DC934a Schema](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a_schema.png)  
+![DC934a Modification](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a_modified.png)  
 
 #### Connection:
 - 5V -> V+ (connector j1: 1)
@@ -89,8 +89,8 @@ affect the full-scale error. Selecting the 5V REF as the source for
 VCC overcomes this, however the total current that the LTC2607 can
 source will be limited approximately 5mA.  
 
-![DC934a Board](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a_connected.png)  
-![DC934a Board](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/rpi_connected.png)  
+![DC934a Connection](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a_connected.png)  
+![DC934a Rpi Connection](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/rpi_connected.png)  
 
 # Build
 
