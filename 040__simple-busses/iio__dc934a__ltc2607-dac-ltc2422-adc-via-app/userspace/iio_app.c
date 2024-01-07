@@ -24,10 +24,7 @@ float LTC2422_lsb = 4.7683761E-6;
 #define LTC2422_CONVERSION_TIME (137 * 1000)  /* ms */
 
 int8_t ltc2422_read(uint8_t *adc_channel, int32_t *code);
-
 float ltc2422_voltage(uint32_t adc_code, float ltc2422_lsb);
-
-
                   
 /* read
 
@@ -95,9 +92,6 @@ read_adc()
 	float adc_voltage;
 	int32_t adc_code;
 	uint8_t adc_channel;
-//	int32_t adc_code_array;  
-//	int8_t return_code;  
-//	int a2d_reading = 0;  
 
 	ltc2422_read(&adc_channel, &adc_code);
 	usleep(LTC2422_CONVERSION_TIME);
@@ -118,8 +112,6 @@ int
 main(void)
 {
 	read_adc();
-
 	puts("READY.");
 	exit(EXIT_SUCCESS);
 }
-

@@ -140,13 +140,13 @@ $ sudo su
 # insmod ./iio-ltc2607-dac.ko
 # insmod ./iio-ltc2422-adc.ko
 
-# ll /sys/bus/iio/devices/
+# ls -l /sys/bus/iio/devices/
     total 0
     lrwxrwxrwx 1 root root 0 Jan  3 22:38 iio:device0 -> ../../../devices/platform/soc/3f804000.i2c/i2c-1/1-0072/iio:device0
     lrwxrwxrwx 1 root root 0 Jan  3 22:38 iio:device1 -> ../../../devices/platform/soc/3f804000.i2c/i2c-1/1-0073/iio:device1
     lrwxrwxrwx 1 root root 0 Jan  3 22:38 iio:device2 -> ../../../devices/platform/soc/3f204000.spi/spi_master/spi0/spi0.0/iio:device2
 
-# ll /sys/bus/iio/devices/iio\:device2/
+# ls -l /sys/bus/iio/devices/iio\:device2/
     total 0
     -r--r--r-- 1 root root 4096 Jan  3 22:38 name
     lrwxrwxrwx 1 root root    0 Jan  3 22:38 of_node -> ../../../../../../../../firmware/devicetree/base/soc/spi@7e204000/ltc2422@0
@@ -156,56 +156,157 @@ $ sudo su
     -rw-r--r-- 1 root root 4096 Jan  3 22:38 uevent
     -r--r--r-- 1 root root 4096 Jan  3 22:38 waiting_for_supplier
 
-# echo 65535 > /sys/bus/iio/devices/iio\:device1/out_voltage0_raw
-```
-Note: reading the channel will toggle, read first ADC channel, then read second, then again read first, and so on  
-```
-# cat /sys/bus/iio/devices/iio\:device2/out_voltage0_raw
-    2850328
-
-# cat /sys/bus/iio/devices/iio\:device2/out_voltage0_raw
-    7073555
-
-# cat /sys/bus/iio/devices/iio\:device2/out_voltage0_raw
-    2875122
-
-# cat /sys/bus/iio/devices/iio\:device2/out_voltage0_raw
-    7073567
-
+# echo 65535 > /sys/bus/iio/devices/iio\:device1/out_voltage2_raw
 # ./iio_app.elf
     the value of the ADC channel 0
-    	is : 4.6619
-    fopen(): No such file or directory
-    the value of the ADC channel 0
-    	is : 4.6619
+    	is : 4.9916
+    the value of the ADC channel 1
+    	is : 4.9938
     READY.
+
+# echo 0 > /sys/bus/iio/devices/iio\:device1/out_voltage0_raw
+# ./iio_app.elf
+    the value of the ADC channel 1
+    	is : 0.0011
+    the value of the ADC channel 0
+    	is : 4.9915
+    READY.
+
+# echo 0 > /sys/bus/iio/devices/iio\:device1/out_voltage1_raw
+# ./iio_app.elf
+    the value of the ADC channel 0
+    	is : 0.0008
+    the value of the ADC channel 1
+    	is : 0.0011
+    READY.
+
+# echo 65535 > /sys/bus/iio/devices/iio\:device1/out_voltage2_raw
+# ./iio_app.elf
+    the value of the ADC channel 1
+    	is : 4.9938
+    the value of the ADC channel 0
+    	is : 4.9914
+    READY.
+```
+
+Note: Reading the channel will toggle around both ADC channels, i.e. Read first ADC channel, then read second, then again read first, and so on  
+```
+# cat /sys/bus/iio/devices/iio\:device2/out_voltage0_raw
+    7338711
+
+# cat /sys/bus/iio/devices/iio\:device2/out_voltage0_raw
+    3143929
+# cat /sys/bus/iio/devices/iio\:device2/out_voltage0_raw
+    7338706
+# cat /sys/bus/iio/devices/iio\:device2/out_voltage0_raw
+    3143970
+# cat /sys/bus/iio/devices/iio\:device2/out_voltage0_raw
+    7338674
+# cat /sys/bus/iio/devices/iio\:device2/out_voltage0_raw
+    3143968
 
 # rmmod iio-ltc2607-dac.ko
 # rmmod iio-ltc2422-adc.ko
 ```
 
-Follow the logs   
+Logs  
 ```
-Jan  3 22:37:40 ctrl001 kernel: [   62.719644] i2c_dev: i2c /dev entries driver
-Jan  3 22:37:59 ctrl001 kernel: [   81.686557] iio_ltc2607_dac: loading out-of-tree module taints kernel.
-Jan  3 22:37:59 ctrl001 kernel: [   81.687397] ltc2607 1-0072: ltc2607_probe() - called
-Jan  3 22:37:59 ctrl001 kernel: [   81.687432] ltc2607 1-0072: ltc2607_probe() - was called from DAC00
-Jan  3 22:37:59 ctrl001 kernel: [   81.687871] ltc2607 1-0072: ltc2607_probe() - the DAC answer is '3'
-Jan  3 22:37:59 ctrl001 kernel: [   81.688145] ltc2607 1-0072: ltc2607_probe() - ltc2607 DAC registered
-Jan  3 22:37:59 ctrl001 kernel: [   81.688423] ltc2607 1-0073: ltc2607_probe() - called
-Jan  3 22:37:59 ctrl001 kernel: [   81.688451] ltc2607 1-0073: ltc2607_probe() - was called from DAC01
-Jan  3 22:37:59 ctrl001 kernel: [   81.691176] ltc2607 1-0073: ltc2607_probe() - the DAC answer is '3'
-Jan  3 22:37:59 ctrl001 kernel: [   81.691579] ltc2607 1-0073: ltc2607_probe() - ltc2607 DAC registered
+Jan  7 18:03:17 ctrl001 kernel: [   59.854867] i2c_dev: i2c /dev entries driver
 
-Jan  3 22:38:10 ctrl001 kernel: [   92.795908] ltc2422 spi0.0: ltc2422_probe() - called
+Jan  7 18:03:43 ctrl001 kernel: [   85.432157] iio_ltc2607_dac: loading out-of-tree module taints kernel.
+Jan  7 18:03:43 ctrl001 kernel: [   85.433468] ltc2607 1-0072: ltc2607_probe() - called
+Jan  7 18:03:43 ctrl001 kernel: [   85.433524] ltc2607 1-0072: ltc2607_probe() - was called from DAC00
+Jan  7 18:03:43 ctrl001 kernel: [   85.434226] ltc2607 1-0072: ltc2607_probe() - the DAC answer is '3'
+Jan  7 18:03:43 ctrl001 kernel: [   85.434654] ltc2607 1-0072: ltc2607_probe() - ltc2607 DAC registered
+Jan  7 18:03:43 ctrl001 kernel: [   85.435791] ltc2607 1-0073: ltc2607_probe() - called
+Jan  7 18:03:43 ctrl001 kernel: [   85.435848] ltc2607 1-0073: ltc2607_probe() - was called from DAC01
+Jan  7 18:03:43 ctrl001 kernel: [   85.436560] ltc2607 1-0073: ltc2607_probe() - the DAC answer is '3'
+Jan  7 18:03:43 ctrl001 kernel: [   85.437247] ltc2607 1-0073: ltc2607_probe() - ltc2607 DAC registered
 
-Jan  3 22:40:24 ctrl001 kernel: [  226.470424] ltc2422 spi0.0: the value is 2b7e18
-Jan  3 22:40:38 ctrl001 kernel: [  240.553463] ltc2422 spi0.0: the value is 6bef13
-Jan  3 22:40:47 ctrl001 kernel: [  249.264338] ltc2422 spi0.0: the value is 2bdef2
-Jan  3 22:40:49 ctrl001 kernel: [  251.172193] ltc2422 spi0.0: the value is 6bef1f
+Jan  7 18:03:51 ctrl001 kernel: [   93.081574] ltc2422 spi0.0: ltc2422_probe() - called
 
-Jan  3 22:42:55 ctrl001 kernel: [  377.474030] ltc2607 1-0073: ltc2607_remove() - called
-Jan  3 22:42:55 ctrl001 kernel: [  377.474592] ltc2607 1-0072: ltc2607_remove() - called
+Jan  7 18:06:49 ctrl001 kernel: [  271.035299] ltc2607 1-0073: ltc2607_write_raw() - called
+Jan  7 18:06:49 ctrl001 kernel: [  271.035348] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '65535', chan->channel '2'
+Jan  7 18:06:49 ctrl001 kernel: [  271.035381] ltc2607 1-0073: ltc2607_set_value() - called
+Jan  7 18:06:49 ctrl001 kernel: [  271.035406] ltc2607 1-0073: ltc2607_set_value() - val '65535', channel '2'
+Jan  7 18:06:49 ctrl001 kernel: [  271.035433] ltc2607 1-0073: ltc2607_set_value() - chan '0f' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
+Jan  7 18:06:49 ctrl001 kernel: [  271.035462] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '3f'
+Jan  7 18:06:49 ctrl001 kernel: [  271.035487] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] 'ff'
+Jan  7 18:06:49 ctrl001 kernel: [  271.035512] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] 'ff'
+
+Jan  7 18:08:15 ctrl001 kernel: [  357.813004] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:08:15 ctrl001 kernel: [  357.813109] ltc2422 spi0.0: the value is 6ffad9
+Jan  7 18:08:15 ctrl001 kernel: [  357.950697] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:08:15 ctrl001 kernel: [  357.950797] ltc2422 spi0.0: the value is 2ff914
+Jan  7 18:08:16 ctrl001 kernel: [  358.088753] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:08:16 ctrl001 kernel: [  358.088857] ltc2422 spi0.0: the value is 6ffae5
+
+Jan  7 18:10:00 ctrl001 kernel: [  462.921040] ltc2607 1-0073: ltc2607_write_raw() - called
+Jan  7 18:10:00 ctrl001 kernel: [  462.921086] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '0', chan->channel '0'
+Jan  7 18:10:00 ctrl001 kernel: [  462.921117] ltc2607 1-0073: ltc2607_set_value() - called
+Jan  7 18:10:00 ctrl001 kernel: [  462.921142] ltc2607 1-0073: ltc2607_set_value() - val '0', channel '0'
+Jan  7 18:10:00 ctrl001 kernel: [  462.921169] ltc2607 1-0073: ltc2607_set_value() - chan '00' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
+Jan  7 18:10:00 ctrl001 kernel: [  462.921196] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '30'
+Jan  7 18:10:00 ctrl001 kernel: [  462.921222] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] '00'
+Jan  7 18:10:00 ctrl001 kernel: [  462.921247] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] '00'
+
+Jan  7 18:10:41 ctrl001 kernel: [  503.991916] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:10:41 ctrl001 kernel: [  503.992019] ltc2422 spi0.0: the value is 2ff901
+Jan  7 18:10:42 ctrl001 kernel: [  504.129598] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:10:42 ctrl001 kernel: [  504.129693] ltc2422 spi0.0: the value is 6000e3
+Jan  7 18:10:42 ctrl001 kernel: [  504.267445] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:10:42 ctrl001 kernel: [  504.267531] ltc2422 spi0.0: the value is 2ff910
+
+Jan  7 18:11:15 ctrl001 kernel: [  537.291274] ltc2607 1-0073: ltc2607_write_raw() - called
+Jan  7 18:11:15 ctrl001 kernel: [  537.291323] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '0', chan->channel '1'
+Jan  7 18:11:15 ctrl001 kernel: [  537.291355] ltc2607 1-0073: ltc2607_set_value() - called
+Jan  7 18:11:15 ctrl001 kernel: [  537.291378] ltc2607 1-0073: ltc2607_set_value() - val '0', channel '1'
+Jan  7 18:11:15 ctrl001 kernel: [  537.291404] ltc2607 1-0073: ltc2607_set_value() - chan '01' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
+Jan  7 18:11:15 ctrl001 kernel: [  537.291431] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '31'
+Jan  7 18:11:15 ctrl001 kernel: [  537.291457] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] '00'
+Jan  7 18:11:15 ctrl001 kernel: [  537.291482] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] '00'
+
+Jan  7 18:11:27 ctrl001 kernel: [  549.030776] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:11:27 ctrl001 kernel: [  549.030880] ltc2422 spi0.0: the value is 6000de
+Jan  7 18:11:27 ctrl001 kernel: [  549.168651] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:11:27 ctrl001 kernel: [  549.168743] ltc2422 spi0.0: the value is 2000a6
+Jan  7 18:11:27 ctrl001 kernel: [  549.306507] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:11:27 ctrl001 kernel: [  549.306605] ltc2422 spi0.0: the value is 6000e0
+
+Jan  7 18:14:03 ctrl001 kernel: [  706.001103] ltc2607 1-0073: ltc2607_write_raw() - called
+Jan  7 18:14:03 ctrl001 kernel: [  706.001151] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '65535', chan->channel '2'
+Jan  7 18:14:03 ctrl001 kernel: [  706.001185] ltc2607 1-0073: ltc2607_set_value() - called
+Jan  7 18:14:03 ctrl001 kernel: [  706.001209] ltc2607 1-0073: ltc2607_set_value() - val '65535', channel '2'
+Jan  7 18:14:03 ctrl001 kernel: [  706.001236] ltc2607 1-0073: ltc2607_set_value() - chan '0f' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
+Jan  7 18:14:03 ctrl001 kernel: [  706.001263] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '3f'
+Jan  7 18:14:03 ctrl001 kernel: [  706.001288] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] 'ff'
+Jan  7 18:14:03 ctrl001 kernel: [  706.001314] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] 'ff'
+
+Jan  7 18:14:08 ctrl001 kernel: [  710.357507] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:14:08 ctrl001 kernel: [  710.357612] ltc2422 spi0.0: the value is 2000a4
+Jan  7 18:14:08 ctrl001 kernel: [  710.495224] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:14:08 ctrl001 kernel: [  710.495310] ltc2422 spi0.0: the value is 6ffae3
+Jan  7 18:14:08 ctrl001 kernel: [  710.633074] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:14:08 ctrl001 kernel: [  710.633157] ltc2422 spi0.0: the value is 2ff8fd
+```
+
+Logs: the single direct reads from the ADC handles
+```
+Jan  7 18:15:25 ctrl001 kernel: [  787.195846] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:15:25 ctrl001 kernel: [  787.195947] ltc2422 spi0.0: the value is 6ffad7
+Jan  7 18:15:31 ctrl001 kernel: [  793.461727] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:15:31 ctrl001 kernel: [  793.461828] ltc2422 spi0.0: the value is 2ff8f9
+Jan  7 18:15:33 ctrl001 kernel: [  795.963200] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:15:33 ctrl001 kernel: [  795.963265] ltc2422 spi0.0: the value is 6ffad2
+Jan  7 18:15:34 ctrl001 kernel: [  796.773725] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:15:34 ctrl001 kernel: [  796.773796] ltc2422 spi0.0: the value is 2ff922
+Jan  7 18:15:35 ctrl001 kernel: [  797.954156] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:15:35 ctrl001 kernel: [  797.954223] ltc2422 spi0.0: the value is 6ffab2
+Jan  7 18:15:36 ctrl001 kernel: [  798.600397] ltc2422 spi0.0: ltc2422_read_raw() - called
+Jan  7 18:15:36 ctrl001 kernel: [  798.600461] ltc2422 spi0.0: the value is 2ff920
+
+Jan  7 18:16:33 ctrl001 kernel: [  855.807562] ltc2607 1-0073: ltc2607_remove() - called
+Jan  7 18:16:33 ctrl001 kernel: [  855.807891] ltc2607 1-0072: ltc2607_remove() - called
 ```
 
 ## References

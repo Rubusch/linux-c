@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-  IIO subsystem ADC module, LTC2422 dual ADC
+  IIO subsystem ADC module for the LTC2422 dual ADC
 
   Demo for the industrial I/O API, the iio as an SPI interaction.
-
-  TODO        
-
   ---
   REFERENCES:
   - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
@@ -33,10 +30,12 @@ static const struct iio_chan_spec ltc2422_channel[] = {
 static int
 ltc2422_read_raw(struct iio_dev *indio_dev, struct iio_chan_spec const *chan, int *val, int *val2, long m)
 {
-	int ret;
+	struct device *dev = indio_dev->dev.parent;
 	struct ltc2422_state *st = iio_priv(indio_dev);
+	int ret;
 
-	switch(m) {  
+	dev_info(dev, "%s() - called", __func__);
+	switch(m) {
 	case IIO_CHAN_INFO_RAW:
 		ret = spi_read(st->spi, &st->buffer, 3);
 		if (0 > ret)
@@ -57,7 +56,6 @@ ltc2422_read_raw(struct iio_dev *indio_dev, struct iio_chan_spec const *chan, in
 
 static const struct iio_info ltc2422_info = {
 	.read_raw = &ltc2422_read_raw,
-//	.driver_module = THIS_MODULE,  
 };
 
 static int
@@ -67,7 +65,7 @@ ltc2422_probe(struct spi_device *spi)
 	struct ltc2422_state *st;
 	struct device *dev = &spi->dev;
 	const struct spi_device_id *id = spi_get_device_id(spi);
-	int ret; // TODO ret    
+	int ret;
 
 	dev_info(dev, "%s() - called", __func__);
 	indio_dev = devm_iio_device_alloc(dev, sizeof(*st));
@@ -112,7 +110,6 @@ static struct spi_driver ltc2422_driver = {
 	.id_table	= ltc2422_id,
 	.driver = {
 		.name = "ltc2422",
-//		.owner = THIS_MODULE,
 		.of_match_table = ltc2422_dt_ids,
 	},
 };
