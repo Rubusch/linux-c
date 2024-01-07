@@ -3,25 +3,27 @@
   Demo for the industrial I/O API.
 
       +-----------------------+
-  +-->| struct ltc2607_device |<--+
-  |   +-----------------------+   |
-  |   |      +--------+       |   |
-  |   |      | client |-----------------------------------------------+
-  |   |      +--------+       |   |                                   |
-  |   +-----------------------+   |                                   |
-  |                               |                                   |
-  |   +-----------------------+   |      +-----------------------+    |
-  +---| struct iio_dev        |   |      | struct i2c_client     |<---+
-      +-----------------------+   |      +-----------------------+
-      |   +---------------+   |   |      |                       |
-      |   | device        |   |   |      |                       |
-      |   +---------------+   |   |      |   +---------------+   |
-      |   | parent        |----------------->| device        |   |
-      |   +---------------+   |   |      |   +---------------+   |
-      |   | void*         |-------+----------| void*         |   |
-      |   |   driver_data |   |          |   |   driver_data |   |
-      |   +---------------+   |          |   +---------------+   |
-      +-----------------------+          +-----------------------+
+  +-->| struct ltc2607_device |<----+
+  |   +-----------------------+     |
+  |   |      +--------+       |     |
+  |   |      | client |---------------------------------------------------+
+  |   |      +--------+       |     |                                     |
+  |   +-----------------------+     |                                     |
+  |                                 |                                     |
+  |                                 |                                     |
+  |                                 |                                     |
+  |   +-----------------------+     |        +-----------------------+    |
+  +---| struct iio_dev        |     |        | struct i2c_client     |<---+
+      +-----------------------+     |        +-----------------------+
+      |   +---------------+   |     |        |                       |
+      |   | device        |   |     |        |                       |
+      |   +---------------+   |     |        |   +---------------+   |
+      |   | parent        |--------------------->| device        |   |
+      |   +---------------+   |     |        |   +---------------+   |
+      |   | void*         |---------+------------| void*         |   |
+      |   |   driver_data |   |              |   |   driver_data |   |
+      |   +---------------+   |              |   +---------------+   |
+      +-----------------------+              +-----------------------+
 
   ---
   REFERENCES:
@@ -48,6 +50,7 @@ struct ltc2607_device {
   /sys/bus/iio/devices/iio:device0/out_voltage0_raw
   /sys/bus/iio/devices/iio:device0/out_voltage1_raw
   /sys/bus/iio/devices/iio:device0/out_voltage2_raw
+
   /sys/bus/iio/devices/iio:device1/out_voltage0_raw
   /sys/bus/iio/devices/iio:device1/out_voltage1_raw
   /sys/bus/iio/devices/iio:device1/out_voltage2_raw
@@ -84,26 +87,33 @@ static int
 ltc2607_set_value(struct iio_dev* indio_dev, int val, int channel)
 {
 	struct ltc2607_device *data = iio_priv(indio_dev);
-	u8 outbuf[3];
-	int ret;
+	struct device *dev = indio_dev->dev.parent;
+	u8 outbuf[sizeof(ltc2607_channel)/sizeof(*ltc2607_channel)];
 	int chan;
+	int ret;
 
-	if (2 == channel)
-		chan = 0x0f;
-	else
-		chan = channel;
+	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s() - val '%d', channel '%d'", __func__, val, channel);
 
+	chan = (2 == channel) ? 0x0f : channel;
 	if (BIT(16) <= val || 0 > val)
 		return -EINVAL;
 
-	outbuf[0] = 0x30 | chan;       // write and update DAC
-	outbuf[1] = (val >> 8) & 0xff; // MSB byte of dac_code
-	outbuf[2] = val & 0xff;        // LSB byte of dac_code
+	dev_info(dev, "%s() - chan '%02x' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]", __func__, chan);
 
-	ret = i2c_master_send(data->client, outbuf, 3);
+	outbuf[0] = 0x30 | chan;       // write and update DAC: 0x30
+	dev_info(dev, "%s() - outbuf[0] '%02x'", __func__, outbuf[0]);
+
+	outbuf[1] = (val >> 8) & 0xff; // MSB byte of dac_code
+	dev_info(dev, "%s() - outbuf[1] '%02x'", __func__, outbuf[1]);
+
+	outbuf[2] = val & 0xff;        // LSB byte of dac_code
+	dev_info(dev, "%s() - outbuf[2] '%02x'", __func__, outbuf[2]);
+
+	ret = i2c_master_send(data->client, outbuf, indio_dev->num_channels);
 	if (0 > ret)
 		return ret;
-	else if (ret != 3)
+	else if (ret != indio_dev->num_channels)
 		return -EIO;
 
 	// else
@@ -133,13 +143,26 @@ ltc2607_set_value(struct iio_dev* indio_dev, int val, int channel)
 
    Output voltage = VREF x DAC value / 65535
 
+   Taken from the data sheet, the commands and addresses in the I2C
+   communication to the LTC2607 DAC.
+
+   Write word protocol for the LTC2607:
+   <S><slave address><W><A><1st data byte><A><2nd data byte><A><3rd data byte><A><P>
+                           \---------input word---------------------------------/
+
+   input word
+   |C3|C2|C1|C0|A3|A2|A1|A0| |D15|D14|D13|D12|D11|D10|D9|D8| |D7|D6|D5|D4|D3|D2|D1|D0|
+
+   C3-C0: command
+   A3-A0: address (channel)
+
    command            |
    ----+----+----+----+--------------------------------
     c3 | c2 | c1 | c0 |
    ----+----+----+----+--------------------------------
     0  | 0  | 0  | 0  | write to input register
     0  | 0  | 0  | 1  | update (power up) DAC register
-    0  | 0  | 1  | 1  | write to and update (power up)
+    0  | 0  | 1  | 1  | write to and update (power up) <---- we use 0x30 here
     0  | 1  | 0  | 0  | power down
     1  | 1  | 1  | 1  | no operation
    ----+----+----+----+--------------------------------
@@ -148,18 +171,22 @@ ltc2607_set_value(struct iio_dev* indio_dev, int val, int channel)
    ----+----+----+----+--------------------------------
     0  | 0  | 0  | 0  | DAC a
     0  | 0  | 0  | 1  | DAC b
-    1  | 1  | 1  | 1  | all DACs
+    1  | 1  | 1  | 1  | all DACs <------------------- we use "all" 0x0f here
  */
 static int
 ltc2607_write_raw(struct iio_dev* indio_dev, struct iio_chan_spec const *chan, int val, int val2, long mask)
 {
 	int ret;
+	struct device *dev = indio_dev->dev.parent;
 
+	dev_info(dev, "%s() - called", __func__);
 	switch(mask) {
 	case IIO_CHAN_INFO_RAW:
+		dev_info(dev, "%s() - case IIO_CHAN_INFO_RAW: val '%d', chan->channel '%d'", __func__, val, chan->channel);
 		ret = ltc2607_set_value(indio_dev, val, chan->channel);
 		return ret;
 	default:
+		dev_info(dev, "%s() - case default", __func__);
 		return -EINVAL;
 	}
 

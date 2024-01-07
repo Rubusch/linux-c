@@ -74,8 +74,9 @@ Solder out the device _U7_ from the DC934A board and also the LTC2607 I2C pull-u
 
 #### Jumpers:
 Use the device's LT1790ACS6-5 5V output (see _U3_ in schema) as the VREF, i.e.  
-- jumper _5V_ at _JP1 VREFA_
-- jumper _5V REF_ in _JP2_
+- jumper _JP1 VREFA_ to _5V_
+- jumper _JP2_ to 5V REF
+- jumper _JP5_ to _REFLO_
 - jumper _JP4_, _JP6_, _JP7_ to VCC (connect 1 with middle), i.e. CA0, CA1, CA2 are set to VCC, this matches with the next I2C slave address 0x72
 
 NB: Using the 5V regulator (_5V REG_ in _JP2_) as the source for VCC
@@ -174,7 +175,7 @@ $ sudo su
     ltc2422_read() - adc_channel: 0
     ltc2422_read() - value: 6becfb
     ltc2422_read() - adc_channel: 1
-    	ADC A : 3.7268    <--- should be 0, now
+    	ADC A : 0.0001    <--- should be 0, now
     	ADC B : 3.7208
     READY.
 
@@ -189,8 +190,8 @@ $ sudo su
     ltc2422_read() - adc_channel: 1
     ltc2422_read() - value: 2be2b2
     ltc2422_read() - adc_channel: 0
-    	ADC A : 3.7292   <--- should be 0
-    	ADC B : 3.7142   <--- shoudl be 0 now, too
+    	ADC A : -0.0006   <--- should be 0
+    	ADC B : -0.0000   <--- shoudl be 0 now, too
     READY.
 
 # rmmod iio-ltc2607-dac
@@ -198,32 +199,64 @@ $ sudo su
 
 Follow the logs   
 ```
-Jan  2 18:37:49 ctrl001 kernel: [  553.830688] i2c_dev: i2c /dev entries driver
-Jan  2 18:38:10 ctrl001 kernel: [  575.448976] iio_ltc2607_dac: loading out-of-tree module taints kernel.
-Jan  2 18:38:10 ctrl001 kernel: [  575.450417] ltc2607 1-0072: ltc2607_probe() - called
-Jan  2 18:38:10 ctrl001 kernel: [  575.450475] ltc2607 1-0072: ltc2607_probe() - was called from DAC00
-Jan  2 18:38:10 ctrl001 kernel: [  575.451183] ltc2607 1-0072: ltc2607_probe() - the DAC answer is '3'
-Jan  2 18:38:10 ctrl001 kernel: [  575.451702] ltc2607 1-0072: ltc2607_probe() - ltc2607 DAC registered
-Jan  2 18:38:10 ctrl001 kernel: [  575.452335] ltc2607 1-0073: ltc2607_probe() - called
-Jan  2 18:38:10 ctrl001 kernel: [  575.452401] ltc2607 1-0073: ltc2607_probe() - was called from DAC01
-Jan  2 18:38:10 ctrl001 kernel: [  575.453239] ltc2607 1-0073: ltc2607_probe() - the DAC answer is '3'
-Jan  2 18:38:10 ctrl001 kernel: [  575.453754] ltc2607 1-0073: ltc2607_probe() - ltc2607 DAC registered
 
-Jan  2 18:54:33 ctrl001 kernel: [ 1557.745634] ltc2607 1-0073: ltc2607_remove() - called
-Jan  2 18:54:33 ctrl001 kernel: [ 1557.749287] ltc2607 1-0072: ltc2607_remove() - called
+Jan  6 19:29:35 ctrl001 kernel: [25963.018180] ltc2607 1-0072: ltc2607_probe() - called
+Jan  6 19:29:35 ctrl001 kernel: [25963.018237] ltc2607 1-0072: ltc2607_probe() - was called from DAC00
+Jan  6 19:29:35 ctrl001 kernel: [25963.018945] ltc2607 1-0072: ltc2607_probe() - the DAC answer is '3'
+Jan  6 19:29:35 ctrl001 kernel: [25963.019375] ltc2607 1-0072: ltc2607_probe() - ltc2607 DAC registered
+Jan  6 19:29:35 ctrl001 kernel: [25963.019907] ltc2607 1-0073: ltc2607_probe() - called
+Jan  6 19:29:35 ctrl001 kernel: [25963.019954] ltc2607 1-0073: ltc2607_probe() - was called from DAC01
+Jan  6 19:29:35 ctrl001 kernel: [25963.022341] ltc2607 1-0073: ltc2607_probe() - the DAC answer is '3'
+Jan  6 19:29:35 ctrl001 kernel: [25963.022933] ltc2607 1-0073: ltc2607_probe() - ltc2607 DAC registered
+
+Jan  6 19:29:47 ctrl001 kernel: [25974.559866] ltc2607 1-0073: ltc2607_write_raw() - called
+Jan  6 19:29:47 ctrl001 kernel: [25974.559918] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '65535', chan->channel '2'
+Jan  6 19:29:47 ctrl001 kernel: [25974.559952] ltc2607 1-0073: ltc2607_set_value() - called
+Jan  6 19:29:47 ctrl001 kernel: [25974.559977] ltc2607 1-0073: ltc2607_set_value() - val '65535', channel '2'
+Jan  6 19:29:47 ctrl001 kernel: [25974.560004] ltc2607 1-0073: ltc2607_set_value() - chan '0f' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
+Jan  6 19:29:47 ctrl001 kernel: [25974.560032] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '3f'
+Jan  6 19:29:47 ctrl001 kernel: [25974.560057] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] 'ff'
+Jan  6 19:29:47 ctrl001 kernel: [25974.560082] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] 'ff'
+
+Jan  6 19:34:22 ctrl001 kernel: [26249.834596] ltc2607 1-0073: ltc2607_write_raw() - called
+Jan  6 19:34:22 ctrl001 kernel: [26249.834647] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '0', chan->channel '0'
+Jan  6 19:34:22 ctrl001 kernel: [26249.834679] ltc2607 1-0073: ltc2607_set_value() - called
+Jan  6 19:34:22 ctrl001 kernel: [26249.834703] ltc2607 1-0073: ltc2607_set_value() - val '0', channel '0'
+Jan  6 19:34:22 ctrl001 kernel: [26249.834729] ltc2607 1-0073: ltc2607_set_value() - chan '00' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
+Jan  6 19:34:22 ctrl001 kernel: [26249.834756] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '30'
+Jan  6 19:34:22 ctrl001 kernel: [26249.834782] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] '00'
+Jan  6 19:34:22 ctrl001 kernel: [26249.834806] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] '00'
+
+Jan  6 19:34:28 ctrl001 kernel: [26255.483403] ltc2607 1-0073: ltc2607_write_raw() - called
+Jan  6 19:34:28 ctrl001 kernel: [26255.483454] ltc2607 1-0073: ltc2607_write_raw() - case IIO_CHAN_INFO_RAW: val '0', chan->channel '1'
+Jan  6 19:34:28 ctrl001 kernel: [26255.483497] ltc2607 1-0073: ltc2607_set_value() - called
+Jan  6 19:34:28 ctrl001 kernel: [26255.483522] ltc2607 1-0073: ltc2607_set_value() - val '0', channel '1'
+Jan  6 19:34:28 ctrl001 kernel: [26255.483549] ltc2607 1-0073: ltc2607_set_value() - chan '01' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]
+Jan  6 19:34:28 ctrl001 kernel: [26255.483576] ltc2607 1-0073: ltc2607_set_value() - outbuf[0] '31'
+Jan  6 19:34:28 ctrl001 kernel: [26255.483601] ltc2607 1-0073: ltc2607_set_value() - outbuf[1] '00'
+Jan  6 19:34:28 ctrl001 kernel: [26255.483626] ltc2607 1-0073: ltc2607_set_value() - outbuf[2] '00'
+
+Jan  6 19:34:49 ctrl001 kernel: [26276.621284] ltc2607 1-0073: ltc2607_remove() - called
+Jan  6 19:34:49 ctrl001 kernel: [26276.621872] ltc2607 1-0072: ltc2607_remove() - called
 ```
 
-## TODO
+## Debugging
 
-The voltage will not change, neither when setting 655335 (0xffff), nor when setting all handles to 0 (0x0).  
+Studying the datasheet and going through the settings, still a wrong
+jumper setting was discovered.  
 
-The setup was carried out as described in the corresponding boot article. The IIO LTC2607 (dual DAC) via I2C driver can be initialized and communicates with the board as measured. The `spidev` based userspace program, communicates with the LTC2422 ADCs as seen in the output.  
+The setup was carried out as described in the corresponding boot
+article. The IIO LTC2607 (dual DAC) via I2C driver can be initialized
+and communicates with the board as measured. The `spidev` based
+userspace program, communicates with the LTC2422 ADCs as seen in the
+output.  
+
 ![DC934a Board](pics/debug_ltc2607.png)  
 ![DC934a Board](pics/debug_ltc2607_signal_received.png)  
 
-The purpose of my experiment was to figure out the Linux kernel driver for IIO API based drivers. This seems basically to work. It looks like either hardware needs still some modification, or might not work as expected.  
-
-For a comparison, `drivers/iio/dac/ad5064.c` handles communication with the LTC2607 but over the Regmap API. Several examples dealing with I2C communication on the IIO API can be found in the kernel sources.  
+There were still some issues with the `spidev` device, sometimes it
+appears on `/dev/spidev0.0`, sometimes on `/dev/spidev0.1`. Where the
+latter was often not even useable.  
 
 ## References
 * Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 494ff, 508ff and 516  
