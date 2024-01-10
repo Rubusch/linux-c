@@ -83,116 +83,116 @@ jobs:
               make -j$(nproc) bzImage modules
 
 ## basics (using default / x86 settings) - not crosscompiling!
-      - run: cd 010__basics/basics01__hello && make
-      - run: cd 010__basics/basics02__hello && make
-      - run: cd 010__basics/basics03__hello && make
-      - run: cd 010__basics/basics04__hello_module_init_arguments && make
-      - run: cd 010__basics/basics05__hello_module_init_arguments && make
-      - run: cd 010__basics/basics06__hello_multiple_files && make
-      - run: cd 010__basics/basics07__hello_chardev_driver && make
-      - run: cd 010__basics/basics08__hello_procfs_read && make
-      - run: cd 010__basics/basics09__hello_procfs_read_write && make
-      - run: cd 010__basics/basics10__hello_procfs_fops && make
-      - run: cd 010__basics/basics11__hello_procfs_seq_filesystem && make
-      - run: cd 010__basics/basics12__hello-with-timing && make
-      - run: cd 010__basics/device__01_static_major_minor && make
-      - run: cd 010__basics/device__02_dynamic_major_minor && make
-      - run: cd 010__basics/kbuild__symbol_export_to_another_module && make
-      - run: cd 010__basics/types && make
+      - run: cd 010__basics/basics01__hello && make -j $(nproc)
+      - run: cd 010__basics/basics02__hello && make -j $(nproc)
+      - run: cd 010__basics/basics03__hello && make -j $(nproc)
+      - run: cd 010__basics/basics04__hello_module_init_arguments && make -j $(nproc)
+      - run: cd 010__basics/basics05__hello_module_init_arguments && make -j $(nproc)
+      - run: cd 010__basics/basics06__hello_multiple_files && make -j $(nproc)
+      - run: cd 010__basics/basics07__hello_chardev_driver && make -j $(nproc)
+      - run: cd 010__basics/basics08__hello_procfs_read && make -j $(nproc)
+      - run: cd 010__basics/basics09__hello_procfs_read_write && make -j $(nproc)
+      - run: cd 010__basics/basics10__hello_procfs_fops && make -j $(nproc)
+      - run: cd 010__basics/basics11__hello_procfs_seq_filesystem && make -j $(nproc)
+      - run: cd 010__basics/basics12__hello-with-timing && make -j $(nproc)
+      - run: cd 010__basics/device__01_static_major_minor && make -j $(nproc)
+      - run: cd 010__basics/device__02_dynamic_major_minor && make -j $(nproc)
+      - run: cd 010__basics/kbuild__symbol_export_to_another_module && make -j $(nproc)
+      - run: cd 010__basics/types && make -j $(nproc)
 
 ## chardev
-      - run: cd 020__chardev/010__mknod && make
-      - run: cd 020__chardev/012__devicefile && make
-      - run: cd 020__chardev/013__devicefile_and_chardev && make
-      - run: cd 020__chardev/014__devicefile_implemented && make
-      - run: cd 020__chardev/020__linkedlist && make
-      - run: cd 020__chardev/030__wait_on_events && make
-      - run: cd 020__chardev/110__ioctl && make
-      - run: cd 020__chardev/112__ioctl_string_disabled && make
-      - run: cd 020__chardev/113__ioctl_signal && make
+      - run: cd 020__chardev/010__mknod && make -j $(nproc)
+      - run: cd 020__chardev/012__devicefile && make -j $(nproc)
+      - run: cd 020__chardev/013__devicefile_and_chardev && make -j $(nproc)
+      - run: cd 020__chardev/014__devicefile_implemented && make -j $(nproc)
+      - run: cd 020__chardev/020__linkedlist && make -j $(nproc)
+      - run: cd 020__chardev/030__wait_on_events && make -j $(nproc)
+      - run: cd 020__chardev/110__ioctl && make -j $(nproc)
+      - run: cd 020__chardev/112__ioctl_string_disabled && make -j $(nproc)
+      - run: cd 020__chardev/113__ioctl_signal && make -j $(nproc)
       - run: |
           cd 020__chardev/120__ioctl_demo/module
-          make
+          make -j $(nproc)
           cd ../userspace
-          make
+          make -j $(nproc)
       - run: |
           cd 020__chardev/121__using_devtmpfs_with_device_class/module
-          make
+          make -j $(nproc)
           cd ../userspace
-          make
+          make -j $(nproc)
       - run: |
           cd 020__chardev/122__using_miscdevice/module
-          make
+          make -j $(nproc)
           cd ../userspace
-          make
+          make -j $(nproc)
 
 ## platform drivers and open firmware
-      - run: cd 030__platform-devices/gpio__raspi4_led && make
-      - run: cd 030__platform-devices/gpio__raspi4_interrupt && make
+      - run: cd 030__platform-devices/gpio__raspi4_led && make -j $(nproc)
+      - run: cd 030__platform-devices/gpio__raspi4_interrupt && make -j $(nproc)
       - run: |
           cd 030__platform-devices/020__chardev_with_dt_binding/module
-          make
+          make -j $(nproc)
           cd ../userspace
-          make
+          make -j $(nproc)
       - run: |
           cd 030__platform-devices/021__leds_with_dt_binding/module
-          make
+          make -j $(nproc)
           cd ../userspace
-          make
+          make -j $(nproc)
       - run: |
           cd 030__platform-devices/022__leds_with_dt_binding_and_class/module
-          make
+          make -j $(nproc)
       - run: |
           cd 030__platform-devices/030__uio_demo_with_leds/module
-          make
+          make -j $(nproc)
           cd ../userspace
-          make
+          make -j $(nproc)
 
 ## i2c
-      - run: cd 040__simple-busses/i2c__io-expander-pcf8574__msg/module && make
-      - run: cd 040__simple-busses/i2c__io-expander-pcf8574__master-send/module && make
-      - run: cd 040__simple-busses/i2c__io-expander-pcf8574__smbus/module && make
-      - run: cd 040__simple-busses/i2c__multidisplay-led/module && make
-      - run: cd 040__simple-busses/input-subsystem__adxl345-accel-via-i2c-polling/module && make
+      - run: cd 040__simple-busses/i2c__io-expander-pcf8574__msg/module && make -j $(nproc)
+      - run: cd 040__simple-busses/i2c__io-expander-pcf8574__master-send/module && make -j $(nproc)
+      - run: cd 040__simple-busses/i2c__io-expander-pcf8574__smbus/module && make -j $(nproc)
+      - run: cd 040__simple-busses/i2c__multidisplay-led/module && make -j $(nproc)
+      - run: cd 040__simple-busses/input-subsystem__adxl345-accel-via-i2c-polling/module && make -j $(nproc)
 ## not compiling under x86
-#      - run: cd 040__simple-busses/iio__dc934a__ltc2607-dac-ltc2422-adc-hw-triggering/module__ltc2422-hw-trigger && make
-#      - run: cd 040__simple-busses/iio__dc934a__ltc2607-dac-ltc2422-adc-via-app/module__ltc2422-dual-adc && make && cd ../userspace && make
-#      - run: cd 040__simple-busses/iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/module__ltc2607-dual-dac && make && cd ../userspace__ltc2422-adc && make
+#      - run: cd 040__simple-busses/iio__dc934a__ltc2607-dac-ltc2422-adc-hw-triggering/module__ltc2422-hw-trigger && make -j $(nproc)
+#      - run: cd 040__simple-busses/iio__dc934a__ltc2607-dac-ltc2422-adc-via-app/module__ltc2422-dual-adc && make -j $(nproc) && cd ../userspace && make -j $(nproc)
+#      - run: cd 040__simple-busses/iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/module__ltc2607-dual-dac && make -j $(nproc) && cd ../userspace__ltc2422-adc && make -j $(nproc)
 
 ## interrupts
-      - run: cd 050__interrupts/10_click_irq_device/module && make
-      - run: cd 050__interrupts/20_sleeping_device/module && make
-      - run: cd 050__interrupts/30_click_led_demo/module && make
-      - run: cd 050__interrupts/x86__interrupt && make
-      - run: cd 050__interrupts/x86__tasklet01 && make
-      - run: cd 050__interrupts/x86__tasklet02__dynamic_alloc && make
-      - run: cd 050__interrupts/x86__workqueue01_kernel && make
-      - run: cd 050__interrupts/x86__workqueue02_customized && make
+      - run: cd 050__interrupts/10_click_irq_device/module && make -j $(nproc)
+      - run: cd 050__interrupts/20_sleeping_device/module && make -j $(nproc)
+      - run: cd 050__interrupts/30_click_led_demo/module && make -j $(nproc)
+      - run: cd 050__interrupts/x86__interrupt && make -j $(nproc)
+      - run: cd 050__interrupts/x86__tasklet01 && make -j $(nproc)
+      - run: cd 050__interrupts/x86__tasklet02__dynamic_alloc && make -j $(nproc)
+      - run: cd 050__interrupts/x86__workqueue01_kernel && make -j $(nproc)
+      - run: cd 050__interrupts/x86__workqueue02_customized && make -j $(nproc)
 
 ## memory
-      - run: cd 060__memory/10_linked_list_memory_allocation/module && make
-      - run: cd 060__memory/20_streaming_dma_alloc_and_map && make
-      - run: cd 060__memory/20_consistent_dma_alloc_coherent && make
-      - run: cd 060__memory/30_scatter_gather_dma && make
-#      - run: cd 060__memory/40_userspace_dma && make
-      - run: cd 060__memory/tools_dma && make
+      - run: cd 060__memory/10_linked_list_memory_allocation/module && make -j $(nproc)
+      - run: cd 060__memory/20_streaming_dma_alloc_and_map && make -j $(nproc)
+      - run: cd 060__memory/20_consistent_dma_alloc_coherent && make -j $(nproc)
+      - run: cd 060__memory/30_scatter_gather_dma && make -j $(nproc)
+#      - run: cd 060__memory/40_userspace_dma && make -j $(nproc)
+      - run: cd 060__memory/tools_dma && make -j $(nproc)
 
 ## kthreads
-      - run: cd 080__kthreads/kthread && make
-      - run: cd 080__kthreads/kthread__atomic_operation && make
-      - run: cd 080__kthreads/kthread__completion && make
-      - run: cd 080__kthreads/kthread__completion_dynamic && make
-      - run: cd 080__kthreads/kthread__mutex && make
-      - run: cd 080__kthreads/kthread__rcu && make
-      - run: cd 080__kthreads/kthread__rwlock && make
-      - run: cd 080__kthreads/kthread__seqlock && make
-      - run: cd 080__kthreads/kthread__spinlock && make
+      - run: cd 080__kthreads/kthread && make -j $(nproc)
+      - run: cd 080__kthreads/kthread__atomic_operation && make -j $(nproc)
+      - run: cd 080__kthreads/kthread__completion && make -j $(nproc)
+      - run: cd 080__kthreads/kthread__completion_dynamic && make -j $(nproc)
+      - run: cd 080__kthreads/kthread__mutex && make -j $(nproc)
+      - run: cd 080__kthreads/kthread__rcu && make -j $(nproc)
+      - run: cd 080__kthreads/kthread__rwlock && make -j $(nproc)
+      - run: cd 080__kthreads/kthread__seqlock && make -j $(nproc)
+      - run: cd 080__kthreads/kthread__spinlock && make -j $(nproc)
 
 ## misc
-      - run: cd 100__misc/sysfs && make
-      - run: cd 100__misc/timer && make
-      - run: cd 100__misc/timer__hres_timer && make
+      - run: cd 100__misc/sysfs && make -j $(nproc)
+      - run: cd 100__misc/timer && make -j $(nproc)
+      - run: cd 100__misc/timer__hres_timer && make -j $(nproc)
 
 ## usb
-      - run: cd 140__usb/usb__basic && make
-      - run: cd 140__usb/usb__descriptors && make
+      - run: cd 140__usb/usb__basic && make -j $(nproc)
+      - run: cd 140__usb/usb__descriptors && make -j $(nproc)
