@@ -161,7 +161,8 @@ jobs:
 
 ## interrupts
       - run: cd 050__interrupts/10_click_irq_device/module && make -j $(nproc)
-      - run: cd 050__interrupts/20_sleeping_device/module && make -j $(nproc)
+## does not build in x86
+#      - run: cd 050__interrupts/20_sleeping_device/module && make -j $(nproc)
       - run: cd 050__interrupts/30_click_led_demo/module && make -j $(nproc)
       - run: cd 050__interrupts/x86__interrupt && make -j $(nproc)
       - run: cd 050__interrupts/x86__tasklet01 && make -j $(nproc)
