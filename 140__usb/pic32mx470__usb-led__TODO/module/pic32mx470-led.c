@@ -83,21 +83,21 @@ static int
 led_probe(struct usb_interface *interface, const struct usb_device_id *id)
 {
 	struct usb_device *usbdev = interface_to_usbdev(interface);
-	struct usb_led *leddev = NULL;
+	struct usb_led *led = NULL;
 	struct device *dev = &interface->dev;
 	int ret = -ENOMEM;
 
 	dev_info(dev, "%s() - called", __func__);
 
-	leddev = kzalloc(sizeof(struct usb_led), GFP_KERNEL);
-	if (!leddev) {
+	led = kzalloc(sizeof(struct usb_led), GFP_KERNEL);
+	if (!led) {
 		dev_err(dev, "out of memory", __func__);
 		ret = -ENOMEM;
 		goto error;
 	}
 
 	dev->usbdev = usb_get_dev(usbdev);
-	usb_set_intfdata(interface, leddev);
+	usb_set_intfdata(interface, led);
 
 	ret = device_create_file(&interface->dev, &dev_attr_led);
 	if (ret)
