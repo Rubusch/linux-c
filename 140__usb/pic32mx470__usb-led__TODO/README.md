@@ -1,8 +1,8 @@
 # PIC32MX470: led demos
 
 Kernel Config: make sure the following is set:  
-- CONFIG_HID_SUPPORT
-- CONFIG_HID_GENERIC
+- `CONFIG_HID_SUPPORT`
+- `CONFIG_HID_GENERIC`
 
 
 [USB is a huge topic, here just some general/particular notes]  

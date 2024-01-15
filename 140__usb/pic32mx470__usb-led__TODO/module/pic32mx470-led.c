@@ -20,7 +20,7 @@
 /*
   Table of devices that work with this driver
 
-  Create the ID table tu support hotplugging. The Vendor ID and
+  The ID table to support hotplugging. The Vendor ID and
   Product ID values have to match with the ones used in the PIC32MX
   USB HID device.
  */
@@ -147,7 +147,7 @@ led_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	if (!led) {
 		dev_err(dev, "%s() - out of memory", __func__);
 		ret = -ENOMEM;
-		goto error;
+		goto err;
 	}
 
 	// store the usb device in our data structure
@@ -159,15 +159,15 @@ led_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	// create a led sysfs entry to interact with user space
 	ret = device_create_file(&interface->dev, &dev_attr_led);
 	if (ret)
-		goto error_create_file;
+		goto err_create_file;
 
 	return 0;
 
-error_create_file:
+err_create_file:
 	usb_put_dev(usbdev);
 	usb_set_intfdata(interface, NULL);
 
-error:
+err:
 	kfree(dev);
 	return ret;
 }
