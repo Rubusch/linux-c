@@ -2,10 +2,13 @@
 /*
   USB led demo for the PIC32MX470 with switch
 
+  The communication between the host and the device is done
+  asynchronously by using USB Request Blocks (URBs)
+
   ---
   REFERENCES:
   - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
-*/
+ */
 
 #include <linux/slab.h>
 #include <linux/module.h>
@@ -18,14 +21,17 @@ static void led_urb_out_callback(struct urb *urb);
 static void led_urb_in_callback(struct urb *urb);
 
 /*
-  table of devices that work with this driver
-*/
+  The table of devices that work with this driver
+ */
 static const struct usb_device_id id_table[] = {
 	{ USB_DEVICE(USBLED_VENDOR_ID, USBLED_PRODUCT_ID) },
 	{ },
 };
 MODULE_DEVICE_TABLE(usb, id_table);
 
+/*
+  Create a private structure that will store the driver's data.
+ */
 struct usb_led {
 	struct usb_device *usbdev;
 	struct usb_interface *intf;
@@ -147,6 +153,7 @@ led_urb_in_callback(struct urb* urb)
 static int
 led_probe(struct usb_interface *interface, const struct usb_device_id *id)
 {
+	// obtain the struct usb_device from the usb_interface
 	struct usb_device *usbdev = interface_to_usbdev(interface);
 	struct usb_host_interface *altsetting = interface->cur_altsetting;
 	struct usb_endpoint_descriptor *endpoint;
@@ -185,7 +192,7 @@ led_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	dev_info(dev, "%s() - endpoint OUT address is 0x%02x",
 		 __func__, ep_out);
 
-	// allocate a usb_led instance
+	// allocate the private data structure
 	led = kzalloc(sizeof(*led), GFP_KERNEL);
 	if (!led) {
 		dev_err(dev, "%s() - out of memory", __func__);
@@ -230,6 +237,7 @@ led_probe(struct usb_interface *interface, const struct usb_device_id *id)
 
 	usb_set_intfdata(interface, led);
 
+	// create a led sysfs entry to interact with user space
 	ret = device_create_file(&interface->dev, &dev_attr_led);
 	if (ret)
 		goto err_create_file;
@@ -262,8 +270,8 @@ led_disconnect(struct usb_interface *interface)
 {
 	struct usb_led *led = usb_get_intfdata(interface);
 	struct device* dev = &interface->dev;
-
 	dev_info(dev, "%s() - called", __func__);
+
 	device_remove_file(&interface->dev, &dev_attr_led);
 	usb_free_urb(led->interrupt_out_urb);
 	usb_free_urb(led->interrupt_in_urb);
@@ -274,6 +282,9 @@ led_disconnect(struct usb_interface *interface)
 	dev_info(dev, "%s() - usb led is now disconnected", __func__);
 }
 
+/*
+  prepare the struct usb_driver to be registered at the USB core
+ */
 static struct usb_driver led_driver = {
 	.name = "usbled",
 	.probe = led_probe,

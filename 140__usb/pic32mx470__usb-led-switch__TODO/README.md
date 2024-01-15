@@ -1,10 +1,22 @@
 # PIC32MX470: usb led demo with switch
 
+Kernel Config: make sure the following is set:  
+- `CONFIG_HID_SUPPORT`
+- `CONFIG_HID_GENERIC`
+
 The communication between the host and the devie here is done asynchronously by using USB request blocks (urbs).  
 
 ## Hardware: Microchip Curiosity PIC32MX470 (PIC32MX470512H)
 
-PIC32 Board: https://www.microchip.com/DevelopmentTools/ProductDetails/dm320103
+PIC32 Board:  
+https://www.microchip.com/DevelopmentTools/ProductDetails/dm320103
+
+Connection:  
+Connect the USB Micro-B port (J12) of the PIC32MX470 Curiosity
+Development Board to the J19 USB-B type C connector. In case this will
+need a USB type-C male to micro-B male cable.  
+
+TODO    
 
 
 ## Software: MPLAB X IDE
@@ -19,21 +31,12 @@ $ sudo ./MPLABX-v6.15-linux-installer.sh
 -> only select MPLAB X IDE, and
 -> PIC32 support
 ```
+
+## Setup the HID Application in the MPLAB IDE
+
 TODO       
 
 # Build
-
-## Devicetree
-
-Copy it to the specified location in the linux sources, then build it  
-```
-$ cd linux
-$ cp -arf <SOURCES>/devicetree/arch ./
-$ find . -name \*.dtb -delete
-$ make dtbs
-  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
-```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
 
 ## Module
 
@@ -56,4 +59,4 @@ TODO
 ```
 
 ## References
-* Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 594ff, p. 616  
+* Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 617ff, p. 628  
