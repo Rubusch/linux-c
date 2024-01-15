@@ -37,7 +37,7 @@ led_show(struct device *dev, struct device_attribute *attr, char *buf)
 	struct usb_led *led = usb_get_intfdata(intf);
 	dev_info(dev, "%s() - called", __func__);
 
-	return sprintf(buf, "%d\n", led->led-number);
+	return sprintf(buf, "%d\n", led->led_number);
 }
 
 static ssize_t
@@ -45,7 +45,6 @@ led_store(struct device *dev, struct device_attribute *attr, const char *buf, si
 {
 	struct usb_interface *intf = to_usb_interface(dev);
 	struct usb_led *led = usb_get_intfdata(intf);
-	struct device *dev = &intf->dev;
 	u8 val;
 	int error, ret;
 
@@ -73,7 +72,7 @@ led_store(struct device *dev, struct device_attribute *attr, const char *buf, si
 			   1, NULL, 0);
 	if (ret) {
 		ret = -EFAULT;
-		return retval;
+		return ret;
 	}
 	return count;
 }
@@ -91,12 +90,12 @@ led_probe(struct usb_interface *interface, const struct usb_device_id *id)
 
 	led = kzalloc(sizeof(struct usb_led), GFP_KERNEL);
 	if (!led) {
-		dev_err(dev, "out of memory", __func__);
+		dev_err(dev, "%s() - out of memory", __func__);
 		ret = -ENOMEM;
 		goto error;
 	}
 
-	dev->usbdev = usb_get_dev(usbdev);
+	led->usbdev = usb_get_dev(usbdev);
 	usb_set_intfdata(interface, led);
 
 	ret = device_create_file(&interface->dev, &dev_attr_led);
@@ -117,14 +116,14 @@ error:
 static void
 led_disconnect(struct usb_interface *interface)
 {
-	struct usb_led *leddev;
+	struct usb_led *led = usb_get_intfdata(interface);
 	struct device* dev = &interface->dev;
+	dev_info(dev, "%s() - called", __func__);
 
-	leddev = usb_get_intfdata(interface);
 	device_remove_file(&interface->dev, &dev_attr_led);
 	usb_set_intfdata(interface, NULL);
-	usb_put_dev(dev->usbdev);
-	kfree(dev);
+	usb_put_dev(led->usbdev);
+	kfree(led);
 
 	dev_info(dev, "%s() - usb led is now disconnected", __func__);
 }
