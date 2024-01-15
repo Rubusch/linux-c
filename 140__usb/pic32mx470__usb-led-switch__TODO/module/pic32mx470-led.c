@@ -50,7 +50,7 @@ led_show(struct device *dev, struct device_attribute *attr, char *buf)
 	struct usb_led *led = usb_get_intfdata(intf);
 	dev_info(dev, "%s() - called", __func__);
 
-	return sprintf(buf, "%d\n", led->led-number);
+	return sprintf(buf, "%d\n", led->led_number);
 }
 
 static ssize_t
@@ -58,7 +58,6 @@ led_store(struct device *dev, struct device_attribute *attr, const char *buf, si
 {
 	struct usb_interface *intf = to_usb_interface(dev);
 	struct usb_led *led = usb_get_intfdata(intf);
-	struct device *dev = &intf->dev;
 	u8 val;
 	int error, ret;
 
@@ -118,7 +117,7 @@ static void
 led_urb_in_callback(struct urb* urb)
 {
 	struct usb_led *led = urb->context;
-	struct device *dev = &led->usbdev->dev;;
+	struct device *dev = &led->usbdev->dev;
 	int ret;
 
 	if (urb->status) {
@@ -130,9 +129,9 @@ led_urb_in_callback(struct urb* urb)
 		}
 	}
 
-	if (0x00 == led->ibuffer) {
+	if (0x00 == led->ibuf) {
 		pr_info("switch is ON.");
-	} else if (0x01 == led->ibuffer) {
+	} else if (0x01 == led->ibuf) {
 		pr_info("switch is OFF.");
 	} else {
 		pr_info("bad value received.");
@@ -191,7 +190,7 @@ led_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	if (!led) {
 		dev_err(dev, "%s() - out of memory", __func__);
 		ret = -ENOMEM;
-		goto error;
+		goto err;
 	}
 
 	// init usb_led instance
@@ -204,28 +203,28 @@ led_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	// alloate int_out_urb instance
 	led->interrupt_out_urb = usb_alloc_urb(0, GFP_KERNEL);
 	if (!led->interrupt_out_urb) {
-		goto error_out;
+		goto err;
 	}
 
 	// initialize int_out_urb
 	usb_fill_int_urb(led->interrupt_out_urb,
 			 led->usbdev,
-			 usb_sndintpipe(led->usbdev, ep_out);
-			 (void*) &dev->irq_data,
+			 usb_sndintpipe(led->usbdev, ep_out),
+			 (void*) &led->irq_data,
 			 1,
 			 led_urb_out_callback, led, 1);
 
 	// allocate int_in_urb instance
 	led->interrupt_in_urb = usb_alloc_urb(0, GFP_KERNEL);
 	if (!led->interrupt_in_urb) {
-		goto error_out;
+		goto err;
 	}
 
 	// initialize int_in_urb
 	usb_fill_int_urb(led->interrupt_in_urb,
 			 led->usbdev,
 			 usb_rcvintpipe(led->usbdev, ep_in),
-			 (void*) &led->ibuffer,
+			 (void*) &led->ibuf,
 			 1,
 			 led_urb_in_callback, led, 1);
 
@@ -233,27 +232,27 @@ led_probe(struct usb_interface *interface, const struct usb_device_id *id)
 
 	ret = device_create_file(&interface->dev, &dev_attr_led);
 	if (ret)
-		goto error_create_file;
+		goto err_create_file;
 
 	ret = usb_submit_urb(led->interrupt_in_urb, GFP_KERNEL);
 	if (ret) {
 		dev_err(dev, "%s() - failed to submit interrupt_in_urb %d",
 			__func__, ret);
 		device_remove_file(dev, &dev_attr_led);
-		goto error_create_file;
+		goto err_create_file;
 	}
 
 	dev_info(dev, "%s() - interrupt_in_urb submitted", __func__);
 
 	return 0;
 
-error_create_file:
-	usb_free_urb(dev->interrupt_out_urb);
-	usb_free_urb(dev->interrupt_in_urb);
+err_create_file:
+	usb_free_urb(led->interrupt_out_urb);
+	usb_free_urb(led->interrupt_in_urb);
 	usb_put_dev(usbdev);
 	usb_set_intfdata(interface, NULL);
 
-error:
+err:
 	kfree(dev);
 	return ret;
 }
@@ -261,16 +260,16 @@ error:
 static void
 led_disconnect(struct usb_interface *interface)
 {
-	struct usb_led *led;
+	struct usb_led *led = usb_get_intfdata(interface);
 	struct device* dev = &interface->dev;
 
-	led = usb_get_intfdata(interface);
+	dev_info(dev, "%s() - called", __func__);
 	device_remove_file(&interface->dev, &dev_attr_led);
-	usb_free_urb(dev->interrupt_out_urb);
-	usb_free_urb(dev->interrupt_in_urb);
+	usb_free_urb(led->interrupt_out_urb);
+	usb_free_urb(led->interrupt_in_urb);
 	usb_set_intfdata(interface, NULL);
-	usb_put_dev(dev->usbdev);
-	kfree(dev);
+	usb_put_dev(led->usbdev);
+	kfree(led);
 
 	dev_info(dev, "%s() - usb led is now disconnected", __func__);
 }
