@@ -178,7 +178,7 @@ static int ltc3206_i2c_write(struct i2c_ltc3206 *i2cdev, struct i2c_msg *pmsg)
 	int ret, idx;
 
 	// NB: use pr_debug() and turn on output with dynamic debuggin
-  // TODO use pr_debug()    
+	// TODO use pr_debug()    
 	pr_debug("%s(): called", __func__);
 	if (LTC3206_I2C_DATA_LEN < pmsg->len) {
 		pr_err("%s(): problem with the length", __func__);
@@ -355,4 +355,4 @@ module_usb_driver(ltc3206_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("pic32 usb demo with ltc3206");
+MODULE_DESCRIPTION("pic32 usb demo with LTC3206 and DC749a");
