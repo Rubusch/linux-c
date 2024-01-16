@@ -47,8 +47,13 @@ TODO
 
 ## Software: MPLAB X IDE
 
-MPLAB X IDE: https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide#tabs
+Select `PIC32MX470512H` of family `PIC32MX`.  
 
+- MPLAB X IDE: https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide#tabs  
+- X32 compiler: https://www.microchip.com/en-us/tools-resources/develop/mplab-xc-compilers/xc32  
+- MPLAB Harmony v3.x: clone from github  
+
+Install MPLAB X IDE  
 ```
 $ sudo apt install -y libusb-1.0-0
 
@@ -57,6 +62,21 @@ $ sudo ./MPLABX-v6.15-linux-installer.sh
 -> only select MPLAB X IDE, and
 -> PIC32 support
 ```
+
+Install Harmony 3  
+```
+$ sudo chown <user>:<user> -R /opt/microchip
+$ mkdir -p /opt/microchip/harmony && cd $_
+$ git clone https://github.com/Microchip-MPLAB-Harmony/mplabx-plugin
+```
+
+Then for a project, go  
+
+- `Tools -> Plugins -> Downloaded -> Add plugins -> navigate to .nbm file above -> Open -> Install` (with 6.0, I previously found the plugin online under "Available Plugins ")
+- `Tools -> Embedded -> MPLAB Harmony 3 Content Manager -> download all default packages into a path you choose`
+- `File -> New Project -> 32 bit MCC Harmony Project` (specify the same path)
+- And later, `Tools -> Embedded -> MPLAB Code Configurator v5 Open/Close` (or just click the blue shield icon with MCC)
+
 
 ## Setup the HID Application in the MPLAB IDE
 
