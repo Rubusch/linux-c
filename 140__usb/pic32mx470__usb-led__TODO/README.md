@@ -34,7 +34,7 @@ by using USB Request Blocks (URBs).
 
 ## Hardware: Microchip Curiosity PIC32MX470 (PIC32MX470512H)
 
-PIC32 Board:  
+#### PIC32 Board
 https://www.microchip.com/DevelopmentTools/ProductDetails/dm320103
 
 Connection:  
