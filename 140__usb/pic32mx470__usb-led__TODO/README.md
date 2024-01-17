@@ -72,8 +72,10 @@ $ git clone https://github.com/Microchip-MPLAB-Harmony/mplabx-plugin
 
 Then for a project, go  
 
-- `Tools -> Plugins -> Downloaded -> Add plugins -> navigate to .nbm file above -> Open -> Install` (with 6.0, I previously found the plugin online under "Available Plugins ")
-- `Tools -> Embedded -> MPLAB Harmony 3 Content Manager -> download all default packages into a path you choose`
+- `Tools -> Plugins -> Downloaded -> Add plugins -> navigate to .nbm file above -> Open -> Install` (with 6.x, I previously found the plugin online under "Available Plugins ")
+- `Tools -> Embedded -> MPLAB Harmony 3 Content Manager`
+- Download all default packages into a path you choose
+- Download `usb` and `usb-device`
 - `File -> New Project -> 32 bit MCC Harmony Project` (specify the same path)
 - And later, `Tools -> Embedded -> MPLAB Code Configurator v5 Open/Close` (or just click the blue shield icon with MCC)
 
