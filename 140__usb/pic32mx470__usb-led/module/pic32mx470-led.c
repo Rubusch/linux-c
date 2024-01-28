@@ -14,8 +14,9 @@
 #include <linux/module.h>
 #include <linux/usb.h>
 
-#define USBLED_VENDOR_ID 0x04D8
-#define USBLED_PRODUCT_ID 0x003F
+#define USBLED_VENDOR_ID   0x04D8
+#define USBLED_PRODUCT_ID  0x003F
+
 
 /*
   Table of devices that work with this driver
@@ -24,11 +25,11 @@
   Product ID values have to match with the ones used in the PIC32MX
   USB HID device.
  */
-static const struct usb_device_id id_table[] = {
+static const struct usb_device_id usbled_id_table[] = {
 	{ USB_DEVICE(USBLED_VENDOR_ID, USBLED_PRODUCT_ID) },
-	{ },
+	{ }
 };
-MODULE_DEVICE_TABLE(usb, id_table);
+MODULE_DEVICE_TABLE(usb, usbled_id_table);
 
 /*
   Create a private structure that will store the driver's data.
@@ -132,7 +133,7 @@ static DEVICE_ATTR_RW(led);
   - post_reset()    // the device has been reset
  */
 static int
-led_probe(struct usb_interface *interface, const struct usb_device_id *id)
+usbled_probe(struct usb_interface *interface, const struct usb_device_id *id)
 {
 	// obtain the struct usb_device from the usb_interface
 	struct usb_device *usbdev = interface_to_usbdev(interface);
@@ -173,10 +174,11 @@ err:
 }
 
 static void
-led_disconnect(struct usb_interface *interface)
+usbled_disconnect(struct usb_interface *interface)
 {
 	struct usb_led *led = usb_get_intfdata(interface);
 	struct device* dev = &interface->dev;
+
 	dev_info(dev, "%s() - called", __func__);
 
 	device_remove_file(&interface->dev, &dev_attr_led);
@@ -191,10 +193,10 @@ led_disconnect(struct usb_interface *interface)
   prepare the struct usb_driver to be registered at the USB core
  */
 static struct usb_driver led_driver = {
-	.name = "usbled",
-	.probe = led_probe,
-	.disconnect = led_disconnect,
-	.id_table = id_table,
+	.name = "lothars_usbled",
+	.id_table = usbled_id_table,
+	.probe = usbled_probe,
+	.disconnect = usbled_disconnect,
 };
 module_usb_driver(led_driver);
 
