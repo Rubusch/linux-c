@@ -37,10 +37,10 @@
 // *****************************************************************************
 
 /* Recieve data buffer */
-uint8_t receiveDataBuffer[64] CACHE_ALIGN;
+uint8_t receiveDataBuffer[64] __attribute__((aligned(16)));
 
 /* Transmit data buffer */
-uint8_t  transmitDataBuffer[64] CACHE_ALIGN;
+uint8_t  transmitDataBuffer[64] __attribute__((aligned(16)));
 
 // *****************************************************************************
 /* Application Data
@@ -231,13 +231,16 @@ void APP_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
-    
+
+    /* initialize USB HID device and USB task state machine */
     appData.usbDevHandle = USB_DEVICE_HANDLE_INVALID;
     appData.deviceConfigured = false;
+
     appData.txTransferHandle = USB_DEVICE_HID_TRANSFER_HANDLE_INVALID;
     appData.rxTransferHandle = USB_DEVICE_HID_TRANSFER_HANDLE_INVALID;
     appData.hidDataReceived = false;
     appData.hidDataTransmitted = true;
+
     appData.receiveDataBuffer = &receiveDataBuffer[0];
     appData.transmitDataBuffer = &transmitDataBuffer[0];
 }
@@ -307,17 +310,55 @@ void APP_Tasks ( void )
 
                 switch(appData.receiveDataBuffer[0])
                 {
+/*                    
                     case 0x80:
 
-                        /* Toggle on board LED1 to LED2. */
+                        // Toggle on board LED1 to LED2.
                         LED1_Toggle(  );
 
                         appData.hidDataReceived = false;
 
-                        /* Place a new read request. */
+                        // Place a new read request.
                         USB_DEVICE_HID_ReportReceive (USB_DEVICE_HID_INDEX_0,
                                 &appData.rxTransferHandle, appData.receiveDataBuffer, 64 );
 
+                        break;
+*/
+                    case 0x01:
+                        LED1_Toggle();
+                        appData.hidDataReceived = false;
+
+                        // place a new read request
+                        USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
+                                &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
+                      
+                        break;
+                    case 0x02:
+                        LED1_Toggle();
+                        appData.hidDataReceived = false;
+
+                        // place a new read request
+                        USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
+                                &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
+                        
+                        break;
+                    case 0x03:
+                        LED1_Toggle();
+                        appData.hidDataReceived = false;
+
+                        // place a new read request
+                        USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
+                                &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
+                        
+                        break;
+                    case 0x00:
+                        LED1_Toggle();
+                        appData.hidDataReceived = false;
+
+                        // place a new read request
+                        USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
+                                &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
+                        
                         break;
 
                     case 0x81:
