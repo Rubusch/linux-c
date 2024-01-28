@@ -1,33 +1,30 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-  USB led demo for the PIC32MX470 with switch
+  USB led demo for the PIC32MX470 with switch button
 
   The communication between the host and the device is done
   asynchronously by using USB Request Blocks (URBs)
-
-  ---
-  REFERENCES:
-  - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
  */
 
 #include <linux/slab.h>
 #include <linux/module.h>
 #include <linux/usb.h>
 
-#define USBLED_VENDOR_ID 0x04D8
-#define USBLED_PRODUCT_ID 0x003F
+#define USBLED_VENDOR_ID   0x04D8
+#define USBLED_PRODUCT_ID  0x003F
 
 static void led_urb_out_callback(struct urb *urb);
 static void led_urb_in_callback(struct urb *urb);
 
 /*
-  The table of devices that work with this driver
+  NB: The vendor and product id will only match, if the usbhid module
+   is not present!
  */
-static const struct usb_device_id id_table[] = {
+static const struct usb_device_id usbled_id_table[] = {
 	{ USB_DEVICE(USBLED_VENDOR_ID, USBLED_PRODUCT_ID) },
 	{ },
 };
-MODULE_DEVICE_TABLE(usb, id_table);
+MODULE_DEVICE_TABLE(usb, usbled_id_table);
 
 /*
   Create a private structure that will store the driver's data.
@@ -151,7 +148,7 @@ led_urb_in_callback(struct urb* urb)
 }
 
 static int
-led_probe(struct usb_interface *interface, const struct usb_device_id *id)
+usbled_probe(struct usb_interface *interface, const struct usb_device_id *id)
 {
 	// obtain the struct usb_device from the usb_interface
 	struct usb_device *usbdev = interface_to_usbdev(interface);
@@ -266,10 +263,11 @@ err:
 }
 
 static void
-led_disconnect(struct usb_interface *interface)
+usbled_disconnect(struct usb_interface *interface)
 {
 	struct usb_led *led = usb_get_intfdata(interface);
 	struct device* dev = &interface->dev;
+
 	dev_info(dev, "%s() - called", __func__);
 
 	device_remove_file(&interface->dev, &dev_attr_led);
@@ -286,13 +284,13 @@ led_disconnect(struct usb_interface *interface)
   prepare the struct usb_driver to be registered at the USB core
  */
 static struct usb_driver led_driver = {
-	.name = "usbled",
-	.probe = led_probe,
-	.disconnect = led_disconnect,
-	.id_table = id_table,
+	.name = "lothars_usbled",
+	.id_table = usbled_id_table,
+	.probe = usbled_probe,
+	.disconnect = usbled_disconnect,
 };
 module_usb_driver(led_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("pic32 usb demo: led/switch usb controlled");
+MODULE_DESCRIPTION("pic32mx470 usb demo: led/switch usb controlled");
