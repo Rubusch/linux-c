@@ -81,6 +81,17 @@ Description of how to setup the USB HID Demo as a new project. Type `CTRL + SHIF
 
 TODO          
 
+
+#### Source Organization
+
+- Find the implementation in `app.c`, `app.h` and `main.c`
+- The platform here is `default`, it is not supposed to be modified
+- Find available LED instructions in `./firmware/src/config/default/bsp/bsp.h`
+- USB device driver is prepared also in config/default
+
+This Implementation registers for USB read requests directly, instead of setting up yet another state machine, then going into a USB-wait-for-data-state  
+
+
 #### One word about MHC / Clocking plugin
 
 After the MCC setup was setup, or anyhow adjusted, you need to `generate` the setup. Only this will generate the code. In case a meld-based diff will pop up to accept the design modifications to the project `src`. Example, the clock settings are by default turned off, no divider are seetup and USB won't clocked. This can be adjusted in the `plugin -> Clock Settings`. This is _not_ sufficient. Do the `generate` and accept the settings e.g. into the `./usb/initialization.c` file.  
