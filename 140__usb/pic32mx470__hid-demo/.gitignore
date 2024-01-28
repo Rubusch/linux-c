@@ -1,0 +1,9 @@
+## MPLAB X Harmony build generated files
+firmware/pic32mx470-hid-demo.X/nbproject/Makefile*
+*.log
+*.log.inx
+.generated_files
+
+## generated .gitignore entries, build and dist folders
+firmware/pic32mx470-hid-demo.X/build/
+firmware/pic32mx470-hid-demo.X/dist/

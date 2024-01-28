@@ -27,5 +27,3 @@ REMOVEME
 *.bk
 *.orig
 *~
-/140__usb/pic32mx470__hid-demo/firmware/pic32mx470-hid-demo.X/build/
-/140__usb/pic32mx470__hid-demo/firmware/pic32mx470-hid-demo.X/dist/
