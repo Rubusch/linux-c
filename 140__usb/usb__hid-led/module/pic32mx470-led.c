@@ -4,10 +4,6 @@
 
   The driver requires the PIC32MX470 hardware and thus the MPLAB IDE
   with a USB HID application project.
-
-  ---
-  REFERENCES:
-  - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
  */
 
 #include <linux/slab.h>
@@ -19,15 +15,12 @@
 
 
 /*
-  Table of devices that work with this driver
-
-  The ID table to support hotplugging. The Vendor ID and
-  Product ID values have to match with the ones used in the PIC32MX
-  USB HID device.
+  NB: The vendor and product id will only match, if the usbhid module
+   is not present!
  */
 static const struct usb_device_id usbled_id_table[] = {
 	{ USB_DEVICE(USBLED_VENDOR_ID, USBLED_PRODUCT_ID) },
-	{ }
+	{ },
 };
 MODULE_DEVICE_TABLE(usb, usbled_id_table);
 
@@ -82,7 +75,7 @@ led_store(struct device *dev, struct device_attribute *attr, const char *buf, si
 		return error;
 
 	led->led_number = val;
-	if (val == 1 || val == 2 || val == 3) {
+	if (val == 1 || val == 2 || val == 3 || val == 0) {
 		dev_info(dev, "%s() - led = %d\n",
 			 __func__, led->led_number);
 	} else {
@@ -202,4 +195,4 @@ module_usb_driver(led_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("pic32 usb demo");
+MODULE_DESCRIPTION("pic32mx470 usb demo");
