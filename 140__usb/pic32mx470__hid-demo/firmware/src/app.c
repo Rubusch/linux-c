@@ -334,7 +334,7 @@ void APP_Tasks ( void )
                       
                         break;
                     case 0x02:
-                        LED1_Toggle();
+                        LED2_Toggle();
                         appData.hidDataReceived = false;
 
                         // place a new read request
@@ -343,7 +343,7 @@ void APP_Tasks ( void )
                         
                         break;
                     case 0x03:
-                        LED1_Toggle();
+                        LED3_Toggle();
                         appData.hidDataReceived = false;
 
                         // place a new read request
@@ -352,7 +352,9 @@ void APP_Tasks ( void )
                         
                         break;
                     case 0x00:
-                        LED1_Toggle();
+                        LED1_Off();
+                        LED2_Off();
+                        LED3_Off();
                         appData.hidDataReceived = false;
 
                         // place a new read request
