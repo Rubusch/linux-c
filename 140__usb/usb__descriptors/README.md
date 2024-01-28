@@ -1,56 +1,64 @@
 # USB Demo Module
 
-The source was tested compiled and running on 5.4.75.  
+For verification I used my PIC32MX470 board, configured to the below
+USB vendor id as an HID device.  
+
+NB: USB vendor and product id are not enough in recent
+kernels. Without UDEV rule, the inplace kernel modules such as usbhid
+will catch the device before our probe().  
+
+In this setup, make sure the following is _NOT_ set (or at least as
+module, then unload the module). Alternatively a udev rule has to be
+in place additionally to allow for USB matching:  
+
+- `CONFIG_USB_HID`
 
 
 ## Usage
-
-First, **adjust the vendorid and deviceid** in the source to the specific device.  
 
 ```
 $ make
 $ sudo insmod hello_usb.ko
 ```
-
-Now plug the specified USB device and have a look into the ``/var/log/syslog``.  
-
+Copy the module to the target device. Load it. The USB device can be already connected, or connect it, the module will print the descriptor data to the logs.  
 ```
-$ sudo dmesg | tail
-    Feb  3 15:33:54 debian kernel: lothars_usb_driver 1-4.3.2:1.4: usb driver probed - vendor id: 0x1366, product id: 0x1051
-    Feb  3 15:33:54 debian kernel: USB INTERFACE DESCRIPTOR:
-    Feb  3 15:33:54 debian kernel: -------------------------
-    Feb  3 15:33:54 debian kernel: bLength: 0x9
-    Feb  3 15:33:54 debian kernel: bDescriptorType: 0x4
-    Feb  3 15:33:54 debian kernel: bInterfaceNumber: 0x4
-    Feb  3 15:33:54 debian kernel: bAlternateSetting: 0x0
-    Feb  3 15:33:54 debian kernel: bNumEndpoints: 0x2
-    Feb  3 15:33:54 debian kernel: bInterfaceClass: 0xff
-    Feb  3 15:33:54 debian kernel: bInterfaceSubClass: 0xff
-    Feb  3 15:33:54 debian kernel: bInterfaceProtocol: 0xff
-    Feb  3 15:33:54 debian kernel: iInterface: 0x9
-    Feb  3 15:33:54 debian kernel: 
-    Feb  3 15:33:54 debian kernel: USB ENDPOINT DESCRIPTOR:
-    Feb  3 15:33:54 debian kernel: -------------------------
-    Feb  3 15:33:54 debian kernel: bLength: 0x7
-    Feb  3 15:33:54 debian kernel: bDescriptorType: 0x5
-    Feb  3 15:33:54 debian kernel: bEndpointAddress: 0x89
-    Feb  3 15:33:54 debian kernel: bmAttributes: 0x2
-    Feb  3 15:33:54 debian kernel: wMaxPacketSize: 0x40
-    Feb  3 15:33:54 debian kernel: bInterval: 0x1
-    Feb  3 15:33:54 debian kernel: 
-    Feb  3 15:33:54 debian kernel: USB ENDPOINT DESCRIPTOR:
-    Feb  3 15:33:54 debian kernel: -------------------------
-    Feb  3 15:33:54 debian kernel: bLength: 0x7
-    Feb  3 15:33:54 debian kernel: bDescriptorType: 0x5
-    Feb  3 15:33:54 debian kernel: bEndpointAddress: 0x6
-    Feb  3 15:33:54 debian kernel: bmAttributes: 0x2
-    Feb  3 15:33:54 debian kernel: wMaxPacketSize: 0x40
-    Feb  3 15:33:54 debian kernel: bInterval: 0x1
-    Feb  3 15:33:54 debian kernel: 
+Jan 28 06:17:09 ctrl001 kernel: [20269.482711] usbcore: deregistering interface driver lothars_usb
+Jan 28 06:17:09 ctrl001 kernel: [20269.482875] pen_disconnect() - XXX usb device disconnected XXX
+Jan 28 06:24:46 ctrl001 kernel: [20726.581210] lothars_usb_driver 1-1.5:1.0: usb driver probed - vendor id: 0x4d8, product id: 0x3f
+Jan 28 06:24:46 ctrl001 kernel: [20726.581255] USB INTERFACE DESCRIPTOR:
+Jan 28 06:24:46 ctrl001 kernel: [20726.581271] -------------------------
+Jan 28 06:24:46 ctrl001 kernel: [20726.581286] bLength: 0x9
+Jan 28 06:24:46 ctrl001 kernel: [20726.581302] bDescriptorType: 0x4
+Jan 28 06:24:46 ctrl001 kernel: [20726.581319] bInterfaceNumber: 0x0
+Jan 28 06:24:46 ctrl001 kernel: [20726.581335] bAlternateSetting: 0x0
+Jan 28 06:24:46 ctrl001 kernel: [20726.581351] bNumEndpoints: 0x2
+Jan 28 06:24:46 ctrl001 kernel: [20726.581368] bInterfaceClass: 0x3
+Jan 28 06:24:46 ctrl001 kernel: [20726.581383] bInterfaceSubClass: 0x0
+Jan 28 06:24:46 ctrl001 kernel: [20726.581399] bInterfaceProtocol: 0x0
+Jan 28 06:24:46 ctrl001 kernel: [20726.581416] iInterface: 0x0
+Jan 28 06:24:46 ctrl001 kernel: [20726.581432]
+Jan 28 06:24:46 ctrl001 kernel: [20726.581446] USB ENDPOINT DESCRIPTOR:
+Jan 28 06:24:46 ctrl001 kernel: [20726.581461] -------------------------
+Jan 28 06:24:46 ctrl001 kernel: [20726.581475] bLength: 0x7
+Jan 28 06:24:46 ctrl001 kernel: [20726.581491] bDescriptorType: 0x5
+Jan 28 06:24:46 ctrl001 kernel: [20726.581508] bEndpointAddress: 0x81
+Jan 28 06:24:46 ctrl001 kernel: [20726.581524] bmAttributes: 0x3
+Jan 28 06:24:46 ctrl001 kernel: [20726.581540] wMaxPacketSize: 0x40
+Jan 28 06:24:46 ctrl001 kernel: [20726.581557] bInterval: 0x1
+Jan 28 06:24:46 ctrl001 kernel: [20726.581573]
+Jan 28 06:24:46 ctrl001 kernel: [20726.581587] USB ENDPOINT DESCRIPTOR:
+Jan 28 06:24:46 ctrl001 kernel: [20726.581601] -------------------------
+Jan 28 06:24:46 ctrl001 kernel: [20726.581624] bLength: 0x7
+Jan 28 06:24:46 ctrl001 kernel: [20726.581640] bDescriptorType: 0x5
+Jan 28 06:24:46 ctrl001 kernel: [20726.581656] bEndpointAddress: 0x1
+Jan 28 06:24:46 ctrl001 kernel: [20726.581673] bmAttributes: 0x3
+Jan 28 06:24:46 ctrl001 kernel: [20726.581689] wMaxPacketSize: 0x40
+Jan 28 06:24:46 ctrl001 kernel: [20726.581705] bInterval: 0x1
+Jan 28 06:24:46 ctrl001 kernel: [20726.581721]
+Jan 28 06:24:46 ctrl001 kernel: [20726.583014] usbcore: registered new interface driver lothars_usb_driver
 ```
 
 Unload the driver as follows.  
-
 ```
 $ sudo rmmod hello_usb
 ```
@@ -59,7 +67,6 @@ $ sudo rmmod hello_usb
 ## Notes
 
 **USB core** - USB core is a codebase consisting of routines and structures available to HCDs (Host Controller Driver) and USB drivers.  
-
 **USB Driver** - This is the USB driver which we are going to write for the USB devices.  
 
 

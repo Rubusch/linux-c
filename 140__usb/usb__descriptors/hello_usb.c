@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
 */
 
@@ -25,9 +26,9 @@ static void lothars_usb_disconnect(struct usb_interface *);
 // e.g. using my SONY usbstick
 #define USB_DRIVER_NAME "lothars_usb_driver"
 
-// XXX adjust here XXX
-#define USB_VENDORID 0x346d
-#define USB_PRODUCTID 0x5678
+// NB: can be ignored, if there is a usbcore mech overriding
+#define USB_VENDORID  0x04D8
+#define USB_PRODUCTID 0x003F
 
 
 #define PRINT_USB_IFACE_DESCRIPTOR(i)                                          \
