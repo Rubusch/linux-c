@@ -51,6 +51,7 @@ led_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct usb_interface *intf = to_usb_interface(dev);
 	struct usb_led *led = usb_get_intfdata(intf);
+
 	dev_info(dev, "%s() - called", __func__);
 
 	return sprintf(buf, "%d\n", led->led_number);
@@ -123,6 +124,8 @@ led_urb_in_callback(struct urb* urb)
 	struct device *dev = &led->usbdev->dev;
 	int ret;
 
+	dev_info(dev, "%s() - called", __func__);
+
 	if (urb->status) {
 		if (!(urb->status == -ENOENT ||
 		      urb->status == -ECONNRESET ||
@@ -132,12 +135,15 @@ led_urb_in_callback(struct urb* urb)
 		}
 	}
 
-	if (0x00 == led->ibuf) {
-		pr_info("switch is ON.");
-	} else if (0x01 == led->ibuf) {
-		pr_info("switch is OFF.");
-	} else {
-		pr_info("bad value received.");
+	switch (led->ibuf) {
+	case 0x00:
+		dev_info(dev, "%s() - switch is OFF", __func__);
+		break;
+	case 0x01:
+		dev_info(dev, "%s() - switch is ON", __func__);
+		break;
+	default:
+		dev_info(dev, "%s() - switch has BAD VALUE", __func__);
 	}
 
 	ret = usb_submit_urb(led->interrupt_in_urb, GFP_KERNEL);
@@ -160,6 +166,7 @@ usbled_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	int ret = -ENOMEM, size, res;
 
 	dev_info(dev, "%s() - called", __func__);
+
 	res = usb_find_last_int_out_endpoint(altsetting, &endpoint);
 	if (res) {
 		dev_info(dev, "%s() - no endpoint found", __func__);
@@ -215,8 +222,8 @@ usbled_probe(struct usb_interface *interface, const struct usb_device_id *id)
 			 led->usbdev,
 			 usb_sndintpipe(led->usbdev, ep_out),
 			 (void*) &led->irq_data,
-			 1,
-			 led_urb_out_callback, led, 1);
+			 64,
+			 led_urb_out_callback, led, 64);
 
 	// allocate int_in_urb instance
 	led->interrupt_in_urb = usb_alloc_urb(0, GFP_KERNEL);
@@ -229,8 +236,8 @@ usbled_probe(struct usb_interface *interface, const struct usb_device_id *id)
 			 led->usbdev,
 			 usb_rcvintpipe(led->usbdev, ep_in),
 			 (void*) &led->ibuf,
-			 1,
-			 led_urb_in_callback, led, 1);
+			 64,
+			 led_urb_in_callback, led, 64);
 
 	usb_set_intfdata(interface, led);
 
