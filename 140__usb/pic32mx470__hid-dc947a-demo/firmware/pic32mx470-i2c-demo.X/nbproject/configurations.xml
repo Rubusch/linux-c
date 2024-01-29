@@ -263,6 +263,7 @@
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
       <itemPath>pic32mx470-hid-demo.mc3</itemPath>
+      <itemPath>pic32mx470-i2c-demo.mc3</itemPath>
     </logicalFolder>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
