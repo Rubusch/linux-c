@@ -90,7 +90,6 @@ USB_DEVICE_HID_EVENT_RESPONSE APP_USBDeviceHIDEventHandler
                 // Transfer progressed.
                 appData.hidDataTransmitted = true;
             }
-            
             break;
 
         case USB_DEVICE_HID_EVENT_REPORT_RECEIVED:
@@ -105,7 +104,7 @@ USB_DEVICE_HID_EVENT_RESPONSE APP_USBDeviceHIDEventHandler
                 // Transfer progressed.
                 appData.hidDataReceived = true;
             }
-          
+
             break;
 
         case USB_DEVICE_HID_EVENT_SET_IDLE:
@@ -152,13 +151,13 @@ void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr
              * Hence close handles to all function drivers (Only if they are
              * opened previously. */
 
-            LED1_Off(); 
+            LED1_Off();
             appData.deviceConfigured = false;
             appData.state = APP_STATE_WAIT_FOR_CONFIGURATION;
             break;
 
         case USB_DEVICE_EVENT_CONFIGURED:
-            LED1_On(); 
+            LED1_On();
             /* Set the flag indicating device is configured. */
             appData.deviceConfigured = true;
 
@@ -172,7 +171,6 @@ void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr
             break;
 
         case USB_DEVICE_EVENT_SUSPENDED:
-		
 			LED1_Off();
             break;
 
@@ -184,7 +182,7 @@ void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr
             break;
 
         case USB_DEVICE_EVENT_POWER_REMOVED:
-            LED1_Off(); 
+            LED1_Off();
             /* VBUS is not available */
             USB_DEVICE_Detach(appData.usbDevHandle);
             break;
@@ -307,23 +305,8 @@ void APP_Tasks ( void )
             {
                 /* Look at the data the host sent, to see what
                  * kind of application specific command it sent. */
-
                 switch(appData.receiveDataBuffer[0])
                 {
-/*                    
-                    case 0x80:
-
-                        // Toggle on board LED1 to LED2.
-                        LED1_Toggle(  );
-
-                        appData.hidDataReceived = false;
-
-                        // Place a new read request.
-                        USB_DEVICE_HID_ReportReceive (USB_DEVICE_HID_INDEX_0,
-                                &appData.rxTransferHandle, appData.receiveDataBuffer, 64 );
-
-                        break;
-*/
                     case 0x01:
                         LED1_Toggle();
                         appData.hidDataReceived = false;
@@ -331,8 +314,9 @@ void APP_Tasks ( void )
                         // place a new read request
                         USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
                                 &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
-                      
+
                         break;
+
                     case 0x02:
                         LED2_Toggle();
                         appData.hidDataReceived = false;
@@ -340,8 +324,8 @@ void APP_Tasks ( void )
                         // place a new read request
                         USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
                                 &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
-                        
                         break;
+
                     case 0x03:
                         LED3_Toggle();
                         appData.hidDataReceived = false;
@@ -349,21 +333,12 @@ void APP_Tasks ( void )
                         // place a new read request
                         USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
                                 &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
-                        
                         break;
+
                     case 0x00:
                         LED1_Off();
                         LED2_Off();
                         LED3_Off();
-                        appData.hidDataReceived = false;
-
-                        // place a new read request
-                        USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
-                                &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
-                        
-                        break;
-
-                    case 0x81:
 
                         if(appData.hidDataTransmitted)
                         {
@@ -371,28 +346,23 @@ void APP_Tasks ( void )
                              * the first byte.  In this case, the Get Push-button State
                              * command. */
 
-                            appData.transmitDataBuffer[0] = 0x81;
-
-                            if( SWITCH1_Get() == SWITCH1_STATE_PRESSED )
-                            {
-                                appData.transmitDataBuffer[1] = 0x00;
-                            }
-                            else
-                            {
-                                appData.transmitDataBuffer[1] = 0x01;
+                            if(SWITCH1_Get() == SWITCH1_STATE_PRESSED) {
+                                appData.transmitDataBuffer[0] = 0x01;
+                            } else {
+                                appData.transmitDataBuffer[0] = 0x00;
                             }
 
                             appData.hidDataTransmitted = false;
 
                             /* Prepare the USB module to send the data packet to the host */
                             USB_DEVICE_HID_ReportSend (USB_DEVICE_HID_INDEX_0,
-                                    &appData.txTransferHandle, appData.transmitDataBuffer, 64 );
+                                    &appData.txTransferHandle, appData.transmitDataBuffer, 64);
 
                             appData.hidDataReceived = false;
 
                             /* Place a new read request. */
                             USB_DEVICE_HID_ReportReceive (USB_DEVICE_HID_INDEX_0,
-                                    &appData.rxTransferHandle, appData.receiveDataBuffer, 64 );
+                                    &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
                         }
                         break;
 

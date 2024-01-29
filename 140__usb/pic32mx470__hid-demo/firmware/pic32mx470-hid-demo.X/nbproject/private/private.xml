@@ -2,6 +2,10 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/opt/github__docker__linux/docker/workspace/github__c_linux/140__usb/pic32mx470__hid-demo/firmware/src/app.h</file>
+            <file>file:/opt/github__docker__linux/docker/workspace/github__c_linux/140__usb/pic32mx470__hid-demo/firmware/src/main.c</file>
+            <file>file:/opt/github__docker__linux/docker/workspace/github__c_linux/140__usb/pic32mx470__hid-demo/firmware/src/app.c</file>
+        </group>
     </open-files>
 </project-private>
