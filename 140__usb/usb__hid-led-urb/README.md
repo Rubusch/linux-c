@@ -1,10 +1,10 @@
 # PIC32MX470: usb led demo with switch
 
+The communication between the host and the devie here is done asynchronously by using USB request blocks (URBs).  
+
 Kernel Config: make sure the following is set:  
 - `CONFIG_HID_SUPPORT`
 - `CONFIG_HID_GENERIC`
-
-The communication between the host and the devie here is done asynchronously by using USB request blocks (urbs).  
 
 ## Hardware: Microchip Curiosity PIC32MX470 (PIC32MX470512H)
 
