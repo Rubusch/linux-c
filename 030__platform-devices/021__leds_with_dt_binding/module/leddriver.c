@@ -9,14 +9,6 @@
 
    - Declare __iomem pointers that will hold the virtual addresses
      returned by the dev_ioremap() function
-
-   ---
-   REFERENCES:
-   - Linux Driver Development for Embedded Processors, A. L. Rios,
-     2018, p.161ff
-
-   VERIFIED:
-   linux v6.3/aarch64
 */
 
 #include <linux/module.h>

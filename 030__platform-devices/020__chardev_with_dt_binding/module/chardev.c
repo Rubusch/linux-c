@@ -8,13 +8,6 @@
    - Declares a list of devices supported by the driver
    - Initializes a struct of_device_id
    - Initializes a struct platform_driver
-
-   ---
-   REFERENCES:
-   - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
-
-   VERIFIED:
-   linux v6.3/aarch64
 */
 
 #include <linux/module.h>

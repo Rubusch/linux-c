@@ -1,5 +1,7 @@
 /*
-  Project is taken from https://embetronicx.com/tutorials/linux/device-drivers/gpio-linux-device-driver-using-raspberry-pi/
+  ---
+  REFERENCES:
+  https://embetronicx.com/tutorials/linux/device-drivers/gpio-linux-device-driver-using-raspberry-pi/
 */
 
 #include <linux/module.h>
