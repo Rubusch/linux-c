@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+/*
 /*
-    GPLv2 || MIT licensed, author: Lothar Rubusch
+  author: Lothar Rubusch
  */
 #include <linux/module.h>
 #include <linux/kernel.h>
