@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
   USB led demo for the PIC32MX470 with ltc3206 multidisplay led
-
-  ---
-  REFERENCES:
-  - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
  */
 
 #include <linux/slab.h>

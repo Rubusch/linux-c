@@ -39,11 +39,15 @@ need a USB type-C male to micro-B male cable.
 #### DC749A Board
 https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/dc749a.html
 
-Connection: connect the following MikroBUS 1 pins  
-- SDA -> pin 7 (SDA) of the DC749a J1
-- SCL -> pin 4 (SCL)
-- DC749a pin 6 (ENRGB/S) -> DC749a Vin J2 pin
-- 3.3V -> J20 DVCC pin
+Connection
+
+- SDA (PIC32) -> pin 7, SDA of the DC749a J1
+- SCL (PIC32) -> pin 4, SCL (DC749a)
+- 3.3V (PIC32) -> Vin (DC749a)
+- J20 DVCC pin (DC749a) -> Vin (DC749a)
+- pin 6, ENRGB/S (DC749a) -> Vin (DC749a)
+- GND (PIC32) -> GND (DC749a)
+
 Do *not* conect GND between the two boards!  
 
 NB: Verify on the PIC32MX470 Dev Board that the series resistors
