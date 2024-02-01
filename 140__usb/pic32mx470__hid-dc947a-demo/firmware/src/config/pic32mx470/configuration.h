@@ -86,6 +86,15 @@ extern "C" {
 // Section: Driver Configuration
 // *****************************************************************************
 // *****************************************************************************
+/* I2C Driver Instance 0 Configuration Options */
+#define DRV_I2C_INDEX_0                       0
+#define DRV_I2C_CLIENTS_NUMBER_IDX0           1
+#define DRV_I2C_CLOCK_SPEED_IDX0              50000
+
+/* I2C Driver Common Configuration Options */
+#define DRV_I2C_INSTANCES_NUMBER              (1U)
+
+
 
 
 // *****************************************************************************
@@ -100,6 +109,22 @@ extern "C" {
    write. Applicable to all instances of the
    function driver */
 #define USB_DEVICE_HID_QUEUE_DEPTH_COMBINED                 2
+
+/* Number of Endpoints used */
+#define DRV_USBFS_ENDPOINTS_NUMBER                        3U
+
+/* The USB Device Layer will not initialize the USB Driver */
+#define USB_DEVICE_DRIVER_INITIALIZE_EXPLICIT
+
+/* Maximum device layer instances */
+#define USB_DEVICE_INSTANCES_NUMBER                         1U
+
+/* EP0 size in bytes */
+#define USB_DEVICE_EP0_BUFFER_SIZE                          64U
+
+/* Enable SOF Events */
+#define USB_DEVICE_SOF_EVENT_ENABLE
+
 
 /*** USB Driver Configuration ***/
 
@@ -121,22 +146,6 @@ extern "C" {
 
 /* Alignment for buffers that are submitted to USB Driver*/ 
 #define USB_ALIGN  CACHE_ALIGN
-
-/* Number of Endpoints used */
-#define DRV_USBFS_ENDPOINTS_NUMBER                        3U
-
-/* The USB Device Layer will not initialize the USB Driver */
-#define USB_DEVICE_DRIVER_INITIALIZE_EXPLICIT
-
-/* Maximum device layer instances */
-#define USB_DEVICE_INSTANCES_NUMBER                         1U
-
-/* EP0 size in bytes */
-#define USB_DEVICE_EP0_BUFFER_SIZE                          64U
-
-/* Enable SOF Events */
-#define USB_DEVICE_SOF_EVENT_ENABLE
-
 
 
 

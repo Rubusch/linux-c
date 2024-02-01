@@ -48,15 +48,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "peripheral/i2c/master/plib_i2c1_master.h"
 #include "bsp/bsp.h"
 #include "usb/usb_device_hid.h"
 #include "usb/usb_hid.h"
 #include "peripheral/clk/plib_clk.h"
 #include "peripheral/gpio/plib_gpio.h"
 #include "peripheral/evic/plib_evic.h"
-#include "driver/usb/usbfs/drv_usbfs.h"
 #include "usb/usb_chapter_9.h"
 #include "usb/usb_device.h"
+#include "driver/usb/usbfs/drv_usbfs.h"
+#include "driver/i2c/drv_i2c.h"
 #include "system/int/sys_int.h"
 #include "osal/osal.h"
 #include "system/debug/sys_debug.h"
@@ -191,9 +193,12 @@ Remarks:
 
 typedef struct
 {
-    SYS_MODULE_OBJ  drvUSBFSObject;
+    /* I2C0 Driver Object */
+    SYS_MODULE_OBJ drvI2C0;
 
     SYS_MODULE_OBJ  usbDevObject0;
+
+    SYS_MODULE_OBJ  drvUSBFSObject;
 
 
 } SYSTEM_OBJECTS;

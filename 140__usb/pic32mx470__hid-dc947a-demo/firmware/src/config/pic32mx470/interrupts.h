@@ -58,6 +58,7 @@
 // *****************************************************************************
 
 void DRV_USBFS_USB_Handler( void );
+void I2C_1_InterruptHandler( void );
 
 
 
