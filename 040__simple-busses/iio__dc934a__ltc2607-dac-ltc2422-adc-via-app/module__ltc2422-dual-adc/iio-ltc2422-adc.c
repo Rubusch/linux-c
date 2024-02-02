@@ -3,9 +3,6 @@
   IIO subsystem ADC module for the LTC2422 dual ADC
 
   Demo for the industrial I/O API, the iio as an SPI interaction.
-  ---
-  REFERENCES:
-  - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
 */
 
 #include <linux/module.h>

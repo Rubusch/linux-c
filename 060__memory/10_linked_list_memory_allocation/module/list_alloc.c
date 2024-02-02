@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
   linked list memory allocation
-
-  ---
-  REFERENCES:
-  - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
 */
 
 #include <linux/module.h>

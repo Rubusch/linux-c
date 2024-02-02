@@ -6,13 +6,6 @@
 
   load the module as follows
   $ sudo insmod i2c_pcf8574.ko pcf8574_addr=0x20
-
-  ---
-  REFERENCES:
-  - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
-
-  VERIFIED:
-  linux v6.3/aarch64
 */
 
 #include <linux/module.h>

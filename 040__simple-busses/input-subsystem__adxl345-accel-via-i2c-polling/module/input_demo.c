@@ -8,10 +8,6 @@
   and based on contemporary API.
 
   This is the I2C version.
-
-  ---
-  REFERENCES:
-  - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
 */
 
 

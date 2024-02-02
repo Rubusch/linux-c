@@ -40,10 +40,6 @@
                                                        +----------------+
 						       | Button-R-Click |
 						       +----------------+
-
-  ---
-  REFERENCES:
-  - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
 */
 
 #include <linux/module.h>

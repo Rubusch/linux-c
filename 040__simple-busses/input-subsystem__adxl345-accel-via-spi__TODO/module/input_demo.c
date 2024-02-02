@@ -6,15 +6,11 @@
   with annotations, in case modernized and re-formatted to my needs.
 
   The IIO driver for the ADXL345 is upstream:
-  
+
   https://elixir.bootlin.com/linux/v6.3.13/source/drivers/iio/accel/adxl345_core.c
   https://elixir.bootlin.com/linux/v6.3.13/source/drivers/iio/accel/adxl345_i2c.c
   https://elixir.bootlin.com/linux/v6.3.13/source/drivers/iio/accel/adxl345_spi.c
   https://elixir.bootlin.com/linux/v6.3.13/source/drivers/iio/accel/adxl345.h
-  
-  ---
-  REFERENCES:
-  - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
 */
 
 #include <linux/input.h>

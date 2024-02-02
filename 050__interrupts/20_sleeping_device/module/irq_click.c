@@ -1,12 +1,5 @@
 /*
   Sleeping Device
-
-  ---
-  REFERENCES:
-  - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
-
-  VERIFIED:
-  linux v6.3/aarch64
 */
 
 #include <linux/module.h>
