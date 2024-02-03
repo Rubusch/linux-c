@@ -9,12 +9,11 @@ unload the module). Alternatively a udev rule has to be in place
 additionally to allow for USB matching:  
 - `CONFIG_USB_HID`
 
-USB is a huge topic, here just some general/particular notes  
 
 ## Some notes on USB
 
-USB is a huge topic. Just some software driver related notes here, as
-needed to understand the implementation, copied out of book texts.  
+USB is a huge topic. Here just some general notes, as needed for the
+driver implementation.  
 
 #### USB Fundamentals
 
