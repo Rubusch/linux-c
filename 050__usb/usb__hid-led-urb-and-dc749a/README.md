@@ -1,13 +1,30 @@
 # PIC32MX470: wrap an i2c device in usb
 
-The DC749a board is connected by i2c to the PIC32MX470. The PIC32MX470 board is connected by usb to the RPI. The module of this demo wraps the i2c into usb, i.e. using the `i2cdetect` will show a connected i2c device when usb is connected and the driver is loaded. Internally this will be implemented similar to the book excample in an urb packaged communication.  
+The DC749a board is connected by i2c to the PIC32MX470. The PIC32MX470
+board is connected by usb to the RPI. The module of this demo wraps
+the i2c into usb, i.e. using the `i2cdetect` will show a connected i2c
+device when usb is connected and the driver is loaded. Internally this
+will be implemented similar to the book excample in an urb packaged
+communication.  
 
-The PIC32 driver only will need to implement a minimal usb state machine. Additionally it opens the i2c device, which also needs to be added in MCC, and connected in the interrupt configurator (check that the PLL is configured as needed to provide sufficient clocking for the usb device). After opening the i2c connection, then the app only takes usb received buffer and writes it to the i2c, as reads out the i2c buffer transmitting it to usb.  
+The PIC32 driver only will need to implement a minimal usb state
+machine. Additionally it opens the i2c device, which also needs to be
+added in MCC, and connected in the interrupt configurator (check that
+the PLL is configured as needed to provide sufficient clocking for the
+usb device). After opening the i2c connection, then the app only takes
+usb received buffer and writes it to the i2c, as reads out the i2c
+buffer transmitting it to usb.  
 
 Kernel Config: make sure the following is set:  
 - `CONFIG_HID_SUPPORT`
 - `CONFIG_HID_GENERIC`
 - Make sure kernel module i2c_dev is loaded
+
+Make sure the following is _NOT_ set (or at least as module, then
+unload the module). Alternatively a udev rule has to be in place
+additionally to allow for USB matching:  
+- `CONFIG_USB_HID`
+
 
 ## Hardware: Microchip Curiosity PIC32MX470 (PIC32MX470512H)
 

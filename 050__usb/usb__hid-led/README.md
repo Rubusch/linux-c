@@ -4,23 +4,39 @@ Kernel Config: make sure the following is set:
 - `CONFIG_HID_SUPPORT`
 - `CONFIG_HID_GENERIC`
 
-Make sure the following is _NOT_ set (or at least as module, then unload the module). Alternatively a udev rule has to be in place additionally to allow for USB matching:  
+Make sure the following is _NOT_ set (or at least as module, then
+unload the module). Alternatively a udev rule has to be in place
+additionally to allow for USB matching:  
 - `CONFIG_USB_HID`
 
 USB is a huge topic, here just some general/particular notes  
 
+## Some notes on USB
+
+USB is a huge topic. Just some software driver related notes here, as
+needed to understand the implementation, copied out of book texts.  
+
 #### USB Fundamentals
 
-Information is reuquested in terms of **descriptors**. USB descriptors are data structures that are provided by devices to describe all of their attributes. This includes e.g. the product/vendor ID, any device class affiliation and strings describing the product and vendor.  
+Information is requested in terms of **descriptors**. USB descriptors
+are data structures that are provided by devices to describe all of
+their attributes. This includes e.g. the product/vendor ID, any device
+class affiliation and strings describing the product and vendor.  
 
-Endpoints can be categorized into **control** and **data** endpoints. Every USB device must provide at least one control endpoint at address 0 called the default endpoint. The endpoint number is a 4-bit integer associated with an endpoint (0-15); the same endpoint number is used to describe two endpoints, for instance EP1 IN and EP1 OUT. Examples: `EP1 IN = 0x81`, `EP1 OUT = 0x01`, `EP3 IN = 0x83` or `EP3 OUT = 0x03`.  
+Endpoints can be categorized into **control** and **data**
+endpoints. Every USB device must provide at least one control endpoint
+at address 0 called the default endpoint. The endpoint number is a
+4-bit integer associated with an endpoint (0-15); the same endpoint
+number is used to describe two endpoints, for instance EP1 IN and EP1
+OUT. Examples: `EP1 IN = 0x81`, `EP1 OUT = 0x01`, `EP3 IN = 0x83` or
+`EP3 OUT = 0x03`.  
 
 #### USB Data Transfers
 
-- Control Transfer: Used to configure a device at attach and can be used for other device-specific purposes, such as specific register read/write access, or control of other pipes on the device
-- Bulk Data Transfer: Transfer of relatively large quantities of data or data bursts; bulk transfers do not have guaranteed timing, but can provide the fastest data transfer rates
-- Interrupt Data Transfer: Used for reliable delivery of data, e.g. characters or coordinates with human-perceptible echo or feedback response characteristics; USB mice and keyboards typically use interrupt data transfers
-- Isochronous Data Transfer: Isochronous transfers have guaranteed timing, but do _not_ have error correction capability; isochronous data must be delivered at the rate received to maintain its timing and additionally may be sensitive to delivery delay; typically used for streaming audio or video
+- *Control Transfer*: Used to configure a device at attach and can be used for other device-specific purposes, such as specific register read/write access, or control of other pipes on the device
+- *Bulk Data Transfer*: Transfer of relatively large quantities of data or data bursts; bulk transfers do not have guaranteed timing, but can provide the fastest data transfer rates
+- *Interrupt Data Transfer*: Used for reliable delivery of data, e.g. characters or coordinates with human-perceptible echo or feedback response characteristics; USB mice and keyboards typically use interrupt data transfers
+- *Isochronous Data Transfer*: Isochronous transfers have guaranteed timing, but do _not_ have error correction capability; isochronous data must be delivered at the rate received to maintain its timing and additionally may be sensitive to delivery delay; typically used for streaming audio or video
 
 #### USB Request Block (URB)
 
@@ -43,20 +59,15 @@ by using USB Request Blocks (URBs).
 ## Hardware: Microchip Curiosity PIC32MX470 (PIC32MX470512H)
 
 #### PIC32MX Board
-https://www.microchip.com/DevelopmentTools/ProductDetails/dm320103
 
 Connection:  
 Connect the USB Micro-B port (J12) of the PIC32MX470 Curiosity
 Development Board to the J19 USB-B type C connector. In case this will
 need a USB type-C male to micro-B male cable.  
 
-TODO    
-
-
 #### PIC32MX: USB HID Demo
 
-Rebuild it, or use my PIC32 USB HID demo.  
-TODO link    
+Rebuild it, or use my [PIC32 USB HID demo](../pic32mx470__hid-demo).  
 
 Build the demo selecting "Clean and Build Project (...)" (menu), then click "Make and Program Device (...)".  
 
@@ -167,5 +178,6 @@ Jan 28 05:32:50 ctrl001 kernel: [17610.578758] lothars_usbled 1-1.5:1.0: usbled_
 ```
 
 ## References
+- https://www.microchip.com/DevelopmentTools/ProductDetails/dm320103
 - https://ww1.microchip.com/downloads/aemDocuments/documents/UNG/ProductDocuments/UserGuides/USBLibraries_v111.pdf
 - Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 594ff, p. 616; The demo idea is taken from Alberto Liberal, pic implementation is different and the kernel sources were updated and modified to run in the setup.
