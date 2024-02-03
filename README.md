@@ -6,14 +6,12 @@
 
 # Lothar's Kernel Codes
 
+[Hardware](./pics/screenshot01.jpg)  
+
 No guarantees! Use the code snippets at your own risk.  
 
-Many codes or ideas are literature examples or found on the web. I
-tried to provide references for the examples to my best understanding.  
+This is my collection of kernel code snippets. Demos and codes I did, assembled, or adjusted from literature directly, or reimplemented by the idea. I tried to provide references for documentation and resources to the best of my knowledge.  
 
-From what I took as notes - from what I learned, the reader may find
-here my personal collection of kernel codes.  
+Note: **The verification platform is RPi 3b**, 32 or 64-bit, in some cases x86 (64-bit).  
 
-The verification platform is RPi 3b, 64-bit.  
-
-Sunshine!  
+_Let us be thankful we have commerce. Buy more. Buy more now. Buy. And be happy._
