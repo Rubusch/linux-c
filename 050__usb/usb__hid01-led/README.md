@@ -182,7 +182,7 @@ Jan 28 05:32:50 ctrl001 kernel: [17610.578712] lothars_usbled 1-1.5:1.0: usbled_
 Jan 28 05:32:50 ctrl001 kernel: [17610.578758] lothars_usbled 1-1.5:1.0: usbled_disconnect() - usb led is now disconnected
 ```
 
-![result](./pics/setup-led.jpg)  
+![result](./pics/usb-hid-led.jpg)  
 
 ## References
 - https://www.microchip.com/DevelopmentTools/ProductDetails/dm320103
