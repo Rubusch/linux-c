@@ -99,3 +99,8 @@ $ sudo chmod 4755 /opt/microchip/xc32/v4.35/bin/xclm
 - github repo of Microchip's USB code examples: https://github.com/Microchip-MPLAB-Harmony/usb_apps_device/
 - Documentation on the USB code examples: https://mplab-discover.microchip.com/v2/category/com.microchip.code.examples/com.microchip.ide.project?dsl=PIC32MX470F512H
 
+
+## Build and Flash
+
+![flash0010](./pics/0010.jpg)  
+![flash0020](./pics/0020.jpg)  
