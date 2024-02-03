@@ -1,5 +1,7 @@
 # Driving LEDs on the PIC32MX470 connected over USB
 
+![PIC32MX470](./pics/pic32mx470-1.jpg)  
+
 Kernel Config: make sure the following is set:  
 - `CONFIG_HID_SUPPORT`
 - `CONFIG_HID_GENERIC`
@@ -63,6 +65,8 @@ Connection:
 Connect the USB Micro-B port (J12) of the PIC32MX470 Curiosity
 Development Board to the J19 USB-B type C connector. In case this will
 need a USB type-C male to micro-B male cable.  
+
+![setup](./pics/usb-hid-setup.jpg)  
 
 #### MPLAB X IDE Setup
 
@@ -177,6 +181,8 @@ Jan 28 05:32:50 ctrl001 kernel: [17610.578541] usbcore: deregistering interface 
 Jan 28 05:32:50 ctrl001 kernel: [17610.578712] lothars_usbled 1-1.5:1.0: usbled_disconnect() - called
 Jan 28 05:32:50 ctrl001 kernel: [17610.578758] lothars_usbled 1-1.5:1.0: usbled_disconnect() - usb led is now disconnected
 ```
+
+![result](./pics/setup-led.jpg)  
 
 ## References
 - https://www.microchip.com/DevelopmentTools/ProductDetails/dm320103

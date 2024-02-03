@@ -1,5 +1,7 @@
 # PIC32MX470: usb hid demo using urb packages
 
+![PIC32MX470](./pics/pic32mx470.jpg)  
+
 The communication between the host (RPI) and the devie (PIC32) here is
 done asynchronously by using USB request blocks (URBs).  
 
@@ -116,6 +118,8 @@ Jan 28 08:21:07 ctrl001 kernel: [27707.484399] usb 1-1.4: led_urb_in_callback() 
 Jan 28 08:21:07 ctrl001 kernel: [27707.484440] lothars_usbled 1-1.4:1.0: usbled_disconnect() - called
 Jan 28 08:21:07 ctrl001 kernel: [27707.484459] lothars_usbled 1-1.4:1.0: usbled_disconnect() - usb led is now disconnected
 ```
+
+![result](./pics/usb-hid-switch.jpg)  
 
 ## References
 * https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide

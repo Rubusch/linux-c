@@ -1,5 +1,7 @@
 # PIC32MX470: wrap an i2c device in usb
 
+![setup](./pics/setup-boards.jpg)  
+
 The DC749a board is connected by i2c to the PIC32MX470. The PIC32MX470
 board is connected by usb to the RPI. The module of this demo wraps
 the i2c into usb, i.e. using the `i2cdetect` will show a connected i2c
@@ -40,7 +42,7 @@ need a USB type-C male to micro-B male cable.
 #### DC749A Board
 https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/dc749a.html
 
-Connection
+Connection  
 
 - SDA (PIC32) -> pin 7, SDA of the DC749a J1
 - SCL (PIC32) -> pin 4, SCL (DC749a)
@@ -49,12 +51,14 @@ Connection
 - pin 6, ENRGB/S (DC749a) -> Vin (DC749a)
 - GND (PIC32) -> GND (DC749a)
 
+![connection](./pics/connections-dc749a.jpg)  
+
 NB: Verify on the PIC32MX470 Dev Board that the series resistors
 mounted on the SCL and SDA lines of the **MikroBUS 1 socket J5** are
 set to **0 Ohms**, if not replace them with 0 Ohms. Alternatively take
 the signals directly from the J6 connector.  
 
-TODO    
+![0-ohm](./pics/0-ohm.jpg)  
 
 
 ## Software: MPLAB X IDE
@@ -117,6 +121,7 @@ Build and flash the MPLAB design to the connected Pic32 board (needs to be conne
 
 # insmod ./pic32mx470-led.ko
 ```
+
 Now connect the usb cable.  
 ```
 # i2cdetect -l
@@ -189,6 +194,8 @@ Logs
 [16:46:38.164] Feb  3 15:26:12 ctrl001 kernel: [ 4158.703193] usbcore: deregistering interface driver lothars_usb_ltc3206
 [16:46:38.165] Feb  3 15:26:12 ctrl001 kernel: [ 4158.703392] lothars_usb_ltc3206 1-1.2:1.0: ltc3206_disconnect(): called
 ```
+
+![result](./pics/setup-led.jpg)  
 
 ## References
 * https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/dc749a.html
