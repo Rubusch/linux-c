@@ -141,4 +141,6 @@ root@ctrl001:/home/pi# rmmod i2c_ltc3206euf.ko
 ```
 
 ## References
+* https://www.analog.com/media/en/technical-documentation/user-guides/dc749A.pdf
+* https://www.analog.com/media/en/technical-documentation/data-sheets/3206f.pdf
 * Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 246  
