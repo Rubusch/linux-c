@@ -75,7 +75,7 @@ $ sudo ./MPLABX-v6.15-linux-installer.sh
 
 ## Setup the HID Application in the MPLAB IDE
 
-TODO       
+This is desribed [here](../pic32mx470__03-hid-dc749a-demo/README.md).  
 
 # Build
 
