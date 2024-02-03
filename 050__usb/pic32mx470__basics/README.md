@@ -1,6 +1,9 @@
-# Notes on MPLAB X for my PIC32MX470 Curiosity Board
+# Notes on PIC32MX470 Curiosity Board
 
-## Installation (Linux)
+The idea here is not to provide lots of PIC32 demos. It shall just be described how to set it up as counterpart for some of the USB demos.   
+
+
+## MPLAB X Installation (Linux)
 
 So, this is how I managed to survive MPLAB X IDE installation + 32-bit
 Toolchain on my Debian Linux box.  
@@ -35,6 +38,27 @@ $ sudo chown <user>:<user> -R /opt/microchip
 $ mkdir -p /opt/microchip/harmony && cd $_
 $ git clone https://github.com/Microchip-MPLAB-Harmony/mplabx-plugin
 ```
+
+After the installation here is before installation! I think it was around here where I did the plugin installation as follows:  
+![Installation-mcc0010](./pics/installation-mcc/0010.jpg)  
+![Installation-mcc0020](./pics/installation-mcc/0020.jpg)  
+![Installation-mcc0030](./pics/installation-mcc/0030.jpg)  
+![Installation-mcc0040](./pics/installation-mcc/0040.jpg)  
+![Installation-mcc0050](./pics/installation-mcc/0050.jpg)  
+![Installation-mcc0060](./pics/installation-mcc/0060.jpg)  
+![Installation-mcc0070](./pics/installation-mcc/0070.jpg)  
+![Installation-mcc0080](./pics/installation-mcc/0080.jpg)  
+![Installation-mcc0090](./pics/installation-mcc/0090.jpg)  
+![Installation-mcc0100](./pics/installation-mcc/0100.jpg)  
+![Installation-mcc0110](./pics/installation-mcc/0110.jpg)  
+![Installation-mcc0120](./pics/installation-mcc/0120.jpg)  
+![Installation-mcc0130](./pics/installation-mcc/0130.jpg)  
+![Installation-mcc0140](./pics/installation-mcc/0140.jpg)  
+![Installation-mcc0150](./pics/installation-mcc/0150.jpg)  
+![Installation-mcc0160](./pics/installation-mcc/0160.jpg)  
+![Installation-mcc0170](./pics/installation-mcc/0170.jpg)  
+![Installation-mcc0180](./pics/installation-mcc/0180.jpg)  
+![Installation-mcc0190](./pics/installation-mcc/0190.jpg)  
 
 #### Install the Plugins Setup   
 
