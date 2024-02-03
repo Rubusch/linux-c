@@ -8,7 +8,7 @@
 #include <linux/usb.h>
 #include <linux/i2c.h>
 
-#define DRIVER_NAME "lothars-usb-ltc3206"
+#define DRIVER_NAME "lothars_usb_ltc3206"
 #define USBLED_VENDOR_ID 0x04D8
 #define USBLED_PRODUCT_ID 0x003F
 #define LTC3206_OUTBUF_LEN 3  /* usb write packet length */
@@ -17,7 +17,7 @@
 /*
   struct to hold all device specific stuff
  */
-struct i2c_ltc3206 {
+struct ltc3206_i2c {
 	u8 obuffer[LTC3206_OUTBUF_LEN];   /* usb write buffer */
 
 	// i2c/smbus data buffer
@@ -53,7 +53,7 @@ ltc3206_usb_func(struct i2c_adapter *adap)
 static void
 ltc3206_usb_cmpl_cb(struct urb *urb)
 {
-	struct i2c_ltc3206 *i2cdev = urb->context;
+	struct ltc3206_i2c *i2cdev = urb->context;
 	struct device  *dev = &i2cdev->interface->dev;
 	int status = urb->status;
 	int ret;
@@ -64,7 +64,6 @@ ltc3206_usb_cmpl_cb(struct urb *urb)
 	case -ECONNRESET:   // unlink
 	case -ENOENT:
 	case -ESHUTDOWN:
-/*	case -EPIPE:        // should clear the halt */
 		return;
 	default:            // error
 		goto resubmit;
@@ -72,8 +71,7 @@ ltc3206_usb_cmpl_cb(struct urb *urb)
 
 	// wake up the waiting function,
 	// modify the flag indicating the ll status
-	i2cdev->ongoing_usb_ll_op = false;  // 0
-	// TODO verify        
+	i2cdev->ongoing_usb_ll_op = false;
 	wake_up_interruptible(&i2cdev->usb_urb_completion_wait);
 	return;
 
@@ -88,7 +86,7 @@ resubmit:
   called by ltc3206_i2c_write(), from off ltc3206_usb_i2c_xfer()
  */
 static int
-ltc3206_ll_cmd(struct i2c_ltc3206 *i2cdev)
+ltc3206_ll_cmd(struct ltc3206_i2c *i2cdev)
 {
 	int ret;
 	struct device *dev = &i2cdev->interface->dev;
@@ -98,15 +96,15 @@ ltc3206_ll_cmd(struct i2c_ltc3206 *i2cdev)
 	i2cdev->ongoing_usb_ll_op = true; // 1
 
 	// submit the interrutp out URB packet
-	if (usb_submit_urb(i2cdev->interrupt_out_urb, GFP_KERNEL)) {
+	if (usb_submit_urb(i2cdev->interrupt_out_urb, GFP_KERNEL)) {  // <---
 		dev_err(dev, "%s(): usb_submit_urb intr out failed", __func__);
-		i2cdev->ongoing_usb_ll_op = false; // 0
+		i2cdev->ongoing_usb_ll_op = false;
 		return -EIO;
 	}
 
 	// wait for the transmit completion,
 	// the USB URB callback will signal it
-	ret = wait_event_interruptible(i2cdev->usb_urb_completion_wait, (!i2cdev->ongoing_usb_ll_op));
+	ret = wait_event_interruptible(i2cdev->usb_urb_completion_wait, (!i2cdev->ongoing_usb_ll_op));  // <---
 	if (0 > ret) {
 		dev_err(dev, "%s(): wait interrupted", __func__);
 		goto ll_exit_clear_flag;
@@ -115,7 +113,7 @@ ltc3206_ll_cmd(struct i2c_ltc3206 *i2cdev)
 	return 0;
 
 ll_exit_clear_flag:
-	i2cdev->ongoing_usb_ll_op = false; // 0
+	i2cdev->ongoing_usb_ll_op = false;
 	return ret;
 }
 
@@ -125,7 +123,7 @@ ll_exit_clear_flag:
   this init function is called by the ltc3206_probe()
  */
 static int
-ltc3206_init(struct i2c_ltc3206 *i2cdev)
+ltc3206_init(struct ltc3206_i2c *i2cdev)
 {
 	int ret;
 	struct device *dev = &i2cdev->interface->dev;
@@ -167,14 +165,13 @@ no_err_init:
 /*
   called by ltc3206_usb_i2c_xfer()
  */
-static int ltc3206_i2c_write(struct i2c_ltc3206 *i2cdev, struct i2c_msg *pmsg)
+static int ltc3206_i2c_write(struct ltc3206_i2c *i2cdev, struct i2c_msg *pmsg)
 {
 	u8 ucXferLen;
 	u8 *pSrc, *pDst;
 	int ret, idx;
 
 	// NB: use pr_debug() and turn on output with dynamic debuggin
-	// TODO use pr_debug()    
 	pr_debug("%s(): called", __func__);
 	if (LTC3206_I2C_DATA_LEN < pmsg->len) {
 		pr_err("%s(): problem with the length", __func__);
@@ -192,7 +189,7 @@ static int ltc3206_i2c_write(struct i2c_ltc3206 *i2cdev, struct i2c_msg *pmsg)
 		pr_debug("%s(): obuffer[%d] = 0x%08x", __func__, idx, i2cdev->obuffer[idx]);
 	}
 
-	ret = ltc3206_ll_cmd(i2cdev);
+	ret = ltc3206_ll_cmd(i2cdev); // <---
 	if (0 > ret) {
 		return -EFAULT;
 	}
@@ -206,7 +203,7 @@ static int ltc3206_i2c_write(struct i2c_ltc3206 *i2cdev, struct i2c_msg *pmsg)
 static int
 ltc3206_usb_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 {
-	struct i2c_ltc3206 *i2cdev = i2c_get_adapdata(adap);
+	struct ltc3206_i2c *i2cdev = i2c_get_adapdata(adap);
 	struct i2c_msg *pmsg;
 	int ret, count;
 
@@ -216,7 +213,7 @@ ltc3206_usb_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 	pr_info("%s(): number of i2c msgs = %d", __func__, num);
 	for (count = 0; count < num; count++) {
 		pmsg = &msgs[count];
-		ret = ltc3206_i2c_write(i2cdev, pmsg);
+		ret = ltc3206_i2c_write(i2cdev, pmsg); // <---
 		if (0 > ret) {
 			pr_err("%s(): failed to write to i2c", __func__);
 			goto err;
@@ -246,7 +243,7 @@ MODULE_DEVICE_TABLE(usb, ltc3206_table);
   clean up i2c and usb dev
  */
 static void
-ltc3206_free(struct i2c_ltc3206 *i2cdev)
+ltc3206_free(struct ltc3206_i2c *i2cdev)
 {
 	usb_put_dev(i2cdev->usb_dev);
 	usb_set_intfdata(i2cdev->interface, NULL);
@@ -258,8 +255,9 @@ ltc3206_free(struct i2c_ltc3206 *i2cdev)
 static int
 ltc3206_probe(struct usb_interface *interface, const struct usb_device_id *id)
 {
+	// init by current altsetting of the usb interface
 	struct usb_host_interface *hostif = interface->cur_altsetting;
-	struct i2c_ltc3206 *i2cdev;
+	struct ltc3206_i2c *i2cdev;
 	struct device *dev = &interface->dev;
 	int ret;
 
@@ -278,14 +276,16 @@ ltc3206_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	i2cdev->usb_dev = usb_get_dev(interface_to_usbdev(interface));
 	i2cdev->interface = interface;
 
+	// declare dynamically a wait queue
 	init_waitqueue_head(&i2cdev->usb_urb_completion_wait);
 
-	// save data pointer in this interface device
+	// save data pointer in this usb interface device
 	usb_set_intfdata(interface, i2cdev);
 
 	// setup i2c adapter description
 	i2cdev->adapter.owner = THIS_MODULE;
 	i2cdev->adapter.class = I2C_CLASS_HWMON;
+	i2cdev->adapter.algo = &ltc3206_usb_algorithm;
 	i2c_set_adapdata(&i2cdev->adapter, i2cdev);
 
 	snprintf(i2cdev->adapter.name, sizeof(i2cdev->adapter.name),
@@ -293,6 +293,7 @@ ltc3206_probe(struct usb_interface *interface, const struct usb_device_id *id)
 		 i2cdev->usb_dev->bus->busnum,
 		 i2cdev->usb_dev->devnum);
 
+	// attach the i2c adapter to the usb interface
 	i2cdev->adapter.dev.parent = &i2cdev->interface->dev;
 
 	// initialize the ltc3206 device
@@ -306,7 +307,6 @@ ltc3206_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	ret = i2c_add_adapter(&i2cdev->adapter);
 	if (0 > ret) {
 		dev_err(dev, "%s(): failed to add i2c adapter", __func__);
-//		goto err_i2c; // TODO rm   
 		goto err_init;
 	}
 
@@ -315,7 +315,6 @@ ltc3206_probe(struct usb_interface *interface, const struct usb_device_id *id)
 
 err_init:
 	usb_free_urb(i2cdev->interrupt_out_urb);
-//err_i2c: // TODO move up?     
 	usb_set_intfdata(interface, NULL);  // set interface to NULL
 	ltc3206_free(i2cdev);  // set i2cdev->interface to NULL
 
@@ -329,7 +328,7 @@ err:
 static void
 ltc3206_disconnect(struct usb_interface *interface)
 {
-	struct i2c_ltc3206 *i2cdev = usb_get_intfdata(interface);
+	struct ltc3206_i2c *i2cdev = usb_get_intfdata(interface);
 	struct device *dev = &interface->dev;
 
 	dev_info(dev, "%s(): called", __func__);
