@@ -67,7 +67,7 @@ need a USB type-C male to micro-B male cable.
 
 #### PIC32MX: USB HID Demo
 
-Rebuild it, or use my [PIC32 USB HID demo](../pic32mx470__hid-demo).  
+Rebuild it, or use my [PIC32 USB HID demo](../pic32mx470__01-hid-demo).  
 
 Build the demo selecting "Clean and Build Project (...)" (menu), then click "Make and Program Device (...)".  
 
