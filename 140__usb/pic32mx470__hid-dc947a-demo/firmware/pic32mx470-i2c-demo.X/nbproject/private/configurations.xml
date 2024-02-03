@@ -3,7 +3,7 @@
   <projectmakefile>Makefile</projectmakefile>
   <defaultConf>0</defaultConf>
   <confs>
-    <conf name="default" type="2">
+    <conf name="pic32mx470" type="2">
       <platformToolSN>:=MPLABComm-USB-Microchip:=&lt;vid>04D8:=&lt;pid>8107:=&lt;rev>0002:=&lt;man>Microchip Technology Incorporated:=&lt;prod>PIC32MX470 Family:=&lt;sn>BUR223514166:=&lt;drv>x:=&lt;xpt>h:=end</platformToolSN>
       <languageToolchainDir>/opt/microchip/xc32/v4.35/bin</languageToolchainDir>
       <mdbdebugger version="1">

@@ -58,6 +58,7 @@ uint8_t  transmitDataBuffer[64] __attribute__((aligned(16)));
 */
 
 APP_DATA appData;
+//APP_SENSOR_DATA appSensorData;    
 
 // *****************************************************************************
 // *****************************************************************************
@@ -251,7 +252,6 @@ void APP_Initialize ( void )
   Remarks:
     See prototype in app.h.
  */
-
 void APP_Tasks ( void )
 {
 
@@ -260,6 +260,22 @@ void APP_Tasks ( void )
     {
         /* Application's initial state. */
         case APP_STATE_INIT:
+            // open the I2C driver for a slave device
+            appData.i2cHandle = DRV_I2C_Open( DRV_I2C_INDEX_0, DRV_IO_INTENT_READWRITE );
+            if (appData.i2cHandle == DRV_HANDLE_INVALID)
+            {
+                appData.state = APP_STATE_ERROR;
+		break;
+            }
+            else
+            {
+                /* don't register the I2C Driver event Handler,
+                   we're pure synchronous for now!
+                 */
+            }
+
+            /* Setup I2C transfer @ 100 kHz to interface with Sensor. */
+            DRV_I2C_TransferSetup(appData.i2cHandle, &appData.i2cSetup);
 
             /* Open the device layer */
             appData.usbDevHandle = USB_DEVICE_Open( USB_DEVICE_INDEX_0, DRV_IO_INTENT_READWRITE );
@@ -296,85 +312,28 @@ void APP_Tasks ( void )
 
         case APP_STATE_MAIN_TASK:
 
-            if(!appData.deviceConfigured)
-            {
-                /* Device is not configured */
+            if(!appData.deviceConfigured) {
+                // Device is not configured
                 appData.state = APP_STATE_WAIT_FOR_CONFIGURATION;
-            }
-            else if( appData.hidDataReceived )
-            {
-                /* Look at the data the host sent, to see what
-                 * kind of application specific command it sent. */
-                switch(appData.receiveDataBuffer[0])
-                {
-                    case 0x01:
-                        LED1_Toggle();
-                        appData.hidDataReceived = false;
 
-                        // place a new read request
-                        USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
-                                &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
+            } else if( appData.hidDataReceived ) {
+                // make some "noise" - we received something
+                RGB_LED_GREEN_Toggle();
 
-                        break;
+                // now, take the usb received buffer to write it to i2c
+                // and, read the i2c buffer to transmit it over usb to the PC
+                DRV_I2C_WriteReadTransfer(appData.i2cHandle,
+                        0x1b,
+                        &appData.receiveDataBuffer[0],
+                        3,
+                        &appData.transmitDataBuffer[0],
+                        3);
 
-                    case 0x02:
-                        LED2_Toggle();
-                        appData.hidDataReceived = false;
+                appData.hidDataReceived = false;
 
-                        // place a new read request
-                        USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
-                                &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
-                        break;
-
-                    case 0x03:
-                        LED3_Toggle();
-                        appData.hidDataReceived = false;
-
-                        // place a new read request
-                        USB_DEVICE_HID_ReportReceive(USB_DEVICE_HID_INDEX_0,
-                                &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
-                        break;
-
-                    case 0x00:
-                        LED1_Off();
-                        LED2_Off();
-                        LED3_Off();
-
-                        if(appData.hidDataTransmitted)
-                        {
-                            /* Echo back to the host PC the command we are fulfilling in
-                             * the first byte.  In this case, the Get Push-button State
-                             * command. */
-
-                            if(SWITCH1_Get() == SWITCH1_STATE_PRESSED) {
-                                appData.transmitDataBuffer[0] = 0x01;
-                            } else {
-                                appData.transmitDataBuffer[0] = 0x00;
-                            }
-
-                            appData.hidDataTransmitted = false;
-
-                            /* Prepare the USB module to send the data packet to the host */
-                            USB_DEVICE_HID_ReportSend (USB_DEVICE_HID_INDEX_0,
-                                    &appData.txTransferHandle, appData.transmitDataBuffer, 64);
-
-                            appData.hidDataReceived = false;
-
-                            /* Place a new read request. */
-                            USB_DEVICE_HID_ReportReceive (USB_DEVICE_HID_INDEX_0,
-                                    &appData.rxTransferHandle, appData.receiveDataBuffer, 64);
-                        }
-                        break;
-
-                    default:
-
-                        appData.hidDataReceived = false;
-
-                        /* Place a new read request. */
-                        USB_DEVICE_HID_ReportReceive (USB_DEVICE_HID_INDEX_0,
-                                &appData.rxTransferHandle, appData.receiveDataBuffer, 64 );
-                        break;
-                }
+                // Place a new read request.
+                USB_DEVICE_HID_ReportReceive (USB_DEVICE_HID_INDEX_0,
+                        &appData.rxTransferHandle, appData.receiveDataBuffer, 64 );
             }
         case APP_STATE_ERROR:
             break;

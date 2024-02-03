@@ -127,6 +127,10 @@ typedef struct
      /* USB HID current Idle */
     uint8_t idleRate;
 
+    /* I2C */
+    DRV_HANDLE i2cHandle;
+    DRV_I2C_TRANSFER_SETUP i2cSetup;
+
 } APP_DATA;
 
 // *****************************************************************************

@@ -18,7 +18,19 @@
          <string>class com.microchip.mcc.harmony.HarmonyModule</string>
       </entry>
       <entry>
+         <string>drv_i2c</string>
+         <string>class com.microchip.mcc.harmony.HarmonyModule</string>
+      </entry>
+      <entry>
+         <string>drv_i2c_0</string>
+         <string>class com.microchip.mcc.harmony.HarmonyModule</string>
+      </entry>
+      <entry>
          <string>drv_usbfs_v1</string>
+         <string>class com.microchip.mcc.harmony.HarmonyModule</string>
+      </entry>
+      <entry>
+         <string>i2c1</string>
          <string>class com.microchip.mcc.harmony.HarmonyModule</string>
       </entry>
       <entry>
@@ -593,8 +605,13 @@
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="HarmonyCore" name="ENABLE_DRV_COMMON"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;HarmonyCore&gt;
   &lt;HarmonyCore dnOrder=&quot;0&quot; id=&quot;ENABLE_DRV_COMMON&quot;&gt;
-    &lt;Values dnOrder=&quot;0&quot;&gt;
-      &lt;User dnOrder=&quot;0&quot; value=&quot;true&quot;/&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;readOnly&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;true&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+    &lt;Values dnOrder=&quot;1&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;HarmonyCore&quot; value=&quot;true&quot;/&gt;
     &lt;/Values&gt;
   &lt;/HarmonyCore&gt;
 &lt;/HarmonyCore&gt;
@@ -626,8 +643,13 @@
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="HarmonyCore" name="ENABLE_SYS_COMMON"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;HarmonyCore&gt;
   &lt;HarmonyCore dnOrder=&quot;0&quot; id=&quot;ENABLE_SYS_COMMON&quot;&gt;
-    &lt;Values dnOrder=&quot;0&quot;&gt;
-      &lt;User dnOrder=&quot;0&quot; value=&quot;true&quot;/&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;readOnly&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;true&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+    &lt;Values dnOrder=&quot;1&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;HarmonyCore&quot; value=&quot;true&quot;/&gt;
     &lt;/Values&gt;
   &lt;/HarmonyCore&gt;
 &lt;/HarmonyCore&gt;
@@ -675,7 +697,14 @@
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="HarmonyCore" name="ENABLE_SYS_PORTS"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;HarmonyCore&gt;
   &lt;HarmonyCore dnOrder=&quot;0&quot; id=&quot;ENABLE_SYS_PORTS&quot;&gt;
-    &lt;Values dnOrder=&quot;0&quot;/&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;readOnly&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;false&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+    &lt;Values dnOrder=&quot;1&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;HarmonyCore&quot; value=&quot;false&quot;/&gt;
+    &lt;/Values&gt;
   &lt;/HarmonyCore&gt;
 &lt;/HarmonyCore&gt;
 </value>
@@ -3221,6 +3250,45 @@
 </value>
       </entry>
       <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="HarmonyCore" name="PORTS_DEF"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;HarmonyCore&gt;
+  &lt;HarmonyCore dnOrder=&quot;0&quot; id=&quot;PORTS_DEF&quot;&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;enabled&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;false&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+  &lt;/HarmonyCore&gt;
+&lt;/HarmonyCore&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="HarmonyCore" name="PORTS_HEADER"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;HarmonyCore&gt;
+  &lt;HarmonyCore dnOrder=&quot;0&quot; id=&quot;PORTS_HEADER&quot;&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;enabled&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;false&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+  &lt;/HarmonyCore&gt;
+&lt;/HarmonyCore&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="HarmonyCore" name="PORTS_MAPPING"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;HarmonyCore&gt;
+  &lt;HarmonyCore dnOrder=&quot;0&quot; id=&quot;PORTS_MAPPING&quot;&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;enabled&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;false&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+  &lt;/HarmonyCore&gt;
+&lt;/HarmonyCore&gt;
+</value>
+      </entry>
+      <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="HarmonyCore" name="SELECT_RTOS"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;HarmonyCore&gt;
   &lt;HarmonyCore dnOrder=&quot;0&quot; id=&quot;SELECT_RTOS&quot;&gt;
@@ -3339,7 +3407,7 @@
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="!@#harmonyUserData"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;UserData&gt;
   &lt;UserData dnOrder=&quot;0&quot;&gt;
-    &lt;GraphSettings canvasHeight=&quot;226&quot; canvasWidth=&quot;802&quot; dnOrder=&quot;0&quot;/&gt;
+    &lt;GraphSettings canvasHeight=&quot;519&quot; canvasWidth=&quot;624&quot; dnOrder=&quot;0&quot;/&gt;
     &lt;PowerProfiles dnOrder=&quot;1&quot;&gt;
       &lt;Profile dnOrder=&quot;0&quot; id=&quot;profile0&quot; name=&quot;Main&quot;/&gt;
     &lt;/PowerProfiles&gt;
@@ -3349,9 +3417,11 @@
         &lt;ElementPosition dnOrder=&quot;1&quot; id=&quot;HarmonyCore&quot; x=&quot;13&quot; y=&quot;175&quot;/&gt;
         &lt;ElementPosition dnOrder=&quot;2&quot; id=&quot;core&quot; x=&quot;220&quot; y=&quot;20&quot;/&gt;
         &lt;ElementPosition dnOrder=&quot;3&quot; id=&quot;dfp&quot; x=&quot;20&quot; y=&quot;20&quot;/&gt;
-        &lt;ElementPosition dnOrder=&quot;4&quot; id=&quot;drv_usbfs_v1&quot; x=&quot;485&quot; y=&quot;188&quot;/&gt;
-        &lt;ElementPosition dnOrder=&quot;5&quot; id=&quot;usb_device&quot; x=&quot;172&quot; y=&quot;181&quot;/&gt;
-        &lt;ElementPosition dnOrder=&quot;6&quot; id=&quot;usb_device_hid&quot; x=&quot;316&quot; y=&quot;184&quot;/&gt;
+        &lt;ElementPosition dnOrder=&quot;4&quot; id=&quot;drv_i2c&quot; x=&quot;328&quot; y=&quot;341&quot;/&gt;
+        &lt;ElementPosition dnOrder=&quot;5&quot; id=&quot;drv_usbfs_v1&quot; x=&quot;485&quot; y=&quot;188&quot;/&gt;
+        &lt;ElementPosition dnOrder=&quot;6&quot; id=&quot;i2c1&quot; x=&quot;174&quot; y=&quot;406&quot;/&gt;
+        &lt;ElementPosition dnOrder=&quot;7&quot; id=&quot;usb_device&quot; x=&quot;172&quot; y=&quot;181&quot;/&gt;
+        &lt;ElementPosition dnOrder=&quot;8&quot; id=&quot;usb_device_hid&quot; x=&quot;316&quot; y=&quot;184&quot;/&gt;
       &lt;/ElementPositions&gt;
     &lt;/ComponentGraph&gt;
   &lt;/UserData&gt;
@@ -3660,11 +3730,33 @@
 </value>
       </entry>
       <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="BSP_PIN_43_FUNCTION_TYPE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;BSP_PIN_43_FUNCTION_TYPE&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;SDA1&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="BSP_PIN_43_MODE"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
   &lt;core dnOrder=&quot;0&quot; id=&quot;BSP_PIN_43_MODE&quot;&gt;
     &lt;Values dnOrder=&quot;0&quot;&gt;
       &lt;User dnOrder=&quot;0&quot; value=&quot;DIGITAL&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="BSP_PIN_44_FUNCTION_TYPE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;BSP_PIN_44_FUNCTION_TYPE&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;SCL1&quot;/&gt;
     &lt;/Values&gt;
   &lt;/core&gt;
 &lt;/core&gt;
@@ -4197,6 +4289,39 @@
 </value>
       </entry>
       <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="EVIC_32_ENABLE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;EVIC_32_ENABLE&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;core&quot; value=&quot;true&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="EVIC_32_HANDLER_LOCK"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;EVIC_32_HANDLER_LOCK&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;core&quot; value=&quot;true&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="EVIC_32_INTERRUPT_HANDLER"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;EVIC_32_INTERRUPT_HANDLER&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;core&quot; value=&quot;I2C_1_InterruptHandler&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="EVIC_4_ENABLE"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
   &lt;core dnOrder=&quot;0&quot; id=&quot;EVIC_4_ENABLE&quot;&gt;
@@ -4386,11 +4511,22 @@
 </value>
       </entry>
       <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="I2C1_CLOCK_ENABLE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;I2C1_CLOCK_ENABLE&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;i2c1&quot; value=&quot;true&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="I2C1_CLOCK_FREQUENCY"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
   &lt;core dnOrder=&quot;0&quot; id=&quot;I2C1_CLOCK_FREQUENCY&quot;&gt;
     &lt;Values dnOrder=&quot;0&quot;&gt;
-      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;core&quot; value=&quot;0&quot;/&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;core&quot; value=&quot;48000000&quot;/&gt;
     &lt;/Values&gt;
   &lt;/core&gt;
 &lt;/core&gt;
@@ -4402,6 +4538,50 @@
   &lt;core dnOrder=&quot;0&quot; id=&quot;I2C2_CLOCK_FREQUENCY&quot;&gt;
     &lt;Values dnOrder=&quot;0&quot;&gt;
       &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;core&quot; value=&quot;0&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="I2C_1_INTERRUPT_ENABLE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;I2C_1_INTERRUPT_ENABLE&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;i2c1&quot; value=&quot;true&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="I2C_1_INTERRUPT_ENABLE_UPDATE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;I2C_1_INTERRUPT_ENABLE_UPDATE&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;core&quot; value=&quot;false&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="I2C_1_INTERRUPT_HANDLER"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;I2C_1_INTERRUPT_HANDLER&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;i2c1&quot; value=&quot;I2C_1_InterruptHandler&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/core&gt;
+&lt;/core&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="core" name="I2C_1_INTERRUPT_HANDLER_LOCK"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
+  &lt;core dnOrder=&quot;0&quot; id=&quot;I2C_1_INTERRUPT_HANDLER_LOCK&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;i2c1&quot; value=&quot;true&quot;/&gt;
     &lt;/Values&gt;
   &lt;/core&gt;
 &lt;/core&gt;
@@ -4546,7 +4726,7 @@
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
   &lt;core dnOrder=&quot;0&quot; id=&quot;PMD5_REG_VALUE&quot;&gt;
     &lt;Values dnOrder=&quot;0&quot;&gt;
-      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;core&quot; value=&quot;197407&quot;/&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;core&quot; value=&quot;131871&quot;/&gt;
     &lt;/Values&gt;
   &lt;/core&gt;
 &lt;/core&gt;
@@ -4909,6 +5089,155 @@
          <value>__ROOTVIEW</value>
       </entry>
       <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c" name="!@#harmonyAttachmentState"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c&gt;
+  &lt;drv_i2c dnOrder=&quot;0&quot;/&gt;
+&lt;/drv_i2c&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c" name="#&amp;__MCC_Group_Parrent_id"/>
+         <value>__ROOTVIEW</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c" name="DRV_I2C_ASYNC_HEADER"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c&gt;
+  &lt;drv_i2c dnOrder=&quot;0&quot; id=&quot;DRV_I2C_ASYNC_HEADER&quot;&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;enabled&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;false&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+  &lt;/drv_i2c&gt;
+&lt;/drv_i2c&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c" name="DRV_I2C_ASYNC_SRC"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c&gt;
+  &lt;drv_i2c dnOrder=&quot;0&quot; id=&quot;DRV_I2C_ASYNC_SRC&quot;&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;enabled&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;false&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+  &lt;/drv_i2c&gt;
+&lt;/drv_i2c&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c" name="DRV_I2C_FORCED_WRITE_API_GENERATE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c&gt;
+  &lt;drv_i2c dnOrder=&quot;0&quot; id=&quot;DRV_I2C_FORCED_WRITE_API_GENERATE&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;drv_i2c&quot; value=&quot;0&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/drv_i2c&gt;
+&lt;/drv_i2c&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c" name="DRV_I2C_MODE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c&gt;
+  &lt;drv_i2c dnOrder=&quot;0&quot; id=&quot;DRV_I2C_MODE&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;Synchronous&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/drv_i2c&gt;
+&lt;/drv_i2c&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c" name="DRV_I2C_SYNC_HEADER"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c&gt;
+  &lt;drv_i2c dnOrder=&quot;0&quot; id=&quot;DRV_I2C_SYNC_HEADER&quot;&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;enabled&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;true&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+  &lt;/drv_i2c&gt;
+&lt;/drv_i2c&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c" name="DRV_I2C_SYNC_SRC"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c&gt;
+  &lt;drv_i2c dnOrder=&quot;0&quot; id=&quot;DRV_I2C_SYNC_SRC&quot;&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;enabled&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;true&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+  &lt;/drv_i2c&gt;
+&lt;/drv_i2c&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c_0" name="!@#harmonyAttachmentState"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c_0&gt;
+  &lt;drv_i2c_0 dnOrder=&quot;0&quot;&gt;
+    &lt;Attachments dnOrder=&quot;0&quot;&gt;
+      &lt;DirectDependency dnOrder=&quot;0&quot; id=&quot;drv_i2c_I2C_dependency&quot;&gt;
+        &lt;Attributes dnOrder=&quot;0&quot;&gt;
+          &lt;String dnOrder=&quot;0&quot; id=&quot;targetComponentID&quot;&gt;
+            &lt;Value dnOrder=&quot;0&quot;&gt;i2c1&lt;/Value&gt;
+          &lt;/String&gt;
+          &lt;String dnOrder=&quot;1&quot; id=&quot;targetAttachmentID&quot;&gt;
+            &lt;Value dnOrder=&quot;0&quot;&gt;I2C1_I2C&lt;/Value&gt;
+          &lt;/String&gt;
+        &lt;/Attributes&gt;
+      &lt;/DirectDependency&gt;
+    &lt;/Attachments&gt;
+  &lt;/drv_i2c_0&gt;
+&lt;/drv_i2c_0&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c_0" name="#&amp;__MCC_Group_Parrent_id"/>
+         <value>drv_i2c</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c_0" name="DRV_I2C_INCLUDE_FORCED_WRITE_API"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c_0&gt;
+  &lt;drv_i2c_0 dnOrder=&quot;0&quot; id=&quot;DRV_I2C_INCLUDE_FORCED_WRITE_API&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;drv_i2c_0&quot; value=&quot;false&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/drv_i2c_0&gt;
+&lt;/drv_i2c_0&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c_0" name="DRV_I2C_NUM_CLIENTS"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c_0&gt;
+  &lt;drv_i2c_0 dnOrder=&quot;0&quot; id=&quot;DRV_I2C_NUM_CLIENTS&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/drv_i2c_0&gt;
+&lt;/drv_i2c_0&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c_0" name="DRV_I2C_PLIB"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c_0&gt;
+  &lt;drv_i2c_0 dnOrder=&quot;0&quot; id=&quot;DRV_I2C_PLIB&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;drv_i2c_0&quot; value=&quot;I2C1&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/drv_i2c_0&gt;
+&lt;/drv_i2c_0&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_i2c_0" name="DRV_I2C_QUEUE_SIZE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_i2c_0&gt;
+  &lt;drv_i2c_0 dnOrder=&quot;0&quot; id=&quot;DRV_I2C_QUEUE_SIZE&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/drv_i2c_0&gt;
+&lt;/drv_i2c_0&gt;
+</value>
+      </entry>
+      <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="drv_usbfs_v1" name="!@#harmonyAttachmentState"/>
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;drv_usbfs_v1&gt;
   &lt;drv_usbfs_v1 dnOrder=&quot;0&quot;/&gt;
@@ -5034,6 +5363,276 @@
     &lt;Values dnOrder=&quot;0&quot;/&gt;
   &lt;/drv_usbfs_v1&gt;
 &lt;/drv_usbfs_v1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="!@#harmonyAttachmentState"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot;&gt;
+    &lt;Attachments dnOrder=&quot;0&quot;&gt;
+      &lt;DirectCapability dnOrder=&quot;0&quot; id=&quot;I2C1_I2C&quot;&gt;
+        &lt;Attributes dnOrder=&quot;0&quot;&gt;
+          &lt;String dnOrder=&quot;0&quot; id=&quot;targetComponentID&quot;&gt;
+            &lt;Value dnOrder=&quot;0&quot;&gt;drv_i2c_0&lt;/Value&gt;
+          &lt;/String&gt;
+          &lt;String dnOrder=&quot;1&quot; id=&quot;targetAttachmentID&quot;&gt;
+            &lt;Value dnOrder=&quot;0&quot;&gt;drv_i2c_I2C_dependency&lt;/Value&gt;
+          &lt;/String&gt;
+        &lt;/Attributes&gt;
+      &lt;/DirectCapability&gt;
+    &lt;/Attachments&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="#&amp;__MCC_Group_Parrent_id"/>
+         <value>__ROOTVIEW</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="BRG_VALUE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;BRG_VALUE&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;i2c1&quot; value=&quot;475&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2CS_A10M_SUPPORT"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2CS_A10M_SUPPORT&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2CS_CORE_TIMER_FREQUENCY"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2CS_CORE_TIMER_FREQUENCY&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2CS_RISE_TIME_CORE_TIMER_CNTS"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2CS_RISE_TIME_CORE_TIMER_CNTS&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;i2c1&quot; value=&quot;14&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2CS_SETUP_RISE_TIME"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2CS_SETUP_RISE_TIME&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2CS_SETUP_TIME_CORE_TIMER_CNTS"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2CS_SETUP_TIME_CORE_TIMER_CNTS&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;i2c1&quot; value=&quot;4&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_BUS_IEC_REG"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_BUS_IEC_REG&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_BUS_IFS_REG"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_BUS_IFS_REG&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_CLOCK_FREQ"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_CLOCK_FREQ&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_CLOCK_SPEED"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_CLOCK_SPEED&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_CLOCK_SPEED_HZ"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_CLOCK_SPEED_HZ&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_DISSLW"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_DISSLW&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;false&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_INCLUDE_FORCED_WRITE_API"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_INCLUDE_FORCED_WRITE_API&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;false&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_INSTANCE_NAME"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_INSTANCE_NAME&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_INSTANCE_NUM"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_INSTANCE_NUM&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_MASTER_IEC_REG"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_MASTER_IEC_REG&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_MASTER_IFS_REG"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_MASTER_IFS_REG&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_MAX_BRG"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_MAX_BRG&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_OPERATING_MODE"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_OPERATING_MODE&quot;&gt;
+    &lt;Attributes dnOrder=&quot;0&quot;&gt;
+      &lt;Boolean dnOrder=&quot;0&quot; id=&quot;readOnly&quot;&gt;
+        &lt;Value dnOrder=&quot;0&quot;&gt;true&lt;/Value&gt;
+      &lt;/Boolean&gt;
+    &lt;/Attributes&gt;
+    &lt;Values dnOrder=&quot;1&quot;&gt;
+      &lt;Dynamic dnOrder=&quot;0&quot; id=&quot;i2c1&quot; value=&quot;Master&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_PLIB_API_PREFIX"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_PLIB_API_PREFIX&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_SIDL"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_SIDL&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;false&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_SLAVE_ADDDRESS"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_SLAVE_ADDDRESS&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_SLAVE_IEC_REG"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_SLAVE_IEC_REG&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_SLAVE_IFS_REG"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_SLAVE_IFS_REG&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;/&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
+</value>
+      </entry>
+      <entry>
+         <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="i2c1" name="I2C_SMEN"/>
+         <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;i2c1&gt;
+  &lt;i2c1 dnOrder=&quot;0&quot; id=&quot;I2C_SMEN&quot;&gt;
+    &lt;Values dnOrder=&quot;0&quot;&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;false&quot;/&gt;
+    &lt;/Values&gt;
+  &lt;/i2c1&gt;
+&lt;/i2c1&gt;
 </value>
       </entry>
       <entry>
@@ -5524,683 +6123,711 @@
          <hash>8e35d8509552a4d1d6e6f123ad75694cf784a707f7dac592ed33b55121aa8e28</hash>
       </entry>
       <entry>
-         <file>../src/config/default/bsp/bsp.c</file>
+         <file>../src/config/pic32mx470/bsp/bsp.c</file>
          <hash>e10ae2bdcf41b1c2608d2be0492a91f5d401350147fe0a45bfad2e874aade06b</hash>
       </entry>
       <entry>
-         <file>../src/config/default/bsp/bsp.h</file>
+         <file>../src/config/pic32mx470/bsp/bsp.h</file>
          <hash>7bedbb9b622bb96a1e559e57d98b793b8687fdf881009cdb42716534cc2c3d9d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/configuration.h</file>
-         <hash>0dc80507d94a00b143b53d7aced387c120ebc9165a53e91caa1bd518c3fafd7b</hash>
+         <file>../src/config/pic32mx470/configuration.h</file>
+         <hash>a6a6e48a2af7f857f4f91fff4b24d3bdb9100cc50a03532e0a5bf32144f6088a</hash>
       </entry>
       <entry>
-         <file>../src/config/default/definitions.h</file>
-         <hash>98c4dc0ee26a69479c2293fcb69f5192c1970e915178ef20276fb9f1583eb39f</hash>
+         <file>../src/config/pic32mx470/definitions.h</file>
+         <hash>b9533b9a6e0fa3f7fa3c3c007395c72a78bdf0732b77549fc909d7855199528d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/device.h</file>
+         <file>../src/config/pic32mx470/device.h</file>
          <hash>10ec93c43a7b158a129ae05bd8f4a59ff5bcf3d0f3f062fdd64c374bc2d42099</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/driver.h</file>
+         <file>../src/config/pic32mx470/driver/driver.h</file>
          <hash>042fdd289460dbddb8e805850af7e3ac9aea95468e37414959781ebc5b2f454d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/driver_common.h</file>
+         <file>../src/config/pic32mx470/driver/driver_common.h</file>
          <hash>5217965f6720b4fdf717e99ce9df4f2c9fbd82bbbc9655847166d1eefa806fee</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/drv_usb.h</file>
+         <file>../src/config/pic32mx470/driver/i2c/drv_i2c.h</file>
+         <hash>a2e3e35a45be2dffd93f381c5eb7d50a9f2fd955aee73cdd3da3178c7c3cfed9</hash>
+      </entry>
+      <entry>
+         <file>../src/config/pic32mx470/driver/i2c/drv_i2c_definitions.h</file>
+         <hash>929077879a4fe3e202ecbe796f076fe88435ea327ec0d8c573de6df7151e8601</hash>
+      </entry>
+      <entry>
+         <file>../src/config/pic32mx470/driver/i2c/src/drv_i2c.c</file>
+         <hash>0f8d004b3a1546705accef2a57e1fe61e1ee03854d49b6060b0ca0e3c98edffe</hash>
+      </entry>
+      <entry>
+         <file>../src/config/pic32mx470/driver/i2c/src/drv_i2c_local.h</file>
+         <hash>a5b8e0e4f5644b88470600c3e52e76f9492bfc52e65210d6f94d6b87374e9bce</hash>
+      </entry>
+      <entry>
+         <file>../src/config/pic32mx470/driver/usb/drv_usb.h</file>
          <hash>ee59efb38b1cf87e1c4bb6e833a9c9be0c106005daa6c1ccd90fca9fb5c17b44</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/drv_usb_external_dependencies.h</file>
+         <file>../src/config/pic32mx470/driver/usb/drv_usb_external_dependencies.h</file>
          <hash>347035feb1b3460c279e58f4210d0e22e5d1505ec60a69f78375ac81db5e95e8</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/drv_usbfs.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/drv_usbfs.h</file>
          <hash>548586a267869fc478751ebcd577f0f195665a01d1e7de2c423df6bd2fb2eb8f</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/drv_usbfs.c</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/drv_usbfs.c</file>
          <hash>e44edfe45c70f71760ba7e7f618087ea362ff06dcea72a0803f77b8b9a4bbdf0</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/drv_usbfs_device.c</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/drv_usbfs_device.c</file>
          <hash>f1b2e18aa1aef64aa83ee94ed0295b6e0b25517d60974218eddf26497c418357</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/drv_usbfs_local.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/drv_usbfs_local.h</file>
          <hash>0bcbf6f07aaa7cc7758d9cf85dec7434c5bb9fed15d4d65494ef103d703b004b</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/drv_usbfs_variant_mapping.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/drv_usbfs_variant_mapping.h</file>
          <hash>b75eadde3df5c69ca5295c520441cc1eab887bf008439f92a04be36b43898e9a</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/plib_usbfs.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/plib_usbfs.h</file>
          <hash>c44fcbcb48fb04e9193ca7e5dc02a351aa6fb82135a094ac9aa214709815923d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/plib_usbfs_header.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/plib_usbfs_header.h</file>
          <hash>0b40f0e15d10a80cf2baaa2a18aef603644d004cb7fdd503a742b6d64d3fd58e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ALL_Interrupt_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ALL_Interrupt_Default.h</file>
          <hash>1b46feb43fdb2e8d6dd5b41ddfc0f5d19279054aa44a8f2e20ff74cdd8157261</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ALL_Interrupt_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ALL_Interrupt_Unsupported.h</file>
          <hash>2fdc0c37ea3362bfc7f5f48af2830d8c751bce1b4c5a72a3c9c595f6a12b13af</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ActivityPending_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ActivityPending_Default.h</file>
          <hash>adc55bece7f5bd0bcf22d6decd9b78cf6b1e72d09095bd186787b69e35ba5c75</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ActivityPending_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ActivityPending_Unsupported.h</file>
          <hash>521a3b9175ff4c46fe27bdeb92fdb835caa697f22f4a92c95b92d30302173152</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_AutomaticSuspend_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_AutomaticSuspend_Default.h</file>
          <hash>bbb49ba2a1e89b896466f39ad798203b063c9f154aa1a6509f34d117ffc69138</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_AutomaticSuspend_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_AutomaticSuspend_Unsupported.h</file>
          <hash>44641546647b9967a3e2cefbc5565cf38fbdb15ab8b4016084062527d112054c</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_BDTBaseAddress_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_BDTBaseAddress_Default.h</file>
          <hash>68fbffceb879e765571791100ac23053b162a0510755ef177cc8ff7083afe8f9</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_BDTBaseAddress_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_BDTBaseAddress_Unsupported.h</file>
          <hash>9a5b6cc4352f8b789f5baee51f0f6b6b7fb447c771014fd6c094f0df20115619</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_BDTFunctions_PIC32.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_BDTFunctions_PIC32.h</file>
          <hash>0ad6b797728a2dafde391d0801ffe67b461953e0803bdb6fcc3dce971385a722</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_BDTFunctions_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_BDTFunctions_Unsupported.h</file>
          <hash>7fe7267d5cfca30a9d3be3d6a2301b879e2741ac5d2fab1547bb586b77aa3992</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_BufferFreeze_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_BufferFreeze_Default.h</file>
          <hash>710b605d6fc82760e3d4fb5d8c2edac5f5bca39c8854498232de853db07e0aaa</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_BufferFreeze_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_BufferFreeze_Unsupported.h</file>
          <hash>477f69b243d1c619f8a3b4f5d15c6bde5edc0e1d02933e6c1c1d179a2b78fd63</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_DeviceAddress_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_DeviceAddress_Default.h</file>
          <hash>6249313f87ec9055d6be92042afcdebb25173f04dcf68f5793c1242587cd429d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_DeviceAddress_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_DeviceAddress_Unsupported.h</file>
          <hash>61e80ffd5f00449bca0adccc419dbbd28cf6f5cbf903e704b75282741480c05f</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EP0LowSpeedConnect_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EP0LowSpeedConnect_Default.h</file>
          <hash>2bd121f55865942c85e6f6bc3ccf258a7cc6c89c3c35f6c23a1f59dbc2f8e132</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EP0LowSpeedConnect_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EP0LowSpeedConnect_Unsupported.h</file>
          <hash>115e17a1844d19657d20ebe0842ea21b4c3b071d6f151ef34f6c5aeca7135e6e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EP0NAKRetry_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EP0NAKRetry_Default.h</file>
          <hash>5375417f2eda183747f0bc01039d6a82401b3a90d68bfe71630ddea00c8c0a5e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EP0NAKRetry_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EP0NAKRetry_Unsupported.h</file>
          <hash>0ac81358b9b0c8032e71beefe6a84fdb0053ee2a4f2e8e55ae9619586db1ea4d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EPnControlTransfer_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EPnControlTransfer_Default.h</file>
          <hash>efd1536037a9b38e0aab6ceb6e4122a60299174793f632156f2340747b23d3f0</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EPnControlTransfer_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EPnControlTransfer_Unsupported.h</file>
          <hash>7ae9f1fb09ffd454ca385aa92330e8a1103897bee7c5203f354d02a98aa0e61c</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EPnHandshake_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EPnHandshake_Default.h</file>
          <hash>f38927f63d218417a8b0ba4232b4469956157f4fa2d641519fa502dc3e002801</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EPnHandshake_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EPnHandshake_Unsupported.h</file>
          <hash>3cb1ae1340fa97e88c8b4e8f66b1ba1e176f2f41f5a6daa5eb55f327fae2325e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EPnRxEnableEnhanced_PIC32.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EPnRxEnableEnhanced_PIC32.h</file>
          <hash>62ff9407e36cb9aff174717815d03307b82121b89298f9b0643b7eeb819b3602</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EPnRxEnableEnhanced_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EPnRxEnableEnhanced_Unsupported.h</file>
          <hash>eca49aea073983c05e97c793611fff2b5f8051384e2ded1f03169299d789c430</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EPnStall_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EPnStall_Default.h</file>
          <hash>90482e6f9f7fa4e7a28fc9215c52823381e025e59ccd6f3d701f7011d0bbfc35</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EPnStall_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EPnStall_Unsupported.h</file>
          <hash>a9274ac01d8a28460488800e00c5da1f8de5e5eb00b821097250e50879931ca7</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EPnTxRx_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EPnTxRx_Default.h</file>
          <hash>f074c52d28bb0956c548e14e18bef350c658f3c55a5bc6a5d8cc1ff41755cb37</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EPnTxRx_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EPnTxRx_Unsupported.h</file>
          <hash>cfd20f7c846cdec32a82e486d5a3f64dab5b4e7f1b26e7e8977ac86e0cb486ab</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ERR_InterruptStatus_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ERR_InterruptStatus_Default.h</file>
          <hash>600b73d75871e8273f469c3e97091f97e01920053985155164f93db241e58c8b</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ERR_InterruptStatus_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ERR_InterruptStatus_Unsupported.h</file>
          <hash>4a7736e64b27aa9e175c5c810b8a8e8026350d5f6e60567344a2b23c74e4b55d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ERR_Interrupt_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ERR_Interrupt_Default.h</file>
          <hash>68fae2167eba5ddc52bee52984ffd57a0be34b4d0000fea7a1e4e0fa94837863</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ERR_Interrupt_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ERR_Interrupt_Unsupported.h</file>
          <hash>92633808580b486e52fe1c2b874a1324ec324f0c9db8f8a450e9767cc79c1107</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EyePattern_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EyePattern_Default.h</file>
          <hash>6a3c0dcb8c6c74f86ea5ed2694c6e83143623399f0bfce142a2c678efeca895c</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_EyePattern_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_EyePattern_Unsupported.h</file>
          <hash>ed1a6b83680c7aa70e59e6061bcd96b3365db9bc6f2d271f9eb8b25543b214b3</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_FrameNumber_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_FrameNumber_Default.h</file>
          <hash>8bc67f9f015e4808044a189ea8b55784f76bf3bdc81569cdf933e9c0dd83a147</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_FrameNumber_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_FrameNumber_Unsupported.h</file>
          <hash>84983da395e4e207b1e2b574b87695ace966c06ed2fbc55aa3111ffef53f170c</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_GEN_InterruptStatus_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_GEN_InterruptStatus_Default.h</file>
          <hash>751e1789a4c829b9e6508b486b881a92d3a311ca9a01969831028b41d30359ca</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_GEN_InterruptStatus_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_GEN_InterruptStatus_Unsupported.h</file>
          <hash>c34c7f4a383519fc73af119216244fc616ae102eb7f897a8bd1fbfb6859430f6</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_GEN_Interrupt_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_GEN_Interrupt_Default.h</file>
          <hash>bfd46efe244584c153641b73acd82213d453fa6db12e85bd2634dadfdbfe5567</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_GEN_Interrupt_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_GEN_Interrupt_Unsupported.h</file>
          <hash>31516eda8521e4a405b4fdd96b410f7f265f473a994a0d5fab025978281d1edc</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_HostBusyWithToken_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_HostBusyWithToken_Default.h</file>
          <hash>8d578924997158baae8c58c59d94f71f385755c408307f7d5ad54cf984838b2d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_HostBusyWithToken_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_HostBusyWithToken_Unsupported.h</file>
          <hash>52ea84b6229d4400baee84feffd55bdbc851e81990b15a96aa1a143f1c308e8e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_HostGeneratesReset_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_HostGeneratesReset_Default.h</file>
          <hash>8b9f8657c405e1ae4e249dcec3c02b0f45fd3e986d8765a25d4af0340e6caed1</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_HostGeneratesReset_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_HostGeneratesReset_Unsupported.h</file>
          <hash>32d4bfdfcbcca9ccf2a026b8cdd327a21332b303d14c5786a8ee8bd13111d1dc</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LastDirection_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LastDirection_Default.h</file>
          <hash>2cefc9436d95bde8fdc00a899a321314206178fb6db5de306a6b5f81db6b1943</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LastDirection_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LastDirection_Unsupported.h</file>
          <hash>f02df5bd0bae4b7da3c356393472fd8b529b5517ed1ab08dffcac97581d9b409</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LastEndpoint_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LastEndpoint_Default.h</file>
          <hash>a1fccfc867f18b6e41c517cf34a3f2422ceb18256335dc8c943d452f4b37b7f8</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LastEndpoint_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LastEndpoint_Unsupported.h</file>
          <hash>d6d0a936246d3fe3f6bec3cf491b0f738912c2e650aebbc389ca0d2aae0e00cd</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LastPingPong_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LastPingPong_Default.h</file>
          <hash>c826371e1f9938ca4942290bb06636c71d8d60afe319c6e59990d7ffccd0771a</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LastPingPong_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LastPingPong_Unsupported.h</file>
          <hash>6b294d54804f160b42ddfbd0fbc4707839a38926559ae5d69dc36e3192a68bcf</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LastTransactionDetails_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LastTransactionDetails_Default.h</file>
          <hash>2e2d88cbc30977931899fbc6a7b9d0501f7cf87dc16399e574e50a1064037dfb</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LastTransactionDetails_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LastTransactionDetails_Unsupported.h</file>
          <hash>97dc082d3c6f7affc0c9ae8ac4363a627b84f6386d3c31b0ae48f22d57149f3e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LiveJState_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LiveJState_Default.h</file>
          <hash>014627fc79b536977457ce805f0634d9ac24f901dbe98697322229f8c4c20970</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LiveJState_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LiveJState_Unsupported.h</file>
          <hash>1498319a3a422a3e9c05e5aa3e09dc54a580870d981b47c447f8fe3ebc89feff</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LiveSingleEndedZero_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LiveSingleEndedZero_Default.h</file>
          <hash>a6ba42dfa54aae2c9822b2d12dce4f596143cecdc615c44644e6f5f50e591bbc</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_LiveSingleEndedZero_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_LiveSingleEndedZero_Unsupported.h</file>
          <hash>f91b0ab374d5389d299e6229a8b061afb7fd622643b506290d1508c0d5d6def1</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ModuleBusy_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ModuleBusy_Default.h</file>
          <hash>8af39ae0222ddd0efdd0208feda24ba4e87296551f427160f7133756f6d61c1d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ModuleBusy_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ModuleBusy_Unsupported.h</file>
          <hash>7fd78ea5db7db9b89d9b61fd33f8a6b69678bfa070dc3491a45f1de81cf4757e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ModulePower_32Bit16Bit.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ModulePower_32Bit16Bit.h</file>
          <hash>befe921f39877d72860989b20ac5aafcd5ff2da8bd125a6d1312aae430ce73f4</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ModulePower_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ModulePower_Unsupported.h</file>
          <hash>a2ca84d8c2ce2c3241eb107552678f46fd2a87d361e5d3b807e91eca12330050</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_NextTokenSpeed_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_NextTokenSpeed_Default.h</file>
          <hash>b5214d9378c63de7b4b62be2dbb4ec06631e5ae4728bcdd0e7409494f61279e0</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_NextTokenSpeed_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_NextTokenSpeed_Unsupported.h</file>
          <hash>ce9d18d37d0b4e200dc6a85a751e2177c6ad3114508aea90fe21242aee64407a</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_ASessionValid_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_ASessionValid_Default.h</file>
          <hash>843a20e2e334b74e1ab1d9f6d647850a674589200d05f983b20ec0816c116a1e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_ASessionValid_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_ASessionValid_Unsupported.h</file>
          <hash>1a8adfe45141b1873b9dd31aef16a50b39041ec5b60a3df4c80de994cde074ab</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_BSessionEnd_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_BSessionEnd_Default.h</file>
          <hash>801a045ee18cea5fb9875544d60b76a04cc8fcacbc96a8a890f2b4eec66ce65b</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_BSessionEnd_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_BSessionEnd_Unsupported.h</file>
          <hash>aa783ac1d2deaca3d50cbb3a430eb97221ce4d8f582a85c60f1e98f27c015eeb</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_IDPinState_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_IDPinState_Default.h</file>
          <hash>bcd9e8c414e5cddaf23365c8610e4ee612fc9f5cc81418871aa35f7f61410c62</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_IDPinState_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_IDPinState_Unsupported.h</file>
          <hash>6e8ed1974c1f691276097a1037e78ba2d197f542935672917b8c9b21643733de</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_InterruptStatus_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_InterruptStatus_Default.h</file>
          <hash>b1d6fc0a42ae60eb89cb3d0e89e6411f9a6d279531173d36b3dccbc10184fec3</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_InterruptStatus_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_InterruptStatus_Unsupported.h</file>
          <hash>34028b6ee3f6fdf37e61822f120d388541079e61ae4148a49c778583c4945ffd</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_Interrupt_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_Interrupt_Default.h</file>
          <hash>108463ef94ddfd7a7166663f782f68066cb558ebb564a2ecadbc2d1817487f9f</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_Interrupt_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_Interrupt_Unsupported.h</file>
          <hash>7334f819ebf9f84f439a6f43ac6ea13906d307f25fa3522d05ca13ead385e8e2</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_LineState_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_LineState_Default.h</file>
          <hash>504d4f87815eb9d786f665502e4deeca5915d5528afe1040d3a24bc8bb75ab74</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_LineState_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_LineState_Unsupported.h</file>
          <hash>b8439ee1b1f6f2ffbf5ad2277f236c241ffea88490627016535481f83b2f538c</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_PullUpPullDown_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_PullUpPullDown_Default.h</file>
          <hash>de6d8956508c929e678a025c6f2929cc2a7197ba99f88197a233a19ddbe0b7e4</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_PullUpPullDown_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_PullUpPullDown_Unsupported.h</file>
          <hash>52bb854d7c3f9dd8ace056ba727eed1765a07e789ccf4fe965d841dc7d2f0457</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_SessionValid_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_SessionValid_Default.h</file>
          <hash>9f80a608c61a9be62e91f7795d82a1dac715f81d3e602b7ada564123790ba9c1</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_SessionValid_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_SessionValid_Unsupported.h</file>
          <hash>468ee2355f9781c89ed968d87087930383787583b099fa1b9759b5f36e000a98</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_VbusCharge_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_VbusCharge_Default.h</file>
          <hash>ed2624a34fd52cfb588a6a272fe943c8d438afab05aacbfa9d7dae85b8f26473</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_VbusCharge_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_VbusCharge_Unsupported.h</file>
          <hash>320102bcec9d19fd0c87dd68666c8ec19ac74f171ec4cdce327de7e2cf2e448b</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_VbusDischarge_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_VbusDischarge_Default.h</file>
          <hash>4f3e542bcd7a9a38ed3f8bd43955aa0d49519e936106e2a99aa68dce9ca08468</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_VbusDischarge_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_VbusDischarge_Unsupported.h</file>
          <hash>d9292b4d956bb953950e7731a1b6a09593d46d0f06c9c4d2a73bfcbd0f7dad99</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_VbusPowerOnOff_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_VbusPowerOnOff_Default.h</file>
          <hash>d3da004450074c0a2e1a75e2930d5664a8d59aa9a6776354050deeaca535229c</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OTG_VbusPowerOnOff_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OTG_VbusPowerOnOff_Unsupported.h</file>
          <hash>5cabdbdf6556a4f60ead475e43f2fb9b2c633cfd920b7c25a4703bdaf8bf910e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OnChipPullup_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OnChipPullup_Unsupported.h</file>
          <hash>290fa136c61dab9711f40a5f25b92fad7652d207aa5496870754739d7a5d45d3</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OnChipTransceiver_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OnChipTransceiver_Unsupported.h</file>
          <hash>43e2716badb6f56af59a6eaa51e2400aed04a61979ed5a3d0f6134abc98f6cbb</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OpModeSelect_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OpModeSelect_Default.h</file>
          <hash>594d7e665855cda6d399195eafb79cd77fbe93c7d991f223af2eab78012b4b45</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_OpModeSelect_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_OpModeSelect_Unsupported.h</file>
          <hash>ab362dbce01d85aa74f07667bd6d0805121280d1bef76d79c522c2ed86e52714</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_PacketTransfer_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_PacketTransfer_Default.h</file>
          <hash>65556c1467bde784c8ac8193897fcd92f24567c71866ce7596492c1d6c0f3111</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_PacketTransfer_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_PacketTransfer_Unsupported.h</file>
          <hash>abe5773d4001fe3a29191f185e7b542a570f2d0ff5d53eb255ba1ebe248dd022</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_PingPongMode_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_PingPongMode_Unsupported.h</file>
          <hash>d97a6b2ee9b90bf838b86a7c8aacac6f638f68a8c443c218458a26bbf1184b54</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ResumeSignaling_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ResumeSignaling_Default.h</file>
          <hash>cbcfcdcfb7d8eafe626747edfe731ee81791a0b8af56bb96781b63c6aec207fc</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_ResumeSignaling_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_ResumeSignaling_Unsupported.h</file>
          <hash>91cdff16e9cf98c5fcecdafd48480265d7c1c2ad8b78b2386a1454b3ab34a7bf</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_SOFThreshold_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_SOFThreshold_Default.h</file>
          <hash>b66dc479ba00c5293fcb5703a3f78d1126bd23e9d67c63972fcda0ae3b91b2c3</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_SOFThreshold_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_SOFThreshold_Unsupported.h</file>
          <hash>c86f9d9b3cb54f9ce3cf658b64079940917014e5be196e5c8f0d6333843f306f</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_SleepEntryGuard_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_SleepEntryGuard_Default.h</file>
          <hash>56420066e69a153f6a290d21654ef708dcf476d4103a82a997d790a82530d3d9</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_SleepEntryGuard_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_SleepEntryGuard_Unsupported.h</file>
          <hash>d354ebcb2702514b1a1ee70b6948fd9a50bb24295ab74faaf75280b05925322b</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_SpeedControl_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_SpeedControl_Unsupported.h</file>
          <hash>d1fd181db5d2006177567b10d21f15658023709696aed75cf8e53a440df8a7ba</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_StartOfFrames_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_StartOfFrames_Default.h</file>
          <hash>ce631da8741335977668fc01f3e69c088ee198ff668ced341b6a60fc102742fd</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_StartOfFrames_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_StartOfFrames_Unsupported.h</file>
          <hash>3b0d6232fd9ccd593fc722e9bc5e6a1a20ae8979659f6a8d88c728a4a1853d3a</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_StopInIdle_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_StopInIdle_Default.h</file>
          <hash>064269ea4e830d3a5cb57356a7c250478b0d2932d26f41c73044407907fb09a8</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_StopInIdle_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_StopInIdle_Unsupported.h</file>
          <hash>1e9f99b21d486627652247c329fcfde2ad588aedafaaf110862d03fc572bc297</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_Suspend_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_Suspend_Default.h</file>
          <hash>b03b0202279e7c97809f428ccd4b393ac928cf0828d8d2f9806513d44310aa0e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_Suspend_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_Suspend_Unsupported.h</file>
          <hash>a36474fed3ddaad419789c3b5b21dd3620e57c302705b2ad6980ecbe62e887a2</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_TokenEP_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_TokenEP_Default.h</file>
          <hash>c0cbc8dc7bdd8a67dfc6971855cd9adb430a61591ebbb682f092bb9280e4b5fe</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_TokenEP_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_TokenEP_Unsupported.h</file>
          <hash>77ea1dee97a19cec4df90940b66130423d017babcfbc51a573fd26f69702dce8</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_TokenPID_Default.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_TokenPID_Default.h</file>
          <hash>7c919c1b7ffb0f0b1fa00ddac080bc9c9cff127c8439ae5ea65c0c16e1df197b</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_TokenPID_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_TokenPID_Unsupported.h</file>
          <hash>92f6de1075d254e5d5be008e3dd46380338822c52577870954262ea3f277ce3c</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usb_UOEMonitor_Unsupported.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usb_UOEMonitor_Unsupported.h</file>
          <hash>4804548e4131b05776737ddf3d28767ad5b3ba8def9a1f15cbbc61ad3f1a652a</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/templates/usbfs_registers.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/templates/usbfs_registers.h</file>
          <hash>246b77d5aa44e328179071cbab3cc45f8475881a5512454800b58ba52da18192</hash>
       </entry>
       <entry>
-         <file>../src/config/default/driver/usb/usbfs/src/usbfs_registers.h</file>
+         <file>../src/config/pic32mx470/driver/usb/usbfs/src/usbfs_registers.h</file>
          <hash>aa30cbc10679b2c36aa4ae872ddfa123aa2c490d92d879f2dc530567360e3810</hash>
       </entry>
       <entry>
-         <file>../src/config/default/exceptions.c</file>
+         <file>../src/config/pic32mx470/exceptions.c</file>
          <hash>7c1b9a2e42598d51c643984260a4b0d966a18f1ad97cc90d166aa9a4311ab6af</hash>
       </entry>
       <entry>
-         <file>../src/config/default/initialization.c</file>
-         <hash>12749b67186e104a55c4638067c625f5dc5b66634422c310a8d8fdd0f7606f7a</hash>
+         <file>../src/config/pic32mx470/initialization.c</file>
+         <hash>f92b634000c7179696175593315e864c41f7274297709e21e66d2f5a69490701</hash>
       </entry>
       <entry>
-         <file>../src/config/default/interrupts.c</file>
-         <hash>2da340a35388bc78e5b629497eb97854eb96f0e1ff451d35e9c10cac70d59d9d</hash>
+         <file>../src/config/pic32mx470/interrupts.c</file>
+         <hash>71a88428a52f88d8083a487c6afdf2531dfa26482c5632ca737b737695277e3c</hash>
       </entry>
       <entry>
-         <file>../src/config/default/interrupts.h</file>
-         <hash>18fa0e2848cd2743a3d873986630516e784123eabc7aba156cbcad5900c5f231</hash>
+         <file>../src/config/pic32mx470/interrupts.h</file>
+         <hash>d51b55ef9ca86c159bf4d964602be86735d57da02a598e116701f2d91f2eae40</hash>
       </entry>
       <entry>
-         <file>../src/config/default/osal/osal.h</file>
+         <file>../src/config/pic32mx470/osal/osal.h</file>
          <hash>8404fbe44807fa0484ffb38843a72cb9af8e31c9c30bd1b2594e609b8ea317d9</hash>
       </entry>
       <entry>
-         <file>../src/config/default/osal/osal_definitions.h</file>
+         <file>../src/config/pic32mx470/osal/osal_definitions.h</file>
          <hash>5f0a2513a093b6d228e2b50646b204923a82047335a47f3d35a2938309ab6f37</hash>
       </entry>
       <entry>
-         <file>../src/config/default/osal/osal_impl_basic.h</file>
+         <file>../src/config/pic32mx470/osal/osal_impl_basic.h</file>
          <hash>67ce72d34fd1e4dee0b6937fa026ab2c7bd285f82a24da09742c68333adaf0fc</hash>
       </entry>
       <entry>
-         <file>../src/config/default/p32MX470F512H.ld</file>
+         <file>../src/config/pic32mx470/p32MX470F512H.ld</file>
          <hash>db05cc5b521cee70133eabed06758149cc32fa44e7c2df60705cd373b06e4da3</hash>
       </entry>
       <entry>
-         <file>../src/config/default/peripheral/clk/plib_clk.c</file>
-         <hash>2f5fac7539abc6ff61ee446bbe2fc2fbab7a015635f6e26de8b0821530898199</hash>
+         <file>../src/config/pic32mx470/peripheral/clk/plib_clk.c</file>
+         <hash>0dc20eed45ec6825db89b3b63ff6fbec263da380bcfd317a1aedb386a1b92872</hash>
       </entry>
       <entry>
-         <file>../src/config/default/peripheral/clk/plib_clk.h</file>
+         <file>../src/config/pic32mx470/peripheral/clk/plib_clk.h</file>
          <hash>35384f2e13e59b7190bf77f6996baf3ea2377ec42df94979a6f793326def5255</hash>
       </entry>
       <entry>
-         <file>../src/config/default/peripheral/evic/plib_evic.c</file>
-         <hash>993b30c05c56c6f987cee279c9fc0b304efa008c9234a6ea3c0f74df13b1b9b3</hash>
+         <file>../src/config/pic32mx470/peripheral/evic/plib_evic.c</file>
+         <hash>3c156cc3d975753f416d9875628e491c8a4467e7dfe150a90a35cfe902b1be82</hash>
       </entry>
       <entry>
-         <file>../src/config/default/peripheral/evic/plib_evic.h</file>
+         <file>../src/config/pic32mx470/peripheral/evic/plib_evic.h</file>
          <hash>e583d61209911805b20188f532f6c5075500408e9f75de59324804b7203f1997</hash>
       </entry>
       <entry>
-         <file>../src/config/default/peripheral/gpio/plib_gpio.c</file>
-         <hash>46c60a80cbf3d1f7d61759484b034dafcbdff2819b42398168be65a5cdff03c0</hash>
+         <file>../src/config/pic32mx470/peripheral/gpio/plib_gpio.c</file>
+         <hash>cc6b927817860e707ba924ffe9d64ff2faab0e2186714ed6b84cc3fe52d31505</hash>
       </entry>
       <entry>
-         <file>../src/config/default/peripheral/gpio/plib_gpio.h</file>
+         <file>../src/config/pic32mx470/peripheral/gpio/plib_gpio.h</file>
          <hash>a56f49aa8799ec088531e790cfd1ba241f40e1c67c8ff4e3fae2e12cc86e3dd2</hash>
       </entry>
       <entry>
-         <file>../src/config/default/stdio/xc32_monitor.c</file>
+         <file>../src/config/pic32mx470/peripheral/i2c/master/plib_i2c1_master.c</file>
+         <hash>ae29e82058be9eaacbb7d9136804879f74638abf1a43f6f826b79d38ecd2845d</hash>
+      </entry>
+      <entry>
+         <file>../src/config/pic32mx470/peripheral/i2c/master/plib_i2c1_master.h</file>
+         <hash>e67134ebc332d5326f891308b42893f010a6f7f27388d5dc187ddb52be3b5caf</hash>
+      </entry>
+      <entry>
+         <file>../src/config/pic32mx470/peripheral/i2c/master/plib_i2c_master_common.h</file>
+         <hash>bbd6b3c6beaf3c39c726ff9db96cf0871f13a1cf199b119fe0618d91082e5553</hash>
+      </entry>
+      <entry>
+         <file>../src/config/pic32mx470/stdio/xc32_monitor.c</file>
          <hash>858f8710d4287200a5ee7f3b3ad7c24f505aed9c05c16956ab0ff9f7bb162a6a</hash>
       </entry>
       <entry>
-         <file>../src/config/default/sys_tasks.h</file>
+         <file>../src/config/pic32mx470/sys_tasks.h</file>
          <hash>21f254f497a18a024cd00128d06c4776c2643f867a460c1ba9880a7dd41a8d56</hash>
       </entry>
       <entry>
-         <file>../src/config/default/system/debug/sys_debug.h</file>
+         <file>../src/config/pic32mx470/system/debug/sys_debug.h</file>
          <hash>6dc7375ac05501951020122a9baa63e17e9331e11423c70c8ddd3c0944fd632c</hash>
       </entry>
       <entry>
-         <file>../src/config/default/system/int/src/sys_int.c</file>
+         <file>../src/config/pic32mx470/system/int/src/sys_int.c</file>
          <hash>30ac5e334ca90204f545f1ab769ae26f421b910b3fb3be99354b364febceee64</hash>
       </entry>
       <entry>
-         <file>../src/config/default/system/int/sys_int.h</file>
+         <file>../src/config/pic32mx470/system/int/sys_int.h</file>
          <hash>2c878ab7ff41ae56b5c0c3c94929ad66eb87b8660bf9a439177d049e8ad8f8c8</hash>
       </entry>
       <entry>
-         <file>../src/config/default/system/int/sys_int_mapping.h</file>
+         <file>../src/config/pic32mx470/system/int/sys_int_mapping.h</file>
          <hash>a2dcf05575becc98aa212af1d220eda07487bd645d82c4d7a980aa3a22384cf3</hash>
       </entry>
       <entry>
-         <file>../src/config/default/system/system.h</file>
+         <file>../src/config/pic32mx470/system/system.h</file>
          <hash>2b75f8e370e5cb2c54f70da7351ee149f0d5a7673e700f39b373099716b31b55</hash>
       </entry>
       <entry>
-         <file>../src/config/default/system/system_common.h</file>
+         <file>../src/config/pic32mx470/system/system_common.h</file>
          <hash>c9f34bd226f8efab12f5766e77f8355996cd0430b50e0f6ee30258664c494984</hash>
       </entry>
       <entry>
-         <file>../src/config/default/system/system_module.h</file>
+         <file>../src/config/pic32mx470/system/system_module.h</file>
          <hash>96c74368801b0a7aaa25aec3ec2cb0d483250385f103ffc1ff64089b4ca2c6d9</hash>
       </entry>
       <entry>
-         <file>../src/config/default/tasks.c</file>
+         <file>../src/config/pic32mx470/tasks.c</file>
          <hash>2e39cf49517830e5508fdda962752f8c78495bad0ffaf61b7a9a1b9f00976d69</hash>
       </entry>
       <entry>
-         <file>../src/config/default/toolchain_specifics.h</file>
+         <file>../src/config/pic32mx470/toolchain_specifics.h</file>
          <hash>b4de6e02e3e48c62f7ba233405ffdf6ef31bb971d1a7b49efa1676f45cabc1ac</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/src/usb_device.c</file>
+         <file>../src/config/pic32mx470/usb/src/usb_device.c</file>
          <hash>14543b5fdeb97f5cbf15e9f4c58c237795d97bd5d60e7a6109f2af85cc550d1b</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/src/usb_device_function_driver.h</file>
+         <file>../src/config/pic32mx470/usb/src/usb_device_function_driver.h</file>
          <hash>4c01cbdadca6973294d599811f0e06f51b4e6980fac4de25ccafd2742f6a5dd2</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/src/usb_device_hid.c</file>
+         <file>../src/config/pic32mx470/usb/src/usb_device_hid.c</file>
          <hash>cc35af96b8e0759eaf6b9fbe9466a01a980649000dda581f2dacb2d097d2ff6a</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/src/usb_device_hid_local.h</file>
+         <file>../src/config/pic32mx470/usb/src/usb_device_hid_local.h</file>
          <hash>bbc31907baeb7d15ace689daaa7ed21072fbdfe8793a2aa96747c5fcb27065cb</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/src/usb_device_local.h</file>
+         <file>../src/config/pic32mx470/usb/src/usb_device_local.h</file>
          <hash>ebaab2a0356b25ac168e71f5ca84b8a0854a40de6efa8267d04aee1ca878a85e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/src/usb_device_mapping.h</file>
+         <file>../src/config/pic32mx470/usb/src/usb_device_mapping.h</file>
          <hash>c73881cf22375ff35c1290a2e40055cb8e1d955610d11c904914ff347d5b753d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/src/usb_external_dependencies.h</file>
+         <file>../src/config/pic32mx470/usb/src/usb_external_dependencies.h</file>
          <hash>b12fd8f239e37735d34cbd777cd98b448b9ad8bc4fde516bf6ca8a5c1120163f</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/usb_chapter_9.h</file>
+         <file>../src/config/pic32mx470/usb/usb_chapter_9.h</file>
          <hash>3d61e683d79bb62694e1133023063da31853e924dd3a2f27abda159876cd6b9e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/usb_common.h</file>
+         <file>../src/config/pic32mx470/usb/usb_common.h</file>
          <hash>62970f187809ea73ea9bc418b9101ccc0ab77a47cb11149c778e06a49a83bb51</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/usb_device.h</file>
+         <file>../src/config/pic32mx470/usb/usb_device.h</file>
          <hash>44c976f44c00f873133cd722cdd9565a87f5db68fa7d867ca9d1f717949aa81e</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/usb_device_hid.h</file>
+         <file>../src/config/pic32mx470/usb/usb_device_hid.h</file>
          <hash>c6be8c97b747402231a452354ee8ba76b4f5dcad4297a93de38c78d98e09e978</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/usb_hid.h</file>
+         <file>../src/config/pic32mx470/usb/usb_hid.h</file>
          <hash>9476f1bbb139fa59f8a1c858126ff1a81cb0acefff7f66be59dca3a9ef745508</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/usb_host.h</file>
+         <file>../src/config/pic32mx470/usb/usb_host.h</file>
          <hash>56c248da571d1a46c5d6b5b34e28a978b30b40ee1fb04fa4f2efdcb8a5a1039b</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/usb_host_client_driver.h</file>
+         <file>../src/config/pic32mx470/usb/usb_host_client_driver.h</file>
          <hash>274e72a8e34ccc3012d2bb4a100cec9d54ffd296091b35c0f7ec45b528cb34ac</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/usb_host_hub_interface.h</file>
+         <file>../src/config/pic32mx470/usb/usb_host_hub_interface.h</file>
          <hash>bcd95afaa026ab8559047e85ac157597452ab0ceee4e96612e5273ec324f1ef9</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb/usb_hub.h</file>
+         <file>../src/config/pic32mx470/usb/usb_hub.h</file>
          <hash>66a9362619640002d6c8fe6335e044dd7c9cd4fe834d1b2487aa172a08af644b</hash>
       </entry>
       <entry>
-         <file>../src/config/default/usb_device_init_data.c</file>
+         <file>../src/config/pic32mx470/usb_device_init_data.c</file>
          <hash>6dfe24924b1b4b7e3531b8207bf11484891aa4af88d746e188acc54e9ea8b38d</hash>
       </entry>
       <entry>
-         <file>../src/config/default/user.h</file>
+         <file>../src/config/pic32mx470/user.h</file>
          <hash>451e0878e9fcf6cf9fab046c1452ea662757988346c7f39e6bc98478ca25f995</hash>
       </entry>
       <entry>
