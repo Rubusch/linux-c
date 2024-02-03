@@ -64,11 +64,13 @@ Connect the USB Micro-B port (J12) of the PIC32MX470 Curiosity
 Development Board to the J19 USB-B type C connector. In case this will
 need a USB type-C male to micro-B male cable.  
 
+#### MPLAB X IDE Setup
+
+Figure out the installation of the IDE [here](../pic32mx470__00-basics/README.md).  
+
 #### PIC32MX: USB HID Demo
 
-Rebuild it, or use my [PIC32 USB HID demo](../pic32mx470__01-hid-demo).  
-
-Build the demo selecting "Clean and Build Project (...)" (menu), then click "Make and Program Device (...)".  
+Figure out how to build the [PIC32 USB HID demo](../pic32mx470__01-hid-demo).  
 
 # Build
 

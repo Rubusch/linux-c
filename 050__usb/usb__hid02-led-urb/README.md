@@ -1,40 +1,30 @@
-# PIC32MX470: usb led demo with switch
+# PIC32MX470: usb hid demo using urb packages
 
-The communication between the host and the devie here is done asynchronously by using USB request blocks (URBs).  
+The communication between the host (RPI) and the devie (PIC32) here is
+done asynchronously by using USB request blocks (URBs).  
 
 Kernel Config: make sure the following is set:  
 - `CONFIG_HID_SUPPORT`
 - `CONFIG_HID_GENERIC`
+Make sure the following is _NOT_ set (or at least as module, then
+unload the module). Alternatively a udev rule has to be in place
+additionally to allow for USB matching:  
+- `CONFIG_USB_HID`
 
 ## Hardware: Microchip Curiosity PIC32MX470 (PIC32MX470512H)
-
-PIC32 Board:  
-https://www.microchip.com/DevelopmentTools/ProductDetails/dm320103
 
 Connection:  
 Connect the USB Micro-B port (J12) of the PIC32MX470 Curiosity
 Development Board to the J19 USB-B type C connector. In case this will
 need a USB type-C male to micro-B male cable.  
 
-TODO    
+#### MPLAB X IDE Setup
 
+Figure out the installation of the IDE [here](../pic32mx470__00-basics/README.md).  
 
-## Software: MPLAB X IDE
+#### Setup the HID Application in the MPLAB IDE
 
-MPLAB X IDE: https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide#tabs
-
-```
-$ sudo apt install -y libusb-1.0-0
-
-$ tar xf ./MPLABX-v6.15-linux-installer.tar
-$ sudo ./MPLABX-v6.15-linux-installer.sh
--> only select MPLAB X IDE, and
--> PIC32 support
-```
-
-## Setup the HID Application in the MPLAB IDE
-
-TODO       
+Use the [USB HID demo](../pic32mx470__01-hid-demo).  
 
 # Build
 
@@ -128,4 +118,6 @@ Jan 28 08:21:07 ctrl001 kernel: [27707.484459] lothars_usbled 1-1.4:1.0: usbled_
 ```
 
 ## References
+* https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide
+* https://www.microchip.com/DevelopmentTools/ProductDetails/dm320103
 * Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 617ff, p. 628  
