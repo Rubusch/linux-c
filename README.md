@@ -6,7 +6,7 @@
 
 # Lothar's Kernel Codes
 
-[Hardware](./pics/screenshot01.jpg)  
+![Hardware](./pics/screenshot01.jpg)  
 
 No guarantees! Use the code snippets at your own risk.  
 
