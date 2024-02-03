@@ -14,4 +14,5 @@ Find here my demos, code snippets, assembled, fixed, modified, adjusted or exten
 
 **Reference platform is the RPi 3b** 64-bit. In some cases x86 (64-bit). For the usb demos I use a PIC32 board as a counterpart.  
 
+![thx1138](./pics/thx1138.jpg)  
 _Let us be thankful we have commerce. Buy more. Buy more now. Buy. And be happy._
