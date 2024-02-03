@@ -7,3 +7,4 @@ firmware/pic32mx470-hid-demo.X/nbproject/Makefile*
 ## generated .gitignore entries, build and dist folders
 firmware/pic32mx470-hid-demo.X/build/
 firmware/pic32mx470-hid-demo.X/dist/
+firmware/pic32mx470-hid-demo.X/debug/
