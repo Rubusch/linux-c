@@ -8,10 +8,10 @@
 
 ![Hardware](./pics/screenshot01.jpg)  
 
-Use the code snippets at your own risk. No guarantees!   
+Use the code snippets at your own risk. No guarantees!  
 
-Find here demos and code snippets I did and found, assembled, fixed, modified, adjusted from literature, reimplemented by the idea or found. I tried to provide references and resources to the best of my knowledge. Many of the examples come with a README.md. Some require additional hardware.  
+Find here my demos, code snippets, assembled, fixed, modified, adjusted or extended examples from literature, reimplemented by the idea or simply found sources. I tried to provide documentation and references to the best of my knowledge. Many of the examples come with a README.md. Some require additional hardware.  
 
-**My reference platform is the RPi 3b** 64-bit. In some cases x86 (64-bit), Raspberry pi 4 or 5. For the usb demos I use a PIC32 board as a counterpart.  
+**Reference platform is the RPi 3b** 64-bit. In some cases x86 (64-bit). For the usb demos I use a PIC32 board as a counterpart.  
 
 _Let us be thankful we have commerce. Buy more. Buy more now. Buy. And be happy._
