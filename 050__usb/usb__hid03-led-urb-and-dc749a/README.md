@@ -63,19 +63,11 @@ the signals directly from the J6 connector.
 
 ## Software: MPLAB X IDE
 
-MPLAB X IDE: https://www.microchip.com/en-us/tools-resources/develop/mplab-x-ide#tabs
+Figure out the installation of the IDE [here](../pic32mx470__00-basics/README.md).  
 
-```
-$ sudo apt install -y libusb-1.0-0
-$ tar xf ./MPLABX-v6.15-linux-installer.tar
-$ sudo ./MPLABX-v6.15-linux-installer.sh
--> only select MPLAB X IDE, and
--> PIC32 support
-```
+## Setup the HID Application using I2C to connect to a DC749a board in the MPLAB IDE
 
-## Setup the HID Application in the MPLAB IDE
-
-This is desribed [here](../pic32mx470__03-hid-dc749a-demo/README.md).  
+This is desribed [USB_HID_DC749a_demo](../pic32mx470__03-hid-dc749a-demo).  
 
 # Build
 

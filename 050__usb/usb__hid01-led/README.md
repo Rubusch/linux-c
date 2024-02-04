@@ -74,7 +74,7 @@ Figure out the installation of the IDE [here](../pic32mx470__00-basics/README.md
 
 #### PIC32MX: USB HID Demo
 
-Figure out how to build the [PIC32 USB HID demo](../pic32mx470__01-hid-demo).  
+Use the the [PIC32 USB HID demo](../pic32mx470__01-hid-demo).  
 
 # Build
 
