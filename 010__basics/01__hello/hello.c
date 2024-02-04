@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+*/
+
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/init.h>
+
+static int __init mod_init(void);
+static void __exit mod_exit(void);
+
+int init_hello(void);
+void cleanup_hello(void);
+
+int init_hello(void)
+{
+	pr_info("Hello World!\n");
+	return 0;
+}
+
+void cleanup_hello(void)
+{
+	pr_info("Goodbye World!\n");
+}
+
+static int __init mod_init(void)
+{
+	return init_hello();
+}
+
+static void __exit mod_exit(void)
+{
+	cleanup_hello();
+}
+
+module_init(mod_init);
+module_exit(mod_exit);
+
+MODULE_LICENSE("GPLv2");
+MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
+MODULE_DESCRIPTION("messing with modules");
