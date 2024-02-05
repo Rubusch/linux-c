@@ -42,7 +42,7 @@ static struct file_operations fops = {
  */
 static int hello_open(struct inode *inode, struct file *file)
 {
-	printk(KERN_INFO "%s()\n", __func__);
+	pr_info("%s(): called", __func__);
 	return 0;
 }
 
@@ -51,7 +51,7 @@ static int hello_open(struct inode *inode, struct file *file)
  */
 static int hello_release(struct inode *inode, struct file *file)
 {
-	printk(KERN_INFO "%s()\n", __func__);
+	pr_info("%s(): called", __func__);
 	return 0;
 }
 
@@ -61,7 +61,7 @@ static int hello_release(struct inode *inode, struct file *file)
 static ssize_t hello_read(struct file *file, char __user *buf, size_t len,
 			  loff_t *poff)
 {
-	printk(KERN_INFO "%s()\n", __func__);
+	pr_info("%s(): called", __func__);
 	return 0;
 }
 
@@ -71,13 +71,13 @@ static ssize_t hello_read(struct file *file, char __user *buf, size_t len,
 static ssize_t hello_write(struct file *file, const char __user *buf,
 			   size_t len, loff_t *poff)
 {
-	printk(KERN_INFO "%s()\n", __func__);
+	pr_info("%s(): called", __func__);
 	return len; // if this is 0, it will spin around the "write"
 }
 
 int init_hello_chardev(void)
 {
-	printk(KERN_INFO "%s() initializing\n", __func__);
+	pr_info("%s(): called", __func__);
 
 	// allocate major number
 	/**
@@ -93,11 +93,10 @@ int init_hello_chardev(void)
 	 */
 	if (0 > alloc_chrdev_region(&dev, HELLO_CHARDEV_MINOR, 1,
 				    HELLO_CDEV_NAME)) {
-		printk(KERN_ERR "alloc_chrdev_region() failed\n");
+		pr_err("%s(): alloc_chrdev_region() failed", __func__);
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev),
-	       MINOR(dev));
+	pr_info("%s(): major = %d, minor = %d\n", __func__, MAJOR(dev),MINOR(dev));
 
 	// create cdev structure (character device)
 	/**
@@ -122,7 +121,7 @@ int init_hello_chardev(void)
 	 * live immediately.  A negative error code is returned on failure.
 	 */
 	if (0 > cdev_add(&hello_chardev_cdev, dev, 1)) {
-		printk(KERN_ERR "cdev_add() faied\n");
+		pr_err("%s(): cdev_add() failed", __func__);
 		goto err_cdev;
 	}
 
@@ -143,7 +142,7 @@ int init_hello_chardev(void)
 	 */
 	dev_class = class_create(THIS_MODULE, HELLO_CLASS_NAME);
 	if (NULL == dev_class) {
-		printk(KERN_ERR "class_create() failed\n");
+		pr_err("%s(): class_create() failed", __func__);
 		goto err_class;
 	}
 
@@ -174,11 +173,11 @@ int init_hello_chardev(void)
 	 */
 	if (NULL ==
 	    device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
-		printk(KERN_ERR "device_create() failed\n");
+		pr_err("%s(): device_create() failed", __func__);
 		goto err_device;
 	}
 
-	printk(KERN_INFO "%s() done.\n", __func__);
+	pr_info("%s(): done", __func__);
 	return 0;
 
 err_device:
@@ -238,7 +237,7 @@ void cleanup_hello_chardev(void)
 	 */
 	unregister_chrdev_region(dev, 1);
 
-	printk(KERN_INFO "%s() READY.\n", __func__);
+	pr_info("%s(): READY.", __func__);
 }
 
 static int __init mod_init(void)
