@@ -7,16 +7,10 @@
 #include <linux/init.h>
 #include <linux/fs.h>
 
-static int __init mod_init(void);
-static void __exit mod_exit(void);
-
-int init_devnum(void);
-void cleanup_devnum(void);
-
 #define LOTHARS_DEVICE_NAME "lothars_device"
 #define DEVICE_MINOR_NUMBER 123
 
-// define a device node
+// device node
 dev_t dev = 0;
 
 int init_devnum(void)
