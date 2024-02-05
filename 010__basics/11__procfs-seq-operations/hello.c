@@ -103,8 +103,8 @@ static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
 static ssize_t write_procfs(struct file *filp, const char __user *buf,
 			    size_t count, loff_t *offp)
 {
-//	pr_info("%s()\n", __func__); // can be bulky
-	return 0;
+	pr_info("%s()\n", __func__);
+	return -EINVAL;
 }
 
 /*
