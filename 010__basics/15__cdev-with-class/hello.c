@@ -49,7 +49,7 @@ int init_hello_chardev(void)
 	 */
 	dev_class = class_create(THIS_MODULE, HELLO_CLASS_NAME);
 	if (NULL == dev_class) {
-		printk(KERN_ERR "%s(): class_create() failed\n", __func__);
+		pr_err("%s(): class_create() failed\n", __func__);
 		goto err_class;
 	}
 
@@ -81,7 +81,7 @@ int init_hello_chardev(void)
 	 */
 	if (NULL == device_create(dev_class, NULL, dev,
 				  NULL, HELLO_DEVICE_NAME)) {
-		printk(KERN_ERR "%s(): device_create() failed\n", __func__);
+		pr_err("%s(): device_create() failed\n", __func__);
 		goto err_device;
 	}
 
