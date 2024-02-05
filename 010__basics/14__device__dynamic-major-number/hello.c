@@ -15,7 +15,7 @@ dev_t dev = 0;
 
 int init_devnum(void)
 {
-	printk(KERN_INFO "%s() initializing...!\n", __func__);
+	pr_info("%s(): initializing...!\n", __func__);
 	/**
 	 * alloc_chrdev_region() - register a range of char device numbers
 	 * @dev: output parameter for first assigned number
@@ -29,10 +29,10 @@ int init_devnum(void)
 	 */
 	if (0 > alloc_chrdev_region(&dev, DEVICE_MINOR_NUMBER, 1,
 				    LOTHARS_DEVICE_NAME)) {
-		printk(KERN_ERR "alloc_chrdev_region() failed\n");
+		pr_err("%s(): alloc_chrdev_region() failed", __func__);
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev),
+	pr_info("%s() major = %d, minor = %d", __func__, MAJOR(dev),
 	       MINOR(dev));
 	return 0;
 }
@@ -49,7 +49,7 @@ void cleanup_devnum(void)
 	 * allocated those numbers in the first place...
 	 */
 	unregister_chrdev_region(dev, 1);
-	printk(KERN_INFO "%s() READY.\n", __func__);
+	pr_info("%s() READY.", __func__);
 }
 
 static int __init mod_init(void)
