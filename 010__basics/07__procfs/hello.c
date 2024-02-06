@@ -32,32 +32,20 @@ static ssize_t write_procfs(struct file *, const char __user *, size_t,
 int start_procfs(void);
 void stop_procfs(void);
 
-static struct proc_dir_entry *ent;
+static struct proc_dir_entry *proc_folder;
+static struct proc_dir_entry *proc_file;
 
-#define PROCFS_NAME "lothars_procfs_entry"
-#define PROC_FILE_PERMS 0644
-#define PROC_PARENT_DIR NULL
-
-/* // The old legacy file_operations
-static struct file_operations proc_ops = {
-	.owner = THIS_MODULE,
-	.open = open_procfs,
-	.read = read_procfs,
-	.write = write_procfs,
-};
-/*/
-// NB: the following needs totally different parameters
 static const struct proc_ops proc_fops = {
 	.proc_open = open_procfs,
 	.proc_read = read_procfs,
 	.proc_write = write_procfs,
 };
-// */
 
 static char *message;
 static int read_p;
 
-static int open_procfs(struct inode *inode, struct file *file)
+static int
+open_procfs(struct inode *inode, struct file *file)
 {
 	pr_info("%s()", __func__);
 
@@ -76,7 +64,8 @@ static int open_procfs(struct inode *inode, struct file *file)
 	return 0;
 }
 
-static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
+static ssize_t
+read_procfs(struct file *filp, char __user *buf, size_t count,
 			   loff_t *offp)
 {
 	int len = 0, ret = 0;
@@ -97,47 +86,41 @@ static ssize_t read_procfs(struct file *filp, char __user *buf, size_t count,
 	return len;
 }
 
-static ssize_t write_procfs(struct file *filp, const char __user *buf,
+static ssize_t
+write_procfs(struct file *filp, const char __user *buf,
 			    size_t count, loff_t *offp)
 {
 	pr_info("%s()\n", __func__);
 	return -EINVAL;
 }
 
-int start_procfs(void)
+static int
+__init mod_init(void)
 {
 	pr_info("%s()\n", __func__);
-
-	ent = proc_create(PROCFS_NAME, PROC_FILE_PERMS, PROC_PARENT_DIR,
-			  &proc_fops);
-	if (NULL == ent) {
-		printk(KERN_ALERT "/proc/%s failed\n", PROCFS_NAME);
-		proc_remove(ent);
-		// alternative: remove_proc_entry(PROCFS_NAME, NULL);
+	proc_folder = proc_mkdir("lothars_dir", NULL);
+	if (NULL == proc_folder) {
+		pr_err("%s(): failed create procfs folder", __func__);
 		return -ENOMEM;
 	}
-	pr_info("/proc/%s created\n", PROCFS_NAME);
+
+	proc_file = proc_create("lothars_file", 0666, proc_folder, &proc_fops);
+	if (NULL == proc_file) {
+		pr_err("%s(): failed creating procfs file", __func__);
+		proc_remove(proc_folder);
+		return -ENOMEM;
+	}
 
 	return 0;
 }
 
-void stop_procfs(void)
+static void __exit mod_exit(void)
 {
 	pr_info("%s()\n", __func__);
 
 	kfree(message);
-	proc_remove(ent);
-	pr_info("/proc/%s removed\n", PROCFS_NAME);
-}
-
-static int __init mod_init(void)
-{
-	return start_procfs();
-}
-
-static void __exit mod_exit(void)
-{
-	stop_procfs();
+	proc_remove(proc_file);
+	proc_remove(proc_folder);
 }
 
 module_init(mod_init);
