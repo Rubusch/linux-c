@@ -12,7 +12,8 @@ static struct timespec64 start_time;
 
 module_param(num, int, S_IRUGO); // NB: S_IRUGO == S_IRUSR | S_IRGRP | S_IROTH
 
-void say(void)
+void
+say(void)
 {
 	int idx;
 	for (idx = 1; idx <= num; idx++) {
@@ -20,7 +21,8 @@ void say(void)
 	}
 }
 
-static int __init hello_init(void)
+static int
+__init hello_init(void)
 {
 	pr_info("%s(): called", __func__);
 
@@ -30,7 +32,8 @@ static int __init hello_init(void)
 	return 0;
 }
 
-static void __exit hello_exit(void)
+static void
+__exit hello_exit(void)
 {
 	struct timespec64 end_time;
 	long int start, end;
@@ -51,4 +54,4 @@ module_exit(hello_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("rpi workspace test");
+MODULE_DESCRIPTION("Messing with ktime and timers.");
