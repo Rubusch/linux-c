@@ -2,6 +2,10 @@
 
 The demo shows how to operate gpios from off the linux kernel.
 
+## Setup
+
+Wire from `gpio04` to a breadboard. Place some resistor. Then a led. Wire then back to ground, e.g. next to `gpio04` on position 9 should be `gnd`.
+
 ## Usage
 
 ```
