@@ -6,23 +6,6 @@
 #include <linux/init.h>
 #include <linux/module.h>
 
-/*
-  forwards
-*/
-
-static int __init mod_init(void);
-static void __exit mod_exit(void);
-
-int init_hello_sysfs(void);
-void cleanup_hello_sysfs(void);
-
-static ssize_t sysfs_show(struct kobject *, struct kobj_attribute *, char *);
-static ssize_t sysfs_store(struct kobject *, struct kobj_attribute *,
-			   const char *, size_t);
-
-/*
-  globals
-*/
 
 #define HELLO_SYSFS_NAME "lothars_sysfs"
 
@@ -30,12 +13,15 @@ volatile int hello_sysfs_value = 0;
 
 // sysfs kobject and attribute
 struct kobject *kobj_ref;
-struct kobj_attribute hello_sysfs_attr =
-	__ATTR(hello_sysfs_value, 0600, sysfs_show, sysfs_store);
 
-/*
-  implementation
-*/
+/* registration of function for kobj / sysfs */
+static ssize_t sysfs_show(struct kobject *, struct kobj_attribute *, char *);
+static ssize_t sysfs_store(struct kobject *, struct kobj_attribute *,
+			   const char *, size_t);
+
+struct kobj_attribute hello_sysfs_attr = __ATTR(hello_sysfs_value, 0600,
+						sysfs_show,
+						sysfs_store);
 
 /*
   Called when the sysfs file is read.
@@ -44,8 +30,7 @@ static ssize_t sysfs_show(struct kobject *kobj, struct kobj_attribute *attr,
 			  char *buf)
 {
 	ssize_t ret = sprintf(buf, "%d\n", hello_sysfs_value);
-	printk(KERN_INFO "%s(%p, %p, '%s') - Read!\n", __func__, kobj, attr,
-	       buf);
+	pr_info("%s(%p, %p, '%s') - Read!\n", __func__, kobj, attr, buf);
 	return ret;
 }
 
@@ -55,25 +40,22 @@ static ssize_t sysfs_show(struct kobject *kobj, struct kobj_attribute *attr,
 static ssize_t sysfs_store(struct kobject *kobj, struct kobj_attribute *attr,
 			   const char *buf, size_t count)
 {
-	printk(KERN_INFO "%s(%p, %p, '%s', %lu) - Write!\n", __func__, kobj,
-	       attr, buf, count);
+	pr_info("%s(%p, %p, '%s', %lu) - Write!\n", __func__, kobj, attr,
+		buf, count);
 	sscanf(buf, "%d", &hello_sysfs_value);
 	return count;
 
 	/*
-	// NB: Don't confuse it with the following, which results in an endless loop!!!
+	// NB: Don't confuse it with the following, which results in
+	// an endless loop!!!
 	count = sscanf(buf, "%d", &hello_sysfs_value);
 	return count;
 	*/
 }
 
-/*
-  start / stop module
-*/
-
 int init_hello_sysfs(void)
 {
-	printk(KERN_INFO "%s() initializing...\n", __func__);
+	pr_info("%s(): called", __func__);
 
 	/* 1. Create sysfs directory */
 
@@ -104,6 +86,8 @@ int init_hello_sysfs(void)
 
 void cleanup_hello_sysfs(void)
 {
+	pr_info("%s(): called", __func__);
+
 	/**
 	 * kobject_put() - Decrement refcount for object.
 	 * @kobj: object.

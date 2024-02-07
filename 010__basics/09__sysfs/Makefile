@@ -1,5 +1,5 @@
 KERNELDIR ?= /usr/src/linux
-obj-m += hellosysfs.o
+obj-m += hello.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
