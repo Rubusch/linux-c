@@ -9,13 +9,6 @@
 #include <linux/fs.h>
 #include <linux/completion.h>
 
-/*
-  forwards
-*/
-
-static int __init mod_init(void);
-static void __exit mod_exit(void);
-
 int init_hello_completion(void);
 void cleanup_hello_completion(void);
 
@@ -25,10 +18,6 @@ static int wait_function(void *);
 // chardev
 static ssize_t chardev_read(struct file *, char __user *, size_t, loff_t *);
 
-/*
-  globals
-*/
-
 #define THREAD_NAME "lothars_wait_thread"
 #define CHARDEV_NAME "lothars_chardev"
 
@@ -37,13 +26,10 @@ static struct task_struct *wait_thread;
 DECLARE_COMPLETION(data_read_done);
 int completion_flag = 0;
 
-// mutex
 struct mutex lothars_mutex;
 
-// data
 unsigned long read_counter = 0;
 
-// chardev
 dev_t dev = 0;
 static struct class *dev_class;
 static struct cdev chardev_cdev;
@@ -52,10 +38,6 @@ static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = chardev_read,
 };
-
-/*
-  implementation
-*/
 
 static int wait_function(void *vp)
 {
@@ -157,10 +139,6 @@ void cleanup_hello_completion(void)
 
 	printk("%s() READY.\n", __func__);
 }
-
-/*
-  init / exit
-*/
 
 static int __init mod_init(void)
 {

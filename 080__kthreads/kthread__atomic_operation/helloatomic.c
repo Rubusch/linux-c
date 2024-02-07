@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
 */
 
@@ -16,15 +17,9 @@ static void __exit mod_exit(void);
 
 int init_hello_atomic(void);
 void cleanup_hello_atomic(void);
-
-// thread implementation
 int kthread_routine(const char *);
 int kthread1(void *);
 int kthread2(void *);
-
-/*
-  globals
-*/
 
 // variable for atomic increment operation
 static atomic_t hello_atomic_global = ATOMIC_INIT(0);
@@ -32,16 +27,11 @@ static atomic_t hello_atomic_global = ATOMIC_INIT(0);
 // bitfield for atomic bit operation
 unsigned int hello_atomic_bit_check = 0;
 
-// kernelthread objects
 #define THREAD1_NAME "thread1"
 static struct task_struct *kthread1_task;
 
 #define THREAD2_NAME "thread2"
 static struct task_struct *kthread2_task;
-
-/*
-  implementation
-*/
 
 int kthread_routine(const char *thread_name)
 {
@@ -77,10 +67,6 @@ int kthread2(void *pv)
 {
 	return kthread_routine(THREAD2_NAME);
 }
-
-/*
-  start / stop hello module
-*/
 
 int init_hello_atomic(void)
 {
@@ -140,10 +126,6 @@ void cleanup_hello_atomic(void)
 
 	printk(KERN_INFO "READY.\n");
 }
-
-/*
-  init / exit
-*/
 
 static int __init mod_init(void)
 {
