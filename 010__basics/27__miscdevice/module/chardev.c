@@ -20,21 +20,12 @@
    - Initialize the miscdevice structure
    - Register and unregister the device with the kernel, using
      misc_register()/misc_deregister()
-
-   ---
-   REFERENCES:
-   - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
-
-   VERIFIED:
-   linux v6.3/aarch64
 */
 
-// support char dev
 #include <linux/module.h>
 #include <linux/miscdevice.h>
 #include <linux/fs.h>
 
-// define major number
 #define DEVICE_NAME "lothars_device"
 
 static int chardev_open(struct inode *inode, struct file *file)
@@ -55,7 +46,6 @@ static long chardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg
 	return 0;
 }
 
-// fops - declare a file operations structure
 static const struct file_operations chardev_fops = {
 	.owner = THIS_MODULE,
 	.open = chardev_open,
@@ -63,10 +53,9 @@ static const struct file_operations chardev_fops = {
 	.unlocked_ioctl = chardev_ioctl,
 };
 
-// declare and initialize the struct miscdevice
 static struct miscdevice chardev_miscdevice = {
-	.minor = MISC_DYNAMIC_MINOR,
 	.name = DEVICE_NAME,
+	.minor = MISC_DYNAMIC_MINOR,
 	.fops = &chardev_fops,
 };
 
@@ -80,7 +69,8 @@ static int __init chardev_init(void)
 	ret = misc_register(&chardev_miscdevice);
 
 	if (0 != ret) {
-		pr_err("%s(): could not register the misc device mydev\n", __func__);
+		pr_err("%s(): could not register the misc device mydev\n",
+		       __func__);
 		return ret;
 	}
 
