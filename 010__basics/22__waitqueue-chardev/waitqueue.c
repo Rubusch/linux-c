@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+  wait on events using a waitqueue
+
   NB: make sure not to print function arguments of the device
   functions if they are not set, this can make the entire PC hang!
 */
@@ -10,16 +12,6 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/kthread.h>
-
-int init_hello_chardev(void);
-void cleanup_hello_chardev(void);
-
-static int hello_open(struct inode *, struct file *);
-static int hello_release(struct inode *, struct file *);
-static ssize_t hello_read(struct file *, char __user *, size_t, loff_t *);
-static ssize_t hello_write(struct file *, const char __user *, size_t, loff_t *);
-
-static int wait_routine(void *);
 
 #define HELLO_CHARDEV_MINOR 123
     /* any number, the major number is allocated automatically */
@@ -32,13 +24,6 @@ dev_t dev = 0;
 static struct class *dev_class;
 static struct cdev hello_chardev_cdev;
 
-static struct file_operations fops = {
-	.owner = THIS_MODULE,
-	.open = hello_open,
-	.release = hello_release,
-	.read = hello_read,
-	.write = hello_write,
-};
 
 // threading
 uint32_t read_count = 0;
@@ -130,6 +115,14 @@ static ssize_t hello_write(struct file *file, const char __user *buf,
 	printk(KERN_INFO "%s()\n", __func__);
 	return len; // if this is 0, it will spin around the "write"
 }
+
+static struct file_operations fops = {
+	.owner = THIS_MODULE,
+	.open = hello_open,
+	.release = hello_release,
+	.read = hello_read,
+	.write = hello_write,
+};
 
 int init_hello_chardev(void)
 {
