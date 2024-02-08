@@ -14,12 +14,6 @@
    - the init function is longer, since it automatically will allocate a major
      number
 
-   ---
-   REFERENCES:
-   - Linux Driver Development for Embedded Processors, A. L. Rios, 2018
-
-   VERIFIED:
-   linux v6.3/aarch64
 */
 
 // support char dev

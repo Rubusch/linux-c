@@ -8,14 +8,6 @@
   - userspace builds on virtual memory
   - prevents crashes due to inaccessible regions
   - handles architecture specific issues
-
-  ---
-  REFERENCES:
-  - Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
-  - https://www.cs.fsu.edu/~cop4610t/lectures/project2/procfs_module/proc_module.pdf
-
-  VERIFIED:
-  v3.10/x86, upgraded
 */
 
 #include <linux/init.h>

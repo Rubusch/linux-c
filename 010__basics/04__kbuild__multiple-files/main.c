@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-  REFERENCES:
-  - Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
-  - VERIFIED: linux v2.6.18/x86
 */
 
 #include "hello.h"
