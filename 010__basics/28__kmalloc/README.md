@@ -1,4 +1,4 @@
-# gpio led
+# kmalloc / kzalloc
 
 The demo shows some simple allocations with `kmalloc()` and `kzalloc()`.  
 
