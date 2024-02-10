@@ -75,7 +75,6 @@ static int __init chardev_init(void)
 	  4. class_create();        – used to create a class
 	  5. device_create();       – used to create a device
 	*/
-
 	ret = misc_register(&chardev_miscdevice);
 
 	if (0 != ret) {
