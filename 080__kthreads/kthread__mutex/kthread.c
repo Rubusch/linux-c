@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
 */
 
@@ -8,41 +9,25 @@
 #include <linux/delay.h> /* msleep() */
 #include <linux/mutex.h>
 
-/*
-  forwards
-*/
-
 static int __init mod_init(void);
 static void __exit mod_exit(void);
 
 int init_hello_kernelthread(void);
 void cleanup_hello_kernelthread(void);
 
-// kthread routines
 int kthread_routine(const char *);
 int kthread1(void *);
 int kthread2(void *);
 
-/*
-  globals
-*/
-
 #define THREAD1_NAME "thread1"
 #define THREAD2_NAME "thread2"
 
-// kthread tasks
 static struct task_struct *kthread1_task;
 static struct task_struct *kthread2_task;
 
-// mutex
 struct mutex lothars_mutex;
 
-// data
 unsigned long global_counter = 0;
-
-/*
-  implementation
-*/
 
 int kthread_routine(const char *thread_name)
 {
