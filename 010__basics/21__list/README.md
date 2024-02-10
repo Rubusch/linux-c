@@ -1,6 +1,6 @@
 # Linked List usd with chardev driver
 
-The chardev driver establishes a devicenode. It allows reading
+The chardev driver (miscdevice) establishes a devicenode. It allows reading
 elements, which are stored in a linked list. The implementation uses
 the kernel data structure for storing elements. Later the content of
 the linked list can be printed. Note, the linked list will allow for
@@ -38,7 +38,7 @@ The source was tested compiled and running on 5.4.75.
 ## Usage
 
 ```
-$ sudo insmod ./linkedlist.ko
+$ sudo insmod ./list.ko
 
 $ echo 7 | sudo tee -a /dev/lothars_device
     7
@@ -55,10 +55,10 @@ $ echo asdf | sudo tee -a /dev/lothars_device
     tee: /dev/lothars_device: Invalid argument
 
 $ sudo cat /dev/lothars_device
-
-$ sudo rmmod linkedlist
-
-
+$ sudo rmmod list
+```
+Logs  
+```
 $ dmesg | tail
     Jan 30 19:21:01 debian kernel: init_hello_linkedlist() initializing...
     Jan 30 19:21:01 debian kernel: init_hello_linkedlist() major = 244, minor = 76

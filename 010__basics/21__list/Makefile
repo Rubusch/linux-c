@@ -1,5 +1,5 @@
 KERNELDIR ?= /usr/src/linux
-obj-m += linkedlist.o
+obj-m += list.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
