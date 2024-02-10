@@ -109,4 +109,4 @@ module_exit(chardev_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("messing with character device classes");
+MODULE_DESCRIPTION("Messing with character device classes");
