@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+  this is (still) a bloated chardev implementation, nowadays prefer to use
+  struct miscdevice for that
 */
 
 #include "helloioctl.h"
