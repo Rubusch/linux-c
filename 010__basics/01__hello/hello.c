@@ -14,6 +14,8 @@ void cleanup_hello(void);
 
 int init_hello(void)
 {
+	// NB: Always use '\n' to flush the message, w/o the CR/LF the string
+	// might be displayed later!
 	pr_info("Hello World!\n");
 	return 0;
 }
