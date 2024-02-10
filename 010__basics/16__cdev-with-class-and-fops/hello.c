@@ -30,7 +30,6 @@ static struct class *dev_class;
 static struct cdev hello_chardev_cdev;
 
 static struct file_operations fops = {
-	.owner = THIS_MODULE,
 	.open = hello_open,
 	.release = hello_release,
 	.read = hello_read,
