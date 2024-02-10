@@ -6,9 +6,6 @@
 #include <linux/fs.h>
 #include <asm/uaccess.h>
 
-int start_hello(void);
-void stop_hello(void);
-
 static int device_open(struct inode *, struct file *);
 static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
@@ -40,7 +37,7 @@ static char *msg_Ptr;
   Define the used file_operations fops.
 */
 static struct file_operations fops = {
-	.owner = THIS_MODULE,
+	.owner = THIS_MODULE, // not needed anymore
 	.read = device_read,
 	.write = device_write,
 	.open = device_open,
@@ -137,14 +134,15 @@ static ssize_t device_write(struct file *filp, const char *buff, size_t len,
 }
 
 /*
-  linux stuff: init and exit
+  init / exit
 */
-int start_hello(void)
+static int __init mod_init(void)
 {
 	// register the device to the kernel, by doing this the device
 	// gets a major number
-	if (0 > (Major = register_chrdev(0, DEVICE_NAME, &fops))) {
-		printk(KERN_ALERT "Registering char device failed with %d\n",
+	Major = register_chrdev(0, DEVICE_NAME, &fops);
+	if (0 > Major) {
+		pr_err("Registering char device failed with %d",
 		       Major);
 		return Major;
 	}
@@ -159,23 +157,10 @@ int start_hello(void)
 	return 0;
 }
 
-void stop_hello(void)
+static void __exit mod_exit(void)
 {
 	// and unregister the char dev driver and its major number
 	unregister_chrdev(Major, DEVICE_NAME);
-}
-
-/*
-  init / exit
-*/
-static int __init mod_init(void)
-{
-	return start_hello();
-}
-
-static void __exit mod_exit(void)
-{
-	stop_hello();
 }
 
 module_init(mod_init);
