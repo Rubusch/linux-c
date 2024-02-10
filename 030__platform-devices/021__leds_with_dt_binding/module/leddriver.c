@@ -77,7 +77,7 @@ static ssize_t led_write(struct file *file, const char __user* buff, size_t coun
 	const char* led_off = "off";
 	struct led_dev *led_device;
 
-	pr_info("led_write() is called\n");
+	pr_info("%s(): is called\n", __func__);
 
 	led_device = container_of(file->private_data, struct led_dev, led_misc_device);
 
@@ -86,7 +86,7 @@ static ssize_t led_write(struct file *file, const char __user* buff, size_t coun
 	  led_device->led_value = "on\n" or "off\n", after copy_from_user()
 	*/
 	if (copy_from_user(led_device->led_value, buff, count)) {
-		pr_warn("bad copied value\n");
+		pr_warn("%s(): bad copied value\n", __func__);
 		return -EFAULT;
 	}
 
@@ -97,44 +97,47 @@ static ssize_t led_write(struct file *file, const char __user* buff, size_t coun
 
 	led_device->led_value[count - 1] = '\0';
 
-	pr_info("this message received from userspace %s\n", led_device->led_value);
+	pr_info("%s(): received from userspace %s\n",
+		__func__, led_device->led_value);
 
 	if (!strcmp(led_device->led_value, led_on)) {
 		iowrite32(led_device->led_mask, GPSET0_V);
 	} else if (!strcmp(led_device->led_value, led_off)) {
 		iowrite32(led_device->led_mask, GPCLR0_V);
 	} else {
-		pr_warn("bad value\n");
+		pr_warn("%s(): bad value\n", __func__);
 		return -EINVAL;
 	}
 
-	pr_info("led_write() done\n");
+	pr_info("%s(): done\n", __func__);
 	return count;
 }
 
-static ssize_t led_read(struct file *file, char __user* buff, size_t count, loff_t* ppos)
+static ssize_t led_read(struct file *file, char __user* buff,
+			size_t count, loff_t* ppos)
 {
 	struct led_dev *led_device;
 
-	pr_info("red_read() is called\n");
+	pr_info("%s(): is called\n", __func__);
 
 	led_device = container_of(file->private_data, struct led_dev, led_misc_device);
 
 	if (0 == *ppos) {
-		if (copy_to_user(buff, &led_device->led_value, sizeof(led_device->led_value))) {
-			pr_warn("failed to return led_value to userspace\n");
+		if (copy_to_user(buff, &led_device->led_value,
+				 sizeof(led_device->led_value))) {
+			pr_warn("%s(): failed to return led_value to userspace\n",
+				__func__);
 			return -EFAULT;
 		}
 		*ppos += 1;
 		return sizeof(led_device->led_value);
 	}
-	pr_info("led_read() done\n");
+	pr_info("%s(): done\n", __func__);
 	return 0;
 }
 
 // fops - declare a file operations structure
 static const struct file_operations led_fops = {
-	.owner = THIS_MODULE,
 	.read = led_read,
 	.write = led_write,
 };
@@ -147,11 +150,11 @@ static int led_probe(struct platform_device* pdev)
 	int ret;
 	char led_val[8] = "off\n";
 
-	pr_info("leds_probe started\n");
+	pr_info("%s(): called\n", __func__);
 
 	led_device = devm_kzalloc(&pdev->dev, sizeof(struct led_dev), GFP_KERNEL);
 	if (!led_device) {
-		pr_warn("led_probe() failed");
+		pr_warn("%s(): failed\n", __func__);
 		return -ENOMEM;
 	}
 
@@ -167,7 +170,7 @@ static int led_probe(struct platform_device* pdev)
 	} else if (0 == strcmp(led_device->led_name, "ledblue")) {
 		led_device->led_mask = GPIO_26_INDEX;
 	} else {
-		pr_warn("bad devicetree value\n");
+		pr_warn("%s(): bad devicetree value\n", __func__);
 		return -EINVAL;
 	}
 
@@ -180,7 +183,7 @@ static int led_probe(struct platform_device* pdev)
 	}
 	platform_set_drvdata(pdev, led_device);
 
-	pr_info("leds_probe() done\n");
+	pr_info("%s(): done\n", __func__);
 	return 0;
 }
 
@@ -243,8 +246,9 @@ static int led_init(void)
 	GPFSEL_write = (GPFSEL_read & ~GPIO_MASK_ALL_LEDS) |
 		(GPIO_SET_FUNCTION_LEDS & GPIO_MASK_ALL_LEDS);
 
-	iowrite32(GPFSEL_write, GPFSEL2_V); /* set letds to output */
-	iowrite32(GPIO_SET_ALL_LEDS, GPCLR0_V); /* clear all the leds, output is low */
+	iowrite32(GPFSEL_write, GPFSEL2_V); // set leds to output
+	iowrite32(GPIO_SET_ALL_LEDS, GPCLR0_V); // clear all the leds,
+						// output is low
 
 	pr_info("led_init() done\n");
 	return 0;
