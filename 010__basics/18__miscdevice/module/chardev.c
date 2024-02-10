@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-   char device
+   The miscdevice simplifies all steps needed for char device.
 
    Demonstrated the usage of the miscdevice framework, and will result in
    fewer lines of code.
 
    struct miscdevice {
-     int minor;
+         int minor;
 	 const char *name;
 	 const struct file_operations *fops;
 	 struct list_head list;
@@ -46,7 +46,7 @@ static long chardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg
 	return 0;
 }
 
-static const struct file_operations chardev_fops = {
+static const struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.open = chardev_open,
 	.release = chardev_close,
@@ -56,7 +56,7 @@ static const struct file_operations chardev_fops = {
 static struct miscdevice chardev_miscdevice = {
 	.name = DEVICE_NAME,
 	.minor = MISC_DYNAMIC_MINOR,
-	.fops = &chardev_fops,
+	.fops = &fops,
 };
 
 static int __init chardev_init(void)
