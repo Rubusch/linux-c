@@ -26,7 +26,7 @@ Note, the device name is hard coded in the application. The major number is stat
 ```
 $ sudo insmod ./chardev.ko
 
-$ sudo mknod /dev/lothars_dev c 202 0
+$ sudo mknod /dev/lothars_cdev c 202 0
 
 $ sudo ./ioctl_test.elf
 

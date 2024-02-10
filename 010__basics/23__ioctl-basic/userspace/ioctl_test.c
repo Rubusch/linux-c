@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define DEVNAME "/dev/lothars_dev"
+#define DEVNAME "/dev/lothars_cdev"
 
 int main()
 {

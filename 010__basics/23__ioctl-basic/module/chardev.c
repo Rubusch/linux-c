@@ -6,23 +6,23 @@
 #include <linux/cdev.h>
 #include <linux/fs.h>
 
-#define MY_MAJOR_NUM 202
+#define DEV_MAJOR_NUM 202
 
-static struct cdev my_dev;
+static struct cdev chardev;
 
-static int my_dev_open(struct inode *inode, struct file *file)
+static int chardev_open(struct inode *inode, struct file *file)
 {
 	pr_info("%s(): called\n", __func__);
 	return 0;
 }
 
-static int my_dev_close(struct inode *inode, struct file *file)
+static int chardev_close(struct inode *inode, struct file *file)
 {
 	pr_info("%s(): called\n", __func__);
 	return 0;
 }
 
-static long my_dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+static long chardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	pr_info("%s(): called, cmd = %d, arg = %ld\n", __func__, cmd, arg);
 	return 0;
@@ -31,35 +31,35 @@ static long my_dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 /*
   fops - declare a file operations structure
 */
-static const struct file_operations my_dev_fops = {
+static const struct file_operations chardev_fops = {
 	.owner = THIS_MODULE,
-	.open = my_dev_open,
-	.release = my_dev_close,
-	.unlocked_ioctl = my_dev_ioctl,
+	.open = chardev_open,
+	.release = chardev_close,
+	.unlocked_ioctl = chardev_ioctl,
 };
 
 static int __init chrdev_init(void)
 {
 	int ret;
+	dev_t dev = MKDEV(DEV_MAJOR_NUM, 0); // get first device identifier
 
-	// get first device identifier
-	dev_t dev = MKDEV(MY_MAJOR_NUM, 0);
-	pr_info("hello chardev init\n");
+	pr_info("%s(): called", __func__);
 
 	// allocate device numbers
-	ret = register_chrdev_region(dev, 1, "my_char_device");
+	ret = register_chrdev_region(dev, 1, "lothars_cdev");
 	if (0 > ret) {
-		pr_info("unable to allocate major number %d\n", MY_MAJOR_NUM);
+		pr_err("%s(): failed to allocate major number %d",
+			__func__, DEV_MAJOR_NUM);
 		return ret;
 	}
 
 	// initialize the cdev structure and add it to kernel space
-	cdev_init(&my_dev, &my_dev_fops);
-	ret = cdev_add(&my_dev, dev, 1);
+	cdev_init(&chardev, &chardev_fops);
+	ret = cdev_add(&chardev, dev, 1);
 	if (0 > ret) {
-			unregister_chrdev_region(dev, 1);
-			pr_info("unable to add cdev\n");
-			return ret;
+		pr_err("%s(): unable to add cdev", __func__);
+		unregister_chrdev_region(dev, 1);
+		return ret;
 	}
 
 	return 0;
@@ -67,9 +67,9 @@ static int __init chrdev_init(void)
 
 static void __exit chrdev_exit(void)
 {
-	pr_info("hello chardev exit\n");
-	cdev_del(&my_dev);
-	unregister_chrdev_region(MKDEV(MY_MAJOR_NUM, 0), 1);
+	pr_info("%s(): called", __func__);
+	cdev_del(&chardev);
+	unregister_chrdev_region(MKDEV(DEV_MAJOR_NUM, 0), 1);
 }
 
 module_init(chrdev_init);
