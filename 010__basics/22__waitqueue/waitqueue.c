@@ -6,30 +6,17 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/module.h>
-#include <linux/fs.h>
-#include <linux/cdev.h>
 #include <linux/kthread.h>
 #include <linux/delay.h>
-#include <linux/jiffies.h>
-#include <linux/wait.h>
+#include <linux/miscdevice.h>
 
-#define HELLO_CDEV_NAME "lothars_hello_cdev"
-#define HELLO_CLASS_NAME "lothars_hello_class"
 #define HELLO_DEVICE_NAME "lothars_hello_device"
-#define HELLO_CHARDEV_MINOR 123
-
-dev_t dev = 0;
-static struct class *dev_class;
-static struct cdev hello_chardev_cdev;
 
 static struct task_struct *kthread1, *kthread2;
 static long int waitqueue_flag = 0;
 DECLARE_WAIT_QUEUE_HEAD(wq1); // static creation
 static wait_queue_head_t wq2; // prepares dynamic creation
 
-/*
-  thread routine
-*/
 static int thread_routine(void *arg)
 {
 	int status = -1;
@@ -90,71 +77,47 @@ static struct file_operations fops = {
 	.write = hello_write,
 };
 
-int init_hello(void)
+static struct miscdevice waitqueue_dev = {
+	.name = HELLO_DEVICE_NAME,
+	.minor = MISC_DYNAMIC_MINOR,
+	.fops = &fops,
+};
+
+static int __init mod_init(void)
 {
 	int thr1 = 1, thr2 = 2, ret;
 
 	pr_info("%s() called", __func__);
 	init_waitqueue_head(&wq2); // dynamic creation
-
-	ret = alloc_chrdev_region(&dev, HELLO_CHARDEV_MINOR, 1, HELLO_CDEV_NAME);
-	if (0 > ret) {
-		pr_err("%s(): alloc_chrdev_region() failed", __func__);
-		return -ENOMEM;
-	}
-	pr_info("%s(): major = %d, minor = %d\n",
-		__func__, MAJOR(dev),MINOR(dev));
-	cdev_init(&hello_chardev_cdev, &fops);
-	ret = cdev_add(&hello_chardev_cdev, dev, 1);
-	if (0 > ret) {
-		pr_err("%s(): cdev_add() failed", __func__);
-		goto err_cdev;
-	}
-	dev_class = class_create(THIS_MODULE, HELLO_CLASS_NAME);
-	if (NULL == dev_class) {
-		pr_err("%s(): class_create() failed", __func__);
-		goto err_class;
-	}
-	if (NULL ==
-	    device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
-		pr_err("%s(): device_create() failed", __func__);
-		goto err_device;
+	ret = misc_register(&waitqueue_dev);
+	if (0 != ret) {
+		pr_err("%s(): could not register the misc device\n", __func__);
+		return ret;
 	}
 
 	kthread1 = kthread_run(thread_routine, &thr1, "kthread1");
 	if (NULL == kthread1) {
-		pr_err("%s(): failed to create kthread1", __func__);
-		goto err_device;
+		pr_err("%s(): failed to create kthread1\n", __func__);
+		return -EFAULT;
 	}
 
 	kthread2 = kthread_run(thread_routine, &thr2, "kthread2");
 	if (NULL == kthread2) {
-		pr_err("%s(): failed to create kthread2", __func__);
+		pr_err("%s(): failed to create kthread2\n", __func__);
 		waitqueue_flag = 11;
 		wake_up(&wq1);
 		mdelay(10);
-		goto err_device;
+		return -EFAULT;
 	}
 
-	pr_info("%s(): both threads up and running", __func__);
+	pr_info("%s(): both threads up and running\n", __func__);
 
 	return 0;
-
-err_device:
-	class_destroy(dev_class);
-
-err_class:
-	cdev_del(&hello_chardev_cdev);
-
-err_cdev:
-	unregister_chrdev_region(dev, 1);
-
-	return -ENOMEM;
 }
 
-void cleanup_hello(void)
+static void __exit mod_exit(void)
 {
-	pr_info("%s(): called", __func__);
+	pr_info("%s(): called\n", __func__);
 	waitqueue_flag = 11;
 	wake_up(&wq1);
 	mdelay(10);
@@ -162,21 +125,7 @@ void cleanup_hello(void)
 	wake_up(&wq2);
 	mdelay(10);
 
-	device_destroy(dev_class, dev);
-	class_destroy(dev_class);
-	cdev_del(&hello_chardev_cdev);
-	unregister_chrdev_region(dev, 1);
-	pr_info("%s(): READY.\n", __func__);
-}
-
-static int __init mod_init(void)
-{
-	return init_hello();
-}
-
-static void __exit mod_exit(void)
-{
-	cleanup_hello();
+	misc_deregister(&waitqueue_dev);
 }
 
 module_init(mod_init);
