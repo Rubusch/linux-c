@@ -2,6 +2,10 @@
 
 The demo shows incomming asynchronous events on a gpio line.  
 
+## Setup
+
+To _trigger the button_ simply wire the *gpio17* to 3.3V.  
+
 ## Usage
 
 ```
@@ -28,4 +32,4 @@ Logs
 
 ## References
 - https://embetronicx.com/tutorials/linux/device-drivers/gpio-linux-device-driver-using-raspberry-pi/
-- https://github.com/Johannes4Linux/Linux_Driver_Tutorial/tree/main
+- the idea is mainly taken from here: https://github.com/Johannes4Linux/Linux_Driver_Tutorial/tree/main

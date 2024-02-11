@@ -8,10 +8,9 @@
 #include <linux/interrupt.h>
 #include <linux/jiffies.h>
 
-// de-bouncing
 extern unsigned long volatile jiffies;
 unsigned long old_jiffie = 0;
-#define GPIO_25_IN  (25)
+#define GPIO_INPUT  (17)
 static unsigned int irq_number; // holding the pin number of irq controller
 
 static irqreturn_t
@@ -19,8 +18,7 @@ gpio_irq_handler(int irq, void *dev_id)
 {
 	unsigned long flags;
 	unsigned long diff = jiffies - old_jiffie;
-	if (diff < 20)
-	{ // debounce
+	if (diff < 20) { // debounce
 		return IRQ_HANDLED;
 	}
 	old_jiffie = jiffies;
@@ -37,20 +35,20 @@ __init mod_init(void)
 	int ret;
 	pr_info("%s(): called", __func__);
 
-	if (false == gpio_is_valid(GPIO_25_IN)) {
+	if (false == gpio_is_valid(GPIO_INPUT)) {
 		pr_err("%s(): gpio is invalid", __func__);
 		return -EIO;
 	}
 
-	ret = gpio_request(GPIO_25_IN, "GPIO_25_IN");
+	ret = gpio_request(GPIO_INPUT, "GPIO_INPUT");
 	if (0 > ret) {
-		pr_err("%s(): failed to allocate gpio %d", __func__, GPIO_25_IN);
+		pr_err("%s(): failed to allocate gpio %d", __func__, GPIO_INPUT);
 		return -EIO;
 	}
 
-	gpio_direction_input(GPIO_25_IN);
+	gpio_direction_input(GPIO_INPUT);
 
-	irq_number = gpio_to_irq(GPIO_25_IN);
+	irq_number = gpio_to_irq(GPIO_INPUT);
 	pr_info("%s(): gpio has irq number %d", __func__, irq_number);
 
 	// when implementing for a device, prefer
@@ -63,7 +61,7 @@ __init mod_init(void)
 			  NULL);
 	if (0 > ret) {
 		pr_err("%s(): failed to request IRQ %d", __func__, irq_number);
-		gpio_free(GPIO_25_IN);
+		gpio_free(GPIO_INPUT);
 		return -EIO;
 	}
 
@@ -76,7 +74,7 @@ __exit mod_exit(void)
 {
 	pr_info("%s(): called", __func__);
 	free_irq(irq_number, NULL);
-	gpio_free(GPIO_25_IN);
+	gpio_free(GPIO_INPUT);
 }
 
 module_init(mod_init);
