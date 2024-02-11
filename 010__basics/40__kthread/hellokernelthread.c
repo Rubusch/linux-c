@@ -8,34 +8,11 @@
 #include <linux/kthread.h> /* kthread_run(), kthread_create() */
 #include <linux/delay.h> /* msleep() */
 
-/*
-  forwards
-*/
-
-static int __init mod_init(void);
-static void __exit mod_exit(void);
-
-int init_hello_kernelthread(void);
-void cleanup_hello_kernelthread(void);
-
-int kernelthread_routine(void *);
-
-/*
-  globals
-*/
-
 #define KERNELTHREAD_NAME "lothars_kernelthread"
 
 // pointer to kernelthread
 static struct task_struct *hello_kernelthread;
 
-/*
-  implementation
-*/
-
-/*
-  Some thread worker routine.
-*/
 int kernelthread_routine(void *pv)
 {
 	int idx = 0;
@@ -54,7 +31,7 @@ int kernelthread_routine(void *pv)
 	return 0;
 }
 
-int init_hello_kernelthread(void)
+static int __init mod_init(void)
 {
 	printk(KERN_INFO "%s() started\n", __func__);
 
@@ -114,7 +91,7 @@ int init_hello_kernelthread(void)
 	return 0;
 }
 
-void cleanup_hello_kernelthread(void)
+static void __exit mod_exit(void)
 {
 	/**
 	 * kthread_stop - stop a thread created by kthread_create().
@@ -133,20 +110,6 @@ void cleanup_hello_kernelthread(void)
 	 */
 	kthread_stop(hello_kernelthread);
 	printk("%s() READY.\n", __func__);
-}
-
-/*
-  init / exit
-*/
-
-static int __init mod_init(void)
-{
-	return init_hello_kernelthread();
-}
-
-static void __exit mod_exit(void)
-{
-	cleanup_hello_kernelthread();
 }
 
 module_init(mod_init);
