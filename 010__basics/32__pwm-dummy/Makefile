@@ -1,5 +1,5 @@
 KERNELDIR ?= /usr/src/linux
-obj-m += pwm_demo.o
+obj-m += pwm_dummy.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
