@@ -1,0 +1,44 @@
+/dts-v1/;
+/plugin/;
+/ {
+	compatible = "brcm,bcm2835";
+        fragment@0 {
+		target = <&gpio>;
+		__overlay__ {
+			// leds: gpios
+			led_pins: led_pins {
+				brcm,pins = <27 22 26>;
+				brcm,function = <1>;   /* output */
+				brcm,pull = <1 1 1>;   /* pull down */
+			};
+		 };
+	};
+
+	fragment@1 {
+		target = <&soc>;
+		__overlay__ {
+			chardev_keys {
+				comatible = "lothars,chardev_keys";
+			};
+
+			// leds: colors
+			ledred {
+				compatible = "lothars,RGBleds";
+				label = "ledred";
+				pinctrl-0 = <&led_pins>;
+			};
+
+			ledgreen {
+				compatible = "lothars,RGBleds";
+				label = "ledgreen";
+				// TODO
+			};
+
+			ledblue {
+				compatible = "lothars,RGBleds";
+				label = "labelblue";
+				// TODO
+			};
+		 };
+	}; 
+};

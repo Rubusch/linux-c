@@ -1,8 +1,11 @@
 # LED Module with Devicetree Binding (open firmware)
 
-The demo prepares the led driver for external hardware (color click hat for RPI) using a `struct miscdevice`. This demo only shows the binding of DT to the kernel module, w/o blinking.  
+The demo prepares the led driver for external hardware (color click
+hat for RPI) using a `struct miscdevice`. This demo only shows the
+binding of DT to the kernel module, w/o blinking.  
 
-Shows a mere copy for personal notes of A. Rios LED driver for the 5.4 Kernel (originally), tested on 6.1.  
+Shows a mere copy for personal notes of A. Rios LED driver for the 5.4
+Kernel (originally), tested on 6.1.  
 
 ## ColorClick Hardware: https://www.mikroe.com/color-click
 
@@ -32,20 +35,7 @@ The `container_of` macro then returns the address of the member for the specifie
 # Build
 
 ## Devicetree
-The `bcm2710-rpi-3-b.dts` file will be copied to ``arch/arm/boot/dts`` where there is another `arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dts` which just links via `include` to the 32-bit version. Thus copying over this file is sufficient.  
-```
-$ cp -arf ./devicetree/arch /usr/src/linux/
-$ cd /usr/src/linux
-$ find . -name \*.dtb -delete
-$ make dtbs
-$ cd -
-```
-Do a backup of `/boot/bcm2710-rpi-3-b.dtb`. Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`.  
-```
-$ ssh root@10.1.10.203 cp /boot/bcm2710-rpi-3-b.dtb{,.orig}
-$ scp arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb root@10.1.10.203:/boot/
-```
-Then reboot.  
+The devicetree fragment should be (also) compatible to the `bcm2710-rpi-3-b.dts` for e.g. rpi 3b.  
 
 ## Module
 Compile cross having ``crossbuild-essentials-arm64`` installed. `ARCH`, and `CROSS_COMPILE` are set, then execute  
@@ -53,7 +43,13 @@ Compile cross having ``crossbuild-essentials-arm64`` installed. `ARCH`, and `CRO
 $ cd ./module
 $ make
 ```
-Copy the module over to the target  
+Copy the *.ko and *.dtbo over to the target. Move the *.dtbo to `/boot/overlay/` and register it in `/boot/config.txt`  
+
+```
+...
+[all]
+dtoverlay = <name of the .dtbo file>
+```
 
 ## Userspace
 Easiest is to copy the folder `userspace`  to the target  
