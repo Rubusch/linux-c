@@ -76,11 +76,9 @@ static int __init chardev_init(void)
 	  5. device_create();       – used to create a device
 	*/
 	ret = misc_register(&chardev_miscdevice);
-
 	if (0 != ret) {
-		pr_err("%s(): could not register the misc device mydev\n",
-		       __func__);
-		return ret;
+		pr_err("%s(): failed to register miscdevice\n", __func__);
+		return -EFAULT;
 	}
 
 	pr_info("%s(): got minor %i\n", __func__, chardev_miscdevice.minor);

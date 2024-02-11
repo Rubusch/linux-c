@@ -1,5 +1,5 @@
 KERNELDIR ?= /usr/src/linux
-obj-m += chardev.o
+obj-m += miscdevice.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules

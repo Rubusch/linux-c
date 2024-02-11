@@ -1,9 +1,6 @@
-# Chardev Module Using miscdevice
+# Miscdevice
 
-The `miscdevice` framework is an interface exported by the Linux
-kernel that allows modules to register their individual minor numbers.  
-
-The miscdriver wraps over the common chardev driver tasks.
+The miscdriver wraps over the common chardev driver tasks, it sets up cdev, adds it, creates a device class, provides a device node and a class node. Thus it is the preferred way to setup a character device.  
 
 #### `misc_register()` performs:
 
@@ -48,7 +45,7 @@ Copy the module over to the target
 
 ## Usage
 ```
-$ sudo insmod chardev.ko
+$ sudo insmod miscdevice.ko
 
 $ sudo ./ioctl_test.elf
 
@@ -61,7 +58,7 @@ $ cat /sys/class/misc/lothars_device/dev
 $ ls -l /sys/class/misc/lothars_device
     lrwxrwxrwx 1 root root 0 Oct  3 15:46 /sys/class/misc/lothars_device -> ../../devices/virtual/misc/lothars_device
 
-$ sudo rmmod chardev
+$ sudo rmmod miscdevice
 
 $ dmesg | tail
     [  734.176532] chardev_open(): called
