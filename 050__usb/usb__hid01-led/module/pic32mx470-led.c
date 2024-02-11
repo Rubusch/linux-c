@@ -39,7 +39,7 @@ led_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct usb_interface *intf = to_usb_interface(dev);
 	struct usb_led *led = usb_get_intfdata(intf);
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s() - called\n", __func__);
 
 	return sprintf(buf, "%d\n", led->led_number);
 }
@@ -67,7 +67,7 @@ led_store(struct device *dev, struct device_attribute *attr, const char *buf, si
 	u8 val;
 	int error, ret;
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s() - called\n", __func__);
 
 	// transform char array to u8 value
 	error = kstrtou8(buf, 10, &val);
@@ -134,12 +134,12 @@ usbled_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	struct device *dev = &interface->dev;
 	int ret = -ENOMEM;
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s() - called\n", __func__);
 
 	// allocate the private data structure
 	led = kzalloc(sizeof(*led), GFP_KERNEL);
 	if (!led) {
-		dev_err(dev, "%s() - out of memory", __func__);
+		dev_err(dev, "%s() - out of memory\n", __func__);
 		ret = -ENOMEM;
 		goto err;
 	}
@@ -172,14 +172,14 @@ usbled_disconnect(struct usb_interface *interface)
 	struct usb_led *led = usb_get_intfdata(interface);
 	struct device* dev = &interface->dev;
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s() - called\n", __func__);
 
 	device_remove_file(&interface->dev, &dev_attr_led);
 	usb_set_intfdata(interface, NULL);
 	usb_put_dev(led->usbdev);
 	kfree(led);
 
-	dev_info(dev, "%s() - usb led is now disconnected", __func__);
+	dev_info(dev, "%s() - usb led is now disconnected\n", __func__);
 }
 
 /*

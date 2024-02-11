@@ -78,7 +78,7 @@ ltc3206_usb_cmpl_cb(struct urb *urb)
 resubmit:
 	ret = usb_submit_urb(urb, GFP_ATOMIC);
 	if (ret) {
-		dev_err(dev, "%s(): can't resubmit interrupt urb, ret = %d", __func__, ret);
+		dev_err(dev, "%s(): can't resubmit interrupt urb, ret = %d\n", __func__, ret);
 	}
 }
 
@@ -97,7 +97,7 @@ ltc3206_ll_cmd(struct ltc3206_i2c *i2cdev)
 
 	// submit the interrutp out URB packet
 	if (usb_submit_urb(i2cdev->interrupt_out_urb, GFP_KERNEL)) {  // <---
-		dev_err(dev, "%s(): usb_submit_urb intr out failed", __func__);
+		dev_err(dev, "%s(): usb_submit_urb intr out failed\n", __func__);
 		i2cdev->ongoing_usb_ll_op = false;
 		return -EIO;
 	}
@@ -106,7 +106,7 @@ ltc3206_ll_cmd(struct ltc3206_i2c *i2cdev)
 	// the USB URB callback will signal it
 	ret = wait_event_interruptible(i2cdev->usb_urb_completion_wait, (!i2cdev->ongoing_usb_ll_op));  // <---
 	if (0 > ret) {
-		dev_err(dev, "%s(): wait interrupted", __func__);
+		dev_err(dev, "%s(): wait interrupted\n", __func__);
 		goto ll_exit_clear_flag;
 	}
 
@@ -129,8 +129,8 @@ ltc3206_init(struct ltc3206_i2c *i2cdev)
 	struct device *dev = &i2cdev->interface->dev;
 
 	// initialize the ltc3206
-	dev_info(dev, "%s(): called", __func__);
-	dev_info(dev, "%s(): ltc3206 at USB bus 0x%08x address 0x%08x",
+	dev_info(dev, "%s(): called\n", __func__);
+	dev_info(dev, "%s(): ltc3206 at USB bus 0x%08x address 0x%08x\n",
 		 __func__, i2cdev->usb_dev->bus->busnum, i2cdev->usb_dev->devnum);
 
 	// allocate the int out URB
@@ -154,11 +154,11 @@ ltc3206_init(struct ltc3206_i2c *i2cdev)
 	goto no_err_init;
 
 err_init:
-	dev_err(dev, "%s(): ltc3206 init failed to allocate the int out URB, ret = %d", __func__, ret);
+	dev_err(dev, "%s(): ltc3206 init failed to allocate the int out URB, ret = %d\n", __func__, ret);
 	return ret;
 
 no_err_init:
-	dev_err(dev, "%s(): ltc3206 init ok, ret = %d", __func__, ret);
+	dev_err(dev, "%s(): ltc3206 init ok, ret = %d\n", __func__, ret);
 	return ret;
 }
 
@@ -208,9 +208,9 @@ ltc3206_usb_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 	int ret, count;
 
 	// NB: as an alternative to dev_info(&i2cdev->interface->dev, "...");
-	pr_info("%s(): called", __func__);
+	pr_info("%s(): called\n", __func__);
 
-	pr_info("%s(): number of i2c msgs = %d", __func__, num);
+	pr_info("%s(): number of i2c msgs = %d\n", __func__, num);
 	for (count = 0; count < num; count++) {
 		pmsg = &msgs[count];
 		ret = ltc3206_i2c_write(i2cdev, pmsg); // <---
@@ -261,12 +261,12 @@ ltc3206_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	struct device *dev = &interface->dev;
 	int ret;
 
-	dev_info(dev, "%s(): called", __func__);
+	dev_info(dev, "%s(): called\n", __func__);
 
 	// allocate memory for our device and initialize it
 	i2cdev = kzalloc(sizeof(*i2cdev), GFP_KERNEL);
 	if (NULL == i2cdev) {
-		dev_err(dev, "%s(): allocation of i2c device memory failed", __func__);
+		dev_err(dev, "%s(): allocation of i2c device memory failed\n", __func__);
 		ret = -ENOMEM;
 		goto err;
 	}
@@ -299,18 +299,18 @@ ltc3206_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	// initialize the ltc3206 device
 	ret = ltc3206_init(i2cdev);
 	if (0 > ret) {
-		dev_err(dev, "%s(): failed to init i2c adapter", __func__);
+		dev_err(dev, "%s(): failed to init i2c adapter\n", __func__);
 		goto err_init;
 	}
 
 	// attach to i2c layer
 	ret = i2c_add_adapter(&i2cdev->adapter);
 	if (0 > ret) {
-		dev_err(dev, "%s(): failed to add i2c adapter", __func__);
+		dev_err(dev, "%s(): failed to add i2c adapter\n", __func__);
 		goto err_init;
 	}
 
-	dev_info(dev, "%s(): connected", __func__);
+	dev_info(dev, "%s(): connected\n", __func__);
 	return 0;
 
 err_init:
@@ -331,7 +331,7 @@ ltc3206_disconnect(struct usb_interface *interface)
 	struct ltc3206_i2c *i2cdev = usb_get_intfdata(interface);
 	struct device *dev = &interface->dev;
 
-	dev_info(dev, "%s(): called", __func__);
+	dev_info(dev, "%s(): called\n", __func__);
 
 	i2c_del_adapter(&i2cdev->adapter);
 	usb_kill_urb(i2cdev->interrupt_out_urb);

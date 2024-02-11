@@ -7,14 +7,9 @@
 #include <linux/init.h>
 #include <linux/usb.h>
 
-/*
-  forwards
-*/
-
 static int __init mod_init(void);
 static void __exit mod_exit(void);
 
-// usb
 static int lothars_usb_probe(struct usb_interface *,
 			     const struct usb_device_id *);
 static void lothars_usb_disconnect(struct usb_interface *);

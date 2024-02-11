@@ -52,7 +52,7 @@ led_show(struct device *dev, struct device_attribute *attr, char *buf)
 	struct usb_interface *intf = to_usb_interface(dev);
 	struct usb_led *led = usb_get_intfdata(intf);
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s(): called\n", __func__);
 
 	return sprintf(buf, "%d\n", led->led_number);
 }
@@ -65,7 +65,7 @@ led_store(struct device *dev, struct device_attribute *attr, const char *buf, si
 	u8 val;
 	int error, ret;
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s(): called\n", __func__);
 
 	// transform char array to u8 value
 	error = kstrtou8(buf, 10, &val);
@@ -76,12 +76,12 @@ led_store(struct device *dev, struct device_attribute *attr, const char *buf, si
 	led->irq_data = val;
 
 	if (val == 0) {
-		dev_info(dev, "%s() - read status", __func__);
+		dev_info(dev, "%s(): read status\n", __func__);
 	} else if (val == 1 || val == 2 || val == 3) {
-		dev_info(dev, "%s() - led = %d\n",
+		dev_info(dev, "%s(): led = %d\n",
 			 __func__, led->led_number);
 	} else {
-		dev_info(dev, "%s() - unknown led %d\n",
+		dev_info(dev, "%s(): unknown led %d\n",
 			 __func__, led->led_number);
 		ret = -EINVAL;
 		return ret;
@@ -90,7 +90,7 @@ led_store(struct device *dev, struct device_attribute *attr, const char *buf, si
 	// send out
 	ret = usb_submit_urb(led->interrupt_out_urb, GFP_KERNEL);
 	if (ret) {
-		dev_err(dev, "%s() - interrupt_out_urb() failed",
+		dev_err(dev, "%s(): interrupt_out_urb() failed\n",
 			__func__);
 		return ret;
 	}
@@ -104,14 +104,14 @@ led_urb_out_callback(struct urb *urb)
 	struct usb_led *led = urb->context;
 	struct device *dev = &led->usbdev->dev;
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s(): called\n", __func__);
 
 	// sync/async unlink faults aren't errors
 	if (urb->status) {
 		if (!(urb->status == -ENOENT ||
 		    urb->status == -ECONNRESET ||
 		    urb->status == -ESHUTDOWN)) {
-			dev_err(dev, "%s() - nonzero write status received: %d",
+			dev_err(dev, "%s(): nonzero write status received: %d\n",
 				__func__, urb->status);
 		}
 	}
@@ -124,31 +124,31 @@ led_urb_in_callback(struct urb* urb)
 	struct device *dev = &led->usbdev->dev;
 	int ret;
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s(): called\n", __func__);
 
 	if (urb->status) {
 		if (!(urb->status == -ENOENT ||
 		      urb->status == -ECONNRESET ||
 		      urb->status == -ESHUTDOWN)) {
-			dev_err(dev, "%s() - nonzero write status received: %d",
+			dev_err(dev, "%s(): nonzero write status received: %d\n",
 				__func__, urb->status);
 		}
 	}
 
 	switch (led->ibuf) {
 	case 0x00:
-		dev_info(dev, "%s() - switch is OFF", __func__);
+		dev_info(dev, "%s(): switch is OFF\n", __func__);
 		break;
 	case 0x01:
-		dev_info(dev, "%s() - switch is ON", __func__);
+		dev_info(dev, "%s(): switch is ON\n", __func__);
 		break;
 	default:
-		dev_info(dev, "%s() - switch has BAD VALUE", __func__);
+		dev_info(dev, "%s(): switch has BAD VALUE\n", __func__);
 	}
 
 	ret = usb_submit_urb(led->interrupt_in_urb, GFP_KERNEL);
 	if (ret) {
-		dev_err(dev, "%s() - failed to submit interrupt_in_urb %d",
+		dev_err(dev, "%s(): failed to submit interrupt_in_urb %d\n",
 			__func__, ret);
 	}
 }
@@ -165,25 +165,25 @@ usbled_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	int ep, ep_in, ep_out;
 	int ret = -ENOMEM, size, res;
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s(): called\n", __func__);
 
 	res = usb_find_last_int_out_endpoint(altsetting, &endpoint);
 	if (res) {
-		dev_info(dev, "%s() - no endpoint found", __func__);
+		dev_info(dev, "%s(): no endpoint found\n", __func__);
 		return res;
 	}
 
 	ep = usb_endpoint_num(endpoint); // value from 0 to 15
-	dev_info(dev, "%s() - usb_endpoint_num() = %d [1] - endpoint number",
+	dev_info(dev, "%s(): usb_endpoint_num() = %d [1] - endpoint number\n",
 		 __func__, ep);
 
 	size = usb_endpoint_maxp(endpoint);
-	dev_info(dev, "%s() - usb_endpoint_maxp() = %ld [?] - endpoint size",
+	dev_info(dev, "%s(): usb_endpoint_maxp() = %ld [?] - endpoint size\n",
 		 __func__, (long) size);
 
 	// validate endpoint and size
 	if (0 >= size) {
-		dev_info(dev, "%s() - invalid size (%d)",
+		dev_info(dev, "%s(): invalid size (%d)\n",
 			 __func__, size);
 		return -ENODEV;
 	}
@@ -191,15 +191,15 @@ usbled_probe(struct usb_interface *interface, const struct usb_device_id *id)
 	ep_in = altsetting->endpoint[0].desc.bEndpointAddress;
 	ep_out = altsetting->endpoint[1].desc.bEndpointAddress;
 
-	dev_info(dev, "%s() - endpoint IN address is 0x%02x",
+	dev_info(dev, "%s(): endpoint IN address is 0x%02x\n",
 		 __func__, ep_in);
-	dev_info(dev, "%s() - endpoint OUT address is 0x%02x",
+	dev_info(dev, "%s(): endpoint OUT address is 0x%02x\n",
 		 __func__, ep_out);
 
 	// allocate the private data structure
 	led = kzalloc(sizeof(*led), GFP_KERNEL);
 	if (!led) {
-		dev_err(dev, "%s() - out of memory", __func__);
+		dev_err(dev, "%s(): out of memory\n", __func__);
 		ret = -ENOMEM;
 		goto err;
 	}
@@ -248,13 +248,13 @@ usbled_probe(struct usb_interface *interface, const struct usb_device_id *id)
 
 	ret = usb_submit_urb(led->interrupt_in_urb, GFP_KERNEL);
 	if (ret) {
-		dev_err(dev, "%s() - failed to submit interrupt_in_urb %d",
+		dev_err(dev, "%s(): failed to submit interrupt_in_urb %d\n",
 			__func__, ret);
 		device_remove_file(dev, &dev_attr_led);
 		goto err_create_file;
 	}
 
-	dev_info(dev, "%s() - interrupt_in_urb submitted", __func__);
+	dev_info(dev, "%s(): interrupt_in_urb submitted\n", __func__);
 
 	return 0;
 
@@ -275,8 +275,7 @@ usbled_disconnect(struct usb_interface *interface)
 	struct usb_led *led = usb_get_intfdata(interface);
 	struct device* dev = &interface->dev;
 
-	dev_info(dev, "%s() - called", __func__);
-
+	dev_info(dev, "%s(): called\n", __func__);
 	device_remove_file(&interface->dev, &dev_attr_led);
 	usb_free_urb(led->interrupt_out_urb);
 	usb_free_urb(led->interrupt_in_urb);
@@ -284,7 +283,7 @@ usbled_disconnect(struct usb_interface *interface)
 	usb_put_dev(led->usbdev);
 	kfree(led);
 
-	dev_info(dev, "%s() - usb led is now disconnected", __func__);
+	dev_info(dev, "%s(): usb led is now disconnected\n", __func__);
 }
 
 /*
