@@ -18,7 +18,6 @@ $(APPLICATION): application.c
 
 clean:
 	make -C $(KERNELDIR) M=$(PWD) clean
-	find $(SRC) -type f -name \*~ -delete
 	rm -f $(APPLICATION)
 
 .PHONY: all default module clean
