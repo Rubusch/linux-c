@@ -1,0 +1,38 @@
+# gpio irq
+
+The demo shows incomming asynchronous events on a gpio line.  
+
+## Setup
+
+To _trigger the button_ simply wire the *gpio17* to 3.3V.  
+
+## Usage
+
+```
+# insmod gpio_irq_poll.ko
+# ./gpio_poller_app.elf
+    gpio_poller_app.c: wait for signal...
+```
+Now press the button, or connect gpio25 to 3.3V of the board.
+```
+    gpio_poller_app.c: button pressed
+# rmmod gpio_irq_poll.ko
+```
+
+Logs  
+```
+[16:12:17.373] Feb 11 04:16:09 ctrl001 kernel: [21556.797189] mod_init(): called
+[16:12:17.373] Feb 11 04:16:09 ctrl001 kernel: [21556.798286] mod_init(): gpio 17 is mapped to irq 185
+[16:12:20.683] Feb 11 04:16:12 ctrl001 kernel: [21560.112828] gpiodev_poll(): called
+
+<connect wire from GPIO25 on RPI3b to 3.3V>
+
+[16:12:30.696] Feb 11 04:16:22 ctrl001 kernel: [21570.121423] gpiodev_irq_handler(): called by irq
+[16:12:30.696] Feb 11 04:16:22 ctrl001 kernel: [21570.121555] gpiodev_poll(): called
+[16:12:32.832] Feb 11 04:16:24 ctrl001 kernel: [21572.257419] gpiodev_irq_handler(): called by irq
+[16:15:05.963] Feb 11 04:18:57 ctrl001 kernel: [21725.392110] mod_exit(): called
+```
+
+## References
+- https://embetronicx.com/tutorials/linux/device-drivers/gpio-linux-device-driver-using-raspberry-pi/
+- the idea is mainly taken from here: https://github.com/Johannes4Linux/Linux_Driver_Tutorial/tree/main
