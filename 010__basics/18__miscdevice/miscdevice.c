@@ -26,7 +26,7 @@
 #include <linux/miscdevice.h>
 #include <linux/fs.h>
 
-#define DEVICE_NAME "lothars_device"
+#include "miscdevice.h"
 
 static int chardev_open(struct inode *inode, struct file *file)
 {
@@ -59,7 +59,7 @@ static struct miscdevice chardev_miscdevice = {
 	.fops = &fops,
 };
 
-static int __init chardev_init(void)
+static int __init mod_init(void)
 {
 	int ret;
 
@@ -85,7 +85,7 @@ static int __init chardev_init(void)
 	return 0;
 }
 
-static void __exit chardev_exit(void)
+static void __exit mod_exit(void)
 {
 	pr_info("%s(): hello chardev exit\n", __func__);
 
@@ -102,8 +102,8 @@ static void __exit chardev_exit(void)
 	misc_deregister(&chardev_miscdevice);
 }
 
-module_init(chardev_init);
-module_exit(chardev_exit);
+module_init(mod_init);
+module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

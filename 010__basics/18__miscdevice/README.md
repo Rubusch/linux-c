@@ -30,35 +30,26 @@ officially assigned to the misc driver.
 ## Module
 Should compile cross - having `crossbuild-essentials-arm64` installed, `ARCH`, and `CROSS_COMPILE` set, execute  
 ```
-$ cd ./module
 $ make
+$ scp ./*.elf pi@10.1.10.204:~/
+$ scp ./*.ko pi@10.1.10.204:~/
 ```
-Copy the module over to the target  
-
-## Userspace
-Compile cross as well, set ``$CROSS_COMPILE``.   
-```
-rpi$ cd ./userspace
-rpi$ make
-```
-Copy the module over to the target  
 
 ## Usage
 ```
-$ sudo insmod miscdevice.ko
+# insmod ./miscdevice.ko
+# ./ioctl_app.elf
 
-$ sudo ./ioctl_test.elf
-
-$ ls -l /dev/lothars_device
+# ls -l /dev/lothars_device
     crw------- 1 root root 10, 122 Oct  3 15:45 /dev/lothars_device
 
-$ cat /sys/class/misc/lothars_device/dev
+# cat /sys/class/misc/lothars_device/dev
     10:122
 
-$ ls -l /sys/class/misc/lothars_device
+# ls -l /sys/class/misc/lothars_device
     lrwxrwxrwx 1 root root 0 Oct  3 15:46 /sys/class/misc/lothars_device -> ../../devices/virtual/misc/lothars_device
 
-$ sudo rmmod miscdevice
+# rmmod miscdevice
 
 $ dmesg | tail
     [  734.176532] chardev_open(): called
@@ -72,9 +63,6 @@ $ dmesg | tail
     [ 1003.358736] chardev_close(): called
     [ 1068.685229] chardev_exit(): hello chardev exit
 ```
-
-## Verified
-* Verified against a RPI3 w/ aarch64
 
 ## References
 * https://embetronicx.com/tutorials/linux/device-drivers/misc-device-driver/
