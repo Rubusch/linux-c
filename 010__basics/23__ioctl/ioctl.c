@@ -5,10 +5,9 @@
 
 #include <linux/cdev.h>
 #include <linux/fs.h>
+#include <linux/miscdevice.h>
 
-#define DEV_MAJOR_NUM 202
-
-static struct cdev chardev;
+#include "ioctl_dev.h"
 
 static int chardev_open(struct inode *inode, struct file *file)
 {
@@ -28,24 +27,26 @@ static long chardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg
 	return 0;
 }
 
-/*
-  fops - declare a file operations structure
-*/
-static const struct file_operations chardev_fops = {
-	.owner = THIS_MODULE,
+static const struct file_operations fops = {
 	.open = chardev_open,
 	.release = chardev_close,
 	.unlocked_ioctl = chardev_ioctl,
 };
 
-static int __init chrdev_init(void)
+static struct miscdevice ioctl_dev = {
+	.name = IOCTL_DEV_NAME,
+	.minor = MISC_DYNAMIC_MINOR,
+	.fops = &fops,
+};
+
+static int __init mod_init(void)
 {
 	int ret;
-	dev_t dev = MKDEV(DEV_MAJOR_NUM, 0); // get first device identifier
+//dev_t dev = MKDEV(DEV_MAJOR_NUM, 0); // get first device identifier
 
 	pr_info("%s(): called", __func__);
 
-	// allocate device numbers
+/*	// allocate device numbers
 	ret = register_chrdev_region(dev, 1, "lothars_cdev");
 	if (0 > ret) {
 		pr_err("%s(): failed to allocate major number %d",
@@ -61,19 +62,28 @@ static int __init chrdev_init(void)
 		unregister_chrdev_region(dev, 1);
 		return ret;
 	}
+// */
+
+	ret = misc_register(&ioctl_dev);
+	if (0 != ret) {
+		pr_err("%s(): failed to register miscdevice\n", __func__);
+		return -EFAULT;
+	}
 
 	return 0;
 }
 
-static void __exit chrdev_exit(void)
+static void __exit mod_exit(void)
 {
 	pr_info("%s(): called", __func__);
-	cdev_del(&chardev);
-	unregister_chrdev_region(MKDEV(DEV_MAJOR_NUM, 0), 1);
+	misc_deregister(&ioctl_dev);
+
+//	cdev_del(&chardev);
+//	unregister_chrdev_region(MKDEV(DEV_MAJOR_NUM, 0), 1);
 }
 
-module_init(chrdev_init);
-module_exit(chrdev_exit);
+module_init(mod_init);
+module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

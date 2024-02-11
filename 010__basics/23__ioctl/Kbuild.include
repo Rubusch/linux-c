@@ -1,0 +1,1 @@
+ccflags-y += -include $(kbuild-dir)/ioctl_dev.h

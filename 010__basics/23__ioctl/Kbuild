@@ -1,0 +1,3 @@
+ccflags-y := -O3
+include $(src)/Kbuild.include
+obj-m += ioctl.o

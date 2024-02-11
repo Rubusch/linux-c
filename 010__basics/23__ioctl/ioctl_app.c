@@ -7,21 +7,19 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define DEVNAME "/dev/lothars_cdev"
+#include "ioctl_dev.h"
 
 int main()
 {
-	/*
-	 * usage:
-	 * $ mknod /dev/mydev c 202 0
-	 * $ ./ioctl_test.elf
-	 */
-	int my_dev = open(DEVNAME, 0);
+	int my_dev = open(IOCTL_DEV_NODE, 0);
 	if (0 > my_dev) {
 		perror("failed to open device");
 		exit(EXIT_FAILURE);
 	}
+
 	ioctl(my_dev, 100, 110); // cmd = 100, arg = 110
+
 	close(my_dev);
+
 	exit(EXIT_SUCCESS);
 }
