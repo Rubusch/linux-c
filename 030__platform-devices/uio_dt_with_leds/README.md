@@ -110,8 +110,6 @@ NB: **Interrupts** are handled by reading from `/dev/uioX`. A blocking `read()` 
         ...
 ```
 
-A copy of the modified DTS is provided, copy it to the specified location in the linux sources (6.3), then build it.  
-
 ## ColorClick Hardware: https://www.mikroe.com/color-click
 
 Connect the ColorClick device as follows:  
@@ -124,24 +122,22 @@ Connect the ColorClick device as follows:
 # Build
 
 ## Devicetree
-The `bcm2710-rpi-3-b.dts` file will be copied to ``arch/arm/boot/dts`` where
-there is another `arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dts` which just
-links via `include` to the 32-bit version. Thus copying over this file is
-sufficient.  
+The devicetree fragment should be (also) compatible to the `bcm2710-rpi-3-b.dts` for e.g. rpi 3b.  
+
+## Module
+Compile cross having ``crossbuild-essentials-arm64`` installed. `ARCH`, and `CROSS_COMPILE` are set, then execute  
 ```
-$ cp -arf ./devicetree/arch /usr/src/linux/
-$ cd /usr/src/linux
-$ find . -name \*.dtb -delete
-$ make dtbs
-$ cd -
+$ cd ./module
+$ make
 ```
-Do a backup of `/boot/bcm2710-rpi-3-b.dtb`. Copy the file `bcm2710-rpi-3-b.dtb`
-to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`.  
+Copy the *.ko and *.dtbo over to the target. Move the *.dtbo to `/boot/overlay/` and register it in `/boot/config.txt`  
+
 ```
-$ ssh root@10.1.10.203 cp /boot/bcm2710-rpi-3-b.dtb{,.orig}
-$ scp arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb root@10.1.10.203:/boot/
+...
+[all]
+dtoverlay = <name of the .dtbo file>
+...
 ```
-Then reboot.  
 
 ## Module
 Should crosscompile - having crossbuild-essentials-arm64 installed, `ARCH`, and `CROSS_COMPILE` set, execute  

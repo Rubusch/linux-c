@@ -51,24 +51,20 @@ Note, ledclass_dev is provided by the kernel.
 # Build
 
 ## Devicetree
-The `bcm2710-rpi-3-b.dts` file will be copied to ``arch/arm/boot/dts`` where
-there is another `arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dts` which just
-links via `include` to the 32-bit version. Thus copying over this file is
-sufficient.  
+
+The .dts overlay fragment is built with the module. Just place it on the raspberry pi under `/boot/overlays` and register it with `dtoverlay` in the `/boot/configs.txt`.  
+
 ```
-$ cp -arf ./devicetree/arch /usr/src/linux/
-$ cd /usr/src/linux
-$ find . -name \*.dtb -delete
-$ make dtbs
-$ cd -
+...
+[all]
+dtoverlay = <name of the .dtbo file>
+...
 ```
-Do a backup of `/boot/bcm2710-rpi-3-b.dtb`. Copy the file `bcm2710-rpi-3-b.dtb`
-to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`.  
+Then reboot and check if the fragment is in the DT.  
+
 ```
-$ ssh root@10.1.10.203 cp /boot/bcm2710-rpi-3-b.dtb{,.orig}
-$ scp arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb root@10.1.10.203:/boot/
+# dtc -I fs -O dts /sys/firmware/devicetree/base | less
 ```
-Then reboot.  
 
 ## Module
 Compile cross having `crossbuild-essentials-arm64` installed, with `ARCH`, and

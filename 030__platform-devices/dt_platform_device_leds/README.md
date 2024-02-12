@@ -1,5 +1,7 @@
 # LED Module with Devicetree Binding (open firmware)
 
+![ColorClick Board](pics/colorclick.png)  
+
 The demo prepares the led driver for external hardware (color click
 hat for RPI) using a `struct miscdevice`. This demo only shows the
 binding of DT to the kernel module, w/o blinking.  
@@ -8,8 +10,6 @@ Shows a mere copy for personal notes of A. Rios LED driver for the 5.4
 Kernel (originally), tested on 6.1.  
 
 ## ColorClick Hardware: https://www.mikroe.com/color-click
-
-![ColorClick Board](pics/colorclick.png)  
 
 Connect the ColorClick device as follows:  
 - RPI: GPIO27 -> ColorClick: RD
@@ -49,6 +49,7 @@ Copy the *.ko and *.dtbo over to the target. Move the *.dtbo to `/boot/overlay/`
 ...
 [all]
 dtoverlay = <name of the .dtbo file>
+...
 ```
 
 ## Userspace

@@ -1,12 +1,12 @@
-DTFRAG = leds_with_dt_binding_overlay
+DTOVERLAY = platform_overlay
 KERNELDIR ?= /usr/src/linux
-obj-m += leddriver.o
+obj-m += platform.o
 
 all: dt
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 
-dt: $(DTFRAG).dts
-	dtc -@ -I dts -O dtb -o $(DTFRAG).dtbo $(DTFRAG).dts
+dt: $(DTOVERLAY).dts
+	dtc -@ -I dts -O dtb -o $(DTOVERLAY).dtbo $(DTOVERLAY).dts
 
 clean:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
