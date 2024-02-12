@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
 */
 
@@ -9,43 +10,26 @@
 #include <linux/gpio.h>
 #include <linux/fs.h>
 
-/*
-  forwards
-*/
-
 static int __init mod_init(void);
 static void __exit mod_exit(void);
 
-// device
 static ssize_t mindblowing_read(struct file *, char __user *, size_t, loff_t *);
 static ssize_t mindblowing_write(struct file *, const char __user *, size_t,
 				 loff_t *);
-
-/*
-  globals
-*/
-
 #define GPIO_LED 21
 #define GPIO_LED_NAME "GPIO_21"
 
 #define MINBLOWING_DEVICE_NAME "mindblowing_gpio_device"
 #define MINBLOWING_DEVICE_MINOR 123
 
-// device
 dev_t dev = 0;
 static struct class *dev_class;
 static struct cdev mindblowing_cdev;
 
-// device fops
 static struct file_operations fops = {
-	.owner = THIS_MODULE,
 	.read = mindblowing_read,
 	.write = mindblowing_write,
 };
-
-/*
-  implementation
-*/
 
 static ssize_t mindblowing_read(struct file *filp, char __user *buf, size_t len,
 				loff_t *poff)
