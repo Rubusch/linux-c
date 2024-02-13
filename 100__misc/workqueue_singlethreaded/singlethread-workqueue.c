@@ -22,7 +22,7 @@ static void work_handler(struct work_struct *work)
 	pr_info("%s(): called\n", __func__);
 	wd = container_of(work, struct work_data, work_item);
 
-	pr_info("workqueue handler: %s, data is %d\n", __func__, wd->data);
+	pr_info("%s(): data is %d\n", __func__, wd->data);
 	kfree(wd);
 }
 
