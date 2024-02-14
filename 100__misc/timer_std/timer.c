@@ -22,14 +22,10 @@ static unsigned int counter = 0;
 
 void timer_callback(struct timer_list *data)
 {
-	// timer work routine
-	printk(KERN_INFO "%s() - %d\n", __func__, counter++);
+	int ret;
 
-	/*
-	  re-enable timer
-
-	  Working as a periodic timer when reenabled here.
-	*/
+	pr_info("%s(): called\n", __func__);
+	pr_info("%s(): %d\n", __func__, counter++);
 	/**
 	 * mod_timer - modify a timer's timeout
 	 * @timer: the timer to be modified
@@ -50,12 +46,18 @@ void timer_callback(struct timer_list *data)
 	 * (ie. mod_timer() of an inactive timer returns 0, mod_timer() of an
 	 * active timer returns 1.)
 	 */
-	mod_timer(&lothars_timer, jiffies + msecs_to_jiffies(TIMEOUT));
+	// re-enable timer - working as a periodic timer when reenabled here
+	ret = mod_timer(&lothars_timer, jiffies + msecs_to_jiffies(TIMEOUT));
+	if (ret) {
+		pr_err("%s(): mod_timer() failed\n", __func__);
+	}
 }
 
 static int __init mod_init(void)
 {
-	printk(KERN_INFO "%s() - initializing...\n", __func__);
+	int ret;
+
+	pr_info("%s(): called\n", __func__);
 
 	/**
 	 * timer_setup - prepare a timer for first use
@@ -68,6 +70,7 @@ static int __init mod_init(void)
 	 * be used and must be balanced with a call to destroy_timer_on_stack().
 	 */
 	timer_setup(&lothars_timer, timer_callback, 0);
+        // alternative is setup_timer()
 
 	/**
 	 * msecs_to_jiffies: - convert milliseconds to jiffies
@@ -94,13 +97,20 @@ static int __init mod_init(void)
 	 * directly here and from __msecs_to_jiffies() in the case where
 	 * constant folding is not possible.
 	 */
-	mod_timer(&lothars_timer, jiffies + msecs_to_jiffies(TIMEOUT));
+	ret = mod_timer(&lothars_timer, jiffies + msecs_to_jiffies(TIMEOUT));
+	if (ret) {
+		pr_err("%s(): mod_timer() failed\n", __func__);
+		return -EFAULT;
+	}
 
 	return 0;
 }
 
 static void __exit mod_exit(void)
 {
+	int ret;
+
+	pr_info("%s(): called\n", __func__);
 	/**
 	 * del_timer - deactivate a timer.
 	 * @timer: the timer to be deactivated
@@ -112,9 +122,12 @@ static void __exit mod_exit(void)
 	 * (ie. del_timer() of an inactive timer returns 0, del_timer() of an
 	 * active timer returns 1.)
 	 */
-	del_timer(&lothars_timer);
+	ret = del_timer(&lothars_timer);
+	if (ret) {
+		pr_err("%s(): del_timer() failed\n", __func__);
+	}
 
-	printk(KERN_INFO "%s() - READY.\n", __func__);
+	pr_info("%s(): READY.\n", __func__);
 }
 
 module_init(mod_init);
