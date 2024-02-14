@@ -73,7 +73,6 @@ hello_write(struct file *file, const char __user *ubuf, size_t len, loff_t *poff
 }
 
 static struct file_operations fops = {
-	.owner = THIS_MODULE,
 	.write = hello_write,
 };
 
