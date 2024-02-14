@@ -8,12 +8,6 @@
 #include <linux/hrtimer.h>
 #include <linux/ktime.h>
 
-static int __init mod_init(void);
-static void __exit mod_exit(void);
-
-int init_hello(void);
-void cleanup_hello(void);
-
 enum hrtimer_restart timer_callback(struct hrtimer *);
 
 // timer (in nano secs)
@@ -23,7 +17,8 @@ static unsigned int counter = 0;
 
 enum hrtimer_restart timer_callback(struct hrtimer *timer)
 {
-	printk(KERN_INFO "%s() - %d\n", __func__, counter++);
+	pr_info("%s(): called\n", __func__);
+	pr_info("%s(): %d\n", __func__, counter++);
 
 	/**
 	 * hrtimer_forward_now - forward the timer expiry so it expires after now
@@ -56,7 +51,7 @@ static int __init mod_init(void)
 {
 	ktime_t ktime;
 
-	printk(KERN_INFO "%s() - initializing...\n", __func__);
+	pr_info("%s(): called\n", __func__);
 
 	/**
 	 * ktime_set - Set a ktime_t variable from a seconds/nanoseconds value
@@ -80,8 +75,8 @@ static int __init mod_init(void)
 	 *              when the hrtimer is started
 	 */
 	hrtimer_init(&lothars_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-
 	lothars_timer.function = &timer_callback;
+	pr_info("%s(): starting timer\n", __func__);
 
 	/**
 	 * hrtimer_start - (re)start an hrtimer
@@ -92,12 +87,15 @@ static int __init mod_init(void)
 	 *softirq based mode is considered for debug purpose only!
 	 */
 	hrtimer_start(&lothars_timer, ktime, HRTIMER_MODE_REL);
-
 	return 0;
 }
 
 static void __exit mod_exit(void)
 {
+	int ret;
+
+	pr_info("%s(): called\n", __func__);
+
 	/**
 	 * hrtimer_cancel - cancel a timer and wait for the handler to finish.
 	 * @timer:the timer to be cancelled
@@ -106,9 +104,13 @@ static void __exit mod_exit(void)
 	 *  0 when the timer was not active
 	 *  1 when the timer was active
 	 */
-	hrtimer_cancel(&lothars_timer);
+	ret = hrtimer_cancel(&lothars_timer);
+	if (ret) {
+		pr_err("%s(): hrtimer_cancel() failed\n", __func__);
+		return;
+	}
 
-	printk(KERN_INFO "%s() - READY.\n", __func__);
+	pr_info("%s(): READY.\n", __func__);
 }
 
 module_init(mod_init);
