@@ -5,8 +5,8 @@ The demo shows some simple allocations with `kmalloc()` and `kzalloc()`.
 ## Usage
 
 ```
-# insmod ./hellokmalloc.ko
-# rmmod ./hellokmalloc.ko
+# insmod ./kmalloc.ko
+# rmmod ./kmalloc.ko
 
 # dmesg
     [22:39:16.983] Feb  8 21:39:17 ctrl001 kernel: [29588.409285] mod_exit(): ptr2->version 123, ptr2->data 'Humpty Dumpty sat on a wall.' (global data)

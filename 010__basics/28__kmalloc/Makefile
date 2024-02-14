@@ -1,5 +1,5 @@
 KERNELDIR ?= /usr/src/linux
-obj-m += hellokmalloc.o
+obj-m += kmalloc.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
