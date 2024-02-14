@@ -61,8 +61,6 @@ static struct miscdevice chardev_miscdevice = {
 
 static int __init mod_init(void)
 {
-	int ret;
-
 	pr_info("%s(): hello chardev init\n", __func__);
 
 	/*
@@ -75,8 +73,7 @@ static int __init mod_init(void)
 	  4. class_create();        – used to create a class
 	  5. device_create();       – used to create a device
 	*/
-	ret = misc_register(&chardev_miscdevice);
-	if (0 != ret) {
+	if (misc_register(&chardev_miscdevice)) {
 		pr_err("%s(): failed to register miscdevice\n", __func__);
 		return -EFAULT;
 	}
