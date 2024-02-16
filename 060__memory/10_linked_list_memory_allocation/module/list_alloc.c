@@ -93,8 +93,8 @@ lothars_dev_write(struct file* file, const char __user* buf, size_t size, loff_t
 {
 	int size_to_copy;
 
-	pr_info("%s() - called", __func__);
-	pr_info("%s() - node number: %d", __func__, node_count);
+	pr_info("%s() - called\n", __func__);
+	pr_info("%s() - node number: %d\n", __func__, node_count);
 	if ((0 == *offset) || (1 == node_count))
 		size_to_read += size;
 
@@ -130,7 +130,7 @@ lothars_dev_read(struct file* file, char __user* buf, size_t count, loff_t* offs
 {
 	int size_to_copy, read_value;
 
-	pr_info("%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 	read_value = size_to_read - (block_size * cnt);
 
 	if (*offset < size_to_read) {
@@ -170,14 +170,14 @@ lothars_dev_read(struct file* file, char __user* buf, size_t count, loff_t* offs
 static int
 lothars_dev_open(struct inode* inode, struct file* file)
 {
-	pr_info("%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 	return 0;
 }
 
 static int
 lothars_dev_close(struct inode* inode, struct file* file)
 {
-	pr_info("%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 	return 0;
 }
 
@@ -198,17 +198,17 @@ static int
 lothars_probe(struct platform_device *pdev)
 {
 	int ret;
-	pr_info("%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 
 	create_list(pdev);
 	ret = misc_register(&lothars_miscdevice);
 	if (0 != ret) {
-		pr_err("%s() - could not register the miscdevice structure",
+		pr_err("%s() - could not register the miscdevice structure\n",
 		       __func__);
 		return ret;
 	}
 
-	pr_info("%s() - got minor %i",
+	pr_info("%s() - got minor %i\n",
 		__func__, lothars_miscdevice.minor);
 
 	return 0;

@@ -6,7 +6,7 @@
 #include <linux/platform_device.h>
 #include <linux/module.h>
 
-#define PROBE_DRIVER_NAME "list_alloc"
+#define PROBE_DRIVER_NAME "linked_memory"
 static struct platform_device *pdev;
 
 static int __init pf_add(void)
