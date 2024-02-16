@@ -24,8 +24,9 @@ Copy the modules over to the target
 ## Usage
 
 ```
-# insmod ./list_alloc_start.ko
 # insmod ./list_alloc.ko
+# insmod ./list_alloc_ins.ko
+
 # echo abc > /dev/lothars_dev
 # echo def > /dev/lothars_dev
 # echo ghi > /dev/lothars_dev
