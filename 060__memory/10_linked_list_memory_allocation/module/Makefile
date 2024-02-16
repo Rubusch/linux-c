@@ -1,5 +1,5 @@
 KERNELDIR ?= /usr/src/linux
-obj-m += list_alloc.o
+obj-m += list_alloc.o list_alloc_start.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules

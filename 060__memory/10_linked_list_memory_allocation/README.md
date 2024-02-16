@@ -1,46 +1,39 @@
 # Linked List Memory Allocation
 
-Allocate a circular linked list in the kernel memory, composed of several notes. Each node will be composed of two variables:  
-1. A `buffer` pointer that points to a memory buffer allocated with `devm_kmalloc()` using a "for" loop  
-2. A `next` pointer that points to the next node of the linked list  
+Allocate a circular linked list in the kernel memory, composed of
+several notes. Each node will be composed of two variables:  
 
-NB: The demo uses a device tree declaration `linked_memory` which is mainly needed to use the miscdevice struture, and device related API.  
+1. A `buffer` pointer that points to a memory buffer allocated with `devm_kmalloc()` using a "for" loop
+2. A `next` pointer that points to the next node of the linked list
+
+NB: The demo uses a device tree declaration `linked_memory` which is
+mainly needed to use the miscdevice struture, and device related API.  
 
 # Build
 
-## Devicetree
-
-copy it to the specified location in the linux sources (6.3), then build it  
-```
-$ cd linux
-$ cp -arf <SOURCES>/devicetree/arch ./
-
-$ make dtbs
-  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
-```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
-
 ## Module
 
-Should crosscompile - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
+Should crosscompile with `crossbuild-essentials-arm64` installed,
+`ARCH`, and `CROSS_COMPILE` set, execute  
 ```
 $ cd ./module
 $ make
 ```
-Copy the module over to the target  
+Copy the modules over to the target  
 
 ## Usage
 
 ```
-root@ctrl001:/home/pi# insmod ./list_alloc.ko
-root@ctrl001:/home/pi# echo abc > /dev/lothars_dev
-root@ctrl001:/home/pi# echo def > /dev/lothars_dev
-root@ctrl001:/home/pi# echo ghi > /dev/lothars_dev
-root@ctrl001:/home/pi# cat /dev/lothars_dev
+# insmod ./list_alloc_start.ko
+# insmod ./list_alloc.ko
+# echo abc > /dev/lothars_dev
+# echo def > /dev/lothars_dev
+# echo ghi > /dev/lothars_dev
+# cat /dev/lothars_dev
     abc
     def
     ghi
-root@ctrl001:/home/pi# rmmod list_alloc
+# rmmod list_alloc
 ```
 
 Observe the `/var/log/messages` in parallel  
