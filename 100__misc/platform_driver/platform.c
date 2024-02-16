@@ -6,7 +6,7 @@
 #include <linux/miscdevice.h>
 
 #define PLATFORM_DEVNAME "lothars_device"
-#define LOTHARS_PLATFORM_DRIVER "lothars-platform-dummy"
+#define LOTHARS_PLATFORM_DRIVER "lothars-platform-dummy" /* must match with ins */
 
 int dummy_open(struct inode * inode, struct file * filp)
 {
@@ -68,7 +68,7 @@ static struct platform_driver pf_driver = {
 	.probe      = pf_probe,
 	.remove     = pf_remove,
 	.driver     = {
-		.name     = LOTHARS_PLATFORM_DRIVER,
+		.name     = LOTHARS_PLATFORM_DRIVER, /* can be called from ins */
 		.owner    = THIS_MODULE,
 	},
 };
