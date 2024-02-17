@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+  Load this inserter module after the particular module to be probed.
  */
 #include <linux/platform_device.h>
 #include <linux/module.h>

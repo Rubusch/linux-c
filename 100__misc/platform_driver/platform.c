@@ -5,8 +5,8 @@
 #include <linux/platform_device.h>
 #include <linux/miscdevice.h>
 
-#define PLATFORM_DEVNAME "lothars_device"
-#define LOTHARS_PLATFORM_DRIVER "lothars-platform-dummy" /* must match with ins */
+#define PLATFORM_DEVICE_NAME "lothars_device"
+#define PLATFORM_DRIVER_NAME "lothars-platform-dummy" /* must match with ins */
 
 int dummy_open(struct inode * inode, struct file * filp)
 {
@@ -41,38 +41,38 @@ static struct file_operations fops = {
 	.write = dummy_write,
 };
 
-static struct miscdevice pf_device = {
-	.name = PLATFORM_DEVNAME,
+static struct miscdevice pdrv_device = {
+	.name = PLATFORM_DEVICE_NAME,
 	.minor = MISC_DYNAMIC_MINOR,
 	.fops = &fops,
 };
 
-static int pf_probe (struct platform_device *pdev)
+static int pdrv_probe (struct platform_device *pdev)
 {
 	pr_info("%s(): called\n", __func__);
-	if (misc_register(&pf_device)) {
+	if (misc_register(&pdrv_device)) {
 		pr_err("%s(): failed to register miscdevice\n", __func__);
 		return -EFAULT;
 	}
 	return 0;
 }
 
-static int pf_remove(struct platform_device *pdev)
+static int pdrv_remove(struct platform_device *pdev)
 {
 	pr_info("%s(): called\n", __func__);
-	misc_deregister(&pf_device);
+	misc_deregister(&pdrv_device);
 	return 0;
 }
 
-static struct platform_driver pf_drv = {
-	.probe      = pf_probe,
-	.remove     = pf_remove,
+static struct platform_driver pdrv_driver = {
+	.probe      = pdrv_probe,
+	.remove     = pdrv_remove,
 	.driver     = {
-		.name     = LOTHARS_PLATFORM_DRIVER, /* can be called from ins */
+		.name     = PLATFORM_DRIVER_NAME, /* can be called from ins */
 		.owner    = THIS_MODULE,
 	},
 };
-module_platform_driver(pf_drv);
+module_platform_driver(pdrv_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
