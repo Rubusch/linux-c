@@ -49,6 +49,5 @@ Feb 16 21:47:11 ctrl001 kernel: [ 1311.423623] dummy_write(): called
 Feb 16 21:47:11 ctrl001 kernel: [ 1311.423711] dummy_release(): called
 ```
 
-## References:
-
+## References
 * Linux Device Driver Programming, J. Madieu, 2022
