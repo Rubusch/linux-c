@@ -64,7 +64,7 @@ static int pf_remove(struct platform_device *pdev)
 	return 0;
 }
 
-static struct platform_driver pf_driver = {
+static struct platform_driver pf_drv = {
 	.probe      = pf_probe,
 	.remove     = pf_remove,
 	.driver     = {
@@ -72,7 +72,7 @@ static struct platform_driver pf_driver = {
 		.owner    = THIS_MODULE,
 	},
 };
-module_platform_driver(pf_driver);
+module_platform_driver(pf_drv);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
