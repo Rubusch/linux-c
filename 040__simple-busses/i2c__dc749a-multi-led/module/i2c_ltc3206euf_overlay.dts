@@ -1,0 +1,59 @@
+/dts-v1/;
+/plugin/;
+/ {
+	compatible = "raspberrypi,3-model-b", "brcm,bcm2835";
+	fragment@0 {
+		target = <&gpio>;
+		__overlay__ {
+			cs_pins: cs_pins {
+				brcm,pins = <23>;
+				brcm,function = <1>;   /* output */
+				brcm,pull = <0>;       /* none */
+			};
+		};
+	};
+	fragment@1 {
+		target = <&soc>;
+		__overlay__ {
+			chardev_keys {
+				comatible = "lothars,chardev_keys";
+			};
+		};
+	};
+	fragment@2 {
+		target = <&i2c1>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			status = "okay";
+
+			// ltc3206 declaration
+			ltc3206: ltc3206@1b {
+				compatible = "lothars,ltc3206";
+				reg = <0x1b 0x1000>; /* size 1000 - page aligned? */
+				pinctrl-0 = <&cs_pins>;
+				gpios = <&gpio 23 1>; /* 1 := GPIO_ACTIVE_HIGH */
+
+				led1r {
+					label = "red";
+				};
+
+				led1b {
+					label = "blue";
+				};
+
+				led1g {
+					label = "green";
+				};
+
+				ledmain {
+					label = "main";
+				};
+
+				ledsub {
+					label = "sub";
+				};
+			};
+		};
+	};
+};
