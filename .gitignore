@@ -21,6 +21,8 @@ REMOVEME
 *.ko
 *.elf
 *.exe
+*.dtb
+*.dtbo
 
 ## backups
 .#*
