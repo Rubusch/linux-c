@@ -28,7 +28,7 @@ root@ctrl001:/home/pi# ip addr
 Load the module, then  
 ```
 # insmod ./eth-dummy.ko
-# insmod ./eth-dummy-ins.ko
+# insmod ./start.ko PROBED_MODULE_NAME="lothars-eth-dummy"
 
 # ip addr
     1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000

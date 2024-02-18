@@ -1,5 +1,5 @@
 KERNELDIR ?= /usr/src/linux
-obj-m := eth-dummy.o eth-dummy-ins.o
+obj-m := eth-dummy.o start.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
