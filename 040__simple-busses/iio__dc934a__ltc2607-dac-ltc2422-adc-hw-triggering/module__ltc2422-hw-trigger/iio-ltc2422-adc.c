@@ -205,8 +205,7 @@ ltc2422_probe(struct spi_device *spi)
 void
 ltc2422_remove(struct spi_device *spi)
 {
-	struct device *dev = &spi->dev;
-	dev_info(dev, "%s() - called", __func__);
+	pr_info("%s() - called", __func__);
 }
 
 static const struct of_device_id ltc2422_dt_ids[] = {

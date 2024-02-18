@@ -161,6 +161,13 @@ static int __exit ledclass_remove(struct platform_device* pdev)
 {
 	// NB: use dev_info() for device context printouts
 	dev_info(&pdev->dev, "ledclass_remove() started\n");
+
+// TODO is implementation missing?
+//	device_destroy(dev_class, dev);
+//	class_destroy(dev_class);
+//	cdev_del(&hello_chardev_cdev);
+//	unregister_chrdev_region(dev, 1);
+
 	dev_info(&pdev->dev, "ledclass_remove() done\n");
 	return 0;
 }

@@ -176,12 +176,6 @@ static int ioexp_probe(struct i2c_client* client)
 
 	// register misc device
 	return misc_register(&ioexp->ioexp_miscdevice);
-
-// TODO rm	
-//	dev_info(&client->dev, "ioexp_probe() is exited on %s\n", ioexp->name);
-//	dev_info(&client->dev, "ioexp_probe() done\n");
-//
-//	return 0;
 }
 
 static void ioexp_remove(struct i2c_client *client)
