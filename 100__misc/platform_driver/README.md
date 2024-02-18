@@ -7,9 +7,8 @@ another module, as in this demo.
 ## Usage
 
 ```
-$ sudo su
-# insmod platform.c
-# insmod platform-ins.c
+# insmod platform.ko
+# insmod start.ko PROBED_MODULE_NAME="lothars-platform-dummy"
 
 # ls -l /sys/devices/platform/lothars-platform-dummy.1/
 total 0

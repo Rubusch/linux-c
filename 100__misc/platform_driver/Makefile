@@ -1,5 +1,5 @@
 KERNELDIR ?= /usr/src/linux
-obj-m += platform.o platform-ins.o
+obj-m += platform.o start.o
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
