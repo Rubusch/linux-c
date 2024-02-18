@@ -75,7 +75,7 @@ static const struct pwm_ops pwmdrv_ops = {
 	.apply = pwmdrv_apply_config,
 };
 
-static int pwmdrv_probe(struct platform_device *pdev)
+static int pdrv_probe(struct platform_device *pdev)
 {
 	struct pwm_dummy_chip *priv;
 
@@ -95,7 +95,7 @@ static int pwmdrv_probe(struct platform_device *pdev)
 	return pwmchip_add(&priv->chip);
 }
 
-static int pwmdrv_remove(struct platform_device *pdev)
+static int pdrv_remove(struct platform_device *pdev)
 {
 	struct pwm_dummy_chip *priv;
 
@@ -111,15 +111,15 @@ static const struct of_device_id pwmdrv_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, pwmdrv_ids);
 
-static struct platform_driver pwmdrv_driver = {
-	.probe = pwmdrv_probe,
-	.remove = pwmdrv_remove,
+static struct platform_driver pdrv_driver = {
+	.probe = pdrv_probe,
+	.remove = pdrv_remove,
 	.driver = {
 		.name = PROBED_MODULE_NAME,
 		.of_match_table = of_match_ptr(pwmdrv_ids),
 	},
 };
-module_platform_driver(pwmdrv_driver);
+module_platform_driver(pdrv_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");

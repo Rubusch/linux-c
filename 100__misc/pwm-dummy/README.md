@@ -11,7 +11,7 @@ Crosscompile the modules and copy them to the target device.
 ## Usage
 ```
 # insmod ./pwm-dummy.ko
-# insmod ./pwm-dummy-ins.ko
+# insmod ./start.ko PROBED_MODULE_NAME="lothars-pwm-dummy"
 
 # ls /sys/class/pwm/
     pwmchip0
