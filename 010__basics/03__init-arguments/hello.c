@@ -7,11 +7,6 @@
 #include <linux/init.h>
 #include <linux/moduleparam.h>
 
-static int __init mod_init(void);
-static void __exit mod_exit(void);
-
-int init_hello_arguments(void);
-void cleanup_hello_arguments(void);
 int notify_param(const char *, const struct kernel_param *);
 
 /**
@@ -52,23 +47,7 @@ module_param(hello_string_arg, charp, S_IRUSR | S_IWUSR);
 // the callback value for the customized setter
 int hello_int_arg_cb = 0;
 
-const struct kernel_param_ops hello_param_ops = {
-	// the customized setter
-	.set = &notify_param,
-	.get = &param_get_int, // standard getter from linunx/moduleparam.h
-};
 
-/**
- * module_param_cb() - general callback for a module/cmdline parameter
- * @name: a valid C identifier which is the parameter name.
- * @ops: the set & get operations for this parameter.
- * @arg: args for @ops
- * @perm: visibility in sysfs.
- *
- * The ops can have NULL set or get functions.
- */
-module_param_cb(hello_int_arg_cb, &hello_param_ops, &hello_int_arg_cb,
-		S_IRUGO | S_IWUSR);
 
 /*
   When setting values via /sys this callback function will be
@@ -86,6 +65,25 @@ int notify_param(const char *val, const struct kernel_param *kp)
 	pr_info("%s(): new value: %d\n", __func__, hello_int_arg_cb);
 	return 0;
 }
+
+
+const struct kernel_param_ops hello_param_ops = {
+	// the customized setter
+	.set = &notify_param,
+	.get = &param_get_int, // standard getter from linunx/moduleparam.h
+};
+
+/**
+ * module_param_cb() - general callback for a module/cmdline parameter
+ * @name: a valid C identifier which is the parameter name.
+ * @ops: the set & get operations for this parameter.
+ * @arg: args for @ops
+ * @perm: visibility in sysfs.
+ *
+ * The ops can have NULL set or get functions.
+ */
+module_param_cb(hello_int_arg_cb, &hello_param_ops,
+		&hello_int_arg_cb, S_IRUGO | S_IWUSR);
 
 int init_hello_arguments(void)
 {
