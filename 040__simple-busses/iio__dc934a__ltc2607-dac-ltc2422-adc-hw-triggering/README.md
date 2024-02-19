@@ -76,20 +76,6 @@ source will be limited approximately 5mA.
 
 # Build
 
-## Devicetree
-
-Copy it to the specified location in the linux sources, then build it  
-```
-$ cd linux
-$ cp -arf <SOURCES>/devicetree/arch ./
-$ find . -name \*.dtb -delete
-$ make dtbs
-  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
-```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
-
-## Module
-
 Having crossbuild-essentials-arm64 installed, `ARCH`, and `CROSS_COMPILE` set, execute  
 ```
 $ cd ./module__ltc2422-hw-trigger
@@ -100,7 +86,7 @@ $ cd -
 $ cd ./module__ltc2607-dual-dac
 $ make
 ```
-Copy the module over to the target  
+Copy the module and the `.dtbo` file over to the target. Move the `.dtbo` file into `/boot/` and register it in `/boot/config.txt` with `dtoverlay` as the other overlays.  
 
 NB: In case the module won't compile (or `make clean` fails) due to the symlink, enter the directory on the absolute path, not the linked path.  
 

@@ -1,0 +1,51 @@
+/dts-v1/;
+/plugin/;
+/ {
+	compatible = "raspberrypi,3-model-b", "brcm,bcm2835";
+	fragment@0 {
+		target = <&gpio>;
+		__overlay__ {
+ 			key_pin: key_pin {
+ 				brcm,pins = <23>;
+ 				brcm,function = <0>;  /* input */
+ 				brcm,pull = <1>;      /* pull down */
+ 			};
+		};
+	};
+	fragment@1 {
+		target = <&spi0>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			spidev@0 {
+				reg = <0>;
+				status = "disabled";
+			};
+			adc: ltc2422@0 {
+ 				compatible = "lothars,ltc2422";
+ 				spi-max-frequency = <2000000>;
+ 				reg = <0>;
+ 				pinctrl-0 = <&key_pin>;
+ 				int-gpios = <&gpio 23 0>;
+ 			};
+		};
+	};
+	fragment@2 {
+		target = <&i2c1>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+ 			ltc2607@72 {
+ 				compatible = "lothars,ltc2607";
+ 				reg = <0x72>;
+ 			};
+
+ 			ltc2607@73 {
+ 				compatible = "lothars,ltc2607";
+ 				reg = <0x73>;
+ 			};
+		};
+	};
+};
