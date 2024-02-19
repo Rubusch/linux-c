@@ -55,42 +55,13 @@ Measure the outputs on the `P0` through `P7` pins.
 
 # Build
 
-## Devicetree
-
-The demo uses the GPIO expansion connector, GPIO2 and GPIO3 pins to the corresponding pads.  
-
-NB: The GPIO2 and GPIO3 pins are set to the ALT0 function.  
-``` ...  &i2c1 { pinctrl-names = "default"; pinctrl-0 = <&i2c1_pins>;
-    clock-frequency = <100000>; status = "okay"; ...  ioexp#38 {
-    compatible = "lothars,ioexp"; reg = <&0x38>; };
-
-        ioexp@39 {
-            compatible = "lothars,ioexp";
-            reg = <0x39>;
-        };
-        ...
-    };
-    ...
-```
-
-A copy of the modified DTS is provided, copy it to the specified location in the linux sources (6.3), then build it.  
-
-```
-$ cd linux
-$ cp -arf <SOURCES>/devicetree/arch ./
-$ find . -name \*.dtb -delete
-$ make dtbs
-  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
-```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
-
-## Module
-Should crosscompile - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
+## Module and Devicetree
+Having the `crossbuild-essentials-arm64` installed, `ARCH`, and `CROSS_COMPILE` set, then execute  
 ```
 $ cd ./module
 $ make
 ```
-Copy the module over to the target  
+Copy the module and `.dtbo` file over to the target. Place the `.dtbo` file in /boot and register it in `/boot/config.txt` as `dtoverlay` similar to the other overlays.  
 
 ## Usage
 
