@@ -30,7 +30,7 @@
 			// ltc3206 declaration
 			ltc3206: ltc3206@1b {
 				compatible = "lothars,ltc3206";
-				reg = <0x1b>; /* size 1000 - page aligned? */
+				reg = <0x1b>;
 				pinctrl-0 = <&cs_pins>;
 				gpios = <&gpio 23 1>; /* 1 := GPIO_ACTIVE_HIGH */
 
