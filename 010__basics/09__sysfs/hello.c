@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
 */
-
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/module.h>
-
 
 #define HELLO_SYSFS_NAME "lothars_sysfs"
 
@@ -14,15 +12,6 @@ volatile int hello_sysfs_value = 0;
 // sysfs kobject and attribute
 struct kobject *kobj_ref;
 
-/* registration of function for kobj / sysfs */
-static ssize_t sysfs_show(struct kobject *, struct kobj_attribute *, char *);
-static ssize_t sysfs_store(struct kobject *, struct kobj_attribute *,
-			   const char *, size_t);
-
-struct kobj_attribute hello_sysfs_attr = __ATTR(hello_sysfs_value, 0600,
-						sysfs_show,
-						sysfs_store);
-
 /*
   Called when the sysfs file is read.
 */
@@ -30,7 +19,7 @@ static ssize_t sysfs_show(struct kobject *kobj, struct kobj_attribute *attr,
 			  char *buf)
 {
 	ssize_t ret = sprintf(buf, "%d\n", hello_sysfs_value);
-	pr_info("%s(%p, %p, '%s') - Read!\n", __func__, kobj, attr, buf);
+	pr_info("%s(%p, %p, '%s') - read!\n", __func__, kobj, attr, buf);
 	return ret;
 }
 
@@ -40,7 +29,7 @@ static ssize_t sysfs_show(struct kobject *kobj, struct kobj_attribute *attr,
 static ssize_t sysfs_store(struct kobject *kobj, struct kobj_attribute *attr,
 			   const char *buf, size_t count)
 {
-	pr_info("%s(%p, %p, '%s', %lu) - Write!\n", __func__, kobj, attr,
+	pr_info("%s(%p, %p, '%s', %lu) - write!\n", __func__, kobj, attr,
 		buf, count);
 	sscanf(buf, "%d", &hello_sysfs_value);
 	return count;
@@ -53,9 +42,12 @@ static ssize_t sysfs_store(struct kobject *kobj, struct kobj_attribute *attr,
 	*/
 }
 
-int init_hello_sysfs(void)
+struct kobj_attribute hello_sysfs_attr = __ATTR(hello_sysfs_value, 0600,
+						sysfs_show, sysfs_store);
+
+static int __init mod_init(void)
 {
-	pr_info("%s(): called", __func__);
+	pr_info("%s(): called\n", __func__);
 
 	/* 1. Create sysfs directory */
 
@@ -84,9 +76,9 @@ int init_hello_sysfs(void)
 	return 0;
 }
 
-void cleanup_hello_sysfs(void)
+static void __exit mod_exit(void)
 {
-	pr_info("%s(): called", __func__);
+	pr_info("%s(): called\n", __func__);
 
 	/**
 	 * kobject_put() - Decrement refcount for object.
@@ -100,23 +92,9 @@ void cleanup_hello_sysfs(void)
 	printk(KERN_INFO "%s() READY.\n", __func__);
 }
 
-/*
-  init / exit
-*/
-
-static int __init mod_init(void)
-{
-	return init_hello_sysfs();
-}
-
-static void __exit mod_exit(void)
-{
-	cleanup_hello_sysfs();
-}
-
 module_init(mod_init);
 module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Demonstrates sysfs usage.");
+MODULE_DESCRIPTION("Messing with sysfs entries.");
