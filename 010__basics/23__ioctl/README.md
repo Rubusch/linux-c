@@ -1,12 +1,15 @@
 # Minimal ioctl and Chardev
 
-The demo uses ioctl calls from userspace application. A chardev driver will react on the ioctl calls.  
+The demo uses ioctl calls from userspace application. A chardev driver
+will react on the ioctl calls.  
 
 Verified against a RPI3 w/ aarch64  
 
 ## kernel module
 
-Having e.g. `crossbuild-essentials-arm64` installed, `ARCH`, and `CROSS_COMPILE` set, execute the folloing. Copy the artifacts over to the target, e.g. if pi is on 10.1.10.204  
+Having e.g. `crossbuild-essentials-arm64` installed, `ARCH`, and
+`CROSS_COMPILE` set, execute the folloing. Copy the artifacts over to
+the target, e.g. if pi is on 10.1.10.204  
 ```
 $ make
 $ scp ./*.elf pi@10.1.10.204:~/
