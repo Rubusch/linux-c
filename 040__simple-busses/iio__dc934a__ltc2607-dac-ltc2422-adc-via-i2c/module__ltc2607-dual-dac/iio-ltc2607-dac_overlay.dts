@@ -1,0 +1,34 @@
+/dts-v1/;
+/plugin/;
+/ {
+	compatible = "raspberrypi,3-model-b", "brcm,brcm2835";
+	fragment@0 {
+		target = <&spi0>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			spidev@0 {
+				reg = <0>;
+ 				spi-max-frequency = <500000>;
+			};
+		};
+	};
+	fragment@1 {
+		target = <&i2c1>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+ 			ltc2607@72 {
+ 				compatible = "lothars,ltc2607";
+ 				reg = <0x72>;
+ 			};
+
+ 			ltc2607@73 {
+ 				compatible = "lothars,ltc2607";
+ 				reg = <0x73>;
+ 			};
+		};
+	};
+};
