@@ -1,5 +1,6 @@
 # DC934a - Subsystem DAC (LTC2607)
 
+![DC934a Module](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a.png)  
 Provide a driver for the dual DAC LTC2607 (I2C). Then read the analog
 outputs from the DAC device by the ADC LTC2422 (SPI). The LTC2607 DAC
 outputs are connected to both LTC2422 ADC inputs.  
@@ -59,8 +60,6 @@ conversion result, MSB first:
 
 DC934a Eval Board: https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/dc934a.html
 
-![DC934a Module](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a.png)  
-
 #### Modification:
 Solder out the device _U7_ from the DC934A board and also the LTC2607 I2C pull-up resistors: _R10_ and _R11_  
 
@@ -94,18 +93,6 @@ source will be limited approximately 5mA.
 
 # Build
 
-## Devicetree
-
-Copy it to the specified location in the linux sources, then build it  
-```
-$ cd linux
-$ cp -arf <SOURCES>/devicetree/arch ./
-$ find . -name \*.dtb -delete
-$ make dtbs
-  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
-```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
-
 ## Module
 
 Having crossbuild-essentials-arm64 installed, `ARCH`, and `CROSS_COMPILE` set, execute  
@@ -118,7 +105,7 @@ $ cd -
 $ cd ./module__ltc2607-dual-dac
 $ make
 ```
-Copy the module over to the target  
+Copy the module over to the target. Copy the `.dtbo` file over to `/boot/overlays`, and register it in `/boot/config.txt` as `dtoverlay`.  
 
 NB: In case the module won't compile (or `make clean` fails) due to the symlink, enter the directory on the absolute path, not the linked path.  
 

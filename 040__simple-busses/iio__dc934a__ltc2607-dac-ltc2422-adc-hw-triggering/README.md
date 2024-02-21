@@ -1,5 +1,6 @@
 # DC934a - Subsystem DAC / ADC
 
+![DC934a Module](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a.png)  
 Provide a driver for the dual DAC LTC2607 (I2C). Then read the analog
 outputs from the DAC device by the ADC LTC2422 (SPI). The LTC2607 DAC
 outputs are connected to both LTC2422 ADC inputs.  
@@ -37,8 +38,6 @@ accepts an external reference voltage from 0.1V to VCC.
 ## Hardware: Eval Board dc934a
 
 DC934a Eval Board: https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/dc934a.html
-
-![DC934a Module](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a.png)  
 
 #### Modification:
 Solder out the device _U7_ from the DC934A board and also the LTC2607 I2C pull-up resistors: _R10_ and _R11_  
