@@ -1,5 +1,7 @@
 # ADXL345 Accel polling driver based on the input system
 
+![DC934a Board](pics/adxl345.png)  
+
 Use the ADXL345 Accel click mikroBUS accessory board connected to the
 I2C bus of the processor to verify the driver. The driver will scan
 periodially the value of one of the accelerometer axes, and depending
@@ -17,8 +19,6 @@ API of the given exercise theme.
 
 - ADXL345 Accel click mikroBUS: https://www.mikroe.com/accel-spi-board
 
-![DC934a Board](pics/adxl345.png)  
-
 #### Connection:
 - GPIO02 -> SDA
 - GPIO03 -> SCL
@@ -31,16 +31,6 @@ API of the given exercise theme.
 
 ## Devicetree
 
-Copy it to the specified location in the linux sources, then build it  
-```
-$ cd linux
-$ cp -arf <SOURCES>/devicetree/arch ./
-$ find . -name \*.dtb -delete
-$ make dtbs
-  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
-```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
-
 ## Module
 
 Having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
@@ -48,7 +38,7 @@ Having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execu
 $ cd ./module
 $ make
 ```
-Copy the module over to the target  
+Copy the module over to the target. Copy the `.dtbo` file to `/boot/overlays` and register the DT overlay in `/boot/config.txt` as `dtoverlay`.  
 
 ## Usage
 
