@@ -1,0 +1,791 @@
+dma
+
+REFERENCES
+
+https://www.kernel.org/doc/html/latest/core-api/dma-api-howto.html
+https://www.kernel.org/doc/html/latest/core-api/unaligned-memory-access.html
+https://www.kernel.org/doc/html/latest/core-api/dma-api.html
+https://www.kernel.org/doc/html/latest/core-api/dma-api-howto.html
+https://www.kernel.org/doc/html/latest/core-api/dma-attributes.html
+
+
+
+
+
+DMA
+
+* includes:
+    #include <linux/dma-mapping.h> /* dma basic API */
+    #include <linux/dmapool.h> /* dma pool */
+
+* kconfig: scattergatherlist - needs CONFIG_NEED_SG_DMA_LENGTH if the
+   architecture supports IOMMUs (including software IOMMU).
+
+* When is DMA possible?
+    possible on addresses returned by:
+    * page allocator i.e. __get_free_page*()
+    * generic allocators i.e. kmalloc(), kmem_cache_alloc()
+
+    not possible on addresses returned by:
+    * vmalloc()
+    * kmap()
+
+* Make sure the block I/O and networking buffers are valid for DMA
+
+* ARCH_DMA_MINALIGN
+
+    Architectures must ensure that kmalloc’ed buffer is
+    DMA-safe. Drivers and subsystems depend on it. If an architecture
+    isn’t fully DMA-coherent (i.e.  hardware doesn’t ensure that data
+    in the CPU cache is identical to data in main memory),
+    ARCH_DMA_MINALIGN must be set so that the memory allocator makes
+    sure that kmalloc’ed buffer doesn’t share a cache line with the
+    others. See arch/arm/include/asm/cache.h as an example.
+
+    Note that ARCH_DMA_MINALIGN is about DMA memory alignment
+    constraints. You don’t need to worry about the architecture data
+    alignment constraints (e.g. the alignment constraints about
+    64-bit objects).
+
+
+
+
+
+
+DMA DIRECTION
+
+use an exact direction if known
+* DMA_BIDIRECTIONAL
+* DMA_TO_DEVICE
+* DMA_FROM_DEVICE
+* DMA_NONE
+
+for Networking drivers, it’s a rather simple affair; for transmit packets,
+map/unmap them with the DMA_TO_DEVICE direction specifier. For receive
+packets, just the opposite, map/unmap them with the DMA_FROM_DEVICE direction
+specifier
+
+
+
+
+
+DMA API
+
+API part I) is the basic API, API part II) describes extensions for supporting
+non-consistent memory machines (legacy).
+
+
+There are several kinds of addresses involved in the DMA API, and it’s
+important to understand the differences.
+
+* virtual addresses: address returned by kmalloc(), vmalloc()
+
+* CPU physical addresses: translated from virtual addresses by TLB,
+  stored as "phys_addr_t" or "resource_size_t".
+  The kernel manages device resources like registers as physical
+  addresses. These are the addresses in /proc/iomem. The physical
+  address is not directly useful to a driver; it must use ioremap() to
+  map the space and produce a virtual address.
+
+* Bus addresses: I/O devices; If a device has registers at an MMIO
+  address, or if it performs DMA to read or write system memory, the
+  addresses used by the device are bus addresses. In some systems, bus
+  addresses are identical to CPU physical addresses, but in general
+  they are not. IOMMUs and host bridges can produce arbitrary mappings
+  between physical and bus addresses.
+
+From a device’s point of view, DMA uses the bus address space, but it
+may be restricted to a subset of that space.
+
+
+EXAMPLE: mapping in DMA API
+
+                 CPU                  CPU                  Bus
+               Virtual              Physical             Address
+               Address              Address               Space
+                Space                Space
+
+              +-------+             +------+             +------+
+              |       |             |MMIO  |   Offset    |      |
+              |       |  Virtual    |Space |   applied   |      |
+            C +-------+ --------> B +------+ ----------> +------+ A
+              |       |  mapping    |      |   by host   |      |
+    +-----+   |       |             |      |   bridge    |      |   +--------+
+    |     |   |       |             +------+             |      |   |        |
+    | CPU |   |       |             | RAM  |             |      |   | Device |
+    |     |   |       |             |      |             |      |   |        |
+    +-----+   +-------+             +------+             +------+   +--------+
+              |       |  Virtual    |Buffer|   Mapping   |      |
+            X +-------+ --------> Y +------+ <---------- +------+ Z
+              |       |  mapping    | RAM  |   by IOMMU
+              |       |             |      |
+              |       |             |      |
+              +-------+             +------+
+
+During the enumeration process, the kernel learns about I/O devices
+and their MMIO space and the host bridges that connect them to the
+system. For example, if a PCI device has a BAR, the kernel reads the
+bus address (A) from the BAR and converts it to a CPU physical address
+(B). The address B is stored in a struct resource and usually exposed
+via /proc/iomem. When a driver claims a device, it typically uses
+ioremap() to map physical address B at a virtual address (C). It can
+then use, e.g. ioread32(C), to access the device registers at bus
+address A.
+
+If the device supports DMA, the driver sets up a buffer using
+kmalloc() or a similar interface, which returns a virtual address
+(X). The virtual memory system maps X to a physical address (Y) in
+system RAM. The driver can use virtual address X to access the buffer,
+but the device itself cannot because DMA doesn’t go through the CPU
+virtual memory system.
+
+In some simple systems, the device can do DMA directly to physical
+address Y.  But in many others, there is IOMMU hardware that
+translates DMA addresses to physical addresses, e.g., it translates Z
+to Y. This is part of the reason for the DMA API: the driver can give
+a virtual address X to an interface like dma_map_single(), which sets
+up any required IOMMU mapping and returns the DMA address Z. The
+driver then tells the device to do DMA to Z, and the IOMMU maps it to
+the buffer at address Y in system RAM.
+
+
+The kernel assumes that your device can address 32-bits of DMA
+addressing. For a 64-bit capable device, this needs to be increased
+
+you must set the DMA mask to inform the kernel about your devices DMA
+addressing capabilities
+
+    int dma_set_mask_and_coherent(struct device *dev, u64 mask);
+
+e.g.
+    if (dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64))) {
+            dev_warn(dev, "mydev: No suitable DMA available\n");
+            goto ignore_this_device;
+    }
+
+
+
+    int dma_set_mask(struct device *dev, u64 mask);
+
+setup for streaming mappings
+
+
+    int dma_set_coherent_mask(struct device *dev, u64 mask);
+
+setup for consistent allocations
+
+
+    u64 dma_get_required_mask(struct device *dev)
+
+return the mask that the platform requires to operate efficiently,
+requesting the required mask does not alter the current mask
+
+
+    size_t dma_max_mapping_size(struct device *dev);
+
+returns the maximum size of a mapping for the device
+
+
+    bool dma_need_sync(struct device *dev, dma_addr_t dma_addr);
+
+returns %true if dma_sync_single_for_{device,cpu} calls are required
+to transfer memory ownership; returns %false if those calls can be
+skipped
+
+
+    unsigned long dma_get_merge_boundary(struct device *dev);
+
+returns the dma merge boundary, if the device cannot merge any the DMA
+address segments, the function returns 0
+
+
+
+
+
+These calls usually return zero to indicated your device can perform
+DMA properly on the machine given the address mask you provided, but
+they might return an error if the mask is too small to be supportable
+on the given system.  If it returns non-zero, your device cannot
+perform DMA properly on this platform, and attempting to do so will
+result in undefined behavior.
+
+
+If your device supports multiple functions and the various different functions
+have _different_ DMA addressing limitations, you may wish to probe each mask and
+only provide the functionality which the machine can handle
+    #define PLAYBACK_ADDRESS_BITS   DMA_BIT_MASK(32)
+    #define RECORD_ADDRESS_BITS     DMA_BIT_MASK(24)
+
+    struct my_sound_card *card;
+    struct device *dev;
+
+    ...
+    if (!dma_set_mask(dev, PLAYBACK_ADDRESS_BITS)) {
+            card->playback_enabled = 1;
+    } else {
+            card->playback_enabled = 0;
+            dev_warn(dev, "%s: Playback disabled due to DMA limitations\n",
+                   card->name);
+    }
+    if (!dma_set_mask(dev, RECORD_ADDRESS_BITS)) {
+            card->record_enabled = 1;
+    } else {
+            card->record_enabled = 0;
+            dev_warn(dev, "%s: Record disabled due to DMA limitations\n",
+                   card->name);
+    }
+
+
+
+
+TYPES OF DMA MAPPING
+
+* consistent mapping
+* streaming mapping
+
+
+DMA MAPPING TYPES - CONSISTENT
+
+usually mapped at driver initialization, unmapped at the end and for which the
+hardware should guarantee that the device and the CPU can access the data in
+parallel and will see updates made by each other without any explicit software
+flushing; think of "consistent" as "synchronous" or "coherent"
+
+
+
+DMA MAPPING TYPES - CONSISTENT: examples
+- Network card DMA ring descriptors
+- SCSI adapter mailbox command data structures
+- Device firmware microcode executed out of main memory
+
+
+
+DMA MAPPING TYPES - CONSISTENT: implementation
+
+creation
+(may be called in interrupt context with the GFP_ATOMIC flag)
+    dma_addr_t dma_handle;
+    cpu_addr = dma_alloc_coherent(dev, size, &dma_handle, gfp);
+
+the CPU virtual address and the DMA address are both guaranteed to be aligned
+to the smallest PAGE_SIZE order which is greater than or equal to the requested
+size. This invariant exists (for example) to guarantee that if you allocate a
+chunk which is smaller than or equal to 64 kilobytes, the extent of the buffer
+you receive will not cross a 64K boundary
+
+
+unmap and free such a DMA region (may not be called in interrupt context)
+    dma_free_coherent(dev, size, cpu_addr, dma_handle);
+
+
+
+DMA MAPPING TYPES - CONSISTENT: dma pool
+
+if your driver needs lots of smaller memory regions, you can write custom code
+to subdivide pages returned by dma_alloc_coherent(), or you can use the dma_pool
+API to do that. A dma_pool is like a kmem_cache, but it uses
+dma_alloc_coherent(), not __get_free_pages(). Also, it understands common
+hardware constraints for alignment, like queue heads needing to be aligned on
+N byte boundaries
+
+
+create a dma pool
+    struct dma_pool *pool;
+    pool = dma_pool_create(name, dev, size, align, boundary);
+
+dma_pool_create() initializes a pool of DMA-coherent buffers for use with a
+given device. It must be called in a context which can sleep.
+
+The "name" is for diagnostics (like a kmem_cache name); dev and size are as
+above. The device's hardware alignment requirement for this type of data is
+"align" (which is expressed in bytes, and must be a power of two). If your
+device has no boundary crossing restrictions, pass 0 for boundary; passing
+4096 says memory allocated from this pool must not cross 4KByte boundaries
+(but at that time it may be better to use dma_alloc_coherent() directly
+instead).
+
+
+alloc memory from a dma pool
+    cpu_addr = dma_pool_alloc(pool, flags, &dma_handle);
+
+flags are GFP_KERNEL if blocking is permitted (not in_interrupt nor holding
+SMP locks), GFP_ATOMIC otherwise
+
+
+    void *
+    dma_pool_zalloc(struct dma_pool *pool, gfp_t mem_flags, dma_addr_t *handle)
+
+wraps dma_pool_alloc() and also zeroes the returned memory if the allocation
+attempt succeeded
+
+
+free memory that was allocated from a dma pool
+(may be called in interrupt context)
+    dma_pool_free(pool, cpu_addr, dma_handle);
+
+
+destroy a dma pool (may not be called in interrupt context)
+    void
+    dma_pool_destroy(struct dma_pool *pool);
+
+dma_pool_destroy() frees the resources of the pool. It must be called in a
+context which can sleep. Make sure you’ve freed all allocated memory back to
+the pool before you destroy it.
+
+
+
+DMA MAPPING TYPES - STREAMING
+
+the streaming DMA mapping routines can be called from interrupt context. There
+are two versions of each map/unmap, one which will map/unmap a single memory
+region, and one which will map/unmap a scatterlist.
+
+streaming DMA mappings which are usually mapped for one DMA transfer, unmapped
+right after it (unless you use dma_sync_* below) and for which hardware can
+optimize for sequential accesses; think of "streaming" as "asynchronous" or
+"outside the coherency domain"
+
+examples:
+- Networking buffers transmitted/received by a device
+- Filesystem buffers written/read by a SCSI device
+
+the interfaces for using this type of mapping were designed in such a way that
+an implementation can make whatever performance optimizations the hardware
+allows
+
+
+
+
+DMA MAPPING TYPES - STREAMING: usage
+
+map a single region, you do:
+
+    struct device *dev = &my_dev->dev;
+    dma_addr_t dma_handle;
+    void *addr = buffer->ptr;
+    size_t size = buffer->len;
+
+    dma_handle = dma_map_single(dev, addr, size, direction);
+    if (dma_mapping_error(dev, dma_handle)) {
+            /*
+             * reduce current DMA mapping usage,
+             * delay and try again later or
+             * reset driver.
+             */
+            goto map_error_handling;
+    }
+
+maps a piece of processor virtual memory so it can be accessed by the device and
+returns the DMA address of the memory;
+
+direction can be one of the following
+
+    +------------------------+----------------------------------------------+
+    | DMA_NONE               | no direction (used for debugging)            |
+    +------------------------+----------------------------------------------+
+    | DMA_TO_DEVICE          | data is going from the memory to the device  |
+    +------------------------+----------------------------------------------+
+    | DMA_FROM_DEVICE        | data is coming from the device to the memory |
+    +------------------------+----------------------------------------------+
+    | DMA_BIDIRECTIONAL      | direction isn’t known                        |
+    +------------------------+----------------------------------------------+
+
+
+and to unmap it:
+    dma_unmap_single(dev, dma_handle, size, direction);
+
+
+
+DMA MAPPING TYPES - STREAMING: page/offset pairs
+
+Using CPU pointers like this for single mappings has a disadvantage: you cannot
+reference HIGHMEM memory in this way. Thus, there is a map/unmap interface pair
+akin to dma_{map,unmap}_single(). These interfaces deal with page/offset pairs
+instead of CPU pointers, e.g.
+
+    struct device *dev = &my_dev->dev;
+    dma_addr_t dma_handle;
+    struct page *page = buffer->page;
+    unsigned long offset = buffer->offset;
+    size_t size = buffer->len;
+
+    dma_handle = dma_map_page(dev, page, offset, size, direction);
+    if (dma_mapping_error(dev, dma_handle)) {
+            /*
+             * reduce current DMA mapping usage,
+             * delay and try again later or
+             * reset driver.
+             */
+            goto map_error_handling;
+    }
+
+    ...
+
+    dma_unmap_page(dev, dma_handle, size, direction);
+
+
+NB: "offset" means byte offset within the given page
+
+NB: Not all memory regions in a machine can be mapped by this API. Further,
+contiguous kernel virtual space may not be contiguous as physical memory
+
+
+
+DMA MAPPING TYPES - STREAMING: scatterlist
+
+With scatterlists, you map a region gathered from several regions by:
+
+    int i, count = dma_map_sg(dev, sglist, nents, direction);
+    struct scatterlist *sg;
+
+    for_each_sg(sglist, sg, count, i) {
+            hw_address[i] = sg_dma_address(sg);
+            hw_len[i] = sg_dma_len(sg);
+    }
+
+
+NB: "nents" is the number of entries in the sglist
+
+The implementation is free to merge several consecutive sglist entries into one
+(e.g. if DMA mapping is done with PAGE_SIZE granularity, any consecutive sglist
+entries can be merged into one provided the first one ends and the second one
+starts on a page boundary - in fact this is a huge advantage for cards which
+either cannot do scatter-gather or have very limited number of scatter-gather
+entries) and returns the actual number of sg entries it mapped them to. On
+failure 0 is returned.
+
+Then you should loop count times (note: this can be less than nents times) and
+use sg_dma_address() and sg_dma_len() macros where you previously accessed
+sg->address and sg->length as shown above.
+
+To unmap a scatterlist, just call:
+
+    dma_unmap_sg(dev, sglist, nents, direction);
+
+NB: The ‘nents’ argument to the dma_unmap_sg call must be the _same_ one you
+passed into the dma_map_sg call, it should _NOT_ be the ‘count’ value
+_returned_ from the dma_map_sg call!
+
+
+
+DMA MAPPING TYPES - STREAMING: reusing the same DMA region
+
+First, just map it with dma_map_{single,sg}(), and after each DMA transfer call
+either:
+    dma_sync_single_for_cpu(dev, dma_handle, size, direction);
+or:
+    dma_sync_sg_for_cpu(dev, sglist, nents, direction);
+
+Then, if you wish to let the device get at the DMA area again, finish accessing
+the data with the CPU, and then before actually giving the buffer to the
+hardware call either:
+    dma_sync_single_for_device(dev, dma_handle, size, direction);
+or:
+    dma_sync_sg_for_device(dev, sglist, nents, direction);
+
+
+
+DMA MAPPING TYPES - STREAMING: syncing the content of DMA region
+
+Some pseudo code which shows a situation in which you would need to use the
+dma_sync_*() interfaces
+
+    my_card_setup_receive_buffer(struct my_card *cp, char *buffer, int len)
+    {
+            dma_addr_t mapping;
+
+            mapping = dma_map_single(cp->dev, buffer, len, DMA_FROM_DEVICE);
+            if (dma_mapping_error(cp->dev, mapping)) {
+                    /*
+                     * reduce current DMA mapping usage,
+                     * delay and try again later or
+                     * reset driver.
+                     */
+                    goto map_error_handling;
+            }
+
+            cp->rx_buf = buffer;
+            cp->rx_len = len;
+            cp->rx_dma = mapping;
+
+            give_rx_buf_to_card(cp);
+    }
+
+    ...
+
+    my_card_interrupt_handler(int irq, void *devid, struct pt_regs *regs)
+    {
+            struct my_card *cp = devid;
+
+            ...
+            if (read_card_status(cp) == RX_BUF_TRANSFERRED) {
+                    struct my_card_header *hp;
+
+                    /* Examine the header to see if we wish
+                     * to accept the data.  But synchronize
+                     * the DMA transfer with the CPU first
+                     * so that we see updated contents.
+                     */
+                    dma_sync_single_for_cpu(&cp->dev, cp->rx_dma,
+                                            cp->rx_len,
+                                            DMA_FROM_DEVICE);
+
+                    /* Now it is safe to examine the buffer. */
+                    hp = (struct my_card_header *) cp->rx_buf;
+                    if (header_is_ok(hp)) {
+                            dma_unmap_single(&cp->dev, cp->rx_dma, cp->rx_len,
+                                             DMA_FROM_DEVICE);
+                            pass_to_upper_layers(cp->rx_buf);
+                            make_and_setup_new_rx_buf(cp);
+                    } else {
+                            /* CPU should not write to
+                             * DMA_FROM_DEVICE-mapped area,
+                             * so dma_sync_single_for_device() is
+                             * not needed here. It would be required
+                             * for DMA_BIDIRECTIONAL mapping if
+                             * the memory was modified.
+                             */
+                            give_rx_buf_to_card(cp);
+                    }
+            }
+    }
+
+NB:
+- converted fully to this interface do not use virt_to_bus()/bus_to_virt() anymore
+- always store the DMA addresses returned by the dma_alloc_coherent(), dma_pool_alloc(), and dma_map_single()
+- dma_map_sg() stores them in the scatterlist itself if the platform supports dynamic DMA mapping in hardware
+
+
+
+
+
+DMA UNMAPPING
+
+On many platforms, dma_unmap_{single,page}() is simply a nop. Prefer the macros
+over these function calls:
+
+DMA UNMAPPING: Use DEFINE_DMA_UNMAP_{ADDR,LEN} in state saving structures
+
+Example, before:
+    struct ring_state {
+            struct sk_buff *skb;
+            dma_addr_t mapping;
+            __u32 len;
+    };
+
+after:
+    struct ring_state {
+            struct sk_buff *skb;
+            DEFINE_DMA_UNMAP_ADDR(mapping);
+            DEFINE_DMA_UNMAP_LEN(len);
+    };
+
+
+
+DMA UNMAPPING: Use dma_unmap_{addr,len}_set() to set these values.
+
+Example, before:
+    ringp->mapping = FOO;
+    ringp->len = BAR;
+
+after:
+    dma_unmap_addr_set(ringp, mapping, FOO);
+    dma_unmap_len_set(ringp, len, BAR);
+
+
+
+DMA UNMAPPING: Use dma_unmap_{addr,len}() to access these values.
+
+Example, before:
+    dma_unmap_single(dev, ringp->mapping, ringp->len,
+                     DMA_FROM_DEVICE);
+
+after:
+    dma_unmap_single(dev,
+                     dma_unmap_addr(ringp, mapping),
+                     dma_unmap_len(ringp, len),
+                     DMA_FROM_DEVICE);
+
+
+
+
+
+
+
+
+DMA ALIGNMENT
+
+Unaligned memory accesses occur when you try to read N bytes of data starting
+from an address that is not evenly divisible by N (i.e. addr % N != 0). For
+example, reading 4 bytes of data from address 0x10004 is fine, but reading 4
+bytes of data from address 0x10005 would be an unaligned memory access
+
+DMA ALIGNMENT: example:
+    struct foo {
+            u16 field1;
+            u32 field2;
+            u8 field3;
+    };
+
+can be reordered to align "better"
+
+    struct foo {
+            u32 field2;
+            u16 field1;
+            u8 field3;
+    } __attribute__((packed));
+
+NB: __attribute__((packed)) - This GCC-specific attribute tells the compiler
+never to insert any padding within structures, useful when you want to use a C
+struct to represent some data that comes in a fixed arrangement 'off the wire'
+
+However, again, the compiler is aware of the alignment constraints and will
+generate extra instructions to perform the memory access in a way that does not
+cause unaligned access. Of course, the extra instructions obviously cause a loss
+in performance compared to the non-packed case, so the packed attribute should
+only be used when avoiding structure padding is of importance
+
+
+
+
+DMA ALIGNMENT: get_unaligned()/put_unaligned()
+
+The easiest way to avoid unaligned access is to use the get_unaligned() and
+put_unaligned() macros provided by the <asm/unaligned.h>
+
+
+
+DMA ALIGNMENT: kconfig
+
+For some ethernet hardware that cannot DMA to unaligned addresses like 4*n+2 or
+non-ethernet hardware, this can be a problem, and it is then required to copy
+the incoming frame into an aligned buffer. Because this is unnecessary on
+architectures that can do unaligned accesses, the code can be made dependent on
+CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS:
+
+    #ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+            skb = original skb
+    #else
+            skb = copy skb
+    #endif
+
+
+
+in the crypto.h file there is e.g. the CRYPTO_MINALIGN_ATTR alignment filter
+    /*
+     * The macro CRYPTO_MINALIGN_ATTR (along with the void * type in the actual
+     * declaration) is used to ensure that the crypto_tfm context structure is
+     * aligned correctly for the given architecture so that there are no alignment
+     * faults for C data types.  In particular, this is required on platforms such
+     * as arm where pointers are 32-bit aligned but there are data types such as
+     * u64 which require 64-bit alignment.
+     */
+    #define CRYPTO_MINALIGN ARCH_KMALLOC_MINALIGN
+
+    #define CRYPTO_MINALIGN_ATTR __attribute__ ((__aligned__(CRYPTO_MINALIGN)))
+
+
+
+
+
+DMA DEBUGGING
+
+
+DMA address space is limited on some architectures and an allocation failure can
+be determined by:
+
+- checking if dma_alloc_coherent() returns NULL or dma_map_sg returns 0
+
+- checking the dma_addr_t returned from dma_map_single() and dma_map_page() by
+  using dma_mapping_error():
+
+    dma_addr_t dma_handle;
+
+    dma_handle = dma_map_single(dev, addr, size, direction);
+    if (dma_mapping_error(dev, dma_handle)) {
+            /*
+             * reduce current DMA mapping usage,
+             * delay and try again later or
+             * reset driver.
+             */
+            goto map_error_handling;
+    }
+
+    unmap pages that are already mapped, when mapping error occurs in the middle
+    of a multiple page mapping attempt. These example are applicable to
+    dma_map_page() as well.
+
+
+Example 1:
+
+    dma_addr_t dma_handle1;
+    dma_addr_t dma_handle2;
+
+    dma_handle1 = dma_map_single(dev, addr, size, direction);
+    if (dma_mapping_error(dev, dma_handle1)) {
+            /*
+             * reduce current DMA mapping usage,
+             * delay and try again later or
+             * reset driver.
+             */
+            goto map_error_handling1;
+    }
+    dma_handle2 = dma_map_single(dev, addr, size, direction);
+    if (dma_mapping_error(dev, dma_handle2)) {
+            /*
+             * reduce current DMA mapping usage,
+             * delay and try again later or
+             * reset driver.
+             */
+            goto map_error_handling2;
+    }
+
+    ...
+
+    map_error_handling2:
+            dma_unmap_single(dma_handle1);
+    map_error_handling1:
+
+
+
+
+Example 2:
+
+    /*
+     * if buffers are allocated in a loop, unmap all mapped buffers when
+     * mapping error is detected in the middle
+     */
+
+    dma_addr_t dma_addr;
+    dma_addr_t array[DMA_BUFFERS];
+    int save_index = 0;
+
+    for (i = 0; i < DMA_BUFFERS; i++) {
+            ...
+            dma_addr = dma_map_single(dev, addr, size, direction);
+            if (dma_mapping_error(dev, dma_addr)) {
+                    /*
+                     * reduce current DMA mapping usage,
+                     * delay and try again later or
+                     * reset driver.
+                     */
+                    goto map_error_handling;
+            }
+            array[i].dma_addr = dma_addr;
+            save_index++;
+    }
+    ...
+    map_error_handling:
+    for (i = 0; i < save_index; i++) {
+            ...
+            dma_unmap_single(array[i].dma_addr);
+    }
+
+Networking drivers must call dev_kfree_skb() to free the socket buffer and
+return NETDEV_TX_OK if the DMA mapping fails on the transmit hook
+(ndo_start_xmit). This means that the socket buffer is just dropped in the
+failure case.
+
+SCSI drivers must return SCSI_MLQUEUE_HOST_BUSY if the DMA mapping fails in the
+queuecommand hook. This means that the SCSI subsystem passes the command to the
+driver again later.

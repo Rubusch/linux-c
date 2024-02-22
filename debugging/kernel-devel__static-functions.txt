@@ -1,0 +1,63 @@
+static functions
+
+some notes about the usage of 'static' and functions inside the kernel
+
+
+
+
+
+USAGE
+
+'static function' in module.c file
+
+ - declares a function as 'private', the function is known to the
+   scope of the .c file and its compilation entity only
+
+ - it cannot/should not be called from outside
+
+
+
+
+'static function' in a module.h file
+
+- needs to have the function body in a separate corresponding .c file,
+  in order to avoid:
+    warning: 'foo' defined but not used [-Wunused-function]
+  ...at each include of that .h file
+
+
+
+
+
+ISSUES
+
+ISSUE: linker error:
+    ld: /path/to/source.o: in function 'foo':
+        source.c:(.text+0x250): multiple definition of 'foo'; /path/to/another_source.o:another_source.c:(.text+0x240): first defined here
+        (...)
+FIX: use 'static' in the function declaration of foo in the source.h file
+
+
+
+
+ISSUE: warning: defined but not used
+    In file included from /path/to/source.c:123:
+        /path/to/source.h:123:45: warning: 'foo' defined but not used [-Wunused-function]
+        (...)
+FIX: the function 'static foo()' is defined in the .h file, which provokes this
+warning, either silence via gcc pragma, or separate implementation of that
+funcion (source.c file) from declaration of that function (source.h file)
+
+
+
+
+ISSUE: warning: declared 'static' but never defined
+    In file included from /path/to/source.c:123:
+        /path/to/source.h:123:45: warning: 'foo' declared 'static' but never defined [-Wunused-function]
+        (...)
+FIX: keep separation .c and .h file, in this case basically 'static function' is
+     not needed, and 'static' can be removed. Normally one would use a 'static
+     function' only if the implementation of the function was hosted in the .h
+     file, i.e. in case of something like 'static inline void foo()' or similar
+     'inline' function
+

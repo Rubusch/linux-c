@@ -1,0 +1,37 @@
+BUG: sleeping function called from invalid context
+
+
+REFERENCE
+https://groups.google.com/forum/#!topic/fa.linux.kernel/fDv9g6UY6vg
+
+
+
+
+EXAMPLE
+
+If __vmalloc is called in atomic context with GFP_ATOMIC flags,
+__get_vm_area_node is called, which calls kmalloc_node with GFP_KERNEL
+flags. This causes 'sleeping function called from invalid context at
+mm/slab.c:2729' with 2.6.16-rc4 kernel. A simple solution is to use
+proper flags in __get_vm_area_node, depending on the context:
+
+diff -Naur linux.orig/mm/vmalloc.c linux/mm/vmalloc.c
+--- linux.orig/mm/vmalloc.c        2006-05-19 01:22:00.000000000 -0400
++++ linux/mm/vmalloc.c        2006-05-19 01:53:05.000000000 -0400
+@@ -177,7 +177,10 @@
+         addr = ALIGN(start, align);
+         size = PAGE_ALIGN(size);
+
+-        area = kmalloc_node(sizeof(*area), GFP_KERNEL, node);
++        if (in_atomic() || in_interrupt())
++                area = kmalloc_node(sizeof(*area), GFP_ATOMIC, node);
++        else
++                area = kmalloc_node(sizeof(*area), GFP_KERNEL, node);
+         if (unlikely(!area))
+                 return NULL;
+
+
+FIX
+
+calling kmalloc_node() never use simply GFP_KERNEL, check if in atomic or
+interrupt context, if so use GFP_ATOMIC!!!

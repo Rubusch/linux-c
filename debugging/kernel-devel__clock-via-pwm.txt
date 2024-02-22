@@ -1,0 +1,101 @@
+clock via pwm
+
+kernel 4.4.39
+
+
+SITUATION
+
+a chipcard driver needs a robust clock line; therefore it shall be linked directly from a hardware clock used as gpio
+
+
+
+SETUP
+
+.config
+-> Drivers -> enable: Pulse width modulation -> enable the freescale PWM driver
+
+
+
+.dts
+
+use GPIO at PTB7 now as PWM,
+
+thus comment out former usage of VF610_PAD_PTB7__GPIO_29
+
+dts/vf500-colibri-scmain.dts:
+  (...)
+  &iomuxc {
+    vf610-colibri {
+      pinctrl_uart1: uart1grp {
+        fsl,pins = <
+          VF610_PAD_PTB4__UART1_TX        0x26df /* orig: 0x21a3 */
+  //        VF610_PAD_PTB4__GPIO_26         0x26df /* IO, for debugging */
+          VF610_PAD_PTB5__GPIO_27         0x22eb /* EN */
+  //        VF610_PAD_PTB7__GPIO_29         0x22eb /* CLK */
+          VF610_PAD_PTB6__GPIO_28         0x22eb /* RST */
+        >;
+      };
+  (...)
+
+
+dts/vf-colibri.dtsi:
+set the new PTB7 (from table vf6xxx-pinfunc.h) for pwm,
+so that the CLK line will be set up
+
+  (...)
+  &pwm0 {
+    pinctrl-names = "default";
+  //orig:
+  //  pinctrl-0 = <&pinctrl_pwm0_a &pinctrl_pwm0_c>;
+  //new:
+    pinctrl-0 = <&pinctrl_pwm0_7>;
+    status = "okay";
+  };
+  (...)
+
+  (...)
+  &iomuxc {
+    vf610-colibri {
+  (...)
+
+  (...)
+    /* pwm clock pin for chipcard */
+    pinctrl_pwm0_7: pwm07grp {
+      fsl,pins = <
+        VF610_PAD_PTB7__FTM0_CH7                0x1182
+      >;
+    };
+  (...)
+
+
+.module
+
+also in code, comment out usage of PTB7 GPIO - it is configured now by hardware to the PWM line
+next step now is to implement the pwm API, i.e. set period and dutycycle, then turn on or off
+at demand
+
+
+TEST
+
+to test the pwm activity on the clk pin,
+connect logic analyzer to the clk pin
+
+boot the system with the new kernel&dts (from tftp or natively)
+# echo 7 > /sys/class/pwm/pwmchip0/export
+# cd /sys/class/pwm/pwmchip0/pwm7/
+# echo "200" > ./period
+# cat ./period
+    200
+# echo 100 > ./duty_cycle
+# cat ./duty_cycle
+    100
+
+start setup
+# echo 1 > ./enable
+
+
+
+DEBUGGING
+
+check output and GPIO connection at
+# cat /sys/kernel/debug/pinctrl/pinctrl-handles

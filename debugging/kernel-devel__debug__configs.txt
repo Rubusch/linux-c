@@ -1,0 +1,62 @@
+debugging
+config options for kernel debugging
+
+
+
+
+CONFIG_DEBUG_DRIVER
+verbose driver output in the logs
+
+CONFIG_DEBUG_KERNEL
+turn on kernel debugging
+
+CONFIG_DETECT_HUNG_TASK
+good for figuring out what's causing a kernel freeze
+
+CONFIG_DEBUG_INFO
+ensures you can decode kernel oops symbols
+
+CONFIG_EARLY_PRINTK
+extended boottime logging
+
+CONFIG_LOG_BUF_SHIFT=21
+sets the kernel buffer log size to the biggest buffer
+
+CONFIG_IKCONFIG and CONFIG_IKCONFIG_PROC
+makes your kernel configuration available at runtime in /proc/config.gz, use as
+# zcat /proc/config.gz | grep CONFIG_SOUND
+or with zgrep if available
+
+CONFIG_CMDLINE_EXTEND and CONFIG_CMDLINE
+extend the kernel command line from within the configuration, the second one is
+a string containing the actual command-line extension value
+
+CONFIG_KALLSYMS
+makes the kernel symbol table (mapping between symbols and their addresses)
+available in /proc/kallsyms, and for oops messages
+
+CONFIG_PRINTK_TIME
+show timing information while printing messages from the kernel
+
+CONFIG_INPUT_EVBUG
+allow to debug input devices
+
+CONFIG_MAGIC_SYSRQ
+allow for some control such as rebooting, dumping some status informations and
+so on... over the system even after a crash by simple key strokes
+
+CONFIG_DEBUG_FS
+enable support for debug filesystems where GPIO, CLOCK, DMA, REGMAP, IRQs and
+many other subsystems can be debugged from
+
+CONFIG_FTRACE
+- CONFIG_DYNAMIC_FTRACE
+- CONFIG_FUNCTION_TRACER
+- CONFIG_FUNCTION_GRAPH_TRACER (same a sfunciton tracer, but with caller graph)
+- CONFIG_IRQSOFF_TRACER (track off periods of IRQs in the kernel)
+- CONFIG_PREEMPT_TRACER (measure preemption off latency)
+- CONFIG_SCHED_TRACER (schedule latency tracing)
+enables the powerful ftrace tracer which can trace the whole system, allows to
+trace any non-inline function in the kernel
+
+

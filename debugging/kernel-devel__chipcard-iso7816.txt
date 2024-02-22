@@ -1,0 +1,83 @@
+iso7816
+
+chipcard protocol
+
+RESOURCES
+
+https://de.wikipedia.org/wiki/ISO_7816
+
+
+
+
+
+STANDARDs
+
+there are different typs of chipcards, pure memory cards up to processor cards
+all cards have a Card Operating System (COS) with proprietary commands
+standard regulates Answer to Reset (ATR) and Protocol and Parameter Setting (PPS), commands then depend on the card
+
+contactless chipcards:
+iso14443 contactless chipcards (RFID)
+
+contact chipcards:
+iso7816-3 Electronic Signals and Transmission Protocols
+    asynchronous chipcards
+
+iso7816-4 Industry Commands for Interchange
+
+iso7816-10 Electronic Signals and Answer To Reset for Synchronous Chipcards
+    synchronous chipcards
+
+
+APIs for standardization
+CT-API (old)
+PC/SC-Standard (Linux)
+Secoder-Standard
+
+
+
+
+
+PROTOCOL
+
+asynchronous chipcards
+ - no separate clock line
+ - IO line signal is clocked by sender
+ - each participant has his own clock
+ - start bit, stop bit and wait/guard bits required:
+    <start + 8 data bits + stop + parity + wait>
+ - robust, i.e. tolerates <5% deviation of the clock rate
+ - slow, due to additional bits
+ - in case UART support
+ - one bit takes 372 ticks, this is 1 Elementary Time Unit (ETU)
+
+
+synchronous chipcards
+ - separate clock line
+ - IO line signal is clocked by clock line
+ - each participant shares the clock signal of the clock line
+ - no start, stop, wait is needed:
+     <8 data bits>
+ - not so robust, does not tolerate much deviation to the clock signal
+ - fast, due to less overhead bits
+ - probably rather bitbanging
+ - one bit takes one tick
+
+
+
+
+
+CONTACTS
+
+    VCC  GND
+    RST  VPP (opt)
+    CLK  I/O
+    NC   NC
+
+VCC - enable, power..
+GND - ground
+RST - reset
+VPP - optional, not needed
+CLK - clock
+I/O - in- and output
+

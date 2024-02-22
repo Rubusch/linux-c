@@ -1,0 +1,389 @@
+gpios
+
+2017-06-21, kernel 4.4.39 (already old)
+
+
+RESOURCES
+https://lwn.net/Articles/532714/
+https://lwn.net/Articles/532717/
+
+
+
+
+API
+
+#include <linux/gpio.h>
+#include <linux/of_gpio.h>
+
+
+// gpio    gpio number
+// label   label for sysfs
+// return >0
+int gpio_request(unsigned int gpio, const char *label);
+
+// similar
+gpio_request_one();
+gpio_request_array();
+
+// managed, i.e. cleans up automatically but needs more parameters to be set
+devm_gpio_request_one();
+
+
+// set up direction, e.g. input
+int gpio_direction_input(unsigned int gpio);
+// .. or output, and initial value
+int gpio_direction_output(unsigned int gpio, int value);
+
+
+// getter and setter
+int gpio_get_value(unsigned int gpio);
+void gpio_set_value(unsigned int gpio, int value);
+
+// listen for interrupts
+int gpio_to_irq(unsigned int gpio);
+
+// export gpios to sysfs
+int gpio_export(unsigned int gpio, bool direction_may_change);
+
+// cleanup
+void gpio_free(unsigned int gpio);
+
+
+
+
+
+EXAMPLE
+
+#include <linux/gpio.h>
+#include <linux/of_gpio.h>
+
+(...)
+
+#define ISO7816_GPIO_EN         0
+#define ISO7816_GPIO_CLK        1
+#define ISO7816_GPIO_RST        2
+#define ISO7816_NUM_GPIOS       3
+
+(...)
+
+static int iso7816_request_gpios(struct device_node *np, struct iso7816_port *sport)
+{
+        int ret, idx;
+
+        /*
+           in DTS
+           gpios-en = <&gpio2 19 GPIO_ACTIVE_HIGH>;  // uart RXD -> EN
+           gpios-clk = <&gpio1 81 GPIO_ACTIVE_HIGH>; // uart CTS -> CLK
+           gpios-rst = <&gpio0 94 GPIO_ACTIVE_HIGH>; // uart RTS -> RST
+       //*/
+
+        for (idx = 0; idx < ISO7816_NUM_GPIOS; ++idx) {
+                int gpio;
+
+                sport->gpio[idx] = -1;
+
+
+// this needs a device node "*np", in the example case this was generatet by the serial_core
+
+                gpio = of_get_gpio( np, idx);
+
+                if (gpio_is_valid(gpio)) {
+                        ret = gpio_request( sport->gpio.rst, "gpios-rst");
+                        if (ret) {
+                                pr_err( "ISO7816: can't request gpio #%d: %d\n", idx, ret);
+                                continue; // TODO: alternatively cancel here...
+                        }
+
+                        /* all gpios are outgoing, initial to L */
+                        ret = gpio_direction_output( gpio, 0);
+                        if (ret) {
+                                pr_err( "ISO7816: can't set direction for gpio #%d: %d\n",
+                                        idx, ret);
+                                gpio_free(gpio);
+                                continue; // TODO: alternatively cancel here...
+                        }
+                        sport->gpio[idx] = gpio;
+                }
+        }
+
+        ret = 0;
+        return ret;
+}
+
+
+(...)
+// set value
+//      void gpio_set_value(unsigned int gpio, int value);
+//      gpio_set_value( gpio, 1 );
+
+
+
+
+PROCEDURE
+
+1.) datasheet
+
+figure out needed IOs from datasheet of the processor (VF50), and then the
+board (Colibri) take the final board's GPIO number to figure out in the device
+tree
+
+    SODIMM  Taradox       VF50    VF50        Colibri   Product
+    PIN     Name          GPIO    Signal      GPIO      IO Name
+    --------------------------------------------------------------
+    19      UART_C_RX     PTB5    SCI1_RX     GPIO_27    Chip_EN
+    21      UART_C_TX     PTB4    SCI1_TX     GPIO_26    Chip_IO
+    81      UART_C_CTS    PTB7    SCI1_CTS    GPIO_29    Chip_CLK
+    94      UART_C_RTS    PTB6    SCI1_RTS    GPIO_28    Chip_RST
+
+
+make sure the mask serves for the direction of the gpio, in case for a new
+transmit take similar mask of another TX gpio already there
+
+
+
+2.) dts
+
+check available GPIOs in
+./arch/arm/boot/dts/vf610-pinfunc.h
+
+e.g. go by PT bank "PT4", there are several ALT values (documented in VFXXX
+Controller Manual), take the GPIO, which will be "GPIO_26",
+the GPIO name will then be "VF610_PAD_PTB4__GPIO_26":
+
+    (...)
+    #define VF610_PAD_PTB3__PDB_EXTRIG              0x064 0x000 ALT3 0x0
+    #define VF610_PAD_PTB3__LCD37                   0x064 0x000 ALT4 0x0
+    #define VF610_PAD_PTB3__VIU_DATA21              0x064 0x000 ALT6 0x0
+    #define VF610_PAD_PTB3__QSPI1_A_DATA1           0x064 0x000 ALT7 0x0
+--->#define VF610_PAD_PTB4__GPIO_26                 0x068 0x000 ALT0 0x0 <---
+    #define VF610_PAD_PTB4__FTM0_CH4                0x068 0x000 ALT1 0x0
+    #define VF610_PAD_PTB4__UART1_TX                0x068 0x380 ALT2 0x0
+    #define VF610_PAD_PTB4__ADC0_SE4                0x068 0x000 ALT3 0x0
+    #define VF610_PAD_PTB4__LCD38                   0x068 0x000 ALT4 0x0
+    #define VF610_PAD_PTB4__VIU_FID                 0x068 0x3A8 ALT5 0x0
+    #define VF610_PAD_PTB4__VIU_DATA22              0x068 0x000 ALT6 0x0
+    #define VF610_PAD_PTB4__QSPI1_A_DATA0           0x068 0x000 ALT7 0x0
+    #define VF610_PAD_PTB5__GPIO_27                 0x06C 0x000 ALT0 0x0
+    #define VF610_PAD_PTB5__FTM0_CH5                0x06C 0x000 ALT1 0x0
+    (...)
+
+
+this results to the following table
+
+    SODIMM  Colibri   DTS                        Product
+    PIN     GPIO      Name                       IO Name
+    ------------------------------------------------------
+    19      GPIO_27   VF610_PAD_PTB5__GPIO_27    Chip_EN
+    21      GPIO_26   VF610_PAD_PTB4__GPIO_26    Chip_IO
+    81      GPIO_29   VF610_PAD_PTB7__GPIO_29    Chip_CLK
+    94      GPIO_28   VF610_PAD_PTB6__GPIO_28    Chip_RST
+
+
+
+check pin muxing in
+./arch/arm/boot/dts/vf-colibri.dtsi
+
+here check in the VFxxxx Controller Manual which mask to set, e.g. 0x22eb for
+our GPIOs, generally IN or OUT has to be configured, as also it should be
+KEPT ENABLED
+    (...)
+    &uart1 {
+      pinctrl-names = "default";
+      pinctrl-0 = <&pinctrl_uart1>;
+    };
+    (...)
+    &iomuxc {
+      vf610-colibri {
+        pinctrl_additionalgpio: additionalgpios {
+          fsl,pins = <
+            VF610_PAD_PTA12__GPIO_5         0x22ed
+          >;
+        };
+        (...)
+        pinctrl_uart1: uart1grp {
+          fsl,pins = <
+    // original:
+    //      VF610_PAD_PTB4__UART1_TX  0x21a2
+    //      VF610_PAD_PTB5__UART1_RX  0x21a1
+    // in case configure TX for in/out
+    //      VF610_PAD_PTB4__UART1_TX  0x21a3
+    // currently all used as GPIO, so all commented out here
+          >;
+        };
+
+
+setup section in
+./arch/arm/boot/dts/vf500-colibri-scmain.dts
+
+
+the section in this file overwrites the section in the
+    #include "vf500-colibri.dtsi"
+    #include "vf-colibri-dual-eth.dtsi"
+    #include <dt-bindings/input/linux-event-codes.h>
+    (...)
+    /* CHIP-CARD */
+    &uart1 {
+      compatible = "schundler,iso7816";
+        linux,iso7816-enabled-at-boot-time;
+    // in case defien GPIOs here
+    //    gpios-en  = <&gpio0 27 GPIO_ACTIVE_LOW>; /* uart RXD -> EN */
+    //    gpios-clk = <&gpio1 29 GPIO_ACTIVE_LOW>; /* uart CTS -> CLK */
+    //    gpios-rst = <&gpio2 28 GPIO_ACTIVE_LOW>; /* uart RTS -> RST */
+      status = "okay";
+    };
+
+    (...)
+    /* see http://developer.taradox.com/device-tree-customization#Vybrid_based_Modules */
+    &iomuxc {
+      vf610-colibri {
+    // or set up a specific section here:
+        pinctrl_uart1: uart1grp {
+          fsl,pins = <
+    //      VF610_PAD_PTB4__UART1_TX      0x21a3
+            VF610_PAD_PTB4__GPIO_26       0x21df
+            VF610_PAD_PTB5__GPIO_27       0x22eb
+            VF610_PAD_PTB7__GPIO_29       0x22eb
+            VF610_PAD_PTB6__GPIO_28       0x22eb
+          >;
+        };
+    (...)
+
+
+flags
+
+        / Speed Field; 100 MHz
+       /
+      |     / Slow (0) or Fast (1) Slew Rate
+      |    /
+      |   |   / Open Drain enable
+      |   |  /
+      |   | |   / Hysteresis: CMOS (0), or Schmitt-Trigger (1)
+      |   | |  /
+      |   | | |   / Drive Strength, here 50Ohm
+      |   | | |  /
+      |   | | | |        / Pull up / down, here 47kOhm
+      |   | | | |       / since already an internal Pull up of 24kOhm,
+      |   | | | |      / so everything >= 24kOhm is fine
+      |   | | | |     /
+      |   | | | |    |     / Pull/Keep Enable
+      |   | | | |    |    /
+      |   | | | |    |   |   / Pull (1) /Keep (0) Select
+      |   | | | |    |   |  /
+      |   | | | |    |   | |   / Output Buffer Enable
+      |   | | | |    |   | |  /
+      |   | | | |    |   | | |  / Input Buffer Enable
+      |   | | | |    |   | | | |
+    00|10 |0|0|1|0 11|10 |1|1|0|1| --> 0x22eb
+      |   | | | |    |   | | | | |
+      |   | | | |    |   | | | | | for I/O in Open Drain (implies using pull-ups)
+    00|10 |0|1|1|0 11|01 |1|1|1|1| --> 0x26df
+      |   | | | |    |   | | | | |
+
+    0x22eb - output signals, reset, clock,...
+
+    0x26df - open drain for I/O
+
+
+
+test the setup
+
+still not use GPIOs in source, build the system and dtc (make dtbs), then run
+# echo 26 > /sys/class/gpio/export
+
+now the gpio file appears
+/sys/class/gpio/gpio26
+
+set a value and e.g. check the signal on the logic analyzer
+# cat /sys/class/gpio/gpio26
+    0
+# echo 1 > /sys/class/gpio/gpio26
+# cat /sys/class/gpio/gpio26
+    1
+
+when this works, all GPIOs are identified and set up correctly
+
+
+
+3.) kernel
+
+require gpios
+
+
+    #include <linux/gpio.h>
+    #include <linux/of_gpio.h>
+    (...)
+
+    /* gpios */
+
+    #define ISO7816_GPIO_EN         0
+    #define ISO7816_GPIO_CLK        1
+    #define ISO7816_GPIO_RST        2
+    #define ISO7816_NUM_GPIOS       3
+
+    (...)
+
+    struct iso7816_port {
+        struct uart_port        port;
+        struct clk              *clk;
+        unsigned int            txfifo_size;
+        unsigned int            rxfifo_size;
+        (...)
+        unsigned                gpio[ISO7816_NUM_GPIOS];
+        (...)
+    };
+
+    (...)
+
+    static int iso7816_cc_init_gpios(struct device_node *np, struct iso7816_port *ccport)
+    {
+        int ret, idx;
+        unsigned gpio;
+        char* gpionames[] = {"gpios-en", "gpios-clk", "gpios-rst"};
+
+        ccport->gpio[ISO7816_GPIO_EN] = 27; // enable
+        ccport->gpio[ISO7816_GPIO_CLK] = 29; // clock
+        ccport->gpio[ISO7816_GPIO_RST] = 28; // reset
+
+        for (idx = 0; idx < ISO7816_NUM_GPIOS; ++idx) {
+        printk(KERN_ERR "YYY %s(): %d. gpio\n", __func__, idx);
+            gpio = ccport->gpio[idx];
+
+            if (gpio_is_valid(gpio)) {
+                ret = gpio_request( gpio, gpionames[idx]);
+                if (ret) {
+                    pr_err( "can't request gpio #%d: %d\n", idx, ret);
+                    continue;
+                }
+
+                // all gpios are outgoing, initial to L
+                ret = gpio_direction_output( gpio, 0);
+                if (ret) {
+                    pr_err( "can't set direction for gpio #%d: %d\n",
+                            idx, ret);
+                    gpio_free(gpio);
+                    continue;
+                }
+                if (0 > gpio) {
+                    printk(KERN_ERR "FAILED\n");
+                    continue;
+                }
+                gpio_export( gpio, true );
+                ccport->gpio[idx] = gpio;
+            }
+        }
+        (...)
+    }
+
+
+
+
+
+DEBUGGING
+
+/sys/class/gpio/
+     "export" ... Userspace may ask the kernel to export control of a GPIO to userspace by writing its number to this file.
+     Example:  "echo 19 > export" will create a "gpio19" node
+         for GPIO #19, if that's not requested by kernel code.
+         "unexport" ... Reverses the effect of exporting to userspace.
+     Example:  "echo 19 > unexport" will remove a "gpio19"
+         node exported using the "export" file.

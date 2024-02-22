@@ -1,0 +1,119 @@
+// kernelmodule.txt
+
+
+
+Prepare the kernel and sources
+
+1. prepare the kernel:
+   - build kernel (easy way) don't do a make-kpkg clean, only make
+   clean!!!
+   - build kernel headers
+   - configure the following in the kernel
+   CONFIG_LOCALVERSION = [version magic]
+   CONFIG_LOCALVERSION_AUTO = y
+   CONFIG_MODULE_UNLOAD = y
+   CONFIG_MODULE_FORCE_UNLOAD = y
+   CONFIG_MODULE_VERSIONING = n
+   CONFIG_MODULE_SRCVERSION_ALL = n
+   CONFIG_KMOD = y
+
+
+
+2. if you ran make-kpkg clean or have any other probs:
+   - do:
+      # cd /usr/src/linux-`uname -r`/
+      # make oldconfig && make prepare
+
+   - make sure that the config is the one of the current kernel:
+      # cp /boot/config-`uname -r` /usr/src/linux-`uname -r`/.config
+
+   in case you can extract the .config out of the running kernel:
+   -> scripts/extract-ikconfig (CONFIG_IKCONFIG needs to be set)
+   or
+   -> /proc/config.gz (CONFIG_IKCONFIG_PROC)
+
+   - use the correct Makefile
+      # cp /lib/modules/`uname -r`/build/Makefile /usr/src/linux-`uname -r`/Makefile
+
+
+   - edit the /usr/src/linux-`uname -r`/Makefile and set EXTRAVERSION to the
+   version magic (see above, additional version name of the kernel).
+
+   - here you can run a second "make" to rebuild just a bzimage, just
+     until: CC /init/main.o
+
+   - check the /usr/src/linux-`uname -r`/include/config/kernel.release
+   version magic entry and in case correct it, e.g. with content:
+   2.6.18qemudebug
+
+   - check the /usr/src/linux-`uname -r`/include/linux/utsrelease.h
+   version magic entry and in case correct it, e.g.:
+   #define UTS_RELEASE "2.6.18qemudebug"
+
+
+
+3. Load the module
+
+    insmod - doesn't solve dependencies of several modules
+    or modprobe - solves dependencies
+
+
+
+4. Remove the moudle
+   modprobe -r <modulename>
+   or
+   rmmod <modulename>
+
+
+
+
+
+KERNEL MODULE MAKEFILE
+
+compilation
+
+a default Makefile for a simple module
+
+# cat ./Makefile
+all:
+    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+
+clean:
+    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+
+
+
+cross compilation
+
+in a folder "~/buildroot/kprobes/" place the "kprobes.c", and the following
+Makefile (target runs on powerpc, and will be cross compiled)
+
+# builds the kprobes example kernel modules;
+# then to use one (as root):  insmod <module_name.ko>
+#
+# first build the savres.o in the kernel
+# $ cd ../build/build/linux-3.4.25/
+# $ ARCH=powerpc CROSS_COMPILE=/opt/nx/toolchain-ppc-4.3/bin/powerpc-unknown-linux-gnu- make arch/powerpc/lib/crtsavres.o
+#
+# then run this Makefile to crosscompile the kprobes.c
+# $ cd -
+# $ make
+
+ARCH=powerpc
+KERNELDIR=/opt/nx/snapshots/rubusclo_basesystem/vob/NX_BASESYSTEM/unit/buildroot/build/build/linux-3.4.25/
+MODULESDIR=/opt/nx/snapshots/rubusclo_basesystem/vob/NX_BASESYSTEM/unit/buildroot/build/target/lib/modules/3.4.25-cm52k__dbg041/
+CROSS_COMPILE=/opt/nx/toolchain-ppc-4.3/bin/powerpc-unknown-linux-gnu-
+
+#obj−m+=kprobe_example.o
+obj-m += kprobes.o
+
+all:
+        make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} -C ${KERNELDIR} M=$(PWD) modules
+
+clean:
+        make ARCH=${ARCH} -C ${KERNELDIR} clean
+
+
+load module with insmod
+# insmod <modulename>.ko
+

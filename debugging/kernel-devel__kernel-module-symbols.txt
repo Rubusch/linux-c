@@ -1,0 +1,107 @@
+debugging kernel symbols in a module
+
+REFERENCES
+
+https://stackoverflow.com/questions/28298220/kernel-module-no-debugging-symbols-found
+
+
+
+
+EXAMPLE
+
+problem: no debugging symbols found?
+
+$ insmod mmaptest.ko
+
+verify that it is loaded via
+$ cat /proc/modules
+    mmaptest 12727 0 - Live 0x0000000000000000 (OF)
+
+
+e.g. problem all segments are listed with 0x00 addresses.
+$ systool -vm mmaptest
+    Module = "mmaptest"
+
+    Attributes:
+      coresize            = "12727"
+      initsize            = "0"
+      initstate           = "live"
+      refcnt              = "0"
+      srcversion          = "EABEF6F90BEAAD0D15B576A"
+      taint               = "OF"
+      uevent              = <store method only>
+
+    Parameters:
+      count               = "0"
+
+    Sections:
+      .bss                = "0x0000000000000000"
+      .data               = "0x0000000000000000"
+      .exit.text          = "0x0000000000000000"
+      .gnu.linkonce.this_module= "0x0000000000000000"
+      .init.text          = "0x0000000000000000"
+      .note.gnu.build-id  = "0x0000000000000000"
+      .rodata             = "0x0000000000000000"
+      .rodata.str1.1      = "0x0000000000000000"
+      .rodata.str1.8      = "0x0000000000000000"
+      .smp_locks          = "0x0000000000000000"
+      .strtab             = "0x0000000000000000"
+      .symtab             = "0x0000000000000000"
+      .text               = "0x0000000000000000"
+      __mcount_loc        = "0x0000000000000000"
+      __param             = "0x0000000000000000"
+
+
+thus, also gdb will complain about not having loaded symbols
+(gdb) add-symbol-file /home/mmaptest/mmaptest.ko 0x00
+    add symbol table from file "/home/mmaptest/mmaptest.ko" at
+        .text_addr = 0x0
+    (y or n) y
+    Reading symbols from /home/mmaptest/mmaptest.ko...(**no debugging symbols found**)...done.
+
+
+FIX
+
+$ vi ./Makefile
+    obj-m += mmaptest.o
+    MY_CFLAGS += -g -DDEBUG
+    ccflags-y += ${MY_CFLAGS}
+    CC += ${MY_CFLAGS}
+
+    all:
+            make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+
+    debug:
+            make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+            EXTRA_CFLAGS="$(MY_CFLAGS)"
+    clean: make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+
+
+$ readelf -S mmaptest.ko | grep debug
+
+  [24] .debug_info       PROGBITS         0000000000000000  00000d40
+  [25] .rela.debug_info  RELA             0000000000000000  00018260
+  [26] .debug_abbrev     PROGBITS         0000000000000000  0000d577
+  [27] .debug_loc        PROGBITS         0000000000000000  0000dd54
+  [28] .rela.debug_loc   RELA             0000000000000000  00029510
+  [29] .debug_aranges    PROGBITS         0000000000000000  0000e5d5
+  [30] .rela.debug_arang RELA             0000000000000000  0002a3e0
+  [31] .debug_ranges     PROGBITS         0000000000000000  0000e645
+  [32] .rela.debug_range RELA             0000000000000000  0002a458
+  [33] .debug_line       PROGBITS         0000000000000000  0000e815
+  [34] .rela.debug_line  RELA             0000000000000000  0002a878
+  [35] .debug_str        PROGBITS         0000000000000000  0000f4cd
+  [38] .debug_frame      PROGBITS         0000000000000000  00016e80
+  [39] .rela.debug_frame RELA             0000000000000000  0002a8c0
+
+
+
+GDB
+
+add symbol table from file "/home/peter/projects/svn/linux_kernel/mmaptest/mmaptest.ko"
+at .text_addr = 0x0
+(y or n) y
+Reading symbols from /home/peter/projects/svn/linux_kernel/mmaptest/mmaptest.ko...done.
+(gdb)
+
+

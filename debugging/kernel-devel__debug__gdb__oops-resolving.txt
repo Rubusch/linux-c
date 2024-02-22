@@ -1,0 +1,235 @@
+kernel gdb - OOPS resolving with gdb
+
+REFERENCES
+
+https://www.kernel.org/doc/html/v4.11/dev-tools/gdb-kernel-debugging.html
+
+
+OOPS - throw a kernel Oops         
+
+    #include <kernel.h>
+    panic("my message");
+
+
+
+GDB - debug a kernel Oops
+
+The GNU debugger (gdb) is the best way to figure out the exact file
+and line number of the OOPS from the vmlinux file.
+
+
+
+CONFIG_DEBUG_INFO enabled
+
+This can be set by running:
+$ ./scripts/config -d COMPILE_TEST -e DEBUG_KERNEL -e DEBUG_INFO
+
+On a kernel compiled with CONFIG_DEBUG_INFO, you can simply copy the EIP value from the OOPS:
+    EIP:    0060:[<c021e50e>]    Not tainted VLI
+
+
+And use GDB to translate that to human-readable form:
+$ gdb vmlinux
+(gdb) l *0xc021e50e
+
+
+
+
+CONFIG_DEBUG_INFO not enabled
+
+EIP of the running kernel was at vt_ioctl+0xda8/0x1482, then recompile the
+kernel with CONFIG_DEBUG_INFO enabled for debugging:
+$ ./scripts/config -d COMPILE_TEST -e DEBUG_KERNEL -e DEBUG_INFO
+$ make vmlinux
+$ gdb vmlinux
+(gdb) l *vt_ioctl+0xda8
+    0x1888 is in vt_ioctl (drivers/tty/vt/vt_ioctl.c:293).
+    288   {
+    289           struct vc_data *vc = NULL;
+    290           int ret = 0;
+    291
+    292           console_lock();
+    293           if (VT_BUSY(vc_num))
+    294                   ret = -EBUSY;
+    295           else if (vc_num)
+    296                   vc = vc_deallocate(vc_num);
+    297           console_unlock();
+
+
+or, if you want to be more verbose
+(gdb) p vt_ioctl
+    $1 = {int (struct tty_struct *, unsigned int, unsigned long)} 0xae0 <vt_ioctl>
+
+(gdb) l *0xae0+0xda8
+
+
+Alternatively use the object file
+$ make drivers/tty/
+$ gdb drivers/tty/vt/vt_ioctl.o
+(gdb) l *vt_ioctl+0xda8
+
+
+
+CALL TRACE
+
+If you have a call trace, such as
+    Call Trace:
+     [<ffffffff8802c8e9>] :jbd:log_wait_commit+0xa3/0xf5
+     [<ffffffff810482d9>] autoremove_wake_function+0x0/0x2e
+     [<ffffffff8802770b>] :jbd:journal_stop+0x1be/0x1ee
+     ...
+
+this shows the problem likely is in the :jbd: module. You can load that module
+in gdb and list the relevant code
+
+$ gdb fs/jbd/jbd.ko
+(gdb) l *log_wait_commit+0xa3
+
+
+
+NB: You can also do the same for any function call at the stack trace,
+like this one:
+    [<f80bc9ca>] ? dvb_usb_adapter_frontend_exit+0x3a/0x70 [dvb_usb]
+
+The position where the above call happened can be seen with:
+$ gdb drivers/media/usb/dvb-usb/dvb-usb.o
+(gdb) l *dvb_usb_adapter_frontend_exit+0x3a
+
+
+
+EXAMPLE:
+
+    BUG: unable to handle kernel NULL pointer dereference at   (null)
+    IP: [<c06969d4>] iret_exc+0x7d0/0xa59
+    *pdpt = 000000002258a001 *pde = 0000000000000000
+    Oops: 0002 [#1] PREEMPT SMP
+    ...
+    Call Trace:
+    ...
+    ? vt_ioctl+0xda8/0x1c0
+    ...
+
+a kernel oops can be debugged with objdump or with gdb
+
+
+
+
+approach: debug in kernel
+
+on a kernel compiled with CONFIG_DEBUG_INFO, you can simply copy the EIP value from the OOPS:
+    EIP:    0060:[<c021e50e>]    Not tainted VLI
+
+recompile the kernel with CONFIG_DEBUG_INFO enabled (-d := disable, -e := enable)
+$ ./scripts/config -d COMPILE_TEST -e DEBUG_KERNEL -e DEBUG_INFO
+NB: open once with 'make menuconfig' and save, in case, for avoiding being bored...
+
+$ make vmlinux
+$ gdb vmlinux
+(gdb) list *(vt_ioctl+0xda8)
+    0x1888 is in vt_ioctl (drivers/tty/vt/vt_ioctl.c:293).
+    288   {
+    289           struct vc_data *vc = NULL;
+    290           int ret = 0;
+    291
+    292           console_lock();
+    293           if (VT_BUSY(vc_num))
+    294                   ret = -EBUSY;
+    295           else if (vc_num)
+    296                   vc = vc_deallocate(vc_num);
+    297           console_unlock();
+
+
+alternatively, more verbose
+(gdb) p vt_ioctl
+    $1 = {int (struct tty_struct *, unsigned int, unsigned long)} 0xae0 <vt_ioctl>
+
+(gdb) list *(0xae0+0xda8)
+
+$ make drivers/tty/
+$ gdb drivers/tty/vt/vt_ioctl.o
+(gdb) list *(vt_ioctl+0xda8)
+    (...)
+
+alternative for external kernel module, e.g.
+$ vi ./Makefile
+    (...)
+    module-my-debug: version.h
+        @$(MAKE) -C $(KERNELDIR) $(CFLAGS) M=$(PWD) V=1 CONFIG_COMPILE_TEST=n CONFIG_DEBUG_KERNEL=y CONFIG_DEBUG_INFO=y modules
+    (...)
+and build with
+$ make module-my-debug
+NB: V=1 enables the trace output of the called make commands
+NB: CONFIG_COMPILE_TEST=n CONFIG_DEBUG_KERNEL=y CONFIG_DEBUG_INFO=y are needed for GDB symbol information
+
+$ gdb -tui my_kernel_module.ko
+(gdb)> list *(iret_exc+0x7d0)
+
+
+
+
+
+
+approach: debug bug in module (.ko)
+
+    Call Trace:
+     [<ffffffff8802c8e9>] :jbd:log_wait_commit+0xa3/0xf5
+     [<ffffffff810482d9>] autoremove_wake_function+0x0/0x2e
+     [<ffffffff8802770b>] :jbd:journal_stop+0x1be/0x1ee
+     ...
+
+the bug is likely to be in module jbd.ko
+$ gdb fs/jbd/jbd.ko
+(gdb) list *(log_wait_commit+0xa3)
+    (...)
+
+you can also do the same for any function call at the stack trace
+
+
+alternatively use objdump!
+
+
+
+symbols
+
+$ sudo apt-get install sysfsutils
+
+$ systool -vm mmaptest
+in case rebuild with CFLAGS -DDEBUG and -g
+TODO                    
+
+
+
+
+NOTE
+
+in case of the following report, place the bytes into a structure and
+disassemble it
+
+    EIP is at  +0x14/0x4c0
+     ...
+    Code: 44 24 04 e8 6f 05 00 00 e9 e8 fe ff ff 8d 76 00 8d bc 27 00 00
+    00 00 55 57  56 53 81 ec bc 00 00 00 8b ac 24 d0 00 00 00 8b 5d 08
+    <8b> 83 3c 01 00 00 89 44  24 14 8b 45 28 85 c0 89 44 24 18 0f 85
+
+save the bytes into a file "foo.s" like this:
+
+           .text
+           .globl foo
+    foo:
+           .byte  .... /* bytes from Code: part of OOPS dump */
+
+compile it with
+$ gcc -c -o foo.o foo.s
+
+then look at the output of
+$ objdump --disassemble foo.o
+    ip_queue_xmit:
+        push       %ebp
+        push       %edi
+        push       %esi
+        push       %ebx
+        sub        $0xbc, %esp
+        mov        0xd0(%esp), %ebp        ! %ebp = arg0 (skb)
+        mov        0x8(%ebp), %ebx         ! %ebx = skb->sk
+        mov        0x13c(%ebx), %eax       ! %eax = inet_sk(sk)->opt
+

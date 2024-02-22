@@ -1,0 +1,41 @@
+global variables
+
+
+EXAMPLE
+
+in module.c
+    (...)
+    int use_my_stuff = 1;
+    (...)
+    module_param(use_my_stuff, int, 0644);
+    MODULE_PARM_DESC(use_my_stuff, "Enable or Disable my stuff");
+
+
+in module.h
+   #ifndef MY_MODULE_H
+   #define MY_MODULE_H
+
+   (...)
+
+   // declaration
+   extern int use_my_stuff;
+
+   (...)
+
+   #end /* MY_MODULE_H */
+
+
+
+in somewhere_else.c
+   #include "module.h"
+
+   (...)
+   if (use_my_stuff)
+       use_it();
+   else
+       use_something_else();
+   (...)
+
+
+then load the module e.g. as
+$ insmod module use_my_stuff=123

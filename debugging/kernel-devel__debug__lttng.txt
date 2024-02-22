@@ -1,0 +1,209 @@
+lttng
+
+1. Trace the linux kernel
+2. Trace a userspace application
+3. View and analyze the recorded events
+
+
+
+
+
+
+RESOURCE
+
+http://lttng.org/docs/v2.10/#doc-getting-started
+
+
+
+
+
+PREPARATION
+
+Set up a nfs, in case with tftp kernel.
+
+Make sure the target kernel supports
+    CONFIG_MODULES
+    CONFIG_KALLSYMS
+    CONFIG_HIGH_RES_TIMERS
+    CONFIG_TRACEPOINTS
+
+Confirm that the tracepoints exist by looking for their names in the
+    /sys/kernel/debug/tracing/events/subsys
+
+Check that some module loading tool is around on the target, e.g.
+    insmod, rmmod, etc.
+    modprobe
+    kmod and links
+
+The code needs to be compiled with
+    -finstrument-functions
+    in cmake, per target
+    set_target_properties(ksc_car PROPERTIES COMPILE_FLAGS "-finstrument-functions")
+
+    in cmake, per source file
+    set_source_files_properties(unit/car/src/CarSelfAdapter.cpp PROPERTIES COMPILE_FLAGS "-finstrument-functions")
+
+
+
+
+
+
+TRACING
+
+Trace the linux kernel
+# modprobe lttng_tracer
+
+# lttng create my-kernel-session --output=/root/trace-$(date +%Y%m%d%H%M%S)
+    Spawning a session daemon
+    Session my-kernel-session created.
+    Traces will be written in /tmp/my-kernel-trace
+
+note: when running on an embedded target, NFS might be a choice
+
+
+List kernel tracepoints and syscalls
+# lttng list --kernel
+# lttng list --kernel --syscall
+
+
+Create event rules,
+
+e.g. for "sched_switch" and "sched_process_fork" instrumentation points
+# lttng enable-event --kernel sched_switch,sched_process_fork
+
+e.g. for "open" or "close" system calls
+# lttng enable-event --kernel --syscall open,close
+
+e.g. enable all events
+# lttng enable-event --kernel --all
+
+Start tracing
+# lttng start
+
+    <perform some operation>
+
+# lttng stop && lttng destroy
+
+note: "lttng destroy" does not destroy the tracing data,
+but only the tracing session
+
+
+run the above commands as root, in case then the tracing output needs to be
+chown'ed to a user
+
+
+
+
+
+ANALYSIS
+
+read lttng traces
+
+babeltrace: grep in tracing results, text only
+
+trace compass: gui frontend
+http://tracecompass.org/#getting
+
+
+symbol mapping
+
+on the pc go into the source folder, e.g. NX_CORE2/build_powerpc_debug and run
+$ cd /cygdrive/l/NX_CORE2/build_powerpc_debug
+$ powerpc-none-linux-gnu-nm.exe -C NX100NA /nx100na.debug &gt; mapping.txt
+
+
+
+
+tracecompass (standalone GUI)
+
+resource
+http://archive.eclipse.org/tracecompass/doc/stable/org.eclipse.tracecompass.doc.user/Trace-Compass-Main-Features.html
+
+download, unpack and start trace-compass (alternative download and install it
+into eclipse)
+$ /opt/trace-compass/tracecompass
+
+
+
+tracecompass - start
+
+normally a 'project' is there by default, the 'project' will keep several sets
+of traces under 'Traces', for work and analysis an 'Experiment' is needed, the
+specific sets of data will be selected
+
+
+'import' data to the 'project'
+(also .tar/.zip and remote are possible)
+go File -> Import
+
+
+'open' the imported data to add mapping information
+in the menu, go File -> Open Trace...
+select any file in the trace folder
+
+
+open the view Histogram: "Window" -> "Show View" -> "Tracing" -> "Histogram"
+
+
+open the view CallStack: "Window" -> "Show View" -> "Tracing" -> "Callstack"
+
+
+the "Callstack" view has an icon
+"Configure how the addresses are mapped to function names" (bug symbol),
+which allows for either "LTTng 32 bit" root path selection of the sources,
+or as "GNU nm 32 bit" for adding of a mapping.txt file
+
+
+
+
+tracecompass - creating an experiment
+
+then start an 'experiment' inside the project, name it, and right click on
+the experiment to 'select' tracesets from what was already imported to
+'Traces'
+
+for example, when lttng-ust and "--kernel" was run, both are contained in
+one trace folder, and will automatically be aligned when set up to an experiment
+
+
+
+
+
+MODULES
+
+liblttng-ust-libc-wrapper.so
+    C standard library tracing, e.g.
+    malloc(), free()
+
+liblttng-ust-pthread-wrapper.so
+    POSIX threads tracing, e.g.
+    pthread_mutex_lock(), pthread_mutex_unlock()
+
+liblttng-ust-cyg-profile.so and liblttng-ust-cyg-profile-fast.so
+    function tracing, e.g.
+    foo() entry, bar() exit
+
+liblttng-ust-dl.so
+    dynamic linker tracing, e.g.
+    dlopen(), dlclose()
+
+
+
+
+
+
+
+
+
+
+
+
+
+ISSUES
+
+issue:
+Error: Unable to list system calls: Kernel tracer not available
+Error: Command error
+
+fix:
+TODO, kconfig?

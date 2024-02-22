@@ -1,0 +1,328 @@
+kthreads
+
+RESOURCES
+
+https://www.linuxjournal.com/article/8144
+https://stackoverflow.com/questions/29959159/how-to-join-a-thread-in-linux-kernel
+
+
+
+
+USAGE: schedule()
+
+In Linux, the ready-to-run processes are maintained on a run queue. A
+ready-to-run process has the state TASK_RUNNING. Once the timeslice of a running
+process is over, the Linux scheduler picks up another appropriate process from
+the run queue and allocates CPU power to that process. A process also
+voluntarily can relinquish the CPU. And a process can go to sleep using the
+schedule() function.
+
+    sleeping_task = current;
+    set_current_state(TASK_INTERRUPTIBLE);
+    schedule();
+    func1();
+    /* The rest of the code */
+
+The schedule() function simply should schedule another process. When the
+schedule() function is called with the state as TASK_INTERRUPTIBLE or
+TASK_UNINTERRUPTIBLE, an additional step is performed: the currently executing
+process is moved off the run queue before another process is scheduled.
+
+
+
+    wake_up_process(sleeping_task);
+
+..wakes up the task again, this sets the task state to TASK_RUNNING and puts
+the task back on the run queue. Interruptible sleep is the preferred way of
+sleeping, unless there is a situation in which signals cannot be handled at
+all, such as device I/O.
+
+
+
+
+
+USAGE: Wait Queues
+
+Wait queues are a higher-level mechanism used to put processes to sleep and wake
+them up. In most instances, you use wait queues. They are needed when more than
+one process wants to sleep on the occurrence of one or more than one event.
+
+A wait queue for an event is a list of nodes. Each node points to a process
+waiting for that event. An individual node in this list is called a wait queue
+entry. Processes that want to sleep while the event occurs add themselves to
+this list before going to sleep. On the occurrence of the event, one or more
+processes on the list are woken up. Upon waking up, the processes remove
+themselves from the list.
+
+
+wait queue: initialization
+    wait_queue_head_t my_event;
+    init_waitqueue_head(&my_event);
+or
+    DECLARE_WAIT_QUEUE_HEAD(my_event);
+
+
+wait queue: let process sleep (inside process declare the following)
+    wait_event(&my_event, (event_present == 1) );
+or
+    wait_event_interruptible(&my_event, (event_present == 1) );
+
+The interruptible version 2 of the options above puts the process to an
+interruptible sleep, whereas the other (option 1) puts the process into an
+uninterruptible sleep.
+
+
+wait queue: wake process up
+
+    wake_up(&my_event);: wakes up only one process from the wait queue.
+or
+    wake_up_all(&my_event);: wakes up all the processes on the wait queue.
+or
+    wake_up_interruptible(&my_event);: wakes up only one process from the wait
+    queue that is in interruptible sleep.
+
+
+wait queue: example (kernel 2.6.11)
+    291 static int smbiod(void *unused)
+    292 {
+    293     daemonize("smbiod");
+    294
+    295     allow_signal(SIGKILL);
+    296
+    297     VERBOSE("SMB Kernel thread starting "
+                    "(%d)...\n", current->pid);
+    298
+    299     for (;;) {
+    300             struct smb_sb_info *server;
+    301             struct list_head *pos, *n;
+    302
+    303             /* FIXME: Use poll? */
+    304             wait_event_interruptible(smbiod_wait,
+    305                     test_bit(SMBIOD_DATA_READY,
+                                     &smbiod_flags));
+    ...
+    ...             /* Some processing */
+    312
+    313             clear_bit(SMBIOD_DATA_READY,
+                              &smbiod_flags);
+    314
+    ...             /* Code to perform the requested I/O */
+    ...
+    ...
+    337     }
+    338
+    339     VERBOSE("SMB Kernel thread exiting (%d)...\n",
+                    current->pid);
+    340     module_put_and_exit(0);
+    341 }
+
+Now, when a process wants to get some I/O done, it sets the DATA_READY bit in
+the smbiod_flags and wakes up the smbiod thread to perform I/O. This can be
+seen in the following code snippet (linux-2.6.11/fs/smbfs/smbiod.c: 57):
+
+    57 void smbiod_wake_up(void)
+    58 {
+    59     if (smbiod_state == SMBIOD_DEAD)
+    60         return;
+    61     set_bit(SMBIOD_DATA_READY, &smbiod_flags);
+    62     wake_up_interruptible(&smbiod_wait);
+    63 }
+
+wake_up_interruptible wakes up one process that was sleeping on the smbiod_wait
+waitqueue. The function smb_add_request (linux-2.6.11/fs/smbfs/request.c: 279)
+calls the smbiod_wake_up function when it adds new requests for processing.
+
+
+
+
+
+SITUATIONS
+
+SITUATION: Lost Wake-Up Problem
+
+The lost wake-up problem arises out of a race condition that occurs while a
+process goes to conditional sleep. It is a classic problem in operating systems.
+
+Consider two processes, A and B. Process A is processing from a list, consumer,
+while the process B is adding to this list, producer. When the list is empty,
+process A sleeps. Process B wakes up A when it appends anything to the list.
+
+Process A:
+    1  spin_lock(&list_lock);
+    2  if(list_empty(&list_head)) {
+    3      spin_unlock(&list_lock);
+    4      set_current_state(TASK_INTERRUPTIBLE);
+    5      schedule();
+    6      spin_lock(&list_lock);
+    7  }
+    8
+    9  /* Rest of the code ... */
+    10 spin_unlock(&list_lock);
+
+Process B:
+    100  spin_lock(&list_lock);
+    101  list_add_tail(&list_head, new_node);
+    102  spin_unlock(&list_lock);
+    103  wake_up_process(processa_task);
+
+There is one problem with this situation. It may happen that after process A
+executes line 3 but before it executes line 4, process B is scheduled on another
+processor. In this timeslice, process B executes all its instructions, 100
+through 103. Thus, it performs a wake-up on process A, which has not yet gone
+to sleep. Now, process A, wrongly assuming that it safely has performed the
+check for list_empty, sets the state to TASK_INTERRUPTIBLE and goes to sleep.
+
+Thus, a wake up from process B is lost. This is known as the lost wake-up
+problem. Process A sleeps, even though there are nodes available on the list.
+
+This problem could be avoided by restructuring the code for process A in the
+following manner:
+
+
+Process A:
+    1  set_current_state(TASK_INTERRUPTIBLE);
+    2  spin_lock(&list_lock);
+    3  if(list_empty(&list_head)) {
+    4         spin_unlock(&list_lock);
+    5         schedule();
+    6         spin_lock(&list_lock);
+    7  }
+    8  set_current_state(TASK_RUNNING);
+    9
+    10 /* Rest of the code ... */
+    11 spin_unlock(&list_lock);
+
+We have changed our current state to TASK_INTERRUPTIBLE, before we test the
+condition. So, what has changed? The change is that whenever a wake_up_process
+is called for a process whose state is TASK_INTERRUPTIBLE or
+TASK_UNINTERRUPTIBLE, and the process has not yet called schedule(), the state
+of the process is changed back to TASK_RUNNING.
+
+Thus, in the above example, even if a wake-up is delivered by process B at any
+point after the check for list_empty is made, the state of A automatically is
+changed to TASK_RUNNING. Hence, the call to schedule() does not put process A to
+sleep; it merely schedules it out for a while, as discussed earlier.
+
+
+
+
+
+SITUATION: Thundering Herd Problem
+
+Another classical operating system problem arises due to the use of the
+wake_up_all function.
+
+Once the process that has acquired the lock is done with it, it releases the
+lock and wakes up all the processes sleeping on the wait queue. All the
+processes try to grab the lock. Eventually, only one of these acquires the lock
+and the rest go back to sleep. This behavior is not good for performance.
+
+So, when would the wake_up_all function be used? It is used in scenarios when
+processes want to take a shared lock on something. For example, processes
+waiting to read data on a page could all be woken up at the same moment.
+
+
+
+
+
+SITUATION: Time-Bound Sleep
+
+You frequently may want to delay the execution of your process for a given
+amount of time. It may be required to allow the hardware to catch up or to carry
+out an activity after specified time intervals, such as polling a device,
+flushing data to disk or retransmitting a network request. This can be achieved
+by the function schedule_timeout(timeout), a variant of schedule(). This
+function puts the process to sleep until timeout jiffies have elapsed. jiffies
+is a kernel variable that is incremented for every timer interrupt.
+
+As with schedule(), the state of the process has to be changed to
+TASK_INTERRUPTIBLE/TASK_UNINTERRUPTIBLE before calling this function. If the
+process is woken up earlier than timeout jiffies have elapsed, the number of
+jiffies left is returned; otherwise, zero is returned.
+
+    1415  set_current_state(TASK_INTERRUPTIBLE);
+    1416  for (;;) {
+    1417     schedule_timeout(APM_CHECK_TIMEOUT);
+    1418     if (exit_kapmd)
+    1419         break;
+    1421      * Ok, check all events, check for idle
+    ....      * (and mark us sleeping so as not to
+    ....      * count towards the load average)..
+    1423      */
+    1424      set_current_state(TASK_INTERRUPTIBLE);
+    1425      apm_event_handler();
+    1426  }
+
+You also may use a more convenient API, with which you can specify time in
+milliseconds and seconds:
+
+    msleep(time_in_msec);
+or
+    msleep_interruptible(time_in_msec);
+or
+    ssleep(time_in_sec);
+
+
+
+
+
+SITUATION: wait on threads complete?
+
+in case of microbenchmarking on a task worked on by several threads, etc.
+
+
+
+1.) use semaphores
+
+    struct semaphore sem;
+
+    int func(void *arg) {
+        struct semaphore *sem = (struct semaphore*)arg; // you could use global
+                                                        // instead
+
+        // do something
+
+        up(sem);
+        return 0;
+    }
+
+    int init_module(void) {
+        // some initialization
+        init_MUTEX_LOCKED(&sem);
+        kthread_run(&func, (void*) &sem, "Creating thread");
+        down(&sem); // this will block until thread runs up()
+    }
+
+
+
+2.) use completions
+
+    DECLARE_COMPLETION(comp);
+    struct my_data {
+        int id;
+        struct completion *comp;
+    };
+
+    int func(void *arg) {
+        struct my_data *data = (struct my_data*)arg;
+        // doing something
+
+        if (data->id == 3)
+            complete(data->comp);
+
+        return 0;
+    }
+
+    int init_module(void) {
+        struct my_data *data[] = kmalloc(sizeof(struct my_data)*N, GFP_KERNEL);
+
+        // some initialization
+        for (int i=0; i<N; i++) {
+            data[i]->comp = &comp;
+            data[i]->id = i;
+            kthread_run(func, (void*) data[i], "my_thread%d", i);
+        }
+        wait_for_completion(&comp); // this will block until some thread runs complete()
+    }
+
+

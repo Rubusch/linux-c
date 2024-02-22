@@ -1,0 +1,143 @@
+dyndebug
+
+
+
+mount debugfs
+# mount -t debugfs nodev /sys/kernel/debug
+
+check settings
+# tail -n 50 /sys/kernel/debug/dynamic_debug/control
+
+
+
+enable messages
+
+enable all messages in file spi.c
+# echo -n "file spi.c +pmfl" > /sys/kernel/debug/dynamic_debug/control
+
+identify the needed files
+# grep -i "spi\|mmc" /sys/kernel/debug/dynamic_debug/control | awk -F : '{ print $1 }' | uniq
+
+
+
+ATTENTION: for older kernel versions, the following might not work! See script below.
+
+
+
+enable all mmc related drivers
+# echo "file drivers/mmc/* +p" > /sys/kernel/debug/dynamic_debug/control
+
+enable all spi related drivers, print all printf (+p), print module name (m),
+function name (f) and line number (l)
+# echo 'file drivers/spi/* +pmfl' > /sys/kernel/debug/dynamic_debug/control
+
+enable all related to module mmc_spi
+# echo 'module mmc_spi +p' > /sys/kernel/debug/dynamic_debug/control
+
+
+
+
+check
+
+when executing the "echo" watch out for messages for "matches", such as
+dynamic_debug:ddebug_exec_queries: processed 1 queries, with 3 matches, 0 errs
+
+check file /sys/kernel/debug/dynamic_debug/control for the specific messages
+# grep "spi\|mmc" /sys/kernel/debug/dynamic_debug/control
+
+
+set loglevel
+# echo 8 > /proc/sys/kernel/printk
+
+
+
+debug
+
+perform action, e.g. reload the driver module
+# modprobe mmc_spi
+
+log output
+# dmesg -k -s 128000 > ./`date +%Y%m%d%H%M%S`__dmesg.log
+
+
+alternatively, configure dmesg, get info about specific busybox dmesg
+# dmesg --info
+
+all messages from the kernel, with extended buffer size
+# dmesg -k -s 128000
+
+messages of facility: kernel, level: debug
+# dmesg -f kern -l debug
+
+alternatively, find logs in
+/var/log/messages
+/proc/kmsg
+or run
+# dmesg
+
+
+
+
+
+SCRIPT
+
+#!/bin/sh -e
+
+die()
+{
+    echo $@
+    exit 1
+}
+
+usage()
+{
+cat << EOF
+usage $0 <pattern> <+/-> <m|p|f|l>
+        <pattern>       the pattern - no REGEX!!, e.g. 'mmc' or 'spi', not 'mmc\|spi'
+        <+/->           enable / disable
+        <p|m|f|l>       print information about
+                p       print message
+                m       module name
+                f       function name
+                l       linenumber
+        EOF
+}
+
+## MAIN
+##
+if [ $# -ne 3 ]; then usage; die; fi
+PATTERN=$1
+
+ENABLE=$2
+if [ "${ENABLE}" != "+" ] && [ "${ENABLE}" != "-" ]; then usage; die; fi
+
+OPTS=$3
+if [ -z "`echo ${OPTS} | grep "p\|m\|f\|l"`" ]; then usage; die; fi
+
+if [ ! -f /sys/kernel/debug/dynamic_debug/control ]; then
+    mount -t debugfs nodev /sys/kernel/debug
+fi
+FILES=`grep -i "${PATTERN}" /sys/kernel/debug/dynamic_debug/control | awk -F : '{ print $1 }' | uniq`
+
+for item in ${FILES}; do
+    echo "\t$item"
+done
+echo
+
+echo -e "command:\n\techo \'file ${item} ${ENABLE}${OPTS}\' > /sys/kernel/debug/dynamic_debug/control"
+
+echo -n "proceede (y|n)? "
+read ans
+ans=`echo "${ans}" | sed -e 's/[A-Z]/[a-z]/g'`
+if [ $ans != "y" ]; then die; fi
+echo
+
+## set dyndebug flags
+for item in ${FILES}; do
+    set -x
+    echo "file ${item} ${ENABLE}${OPTS}" > /sys/kernel/debug/dynamic_debug/control
+    set +x
+    echo
+done
+
+echo "READY."

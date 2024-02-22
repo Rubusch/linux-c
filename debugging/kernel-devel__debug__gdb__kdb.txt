@@ -1,0 +1,525 @@
+kdb
+
+DB is not a source debugger!
+
+The kernel has two different debugger front ends (kdb and kgdb) which
+interface to the debug core. It is possible to use either of the
+debugger front ends and dynamically transition between them if you
+configure the kernel properly at compile and runtime.
+
+Kdb is simplistic shell-style interface which you can use on a system
+console with a keyboard or serial console. You can use it to inspect
+memory, registers, process lists, dmesg, and even set breakpoints to
+stop in a certain location.  Kdb is not a source level debugger,
+although you can set breakpoints and execute some basic kernel run
+control. Kdb is mainly aimed at doing some analysis to aid in
+development or diagnosing kernel problems. You can access some symbols
+by name in kernel built-ins or in kernel modules if the code was built
+with CONFIG_KALLSYMS.
+
+    +------------+
+    | TARGET PC  |
+    | +--------+ |
+    | | KERNEL | |
+    | |        | |
+    | +---||---+ |
+    |     ||     |
+    |    kdb     |
+    +------------+
+
+
+
+
+REFERENCES
+
+https://www.adityabasu.me/blog/2020/03/kgdboc-setup/
+https://docs.windriver.com/bundle/Wind_River_Linux_Users_Guide_6.0_1/page/1565586.html
+http://manpages.org/kdb/8
+https://kgdb.wiki.kernel.org/index.php/Main_Page
+https://www.kernel.org/doc/html/latest/dev-tools/kgdb.html
+
+
+
+
+
+CONFIGURATION
+
+# These options need to enabled in .config
+    CONFIG_KGDB=y
+    CONFIG_KGDB_SERIAL_CONSOLE=y
+
+optional
+(legacy)  CONFIG_FRAME_POINTER=y
+    CONFIG_KGDB_KDB=y
+    CONFIG_KDB_KEYBOARD=y
+    CONFIG_MAGIC_SYSRQ=y
+
+    CONFIG_KDB_CONTINUE_CATASTROPHIC=1 [default: 0]
+
+NB: share a serial console with kgdb. Sysrq-g must be used to break in
+    initially!!!
+
+NB: FRAME_POINTER can be selected also by FRAM_POINTER_UNWINDER
+
+
+(legacy) To disable RO protection on older kernels (ex. v3.2)
+    CONFIG_DEBUG_RODATA=n
+
+(legacy) To disable RO protection on newer kernels (ex. v5.6.0)
+    CONFIG_STRICT_KERNEL_RWX=n
+
+
+In theory you would have already also selected an I/O driver such as
+the CONFIG_KGDB_SERIAL_CONSOLE interface if you plan on using kdb on a
+serial port, when you were configuring kgdb.
+
+
+
+
+
+USAGE
+
+!!! there's (still) _no_ KDB/KGDB over JTAG !!!
+
+- install cross toolchain
+- install gdb-multiarch or cross-gdb on host PC
+- configure kernel to support KGDB and/or KDB
+- build the kernel and deploy it
+
+- target: stop at u-boot - figure out how to set the command
+  (bootargs, optargs) in u-boot env (in case edit uEnv.txt on
+  partition)
+  -> figure out console settings
+
+bootargs
+
+either in the u-boot hush shell (stopped with space)
+    "console=ttyS0,115200 kgdboc=ttyS0,115200 nokaslr"
+
+or in yocto (petalinux / xilinx), edit config file to have boot args generated
+into the binary boot.scr sript
+$ diff -purN ./project-spec/configs/config.orig ./project-spec/configs/config
+    --- ./project-spec/configs/config.orig	2022-07-15 18:54:33.298429008 +0200
+    +++ ./project-spec/configs/config	2022-07-15 18:56:15.213336833 +0200
+    @@ -305,4 +305,4 @@ CONFIG_YOCTO_NETWORK_SSTATE_FEEDS_URL="h
+     # User Layers
+     #
+     CONFIG_USER_LAYER_0=""
+    -CONFIG_SUBSYSTEM_BOOTARGS_GENERATED=" earlycon console=ttyPS0,115200 clk_ignore_unused root=/dev/ram0 rw"
+    +CONFIG_SUBSYSTEM_BOOTARGS_GENERATED=" earlycon console=ttyPS0,115200  kgdboc=ttyPS0,115200 nokaslr clk_ignore_unused root=/dev/ram0 rw"
+
+NB: verify, that bootargs are REALLY taken, logged in initial dmesg output!!!!!
+
+alternatively, configure kgdboc after the kernel has booted, assuming
+you are using a serial port console:
+# echo ttyS0 > /sys/module/kgdboc/parameters/kgdboc
+
+
+
+
+
+VIA KEYBOARD AT THE TARGET PC
+
+!!!  NB: the name of the tool is "kdb" - Kernel DeBugger !!!
+!!!    the name of the option is "kbd" - KeyBoarD !!!
+
+# vi /etc/default/grub
+    (...)
+    GRUB_CMDLINE_LINUX_DEFAULT="(...) console=tty0 nokaslr kgdboc=kbd,ttyS0,115200"
+    (...)
+
+# update-grub
+    Generating grub.cfg ...
+    Found linux image: /boot/vmlinuz-3.2.0-pfwall-fedora-patches+
+    Found initrd image: /boot/initrd.img-3.2.0-pfwall-fedora-patches+
+    Found linux image: /boot/vmlinuz-3.2.0-126-virtual
+    Found initrd image: /boot/initrd.img-3.2.0-126-virtual
+    Found memtest86+ image: /boot/memtest86+.bin
+    done
+
+# reboot
+
+Verify serial port
+# dmesg | grep serial
+    [    2.149591] serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+
+Verify kernel debugging support
+# dmesg | grep kgdboc
+    [    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz-3.2.0-pfwall-fedora-patches+ root=UUID=7d69eb56-ea8c-4243-8e7d-e2714fced818 ro console=tty0 kgdboc=kbd,ttyS0,115200
+    [    0.000000] Kernel command line: BOOT_IMAGE=/boot/vmlinuz-3.2.0-pfwall-fedora-patches+ root=UUID=7d69eb56-ea8c-4243-8e7d-e2714fced818 ro console=tty0 kgdboc=kbd,ttyS0,115200
+    [    3.458898] kgdb: Registered I/O driver kgdboc.
+
+To dynamically change the kgdboc parameters, use
+# echo ttyS0,115200 > /sys/module/kgdboc/parameters/kgdboc
+
+configure after boot time
+# echo kbd > /sys/module/kgdboc/parameters/kgdboc
+
+alternatively, for kernel built-in append to the linux boot parameters
+    kgdboc=kbd
+
+
+trigger
+
+trigger in source (don't forget the boot command)
+    ...
+    panic("XXX);
+    ...
+
+
+trigger interactively
+# echo g > /proc/sysrq-trigger
+kdb>
+
+trigger interactively - using a PS/2 101-key keyboard
+  - Press and hold down: Alt
+  - Press and release the key with the label: SysRq
+  - Press and release: g
+  - Release: Alt
+
+
+
+
+VIA SERIAL CONNECTION (also on local host!!!)
+
+set the following linux boot parameters
+    kgdboc=<tty-device>,[baud]
+e.g.
+    kgdboc=ttyS0,115200
+
+or load it as loadable module
+# modprobe kgdboc kgdboc=<tty-device>,[baud]
+
+
+enable kgdboc via sysfs
+# echo ttyS0 > /sys/module/kgdboc/parameters/kgdboc
+
+trigger as above...
+
+EXAMPLE: manually loading kernel + dtb from mmc
+
+in case load manually, something like
+U-Boot > setenv kernelargs "snd-usb-audio.index=-2 kgdboc=ttymxc0,115200n8 kgdbwait"
+U-Boot > mmc rescan
+U-Boot > ext2ls mmc 1:1 /
+U-Boot > ext2load mmc 1:1 ${loadaddr} /uImage
+U-Boot > ext2load mmc 1:1 ${fdt_addr} /imx6q-lepd3-port1-2d.dtb
+U-Boot > run mmcargs
+U-Boot > bootm ${loadaddr} - ${fdt_addr}
+
+alternatively use fatls & fatload when loading e.g. from FAT sd card
+
+
+
+
+
+
+VIA NETWORK
+
+Use a connection multiplexer
+
+    agent-proxy [CONSOLE_PORT]^[DEBUG_PORTIP_ADDRPORT] [device]
+
+get and build the agent-proxy on the target:
+$ git clone git://git.kernel.org/pub/scm/utils/kernel/kgdb/agent-proxy.git
+$ cd agent-proxy
+$ make
+
+On the debug target
+# cd <path to the agent-proxy sources>
+# agent-proxy 2223^2222 192.168.50.93 /dev/ttyUSB0,115200
+
+NB: If your hardware does not support the line break sequence or agent-proxy is
+connected to your target as a debug splitter, you will have to start the
+agent-proxy with the "-s003" option. If your target continues to run after
+sending a break command, you most likely need to use this option.
+# agent-proxy 2223^2222 192.168.50.93 /dev/ttyUSB0,115200 -s003
+
+# echo ttyS0 > /sys/module/kgdboc/parameters/kgdboc
+
+provoke problem, or sysreq-g
+
+On the debugger machine
+$ telnet 192.168.50.93 2223
+
+or
+# cd <linux sources of built kernel>
+# gdb ./vmlinux
+(gdb) target remote 192.168.50.93:2222
+(gdb) gdb add-symbol-file tmp-glibc/work/bspName-wrs-linux/linux-yocto/4.12.26+version-r0/linux-bspName-standard-build/vmlinux offset
+
+
+
+
+
+VIA NETWORK (KGDBOE)
+
+alterantive: kgdboe (KGDB over ethernet)
+
+kgdboe is not always reliablekgdboe in the current form WILL NOT BE MAINLINEDLinux IRQs can get preempted and hold locks making it unsafe or impossible for the polled ethernet driver to runSome ethernet drivers are so complex with separate kernel thread that the polled mode ethernet can hang due to locking or unsafe HW resource accessIf you really want to attempt use kgdboe successfully, use a dedicated interface if you have one and do not use kernel soft or hard IRQ preemption.
+# modprobe kgdboe
+
+
+
+
+
+MISCELLANEOUS
+
+disable kgdboc
+# echo "" > /sys/module/kgdboc/parameters/kgdboc
+
+
+NB: Kgdboc does not support interrupting the target via the gdb remote protocol.
+    You must manually send a SysRq-G unless you have a proxy that splits console
+    output to a terminal program.
+# echo g > /proc/sysrq-trigger
+
+
+NB: After issuing maintenance packet 3 in gdb shell, you would have switched to the kbd shell. Now you can connect to the serial port (pty) directly using screen.
+host$ screen /tmp/vm-serial-pty
+[1]kdb> ps
+    (...)
+
+
+
+
+
+COMMANDS IN KDB
+
+    Command         Description
+    ----------------------------------------------------------------------------
+    bc              Clear Breakpoint
+    bd              Disable Breakpoint
+    be              Enable Breakpoint
+    bl              Display breakpoints
+    bp              Set or Display breakpoint
+    bph             Set or Display hardware breakpoint
+    bpa             Set or Display breakpoint globally
+    bpha            Set or Display hardware breakpoint globally
+    bt              Stack backtrace for current process
+    btp             Stack backtrace for specific process
+    bta             Stack backtrace for all processes
+    btc             Cycle over all live cpus and backtrace each one
+    cpu             Display or switch cpus
+    dmesg           Display system messages
+    defcmd          Define a command as a set of other commands
+    ef              Print exception frame
+    env             Show environment
+    go              Restart execution
+    handlers        Control the display of IA64 MCA/INIT handlers
+    help            Display help message
+    id              Disassemble Instructions
+    kill            Send a signal to a process
+    ll              Follow Linked Lists
+    lsmod           List loaded modules
+    md              Display memory contents
+    mdWcN           Display memory contents with width W and count N.
+    mdp             Display memory based on a physical address
+    mdr             Display raw memory contents
+    mds             Display memory contents symbolically
+    mm              Modify memory contents, words
+    mmW             Modify memory contents, bytes
+    per_cpu         Display per_cpu variables
+    pid             Change the default process context
+    ps              Display process status
+    reboot          Reboot the machine
+    rd              Display register contents
+    rm              Modify register contents
+    rq              Display runqueue for one cpu
+    rqa             Display runqueue for all cpus
+    set             Add/change environment variable
+    sr              Invoke SysReq commands
+    ss              Single step a cpu
+    ssb             Single step a cpu until a branch instruction
+    stackdepth      Print the stack depth for selected processes
+    summary         Summarize the system
+
+
+
+
+
+SESSION DEMO
+
+NB: some commands have long output, i.e. needs <SPACE> to display all
+
+-> lsmod
+    <show loaded modules>
+
+-> ps
+    <show active processes>
+
+-> ps A
+    <show all processes>
+
+-> summary
+    <kernel version, memory usage, time>
+
+-> bt
+    <backtrace, current process using dump_stack()>
+
+-> dmesg
+    <kernel syslog buffer>
+
+-> go
+    <CONTINUE in the SYSTEM>
+
+
+
+
+SWITCHING FROM KGDB TO KDB
+
+There are two ways to switch from kgdb to kdb: you can use gdb to issue a
+maintenance packet, or you can blindly type the command $3#33. Whenever the
+kernel debugger stops in kgdb mode it will print the message KGDB or "$3#33" for
+KDB. It is important to note that you have to type the sequence correctly in one
+pass. You cannot type a backspace or delete because kgdb will interpret that as
+part of the debug stream.
+
+Change from kgdb to kdb by blindly typing:
+(gdb) $3#33
+
+Change from kgdb to kdb with gdb:
+(gdb) maintenance packet 3
+
+NB: Now you must kill gdb. Typically you press CTRL-Z and issue the command:
+# kill -9 %
+
+
+
+
+
+SWITCHING FROM KDB TO KGDB
+
+From kdb issue the command:
+# kgdb
+
+start debugger on pc
+$ gdb-multiarch -tui ./vmlinux
+(gdb) target remote /dev/ttyUSB0
+
+
+At the kdb prompt, disconnect the terminal program and connect gdb in its place.
+
+
+
+
+EXAMPLE: beagle bone black
+
+on host PC
+$ sudo apt-get install -y gcc-arm-linux-gnueabi
+$ cd /opt
+$ git clone git://github.com/beagleboard/linux.git github__ext__beaglebone-linux
+$ cd github__ext__beaglebone-linux
+$ git co 5.10.65-ti-r27 -b lothar/5.10.65-ti-r27
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- bb.org_defconfig
+
+config
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- menuconfig
+    CONFIG_KGDB=y
+    CONFIG_KGDB_SERIAL_CONSOLE=y
+$ make savedefconfig
+
+build
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- LOADADDR=0x80000000 uImage dtbs
+$ make -j$(nproc) ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- LOADADDR=0x80000000 uImage vmlinux dtbs
+
+build modules
+$ make -j$(nproc) ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- modules
+
+attach sdcard in reader
+$ lsblk
+  -> /dev/sda1
+  -> /dev/sda2
+
+$ udisksctl mount -b /dev/sda1
+Mounted /dev/sda1 at /media/lothar/26C0-24AA
+
+$ udisksctl mount -b /dev/sda2
+Mounted /dev/sda2 at /media/lothar/rootfs
+
+deployment - simply overwrite the existing on mounted partitions (sd card)
+$ cp ./arch/arm/boot/zImage /media/lothar/26C0-24AA/zImage
+
+deployment - modules (NB: using a regular BBB image, first adjust partition size with gparted)
+$ sudo make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=/media/lothar/rootfs modules_install
+
+
+
+edit the u-boot env
+
+    kdgb=ttyS0,115200n8 kgdboc=ttyS0,115200n8 kgdbwait nokaslr
+e.g.
+(here for kdb and kgdboc, additional for boot time debugging: kgdbwait)
+$ diff -purN /media/lothar/26C0-24AA/uEnv.txt{.orig,}
+    --- /media/lothar/26C0-24AA/uEnv.txt.orig       2021-11-04 10:52:24.000000000 +0100
+    +++ /media/lothar/26C0-24AA/uEnv.txt    2021-11-04 10:53:30.000000000 +0100
+    @@ -7,5 +7,5 @@ console=ttyS0,115200n8
+     loadaddr=0x82000000
+     fdtaddr=0x88000000
+     set_mmc1=if test $board_name = A33515BB; then setenv bootpartition mmcblk1p2; fi
+    -set_bootargs=setenv bootargs console=${console} root=/dev/${bootpartition} rw rootfstype=ext4 rootwait
+    +set_bootargs=setenv bootargs console=${console} kdgb=ttyS0,115200n8 kgdboc=ttyS0,115200n8 kgdbwait nokaslr root=/dev/${bootpartition} rw rootfstype=ext4 rootwait
+     uenvcmd=run set_mmc1; run set_bootargs;run loadimage;run loadfdt;printenv bootargs;bootz ${loadaddr} - ${fdtaddr}
+
+
+in case turn off all security mitigations
+    noibrs noibpb nopti nospectre_v2 nospectre_v1 l1tf=off nospec_store_bypass_disable no_stf_barrier mds=off tsx=on tsx_async_abort=off mitigations=off
+
+see: https://make-linux-fast-again.com/
+
+
+
+unmount and plug sdcard into target
+
+target: u-boot (stop in u-boot env, and adjust as follows)
+U-Boot > set mmcdev 1
+U-Boot > set fdtdir /
+U-boot > boot
+
+
+[will crash since the u-boot env is not fully configured, rootfs will
+be not available or the initrd is not correct, since taken from emmc
+instead of sdcar or whatever...]
+
+after the crash automatically kdb shell opens up
+    ...
+    [    3.896579] printk: console [ttyS0] enabled
+    [    3.903629] KGDB: Registered I/O driver kgdboc
+    [    3.908233] KGDB: Waiting for connection from remote gdb...
+
+    Entering kdb (current=0xc20d5f00, pid 1) on processor 0 due to Keyboard Entry
+    [0]kdb>
+
+
+kgdb
+
+- alternatively also kgdb over console is available, shutdown the serial
+connection to the target
+
+- cd into the folder where the sources were built, and a "vmlinux"
+  file was built, too!
+
+start debugger
+$ gdb-multiarch -tui ./vmlinux
+(gdb) target remote /dev/ttyUSB0
+
+
+
+
+
+ISSUES
+
+issue: system (ubuntu 20.04) does not hangs/freezes on
+# echo g > /proc/sysreq-trigger
+fix: ???
+
+
+issue: system (ubuntu 20.04) hangs/freezes on
+# echo g > /proc/sysreq-trigger
+fix: open gdb with serial connection to target, enter
+(gdb) target remote /dev/ttyUSB0
+-> make sure to use the correct tty
+-> make sure that nothing else is connected to the target via tty
+-> in case use eth connection to target instead
+-> make sure to use the correct gdb (e.g. gdb-multiarch for ARM targets!)
+

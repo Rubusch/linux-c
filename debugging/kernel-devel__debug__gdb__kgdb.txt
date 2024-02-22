@@ -1,0 +1,169 @@
+kgdb
+
+The kernel has two different debugger front ends (kdb and kgdb) which
+interface to the debug core. It is possible to use either of the
+debugger front ends and dynamically transition between them if you
+configure the kernel properly at compile and runtime.
+
+Kgdb is intended to be used as a source level debugger for the Linux
+kernel. It is used along with gdb to debug a Linux kernel. The
+expectation is that gdb can be used to "break in" to the kernel to
+inspect memory, variables and look through call stack information
+similar to the way an application developer would use gdb to debug an
+application. It is possible to place breakpoints in kernel code and
+perform some limited execution stepping.
+
+Two machines are required for using kgdb. One of these machines is a
+development machine and the other is the target machine. The kernel to
+be debugged runs on the target machine. The development machine runs
+an instance of gdb against the vmlinux file which contains the symbols
+(not a boot image such as bzImage, zImage, uImage...). In gdb the
+developer specifies the connection parameters and connects to
+kgdb. The type of connection a developer makes with gdb depends on the
+availability of kgdb I/O modules compiled as built-ins or loadable
+kernel modules in the test machine’s kernel.
+
+    +------------+        +---------------------------+
+    | TARGET PC  ====eth===          GDB PC           |
+    |            |        |                           |
+    | +--------+ |        | $ gdb-multiarch ./vmlinux |
+    | | KERNEL | |        +------------||-------------+
+    | |  kgdb  | |                     ||
+    | +---||---+ |                     ||
+    +-----||-----+                     ||
+          ||                           ||
+          ++=======SERIAL==============++
+
+    starts with (take tty from "console" setting):
+    ...console=ttyS0,115200n8 kdgb=ttyS0,115200n8 kgdboc=ttyS0,115200n8 kgdbwait nokaslr...
+
+
+
+
+
+REFERENCES
+
+https://www.adityabasu.me/blog/2020/03/kgdboc-setup/
+https://docs.windriver.com/bundle/Wind_River_Linux_Users_Guide_6.0_1/page/1565586.html
+https://kgdb.wiki.kernel.org/index.php/Main_Page
+https://www.kernel.org/doc/html/latest/dev-tools/kgdb.html
+
+
+
+
+CONFIGURATION
+
+# CONFIG_STRICT_KERNEL_RWX is not set
+CONFIG_FRAME_POINTER=y
+CONFIG_KGDB=y
+CONFIG_KGDB_SERIAL_CONSOLE=y
+
+
+
+
+
+USAGE
+
+on the target append boot parameter
+    kgdboc=ttyS0,115200
+OR
+Configure kgdboc after the kernel has booted:
+# echo ttyS0 > /sys/module/kgdboc/parameters/kgdboc
+# agent-proxy 2223^2222 192.168.50.93 /dev/ttyUSB0,115200
+
+NB: in case of linefeed issues, try
+# agent-proxy 2223^2222 192.168.50.93 /dev/ttyUSB0,115200 -s003
+
+
+
+on the debugging machine
+# cd <linux sources>
+# gdb ./vmlinux
+(gdb) target remote 192.168.50.93:2222
+
+alternatively, run kdb
+# telnet 192.168.50.93 2223
+
+
+
+
+
+EXAMPLE
+
+bbb - rebuilding the kernel
+https://www.itdev.co.uk/blog/building-linux-kernel-cross-compiling-beaglebone-black
+
+on host
+$ sudo apt-get install -y gcc-arm-linux-gnueabi
+$ cd /opt
+$ git clone git://github.com/beagleboard/linux.git github__ext__beaglebone-linux
+$ cd github__ext__beaglebone-linux
+$ git co 5.10.65-ti-r27 -b lothar/5.10.65-ti-r27
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- bb.org_defconfig
+
+config
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- menuconfig
+$ make savedefconfig
+
+
+build
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- LOADADDR=0x80000000 uImage dtbs
+$ make -j$(nproc) ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- LOADADDR=0x80000000 uImage vmlinux dtbs
+
+build modules
+$ make -j$(nproc) ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- modules
+
+$ lsblk
+  -> /dev/sda1
+  -> /dev/sda2
+
+$ udisksctl mount -b /dev/sda1
+Mounted /dev/sda1 at /media/lothar/26C0-24AA
+
+$ udisksctl mount -b /dev/sda2
+Mounted /dev/sda2 at /media/lothar/rootfs
+
+deployment - simply overwrite the existing on mounted partitions (sd card)
+$ cp arch/arm/boot/zImage /mnt/rootfs/boot/vmlinuz-4.14.67-ti-r73
+e.g.
+$ cp ./arch/arm/boot/zImage /media/lothar/26C0-24AA/zImage
+
+deployment - modules (NB: using a regular BBB image, first adjust partition size with gparted)
+$ sudo make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=/mnt/rootfs modules_install
+e.g.
+$ sudo make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=/media/lothar/rootfs modules_install
+
+edit also a uEnv.txt -> set_bootargs directly, since "console" is already set...
+-> "kdgb=ttyS0,115200n8 kgdboc=ttyS0,115200n8 kgdbwait nokaslr"
+
+demo: u-boot (stop in u-boot env, and adjust as follows)
+-> set mmcdev 1
+-> set fdtdir /
+
+demo: boot
+when kernel hangs (probably wrong rootfs medium, etc) it will start
+automatically kdb shell, then
+$ arm-linux-gnueabi-gdb ./vmlinux
+(gdb) target remote /dev/ttyUSB0
+
+
+
+
+
+ISSUES
+
+issue: connection established but system not responsive
+fix: make sure
+- to use a cross gdb or gdb-multiarch (debian)
+- to execute the gdb from of the sources where the kernel was build with
+    artifacts still there (vmlinuz)
+- make sure the correct kernel parameters were actually taken
+  (check right after u-boot the kernel command line is shown)
+
+
+issue: system (ubuntu 20.04) hangs when starting to debug (sysrq-g)
+fix: now is time to connect remotely the gdb, use on host PC:
+$ arm-linux-gnueabi-gdb ./vmlinux
+(gdb) target remote /dev/ttyUSB0
+
+

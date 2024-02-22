@@ -1,0 +1,135 @@
+PREEMPTION
+
+
+REFERENCES
+
+https://www.geeksforgeeks.org/difference-between-preemptive-and-cooperative-multitasking/
+
+
+
+
+
+THEORY
+
+Preemptive vs Cooperative Multitasking
+
+Preemptive multitasking: The operating system can initiate a context
+switching from the running process to another process. In other words,
+the operating system allows stopping the execution of the currently
+running process and allocating the CPU to some other process. The OS
+uses some criteria to decide for how long a process should execute
+before allowing another process to use the operating system. The
+mechanism of taking control of the operating system from one process
+and giving it to another process is called preempting or preemption.
+
+Cooperative multitasking: The operating system never initiates context
+switching from the running process to another process. A context
+switch occurs only when the processes voluntarily yield control
+periodically or when idle or logically blocked to allow multiple
+applications to execute simultaneously. Also, in this multitasking,
+all the processes cooperate for the scheduling scheme to work.
+
+Preemptive Multitasking                 | Cooperative Multitasking
+----------------------------------------+---------------------------------------
+Preemptive multitasking is a task used  | Cooperative multitasking is a type of
+by the OS to decide for how long a task | computer multitasking in which the
+should be executed before allowing      | operating system never initiates a
+another task to use the OS.             | context switch from a running process
+                                        | to another process.
+                                        |
+It interrupts applications and gives    | In cooperative multitasking, process
+control to other processes outside the  | scheduler never interrupts a process
+application’s control.                  | unexpectedly.
+                                        |
+The operating system can initiate       | The operating system does not
+context switch from a running process   | initiate a context switch from a
+to another process.                     | running process to another process.
+                                        |
+A malicious program initiates an        | A malicious program can bring the
+infinite loop, it only hurts itself     | entire system to a halt by busy
+without affecting other programs or     | waiting or running an infinite loop
+threads.                                | and not giving up control.
+                                        |
+Preemptive multitasking forces          | In cooperative multitasking, all
+applications to share the CPU whether   | programs must cooperate for it to
+they want to or not.                    | work. If one program does not
+                                        | cooperate, it can hog the CPU.
+                                        |
+UNIX, Windows 95, Windows NT operating  | Macintosh OS version 8.0-9.2.2 and
+systems are examples of preemptive      | Windows 3.x operating systems are
+multitasking.                           | examples of cooperative multitasking.
+                                        |
+
+
+
+
+
+LINUX KERNEL
+
+The Linux kernel is preemptive, meaning that a task can be stopped at
+(almost) any moment to give the CPU to a higher-priority task. Tasks
+may be also moved to a different CPU at almost any time. Some code
+sections, usually those dealing with per-CPU data, need to ensure that
+they run continuously on the same CPU without interference from other
+tasks. This code may not need a global lock; since it only needs to
+modify per-CPU data, there should be no possibility of concurrent
+access from elsewhere.
+
+
+preempt_disable() / preemt_enable()
+    Such code can simply disable preemption with preempt_disable(),
+    restoring it with preempt_enable()
+
+
+get_cpu() / put_cpu()
+    If the goal is to use per-CPU data, additional helper functions
+    exist; get_cpu() disables preemption and returns the current CPU
+    ID, and put_cpu() enables preemption
+
+
+local_irq_disable() / local_irq_enable()
+    Interrupts may be delivered to the CPU while a task is executing;
+    that too may cause unexpected concurrent access to per-CPU
+    data. To prevent this problem, the developer can disable interrupt
+    delivery with local_irq_disable() and then enable it with
+    local_irq_enable()
+
+
+local_irq_save() / local_irq_restore()
+    If the code is running in a context where the interrupts might be
+    already disabled, they should use local_irq_save() and
+    local_irq_restore(); this variant saves and restores the previous
+    status in addition to disabling or enabling the interrupts. It is
+    worth noting that disabling interrupts also disables
+    preemption. While interrupts are disabled, the code is running in
+    atomic context and the developers need to be careful to avoid,
+    among other things, any operations that may sleep or call into the
+    scheduler
+
+
+
+Local lock operations map into the preemption and interrupt disabling
+in the following way:
+
+     local_lock(&llock)             preempt_disable()
+     local_unlock(&llock)           preempt_enable()
+     local_lock_irq(&llock)         local_irq_disable()
+     local_unlock_irq(&llock)       local_irq_enable()
+     local_lock_save(&llock)        local_irq_save()
+     local_unlock_restore(&llock)   local_irq_restore()
+
+NB: also certain subsystems disable preemption, e.g. fpu - a
+"kernel_fpu_end()" ends disabled preemption
+
+example
+    /*
+     * Use kernel_fpu_begin/end() if you intend to use FPU in kernel context. It
+     * disables preemption so be careful if you intend to use it for long periods
+     * of time.
+     * If you intend to use the FPU in softirq you need to check first with
+     * irq_fpu_usable() if it is possible.
+     */
+    extern void kernel_fpu_begin(void); // calls preempt_disable()
+    extern void kernel_fpu_end(void);   // calls preempt_enable()
+    extern bool irq_fpu_usable(void);
+    extern void fpregs_mark_activate(void);

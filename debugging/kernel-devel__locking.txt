@@ -1,0 +1,128 @@
+locking
+
+RESOURCES
+
+https://www.kernel.org/doc/html/latest/kernel-hacking/locking.html
+https://www.kernel.org/doc/html/latest/locking/locktypes.html
+https://lwn.net/Articles/828477/
+
+
+
+
+LOCKTYPES
+
+- Sleeping locks
+- CPU local locks
+- Spinning locks
+
+
+
+SLEEPING LOCKS:
+
+- mutex
+- rt_mutex
+- semaphore
+- rw_semaphore
+- ww_mutex
+- percpu_rw_semaphore
+
+
+On PREEMPT_RT also SLEEPING LOCKS, else SPINNING LOCKS:
+
+- local_lock
+- spinlock_t
+- rwlock_t
+- local_lock
+
+
+SPINNING LOCKS:
+
+- raw_spinlock_t
+- bit spinlocks
+
+
+NB: local_locks - On non-PREEMPT_RT kernels, local_lock functions are
+wrappers around preemption and interrupt disabling primitives
+
+NB: Mutexes may spin if the mutex owner is running (and thus should
+release the mutex shortly). This is called "opportunistic spinning"
+
+
+
+
+Spinning locks implicitly disable preemption and the lock / unlock
+functions can have suffixes which apply further protections:
+
+    _bh() 	Disable / enable bottom halves (soft interrupts)
+    _irq() 	Disable / enable interrupts
+    _irqsave/restore() 	Save and disable / restore interrupt disabled state
+
+
+
+!!! Cheat Sheet For Locking !!!
+
+  - If you are in a process context (any syscall) and want to lock
+    other process out, use a mutex. You can take a mutex and sleep
+    i.e. copy_from_user*() or kmalloc(x,GFP_KERNEL)
+
+  - Otherwise i.e. data can be touched in an interrupt, use
+    spin_lock_irqsave() and spin_unlock_irqrestore()
+
+  - Avoid holding spinlock for more than 5 lines of code and across
+    any function call, except accessors like readb()
+
+Remember the advice above: you can always use spin_lock_irqsave(), which is a
+superset of all other spinlock primitives.
+
+
+
+TABLE OF MINIMUM LOCKING REQUIREMENTS
+(Linux Kernel)
+
+            | IRQ          | IRQ          | Softirq A    | Softirq B    | Tasklet A    | Tasklet B    | Timer A      | Timer B      | User         | User
+            | (Handler A)  | (Handler B)  |              |              |              |              |              |              | Context A    | Context B
+------------+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--------------
+IRQ         | None         |              |              |              |              |              |              |              |              |
+(Handler A) |              |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+IRQ         | spin_lock    | None         |              |              |              |              |              |              |              |
+(Handler B) |   _irqsave() |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+Softirq A   | spin_lock    | spin_lock    | spin_lock()  |              |              |              |              |              |              |
+            |       _irq() |       _irq() |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+Softirq B   | spin_lock    | spin_lock    | spin_lock()  | spin_lock()  |              |              |              |              |              |
+            |       _irq() |       _irq() |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+Tasklet A   | spin_lock    | spin_lock    | spin_lock()  | spin_lock()  | None         |              |              |              |              |
+            |       _irq() |       _irq() |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+Tasklet B   | spin_lock    | spin_lock    | spin_lock()  | spin_lock()  | spin_lock()  | None         |              |              |              |
+            |       _irq() |       _irq() |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+Timer A     | spin_lock    | spin_lock    | spin_lock()  | spin_lock()  | spin_lock()  | spin_lock()  | None         |              |              |
+            |       _irq() |       _irq() |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+Timer B     | spin_lock    | spin_lock    | spin_lock()  | spin_lock()  | spin_lock()  | spin_lock()  | spin_lock()  | None         |              |
+            |       _irq() |       _irq() |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+User        | spin_lock    | spin_lock    | spin_lock    | spin_lock    | spin_lock    | spin_lock    | spin_lock    | spin_lock    | None         |
+(Context A) |       _irq() |       _irq() |        _bh() |        _bh() |        _bh() |        _bh() |        _bh() |        _bh() |              |
+            |              |              |              |              |              |              |              |              |              |
+            |              |              |              |              |              |              |              |              |              |
+User        | spin_lock    | spin_lock    | spin_lock    | spin_lock    | spin_lock    | spin_lock    | spin_lock    | spin_lock    |mutex_lock_int| None
+(Context B) |       _irq() |       _irq() |        _bh() |        _bh() |        _bh() |        _bh() |        _bh() |        _bh() |  erruptible()|
+            |              |              |              |              |              |              |              |              |              |
+------------+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--------------
+            | IRQ          | IRQ          | Softirq A    | Softirq B    | Tasklet A    | Tasklet B    | Timer A      | Timer B      | User         | User
+            | (Handler A)  | (Handler B)  |              |              |              |              |              |              | Context A    | Context B
+
+

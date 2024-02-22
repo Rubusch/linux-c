@@ -1,0 +1,222 @@
+coccinelle
+
+Coccinelle is a program matching and transformation engine which
+provides the language SmPL (Semantic Patch Language) for specifying
+desired matches and transformations in C code
+
+
+
+REFERENCES
+
+https://www.kernel.org/doc/html/v5.11/dev-tools/coccinelle.html
+https://bottest.wiki.kernel.org/coccicheck
+
+(tutorial)
+https://who.paris.inria.fr/Julia.Lawall/tutorial.pdf
+
+(challenges)
+https://kernelnewbies.org/JuliaLawall
+
+
+
+
+INSTALLATION
+
+typically an old version
+$ sudo apt-get install coccinelle
+or
+get it from https://github.com/coccinelle/coccinelle
+
+
+
+
+
+CONFIGURATION
+
+modes - specified by setting MODE=<mode>
+
+ * "patch" proposes a fix, when possible
+
+ * "report" generates a list in the following "format:
+   file:line:column-column: message"
+
+ * "context" highlights lines of interest and their context in a
+   diff-like style. Lines of interest are indicated with -
+
+ * "org" generates a report in the Org mode format of Emacs
+
+ * "chain" tries the previous modes in the order above until one
+   succeeds
+
+ * "rep+ctxt" runs successively the report mode and the context
+   mode. It should be used with the C option (described later) which
+   checks the code on a file basis
+
+
+
+
+
+COCCICHECK
+
+the coccicheck target applies every semantic patch available in the
+sub-directories of scripts/coccinelle to the entire Linux kernel
+
+
+make a report for every semantic patch
+$ make coccicheck MODE=report
+
+produce patches
+$ make coccicheck MODE=patch
+
+NB: usage of flags
+ * V=1  increase verbosity
+ * J=4  run 4 parallel threads (on 4 CPUs)
+ * M=<path to folder>  provide a path
+ * if parmap is enabled coccicheck will enable dynamic load balancing
+   by using --chunksize 1
+
+NB: as with any static code analyzer, Coccinelle produces false
+positives
+
+by default the entire kernel source tree is checked, to apply
+Coccinelle to a specific directory, M= can be used
+$ make coccicheck M=drivers/net/wireless/
+
+use coccinell with a single semantic patch, i.e. .cocci file
+$ make coccicheck COCCI=<my_SP.cocci> MODE=patch
+or
+$ make coccicheck COCCI=<my_SP.cocci> MODE=report
+
+
+check specific path, e.g. drivers/bluetooth/bfusb.c
+
+apply C=1 to check files that 'make' takes for compilation
+$ make C=1 CHECK=scripts/coccicheck drivers/bluetooth/bfusb.o
+
+apply C=2 regardless wether 'make' takes them for compilation or not
+$ make C=2 CHECK=scripts/coccicheck drivers/bluetooth/bfusb.o
+
+
+
+
+
+DEBUG
+
+debug coccinelle SmPL patches, make stderr visible to output
+$ rm -f cocci.err
+$ make coccicheck COCCI=scripts/coccinelle/free/kfree.cocci MODE=report DEBUG_FILE=cocci.err
+$ cat cocci.err
+
+use SPFLAGS to add debugging flags
+$ rm -f err.log
+$ export COCCI=scripts/coccinelle/misc/irqf_oneshot.cocci
+$ make coccicheck DEBUG_FILE="err.log" MODE=report SPFLAGS="--profile --show-trying" M=./drivers/mfd
+
+
+show used options
+$ spatch --print-options-only
+    options: /usr/lib/coccinelle/spatch --timeout 200 --use-gitgrep --print-options-only
+
+or override using SPFLAGS
+$ make SPFLAGS=--use-glimpse coccicheck
+
+
+idutils (database)
+$ mkid -i C --output .id-utils.index
+$ make SPFLAGS=--use-idutils coccicheck
+or use alternative database
+$ make SPFLAGS="--use-idutils /full-path/to/ID" coccicheck
+
+
+
+
+EXAMPLES
+
+example - patch mode
+
+$ make coccicheck MODE=patch COCCI=scripts/coccinelle/api/err_cast.cocci
+
+generates SmPL patch
+    <smpl>
+    @ depends on !context && patch && !org && !report @
+    expression x;
+    @@
+
+    - ERR_PTR(PTR_ERR(x))
+    + ERR_CAST(x)
+    </smpl>
+
+the SmPL patch generates the following patch hung on stdout
+    diff -u -p a/crypto/ctr.c b/crypto/ctr.c
+    --- a/crypto/ctr.c 2010-05-26 10:49:38.000000000 +0200
+    +++ b/crypto/ctr.c 2010-06-03 23:44:49.000000000 +0200
+    @@ -185,7 +185,7 @@ static struct crypto_instance *crypto_ct
+        alg = crypto_attr_alg(tb[1], CRYPTO_ALG_TYPE_CIPHER,
+                                  CRYPTO_ALG_TYPE_MASK);
+        if (IS_ERR(alg))
+    -           return ERR_PTR(PTR_ERR(alg));
+    +           return ERR_CAST(alg);
+
+        /* Block size must be >= 4 bytes. */
+        err = -EINVAL;
+
+
+
+example - context mode
+
+$ make coccicheck MODE=context COCCI=scripts/coccinelle/api/err_cast.cocci
+
+generates SmPL patch
+    <smpl>
+    @ depends on context && !patch && !org && !report@
+    expression x;
+    @@
+
+    * ERR_PTR(PTR_ERR(x))
+    </smpl>
+
+
+the SmPL patch generates the following patch hung on stdout
+    diff -u -p /home/user/linux/crypto/ctr.c /tmp/nothing
+    --- /home/user/linux/crypto/ctr.c   2010-05-26 10:49:38.000000000 +0200
+    +++ /tmp/nothing
+    @@ -185,7 +185,6 @@ static struct crypto_instance *crypto_ct
+        alg = crypto_attr_alg(tb[1], CRYPTO_ALG_TYPE_CIPHER,
+                                  CRYPTO_ALG_TYPE_MASK);
+        if (IS_ERR(alg))
+    -           return ERR_PTR(PTR_ERR(alg));
+
+        /* Block size must be >= 4 bytes. */
+        err = -EINVAL;
+
+
+
+example - org mode
+
+$ make coccicheck MODE=org COCCI=scripts/coccinelle/api/err_cast.cocci
+
+generate SmPL patch
+    <smpl>
+    @r depends on !context && !patch && (org || report)@
+    expression x;
+    position p;
+    @@
+
+      ERR_PTR@p(PTR_ERR(x))
+
+    @script:python depends on org@
+    p << r.p;
+    x << r.x;
+    @@
+
+    msg="ERR_CAST can be used with %s" % (x)
+    msg_safe=msg.replace("[","@(").replace("]",")")
+    coccilib.org.print_todo(p[0], msg_safe)
+    </smpl>
+
+the SmPL generates the following output
+    * TODO [[view:/home/user/linux/crypto/ctr.c::face=ovl-face1::linb=188::colb=9::cole=16][ERR_CAST can be used with alg]]
+    * TODO [[view:/home/user/linux/crypto/authenc.c::face=ovl-face1::linb=619::colb=9::cole=16][ERR_CAST can be used with auth]]
+    * TODO [[view:/home/user/linux/crypto/xts.c::face=ovl-face1::linb=227::colb=9::cole=16][ERR_CAST can be used with alg]]
+
+

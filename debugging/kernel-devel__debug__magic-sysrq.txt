@@ -1,0 +1,177 @@
+magic sysrq (print) key
+
+
+
+
+
+KCONFIG
+
+CONFIG_MAGIC_SYSRQ
+
+
+
+
+
+USAGE
+
+either press SYSRQ/PRNT_SCREEN + <character>, or do
+# echo <specific character...> > /proc/sysrq-trigger
+
+
+
+where character can be one of the following, depending on the kernel version:
+
+
+'b'     - Reboot immediately, no syncing
+
+'c'     - Will perform a system crash by a NULL pointer dereference.
+          A crashdump will be taken if configured.
+
+'d'     - Shows all locks that are held.
+
+'e'     - Send a SIGTERM to all processes, except for init.
+
+'f'     - Will call oom_kill to kill a memory hog process.
+
+'g'     - Used by kgdb (kernel debugger)
+
+'h'     - Will display help (actually any other key than those listed
+          here will display help. but 'h' is easy to remember :-)
+
+'i'     - Send a SIGKILL to all processes, except for init.
+
+'j'     - Forcibly "Just thaw it" - filesystems frozen by the FIFREEZE ioctl.
+
+'k'     - Secure Access Key (SAK) Kills all programs on the current virtual
+          console. NOTE: See important comments below in SAK section.
+
+'l'     - Shows a stack backtrace for all active CPUs.
+
+'m'     - Will dump current memory info to your console.
+
+'n'     - Used to make RT tasks nice-able
+
+'o'     - Will shut off system (if configured and supported).
+
+'p'     - Will dump the current registers and flags to your console.
+
+'q'     - Will dump per CPU lists of all armed hrtimers (but NOT regular
+          timer_list timers) and detailed information about all
+                    clockevent devices.
+
+'r'     - Turns off keyboard raw mode and sets it to XLATE.
+
+'s'     - Will attempt to sync all mounted filesystems.
+
+'t'     - Will dump a list of current tasks and their information to your
+          console.
+
+'u'     - Will attempt to remount all mounted filesystems read-only.
+
+'v'     - Forcefully restores framebuffer console
+'v'     - Causes ETM buffer dump [ARM-specific]
+
+'w'     - Dumps tasks that are in uninterruptable (blocked) state.
+
+'x'     - Used by xmon interface on ppc/powerpc platforms.
+          Show global PMU Registers on sparc64.
+
+'y'       - Show global CPU Registers [SPARC-64 specific]
+
+'z'       - Dump the ftrace buffer
+
+'0'-'9' - Sets the console log level, controlling which kernel messages
+          will be printed to your console. ('0', for example would make
+
+
+
+
+
+EXAMPLE
+
+increase log level
+# echo 9 > /proc/sysrq-trigger
+
+dump kernel information
+# echo t > /proc/sysrq-trigger
+
+provoke a kernel panic
+# echo c > /proc/sysrq-trigger
+
+in case set reboot by kernel panic (after 20 secs)
+# vi /etc/sysctl.conf
+    kernel.panic = 20
+
+enable kgdb / kdb
+# echo g > /proc/sysrq-trigger
+
+
+
+CODING
+
+debug a kernel module adding parameters to the magic sysrq key
+interface
+
+In order to register a basic function with the table, you must first
+include the header 'include/linux/sysrq.h', this will define
+everything else you need.  Next, you must create a sysrq_key_op
+struct, and populate it with A) the key handler function you will use,
+B) a help_msg string, that will print when SysRQ prints help, and C)
+an action_msg string, that will print right before your handler is
+called. Your handler must conform to the prototype in 'sysrq.h'.
+
+After the sysrq_key_op is created, you can call the kernel function
+register_sysrq_key(int key, struct sysrq_key_op *op_p); this will
+register the operation pointed to by 'op_p' at table key 'key', if
+that slot in the table is blank. At module unload time, you must call
+the function unregister_sysrq_key(int key, struct sysrq_key_op *op_p),
+which will remove the key op pointed to by 'op_p' from the key 'key',
+if and only if it is currently registered in that slot. This is in
+case the slot has been overwritten since you registered it.
+
+The Magic SysRQ system works by registering key operations against a
+key op lookup table, which is defined in 'drivers/char/sysrq.c'. This
+key table has a number of operations registered into it at compile
+time, but is mutable, and 2 functions are exported for interface to
+it: register_sysrq_key and unregister_sysrq_key.  Of course, never
+ever leave an invalid pointer in the table. I.e., when your module
+that called register_sysrq_key() exits, it must call
+unregister_sysrq_key() to clean up the sysrq key table entry that it
+used.  Null pointers in the table are always safe. :)
+
+If for some reason you feel the need to call the handle_sysrq function
+from within a function called by handle_sysrq, you must be aware that
+you are in a lock (you are also in an interrupt handler, which means
+don't sleep!), so you must call __handle_sysrq_nolock instead.
+
+
+
+ISSUES
+
+issue: "this sysrq operation is disabled" on ubuntu
+
+fix:
+Note that the value of "/proc/sys/kernel/sysrq" influences only the
+invocation via a keyboard. Invocation of any operation via
+"/proc/sysrq-trigger" is always allowed (by a user with admin
+privileges).
+
+Here is the list of possible values in /proc/sys/kernel/sysrq:
+
+   -  0 - disable sysrq completely
+   -  1 - enable all functions of sysrq
+   - >1 - bitmask of allowed sysrq functions (see below for detailed function
+     description)::
+
+          2 =   0x2 - enable control of console logging level
+          4 =   0x4 - enable control of keyboard (SAK, unraw)
+          8 =   0x8 - enable debugging dumps of processes etc.
+         16 =  0x10 - enable sync command
+         32 =  0x20 - enable remount read-only
+         64 =  0x40 - enable signalling of processes (term, kill, oom-kill)
+        128 =  0x80 - allow reboot/poweroff
+        256 = 0x100 - allow nicing of all RT tasks
+
+You can set the value in the file by the following command::
+
+    echo "number" >/proc/sys/kernel/sysrq

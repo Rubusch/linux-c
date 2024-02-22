@@ -1,0 +1,666 @@
+kprobes
+
+RESOURCES
+
+https://www.kernel.org/doc/Documentation/kprobes.txt
+https://lwn.net/Articles/132196/
+
+(zoology of probes)
+https://github.com/iovisor/bpftrace/blob/master/docs/reference_guide.md#probes
+
+
+
+THEORY
+
+probes:
+ - kprobe: kernel function start
+ - kretprobe: kernel function return
+ - uprobe: user-level function start
+ - uretprobe: user-level function return
+ - tracepoint: kernel static tracepoints
+ - usdt: user-level static tracepoints
+
+Kprobes enables you to dynamically break into any kernel routine and collect
+debugging and performance information non-disruptively. You can trap at almost
+any kernel code address, specifying a handler routine to be invoked when the
+breakpoint is hit
+
+kprobes print hex addresses and contents to be resolved by the implementation,
+kprobes seem to be quite powerfull, but rather offer a framework for
+tooldevelopment than a out-of-the-box tracing tool
+
+approach:
+- implement kernel module, to connect to specific calls, functions, or the like
+- (cross-)compile the module and load it additionally on the target system
+- additional output with a lot of hex numbers in the logs / shell
+
+
+
+
+
+KCONFIG
+
+CONFIG_KPROBES
+CONFIG_MODULES
+CONFIG_MODULE_UNLOAD
+CONFIG_KALLSYMS
+CONFIG_KALLSYMS_ALL (opt, better)
+CONFIG_DEBUG_INFO (opt, better)
+
+
+
+
+
+PROBE API
+
+TODO    
+    #include <linux/kprobes.h>
+    int register_kprobe(struct kprobe *kp);
+    kp->addr
+    kp->pre_handler
+    kp->post_handler
+    kp->fault_handler
+    kp->flags
+    kp->symbol_name
+
+
+
+user's pre handler
+
+#include <linux/kprobes.h>
+#include <linux/ptrace.h>
+int pre_handler(struct kprobe *p, struct pt_regs *regs);
+
+
+
+user's post handler
+
+#include <linux/kprobes.h>
+#include <linux/ptrace.h>
+void post_handler(struct kprobe *p, struct pt_regs *regs,
+    unsigned long flags);
+
+
+
+user's fault handler
+
+#include <linux/kprobes.h>
+#include <linux/ptrace.h>
+int fault_handler(struct kprobe *p, struct pt_regs *regs, int trapnr);
+    p      - kprobe associated with the breakpoint
+    regs   - struct containing the registers saved when the breakpoint was hit
+    trapnr - architecture-specific trap number associated with the fault
+
+
+
+register jprobe
+
+#include <linux/kprobes.h>
+int register_jprobe(struct jprobe *jp)
+
+Sets a breakpoint at the address jp->kp.addr, which must be the address
+of the first instruction of a function.  When the breakpoint is hit,
+Kprobes runs the handler whose address is jp->entry
+
+
+
+register kretprobe
+
+#include <linux/kprobes.h>
+int register_kretprobe(struct kretprobe *rp);
+
+establishes a return probe for the function whose address is
+rp->kp.addr.  When that function returns, Kprobes calls rp->handler.
+You must set rp->maxactive appropriately before you call
+register_kretprobe()
+
+user's return probe handler
+
+#include <linux/kprobes.h>
+#include <linux/ptrace.h>
+int kretprobe_handler(struct kretprobe_instance *ri, struct pt_regs *regs);
+
+    ret_addr - the return address
+    rp       - points to the corresponding kretprobe object
+    task     - points to the corresponding task struct
+    data     - points to per return-instance private data;
+               see "Kretprobe entry-handler" for details
+
+
+
+unregister_*probe
+
+#include <linux/kprobes.h>
+void unregister_kprobe(struct kprobe *kp);
+void unregister_jprobe(struct jprobe *jp);
+void unregister_kretprobe(struct kretprobe *rp);
+
+
+
+register_*probes (arrays)
+
+#include <linux/kprobes.h>
+int register_kprobes(struct kprobe **kps, int num);
+int register_kretprobes(struct kretprobe **rps, int num);
+int register_jprobes(struct jprobe **jps, int num);
+
+kps/rps/jps - an array of pointers to *probe data structures
+num         - the number of the array entries.
+
+
+
+unregister_*probes
+
+#include <linux/kprobes.h>
+void unregister_kprobes(struct kprobe **kps, int num);
+void unregister_kretprobes(struct kretprobe **rps, int num);
+void unregister_jprobes(struct jprobe **jps, int num);
+
+
+
+temporarily disable_*probe
+
+#include <linux/kprobes.h>
+int disable_kprobe(struct kprobe *kp);
+int disable_kretprobe(struct kretprobe *rp);
+int disable_jprobe(struct jprobe *jp);
+
+enable_*probe
+
+#include <linux/kprobes.h>
+int enable_kprobe(struct kprobe *kp);
+int enable_kretprobe(struct kretprobe *rp);
+int enable_jprobe(struct jprobe *jp);
+
+
+
+SITUATION: read out function arguments
+https://stackoverflow.com/questions/10563635/getting-function-arguments-using-kprobes
+
+1) Build your kernel or module with debugging information (-g option),
+  for an example let's assume that I have built a module named
+  'test.ko' with debugging information.
+
+2) Use readelf command to decode the debugging information. Like this:
+
+   $ ${CROSS_COMPILE}readelf --debug-dump=info test.ko > log.info
+
+  Here I redirected readelf output to log.info file.
+
+3) Now open the log.info and search for the function for which you
+  want to find out the function arguments, in our case let's say
+  'foobar()'. There will be a Dwarf entry with TAG DW_TAG_subprogram
+  for the function foobar(). After this TAG you will find the some
+  other dwarf entries with function arguments names. In this entries
+  you will find the location of these function arguments when a
+  function is called. For example, it says that first argument 'arg'
+  will be in the ebx register, second arguments will be in the esp+8
+  and third argument will be in the ecx register and so on.
+
+4) After you get these information, in your kprobe prehandler print
+  all registers. And also print the stack data, this you can print as
+  you know the esp register in the prehandler.
+
+5) Based on the information you get in the 3rd step search for the
+  arguments values.
+
+
+
+
+
+EXAMPLE
+
+EXAMPLE: kernel 5.4
+
+$ mkdir ./lab
+$ touch ./lab/Makefile
+$ touch ./lab/probe.c
+$ cd ./lab/
+
+$ vi ./Makefile
+    #ARCH = // yocto
+    #CROSS_COMPILE = // yocto
+    KDIR = /data/peta/v2020.1/Petalinux_ME-XU8-7EV-2I-D12E_ST1_SD__mipi/components/yocto/workspace/sources/linux-xlnx-5.4+git999
+    obj-m += probe.o
+    all:
+    	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KDIR) M=$(PWD) modules
+    clean:
+    	rm -rf *.o *.ko *.mod.* .c* .t* *.order *.symvers *.mod
+
+
+$ vi ./probe.c
+    /*
+      kprobe: backtrace
+
+      reference:
+      (syntax according to kernel sources demo)
+      https://elixir.bootlin.com/linux/latest/source/samples/kprobes/kprobe_example.c
+     */
+
+    #define pr_fmt(fmt) "%s: " fmt, __func__
+
+    #include <linux/kernel.h>
+    #include <linux/module.h>
+    #include <linux/kprobes.h>
+
+    #define MAX_SYMBOL_LEN 64
+    static char symbol[MAX_SYMBOL_LEN] = "_do_fork";
+    module_param_string(symbol, symbol, sizeof(symbol), 0644);
+
+    /**
+      alloc a probe structure for each probe
+    */
+    static struct kprobe kp = {
+    	.symbol_name = symbol,
+    };
+
+    /**
+      kprobe pre_handler
+
+      called just before the probed instruction is executed
+    */
+    static int __kprobes
+    handler_pre(struct kprobe *p, struct pt_regs *regs)
+    {
+    	// arm64
+    	pr_info("XXX <%s> p->addr = 0x%p, pc = 0x%lx, pstate = 0x%lx\n",
+    		p->symbol_name, p->addr, (long)regs->pc, (long)regs->pstate);
+    	/*
+    	  a dump stack here will give a stack backtrace
+    	*/
+    	return 0;
+    }
+
+    /**
+       kprobe post_handler
+
+       called after the probed instruction is executed
+    */
+    static void __kprobes
+    handler_post(struct kprobe *p, struct pt_regs *regs, unsigned long flags)
+    {
+    	pr_info("XXX <%s> p->addr = 0x%p, pstate = 0x%lx\n",
+    		p->symbol_name, p->addr, (long)regs->pstate);
+    }
+
+    static int __init
+    kprobe_init(void)
+    {
+    	int ret;
+    	kp.pre_handler = handler_pre;
+    	kp.post_handler = handler_post;
+
+    	ret = register_kprobe(&kp);
+    	if (0 > ret) {
+    		pr_err("XXX !!register_kprobe failed, returned %d!!\n", ret);
+    	} else {
+    		pr_info("XXX planted kprobe at %p\n", kp.addr);
+    		ret = 0;
+    	}
+    	return ret;
+    }
+
+    static void __exit
+    kprobe_exit(void)
+    {
+    	unregister_kprobe(&kp);
+    	pr_info("XXX kprobe at %p unregistered\n", kp.addr);
+    }
+
+    module_init(kprobe_init)
+    module_exit(kprobe_exit)
+    MODULE_AUTHOR("Lothar Rubusch");
+    MODULE_DESCRIPTION("kprobe: backtrace");
+    MODULE_LICENSE("GPL");
+
+
+
+
+EXAMPLE: kernel 4.15.0
+
+https://ish-ar.io/kprobes-in-a-nutshell/
+
+Create the working directory and install the required packages.
+
+$ mkdir ./lab
+$ touch ./lab/Makefile
+$ touch ./lab/probe.c
+$ cd ./lab/
+
+$ apt update && apt install -y gcc strace make libelf-dev
+
+$ vi ./Makefile
+    #ARCH =            // yocto
+    #CROSS_COMPILE =   // yocto
+    KDIR = /data/peta/v2020.1/Petalinux_ME-XU8-7EV-2I-D12E_ST1_SD__mipi/components/yocto/workspace/sources/linux-xlnx-5.4+git999
+    obj-m += probe.o
+
+    all:
+    	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KDIR) M=$(PWD) modules
+
+    clean:
+    	rm -rf *.o *.ko *.mod.* .c* .t* *.order *.symvers *.mod
+
+
+
+In this example, I wanted to count every time a program is executed. So Ii've
+searched the function I wanted to like this:
+
+$ strace ls 2>&1 | less
+    ...
+    execve("/bin/ls", ["ls"], 0x7fff38f23780 /* 21 vars */) = 0
+    ...
+
+It looks like execve is the function we want to intercept! We now need its
+memory address to probe it later. So let's search for it:
+
+$ sudo grep sys_execve /proc/kallsyms
+    ffffffffbcc7f010 T sys_execve
+    ffffffffbcc7f050 T sys_execveat
+    ffffffffbcc7f0b0 T compat_sys_execve
+    ffffffffbcc7f100 T compat_sys_execveat
+
+If you don't know what this file /proc/kallsyms is, you should check out this
+page -> https://onebitbug.me/2011/03/04/introducing-linux-kernel-symbols/
+
+So, we have our function called sys_execve and its address is ffffffffbcc7f010.
+Now edit the file probe.c:
+
+Every time you insert this module the function minit will be triggered and if
+you remove the kernel module the function mexit will be invoked.
+
+IMPORTANT: Replace kp.addr = (kprobe_opcode_t *)0xffffffff8d67f010; with the
+function memory address you discovered at step 3 > kp.addr = (kprobe_opcode_t
+*)0xFUNCTION_MEMORY_ADDRESS;.
+
+Your early created Kernel Module should look like this:
+    #include<linux/module.h>
+    #include<linux/version.h>
+    #include<linux/kernel.h>
+    #include<linux/init.h>
+    #include<linux/kprobes.h>
+
+    static unsigned int counter = 0;
+
+    static struct kprobe kp;
+
+    int kpb_pre(struct kprobe *p, struct pt_regs *regs){
+        printk("XXX probe - pre_handler: counter=%u\n",counter++);
+        return 0;
+    }
+
+    void kpb_post(struct kprobe *p, struct pt_regs *regs, unsigned long flags){
+        printk("XXX probe - post_handler: counter=%u\n",counter++);
+    }
+
+    int minit(void)
+    {
+        printk("Module inserted\n ");
+        kp.pre_handler = kpb_pre;
+        kp.post_handler = kpb_post;
+        kp.addr = (kprobe_opcode_t *)0xFUNCTION_MEMORY_ADDRESS;    // memory address goes here!
+        register_kprobe(&kp);
+        return 0;
+    }
+
+    void mexit(void)
+    {
+        unregister_kprobe(&kp);
+        printk("Module removed\n ");
+    }
+
+    module_init(minit);
+    module_exit(mexit);
+    MODULE_AUTHOR("Lothar Rubusch");
+    MODULE_DESCRIPTION("debugging");
+    MODULE_LICENSE("GPL");
+
+
+
+build the module
+$ make
+and/or
+$ make -C /lib/modules/4.15.0-1044-aws/build SUBDIRS=/root/lab modules
+    make[1]: Entering directory '/usr/src/linux-headers-4.15.0-1044-aws'
+    CC [M]  /root/lab/probe.o
+    Building modules, stage 2.
+    MODPOST 1 modules
+    CC      /root/lab/probe.mod.o
+    LD [M]  /root/lab/probe.ko
+    make[1]: Leaving directory '/usr/src/linux-headers-4.15.0-1044-aws'
+
+insert the module
+$ insmod probe.ko
+
+see if the module is loaded
+# lsmod | grep probe
+    probe                    16384  0
+
+see dmesg
+# dmesg
+    [ 4813.434548] Module inserted
+    [ 4815.142934] probe pre_handler: counter=0
+    [ 4815.142935] probe post_handler: counter=1
+
+
+To remove the module just type:
+
+$ rmmod probe
+
+
+
+
+
+EXAMPLE: kernel 3.4.25
+
+notes on the do_fork() example from kernel samples (see source below)
+
+approach: implement a kernel module; compile and load it, see output in the
+syslog for traces at syscall, function call or at which address in the sysmap is
+probed
+
+the kernel has the respective CONFIG options set
+
+in the case the module needed to be cross compiled for powerpc, and further had
+a dependency on an internal asm file which was not compiled within the kernel
+
+first go tot the kernel sources, and build the dependency savres.o
+(make shows error message if not)
+$ cd ~/buildroot/build/build/linux-3.4.25/
+$ ARCH=powerpc \
+  CROSS_COMPILE=/opt/nx/toolchain-ppc-4.3/bin/powerpc-unknown-linux-gnu- \
+  make arch/powerpc/lib/crtsavres.o
+
+the module has to be inside a folder by the same name (kprobes), or adjust the
+Makefile accordingly; then go back, run the Makefile to crosscompile of kprobes.c
+$ cd -
+$ make
+
+# cat Makefile
+    ARCH=powerpc
+    KERNELDIR=/opt/nx/snapshots/rubusclo_basesystem/vob/NX_BASESYSTEM/unit/buildroot/build/build/linux-3.4.25/
+    CROSS_COMPILE=/opt/nx/toolchain-ppc-4.3/bin/powerpc-unknown-linux-gnu-
+
+    obj-m += kprobes.o
+
+    all:
+    	make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} -C ${KERNELDIR} M=$(PWD) modules
+
+    clean:
+    	make ARCH=${ARCH} -C ${KERNELDIR} clean
+
+
+when built, send the kprobes.ko to the embedded target device
+$ scp ./kprobes.ko root@10.19.19.227:/root/
+
+on the target device run
+LI-PMF15/106:~# insmod ./kprobes.ko
+Planted kprobe at c001b3b0
+
+LI-PMF15/106:~# tail -f /var/log/messages
+    pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:35:30 cm21_qp3 user.info kernel: br0: port 1(eth0) entered forwarding state
+    Nov 23 14:36:11 cm21_qp3 auth.info login[783]: root login on 'ttyPSC2'
+    Nov 23 14:36:20 cm21_qp3 user.debug kernel: kobject: 'kprobes' (cd13f354): kobject_add_internal: parent: 'module', set: 'module'
+    Nov 23 14:36:20 cm21_qp3 user.debug kernel: kobject: 'holders' (c7bdcfc0): kobject_add_internal: parent: 'kprobes', set: '<NULL>'
+    Nov 23 14:36:20 cm21_qp3 user.debug kernel: kobject: 'notes' (c68193c0): kobject_add_internal: parent: 'kprobes', set: '<NULL>'
+    Nov 23 14:36:20 cm21_qp3 user.debug kernel: kobject: 'kprobes' (cd13f354): kobject_uevent_env
+    Nov 23 14:36:20 cm21_qp3 user.debug kernel: kobject: 'kprobes' (cd13f354): fill_kobj_path: path = '/module/kprobes'
+    Nov 23 14:36:20 cm21_qp3 user.info kernel: Planted kprobe at c001b3b0
+    Nov 23 14:36:38 cm21_qp3 user.info kernel: pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:36:38 cm21_qp3 user.info kernel: post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    --- START ---
+    pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:25 cm21_qp3 user.info kernel: pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:25 cm21_qp3 user.info kernel: post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:25 cm21_qp3 user.info kernel: pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:25 cm21_qp3 user.info kernel: post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:25 cm21_qp3 user.info kernel: pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:25 cm21_qp3 user.info kernel: post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:26 cm21_qp3 user.info kernel: pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:26 cm21_qp3 user.info kernel: post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:26 cm21_qp3 user.info kernel: pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:26 cm21_qp3 user.info kernel: post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:26 cm21_qp3 user.info kernel: pre_handler: p->addr = 0xc001b3b0, nip = 0xc001b3b0, msr = 0x29032
+    Nov 23 14:37:26 cm21_qp3 user.info kernel: post_handler: p->addr = 0xc001b3b0, msr = 0x29032
+    (...)
+
+kprobes will print hex addresses and contents to be resolved by the
+implementation, kprobes seem to be quite powerfull, but rather offer a framework
+for tooldevelopment than a out-of-the-box tracing tool
+
+source
+    // example source from kernel 3.4.25
+    /*
+     * NOTE: This example is works on x86 and powerpc.
+     * Here's a sample kernel module showing the use of kprobes to dump a
+     * stack trace and selected registers when do_fork() is called.
+     *
+     * For more information on theory of operation of kprobes, see
+     * Documentation/kprobes.txt
+     *
+     * You will see the trace data in /var/log/messages and on the console
+     * whenever do_fork() is invoked to create a new process.
+     */
+
+    #include <linux/kernel.h>
+    #include <linux/module.h>
+    #include <linux/kprobes.h>
+
+    /* For each probe you need to allocate a kprobe structure */
+    static struct kprobe kp = {
+    	.symbol_name	= "do_fork",
+    };
+
+    /* kprobe pre_handler: called just before the probed instruction is executed */
+    static int handler_pre(struct kprobe *p, struct pt_regs *regs)
+    {
+    #ifdef CONFIG_X86
+    	printk(KERN_INFO "pre_handler: p->addr = 0x%p, ip = %lx,"
+    			" flags = 0x%lx\n",
+    		p->addr, regs->ip, regs->flags);
+    #endif
+    #ifdef CONFIG_PPC
+    	printk(KERN_INFO "pre_handler: p->addr = 0x%p, nip = 0x%lx,"
+    			" msr = 0x%lx\n",
+    		p->addr, regs->nip, regs->msr);
+    #endif
+    #ifdef CONFIG_MIPS
+    	printk(KERN_INFO "pre_handler: p->addr = 0x%p, epc = 0x%lx,"
+    			" status = 0x%lx\n",
+    		p->addr, regs->cp0_epc, regs->cp0_status);
+    #endif
+
+    	/* A dump_stack() here will give a stack backtrace */
+    	return 0;
+    }
+
+    /* kprobe post_handler: called after the probed instruction is executed */
+    static void handler_post(struct kprobe *p, struct pt_regs *regs,
+    				unsigned long flags)
+    {
+    #ifdef CONFIG_X86
+    	printk(KERN_INFO "post_handler: p->addr = 0x%p, flags = 0x%lx\n",
+    		p->addr, regs->flags);
+    #endif
+    #ifdef CONFIG_PPC
+    	printk(KERN_INFO "post_handler: p->addr = 0x%p, msr = 0x%lx\n",
+    		p->addr, regs->msr);
+    #endif
+    #ifdef CONFIG_MIPS
+    	printk(KERN_INFO "post_handler: p->addr = 0x%p, status = 0x%lx\n",
+    		p->addr, regs->cp0_status);
+    #endif
+    }
+
+    /*
+     * fault_handler: this is called if an exception is generated for any
+     * instruction within the pre- or post-handler, or when Kprobes
+     * single-steps the probed instruction.
+     */
+    static int handler_fault(struct kprobe *p, struct pt_regs *regs, int trapnr)
+    {
+    	printk(KERN_INFO "fault_handler: p->addr = 0x%p, trap #%dn",
+    		p->addr, trapnr);
+    	/* Return 0 because we don't handle the fault. */
+    	return 0;
+    }
+
+    static int __init kprobe_init(void)
+    {
+    	int ret;
+    	kp.pre_handler = handler_pre;
+    	kp.post_handler = handler_post;
+    	kp.fault_handler = handler_fault;
+
+    	ret = register_kprobe(&kp);
+    	if (ret < 0) {
+    		printk(KERN_INFO "register_kprobe failed, returned %d\n", ret);
+    		return ret;
+    	}
+    	printk(KERN_INFO "Planted kprobe at %p\n", kp.addr);
+    	return 0;
+    }
+
+    static void __exit kprobe_exit(void)
+    {
+    	unregister_kprobe(&kp);
+    	printk(KERN_INFO "kprobe at %p unregistered\n", kp.addr);
+    }
+
+    module_init(kprobe_init)
+    module_exit(kprobe_exit)
+    MODULE_LICENSE("GPL");
+
+
+
+
+
+NOTES
+
+turn off jump optimization (needs CONFIG_OPTPROBES)
+# sysctl -w debug.kprobes_optimization=n
+or
+# echo 0 > /proc/sys/debug/kprobes-optimization
+
+see the source to object code mapping (needs CONFIG_DEBUG_INFO)
+# objdump -d -l vmlinux
+
+list registered probes (kernel >2.6.20), debugfs mounted
+# cat /sys/kernel/debug/kprobes/list
+displays a table: addr - probe type - symbol+offset
+
+turn probes on/off forced
+# echo 1 > /sys/kernel/debug/kprobes/enabled

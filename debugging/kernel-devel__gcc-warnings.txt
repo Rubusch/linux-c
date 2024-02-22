@@ -1,0 +1,33 @@
+gcc warnings
+
+
+
+WARNING
+
+    cc1: warnings being treated as errors
+    somefile.c:200: error: the frame size of 1032 bytes is larger than 1024 bytes
+
+REFERENCES
+
+https://stackoverflow.com/questions/2450845/what-does-this-error-mean-somefile-c200-error-the-frame-size-of-1032-bytes
+http://gcc.gnu.org/onlinedocs/gcc-2.95.3/gcc_17.html#SEC214
+
+STACK_CHECK_MAX_FRAME_SIZE - The maximum size of a stack frame, in bytes. GNU CC
+will generate probe instructions in non-leaf functions to ensure at least this
+many bytes of stack are available. If a stack frame is larger than this size,
+stack checking will not be reliable and GNU CC will issue a warning. The default
+is chosen so that GNU CC only generates one instruction on most systems. You
+should normally not change the default value of this macro.
+
+
+Possible solutions would include
+- passing a compiler flag to relax the warning,
+- expand the upper limit of the stack size, or
+- dynamically allocating the buffer - the actual recommended fix!
+
+ignore the warning and simply turn it off:
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wframe-larger-than="
+
+        ...
+    #pragma GCC diagnostic pop

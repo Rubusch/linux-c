@@ -1,0 +1,8 @@
+kernel timing
+
+
+CONFIG_HZ will be Clock Ticks since start (ticks) / Time since start (seconds) units are ticks / seconds In most cases this should be 100 ticks per second.
+
+$ awk '{print$22/'$(tail -n 1 /proc/uptime|cut -d. -f1)"}" /proc/self/stat
+    100.152
+

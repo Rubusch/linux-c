@@ -1,0 +1,180 @@
+scheduler
+
+
+RESOURCEs
+
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/block/switching-sched.txt?id=HEAD
+https://unix.stackexchange.com/questions/199265/relationship-between-io-scheduler-and-cpu-process-scheduler
+https://stackoverflow.com/questions/9392415/linux-sched-other-sched-fifo-and-sched-rr-differences
+https://lwn.net/Articles/743740/
+
+
+
+
+
+
+IO SCHEDULER vs CPU SCHEDULER
+
+What is relationship between IO scheduler and CPU scheduler?
+
+Not much, besides the name. They schedule different shared resources. The first
+one orders the requests going to the disks, and the second one schedules the
+'requests' (you can view a process as requesting CPU time to be able to run) to
+the CPU.
+
+
+
+CPU SCHEDULER
+
+SCHED_FIFO and SCHED_RR are so called "real-time" policies. They implement the
+fixed-priority real-time scheduling specified by the POSIX standard. Tasks with
+these policies preempt every other task, which can thus easily go into
+starvation (if they don't release the CPU).
+
+
+SCHED_FIFO
+
+With the FIFO scheduling policy, a thread will be stopped (suspended) when one
+of three conditions occurs:
+
+1. It is blocked by accessing synchronize resource
+    (I/O block, mutex, semaphore...)
+
+2. It is preempted by a higher priority thread.
+
+3. It volunteers to give up control of processor
+    (call sleep() or pthread_yield()).
+
+
+
+SCHED_RR
+
+In the Round Robin scheduling policy, a thread will be stopped (suspended) when
+one in four following conditions occurs:
+
+1. It is blocked by accessing synchronize resource
+    (I/O block, mutex, semaphore...)
+
+2. Or it is preempted by a higher priority thread.
+
+3. Or it volunteers to give up control of processor
+    (call sleep() or pthread_yield()).
+
+4. Or its Time slice expired.
+
+
+We have four situations: First, Thread1 and Thread2 are of equal priority and
+run using the FIFO policy. Second, Thread1 and Thread2 are of equal priority
+and run on the Round Robin policy. Third, priority of Thread1 is higher priority
+of Thread2 and they run using the FIFO policy. Fourth, the priority of Thread1
+is higher priority of Thread2 and they run using the Round Robin policy.
+
+We also assume that Thread1 starts first, then Thread2 starts later and during
+running time, Thread1and Thread2 don’t make any system calls or are blocked by
+any synchronized resource (I/O, Mutex, Semaphore…). The result: the only
+differences that affect real time performance between the FIFO and Round Robin
+policies is when Thread1 and Thread2 have same priority.
+
+
+
+SCHED_OTHER
+
+The common round-robin time-sharing scheduling policy that schedules a task for
+a certain timeslice depending on the other tasks running in the system.
+
+
+
+SCHED_DEADLINE
+
+Since Linux 3.14, there is an additional policy called SCHED_DEADLINE. This
+policy implements the Constant Bandwidth Server (CBS) algorithm on top of
+Earliest Deadline First queues. Each task under this policy is assigned a
+deadline, and the earliest-deadline task is executed. The best resource
+describing this algorithm is Deadline scheduling in the Linux kernel.
+
+Since Linux 4.13, SCHED_DEADLINE has replaced CBS with the Greedy Reclamation
+of Unused Bandwidth (GRUB) algorithm
+
+Since the deadline scheduler knows how much CPU each deadline task will need,
+it knows when the system can (or cannot) admit new tasks. So, rather than
+allowing the user to overload the system, the deadline scheduler denies the
+addition of more deadline tasks, guaranteeing that all deadline tasks will have
+CPU time to accomplish their tasks with, at least, a bounded tardiness.
+
+
+
+
+
+IO SCHEDULER
+
+choose IO schedulers at boot time, use the argument
+    'elevator=deadline'
+
+
+Each io queue has a set of io scheduler tunables associated with it. These
+tunables control how the io scheduler works. You can find these entries
+in:
+
+/sys/block/<device>/queue/iosched
+
+assuming that you have sysfs mounted on /sys. If you don't have sysfs mounted,
+you can do so by typing:
+# mount none /sys -t sysfs
+
+
+
+IOSCHED_NOOP
+
+is often the best choice for memory-backed block devices (e.g. ramdisks) and
+other non-rotational media (flash) where trying to reschedule I/O is a waste of
+resources
+
+
+
+IOSCHED_DEADLINE
+
+This lightweight scheduler tries to put a hard limit on latency
+
+
+
+IOSCHED_CFQ
+
+(complete fair queueing) tries to maintain system-wide fairness of I/O bandwidth
+
+
+it turns out that for uniprocessor systems, the Early Deadline First (EDF)
+scheduler was found to be optimal
+
+The default was "anticipatory" for a long time, and it received a lot of tuning,
+but was removed in 2.6.33 (early 2010).
+
+
+
+
+
+USAGE
+
+show selected scheduler e.g. cfq, for a specific device e.g. hda
+# cat /sys/block/hda/queue/scheduler
+    noop deadline [cfq]
+
+set a specific scheduler
+# echo deadline > /sys/block/hda/queue/scheduler
+# cat /sys/block/hda/queue/scheduler
+    noop [deadline] cfq
+
+
+
+change priority for a thread, e.g. "video_processing_tool"
+$ chrt -d --sched-runtime 5000000 --sched-deadline 10000000 --sched-period 16666666 0 video_processing_tool
+
+where:
+    --sched-runtime 5000000 is the run time specified in nanoseconds
+    --sched-deadline 10000000 is the relative deadline specified in nanoseconds.
+    --sched-period 16666666 is the period specified in nanoseconds
+    0 is a placeholder for the (unused) priority, required by the chrt command 
+in this way, the task will have a guarantee of 5ms of CPU time every 16.6ms,
+and all of that CPU time will be available for the task before the 10ms
+deadline passes
+
+

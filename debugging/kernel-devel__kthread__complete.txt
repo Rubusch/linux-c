@@ -1,0 +1,239 @@
+completions: wait for completion barrier
+
+REFERENCES
+
+https://www.kernel.org/doc/Documentation/scheduler/completion.txt
+
+
+
+
+
+Completions are a code synchronization mechanism which is preferable to any
+misuse of locks/semaphores and busy-loops. Any time you think of using
+yield() or some quirky msleep(1) loop to allow something else to proceed,
+you probably want to look into using one of the wait_for_completion*()
+calls and complete() instead.
+
+A typical usage scenario is:
+
+  CPU#1                                 CPU#2
+
+  struct completion setup_done;
+
+  init_completion(&setup_done);
+  initialize_work(...,&setup_done,...);
+
+  /* run non-dependent code */          /* do setup */
+
+  wait_for_completion(&setup_done);     complete(setup_done);
+
+
+
+
+
+!!! IMPORTANT !!!
+
+1.) Note that wait_for_completion() is calling spin_lock_irq()/spin_unlock_irq(),
+so it can only be called safely when you know that interrupts are enabled.
+Calling it from IRQs-off atomic contexts will result in hard-to-detect
+spurious enabling of interrupts.
+
+2.) The default behavior is to wait without a timeout and to mark the task as
+uninterruptible. wait_for_completion() and its variants are only safe
+in process context (as they can sleep) but not in atomic context,
+interrupt context, with disabled IRQs, or preemption is disabled - see also
+try_wait_for_completion() below for handling completion in atomic/interrupt
+context.
+
+3.) As all variants of wait_for_completion() can (obviously) block for a long
+time depending on the nature of the activity they are waiting for, so in
+most cases you probably don't want to call this with held mutexes.
+
+
+
+
+
+USAGE
+
+the completion struct
+
+    struct completion {
+        unsigned int done;
+        wait_queue_head_t wait;
+    };
+
+
+
+initializing completion - Calling init_completion() on the same completion
+object twice is most likely a bug
+
+    init_completion(&dynamic_object->done);
+
+
+
+For static declaration and initialization, macros are available. For static (or
+global) declarations in file scope you can use DECLARE_COMPLETION():
+
+    static DECLARE_COMPLETION(setup_done);
+    DECLARE_COMPLETION(setup_done);
+
+
+
+When a completion is declared as a local variable within a function,
+then the initialization should always use DECLARE_COMPLETION_ONSTACK()
+explicitly, not just to make lockdep happy, but also to make it clear
+that limited scope had been considered and is intentional:
+
+     DECLARE_COMPLETION_ONSTACK(setup_done)
+
+
+
+passive wait for completion
+
+    wait_for_completion(&early_console_added);
+
+
+
+signal completion
+
+    complete(&early_console_added);
+
+
+
+
+
+reinit_completion()
+
+The re-initialization function, reinit_completion(), simply resets the 'done'
+field to 0 ("not done"), without touching the waitqueue. Callers of this
+function must make sure that there are no racy wait_for_completion() calls going
+on in parallel.
+
+
+
+
+
+EXAMPLE
+
+An example usage of complete by crypto API
+
+// in foo.h
+#include <linux/completion.h>
+
+struct my_wait {
+        struct completion completion
+        int err;
+};
+
+static inline void
+my_init_wait(struct my_wait *wait)
+{
+	init_completion(&wait->completion);
+}
+
+
+typedef void (*my_completion_t)(struct my_async_request *req, int err);
+
+struct my_async_request {
+        // list;
+        struct my_wait complete;
+        void *data;
+        // *tfm;
+        // flags;
+};
+
+struct my_request {
+	struct my_async_request base;
+
+	/* request content */
+	struct scatterlist *src;
+	struct scatterlist *dst;
+	unsigned int cryptlen;
+	// ...
+};
+
+static inline int
+my_request_set_callback(struct my_request *req, my_completion_t compl, void *data)
+{
+	req->base.complete = compl;
+	req->base.data = data;
+}
+
+static inline int
+cirrus_wait_req(int err, struct my_wait *wait)
+{
+	switch (err) {
+	case -EINPROGRESS:
+	case -EBUSY:
+		wait_for_completion(&wait->completion);
+		reinit_completion(&wait->completion);
+		err = wait->err;
+		break;
+	};
+
+	return err;
+}
+
+
+
+
+
+// in foo.c
+
+void
+my_req_done(struct my_async_request *req, int err)
+{
+	struct my_wait *wait = req->data;
+
+	if (err == -EINPROGRESS)
+		return;
+
+	wait->err = err;
+	complete(&wait->completion);
+}
+
+bool
+my_encrypt_packet(struct sk_buff *skb, ...)
+{
+	struct my_wait wait;
+	struct my_request *req;
+	// ...
+	int ret = -EFAULT;
+
+	// ...
+	my_request_set_callback(req, my_req_done, &wait);
+
+	my_init_wait(&wait);
+
+	ret = my_wait_req(encrypt(req), &wait);
+	if (unlikely(ret)) {
+		pr_warn("%s: encrypt returned with result '%d'\n", __func__, ret);
+		goto out;
+	}
+
+	// ...
+out:
+	if (ret)
+		return false;
+	return true;
+}
+
+
+// another worker.h
+/* this actuall can/shall happen in another worker thread */
+static inline void my_request_complete(struct my_request *req, int err)
+{
+	req->base.complete(&req-base, err);
+}
+
+static int
+encrypt(struct my_request *req)
+{
+	int err = -EFAULT;
+
+	// ...
+
+	my_request_complete(req, err);
+	return err;
+}
+

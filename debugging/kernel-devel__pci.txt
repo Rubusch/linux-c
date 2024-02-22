@@ -1,0 +1,124 @@
+PCI / PCIe
+
+REFERENCES
+
+https://en.wikipedia.org/wiki/PCI_configuration_space
+https://stackoverflow.com/questions/30190050/what-is-the-base-address-register-bar-in-pcie
+
+
+
+
+
+CONCEPT
+
+The first 64 bytes of the PCI configuration are standardized as
+
+         | 0x0 | 0x1 | 0x2 | 0x3 | 0x4 | 0x5 | 0x6 | 0x7 | 0x8 | 0x9 | 0xa | 0xb | 0xc | 0xd | 0xe | 0xf |
+         +=====+=====+=====+=====+=====+=====+=====+=====+=====+-----+-----+-----+-----+-----+=====+-----+
+         | Vendor    | Device    | Command   | Status    |Revi-|Class Code       |Cache|La-  |Hea- |BIST |
+    0x00 |  ID       |  ID       |  Reg      |           |sio  |                 |Line |tency|der  |     |
+         |           |           |           |           | ID  |                 |     |Timer|Type |     |
+         +===========+===========+===========+===========+=====+-----------------+-----+-----+=====+-----+
+         | Base                  | Base                  | Base                  | Base                  |
+    0x10 | Address 0             | Address 1             | Address 2             | Address 3             |
+         | (BAR0)                | (BAR1)                | (BAR2)                | (BAR3)                |
+         +-----------------------+-----------------------+-----------------------+-----------+-----------+
+         | Base                  | Base                  | Card                  | Subsystem | Subsystem |
+    0x20 | Address 4             | Address 5             | CIS Pointer           | Vendor ID | Device ID |
+         | (BAR4)                | (BAR5)                |                       |           |           |
+         +-----------------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+         | Expansion ROM         |     |     |     |     |     |     |     |     | IRQ | IRQ |Min  |Max  |
+    0x30 | Base Address          |   RESERVED   RESERVED   RESERVED   RESERVED   | Line| Pin | _Gnt| _Lat|
+         |                       |     |     |     |     |     |     |     |     |     |     |     |     |
+         +-----------------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+
+        ---- optional registers
+        ==== required registers
+
+So we can see that there are 6 BARs. The wiki page then shows the
+contents of each BAR:
+
+      Bits | Description  | Values
+           |              |
+    -------+--------------+---------------------
+           For all PCI BARs
+    -------+--------------+---------------------
+       0   | Region Type  | 0 = Memory
+           |              | 1 = I/O (deprecated
+    -------+--------------+---------------------
+           For memory BARs
+    -------+--------------+---------------------
+       2-1 | Locatable    | 0 = any 32 bit
+           |              | 1 = < 1MiB
+           |              | 2 = any 64 bit
+    -------+--------------+---------------------
+       3   | Prefetchable | 0 = no
+           |              | 1 = yes
+    -------+--------------+---------------------
+      31-4 | Base Address | 16-byte aligned
+
+The region width requires a magic write however. This memory is setup
+by the PCI device, and gives information to the kernel. Each BAR
+corresponds to an address range that serves as a separate
+communication channel to the PCI device. The length of each region is
+defined by the hardware, and communicated to software via the
+configuration registers.
+
+Each region also has further hardware defined properties besides
+length, notably the memory type:
+ * IORESOURCE_IO: must be accessed with inX and outX
+ * IORESOURCE_MEM: must be accessed with ioreadX and iowriteX
+
+
+Several Linux kernel PCI functions take the BAR as a parameter to
+identify which communication channel is to be used, e.g.:
+    mmio = pci_iomap(pdev, BAR, pci_resource_len(pdev, BAR));
+    pci_resource_flags(dev, BAR);
+    pci_resource_start(pdev, BAR);
+    pci_resource_end(pdev, BAR);
+
+By looking into the QEMU device source code, we see that QEMU devices
+register those regions with:
+
+    memory_region_init_io(&edu->mmio, OBJECT(edu), &edu_mmio_ops, edu, "edu-mmio", 1 << 20);
+    pci_register_bar(pdev, 0, PCI_BASE_ADDRESS_SPACE_MEMORY, &edu->mmio);
+
+...and it is clear that properties of the BAR are hardware defined,
+e.g. the BAR number 0, has type memory PCI_BASE_ADDRESS_SPACE_MEMORY,
+and the memory region is 1MiB long 1 << 20
+
+
+
+
+
+How is a PCI size determined?
+
+First of all, the BAR size must be a power of two (e.g., 1 KiB, 2
+MiB), and each area must be aligned in memory such that the lower
+log2(size) bits of the base address are always zero. For example,
+assume that an endpoint has a 4 KiB memory area, which gives an
+address range of 0-0xfff. The host may remap the start of this area to
+f.x. 0x1000 or 0xabcd000 by writing to the BAR register, but not to
+0x1080 or 0xabcd100.
+
+When the BAR register is written, the endpoint will ignore LSBs and
+always return zeros on read. Thus writing 0xffffffff to the register
+and then reading back the value indicates the size of the area. For
+the 4 KiB example this returns 0xfffff00X (the lower four bits are
+reserved, see specification). To determine the size:
+
+    Clear the lower four bits to zeros (0xfffff000)
+    Invert all 32 bits (0xfff)
+    Add one to the result (0x1000 = 4096 bytes)
+
+This works for 64-bit areas as well. The value of the next base
+address register forms the MSBs of the base address. This is described
+in section 6.2.5.1 of the PCI 3.0 specification.
+
+
+
+
+EXAMPLE
+
+a minimal PCI example on a QEMU emulated device
+https://github.com/cirosantilli/linux-kernel-module-cheat/blob/366b1c1af269f56d6a7e6464f2862ba2bc368062/kernel_module/pci.c

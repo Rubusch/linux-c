@@ -1,0 +1,329 @@
+kernel patch
+
+RESSOURCES
+https://kernelnewbies.org/FirstKernelPatch
+https://kernelnewbies.org/OutreachyfirstpatchSetup?action=show&redirect=OPWfirstpatchSetup
+https://kernelnewbies.org/PatchPhilosophy
+
+
+
+
+
+ENVIRONMENT
+
+apt
+$ sudo apt-get install vim libncurses5-dev gcc make git-all exuberant-ctags libssl-dev bison flex libelf-dev bc
+
+
+git
+$ vi ./.git/config
+    [user]
+       name = Your Name
+       email = your.email@example.com
+    [sendemail]
+       from = Lothar Rubusch <l.rubusch@foo.com>
+       smtpserver = smtp.foo.com
+       smtpuser = l.rubusch@foo.com
+       smtpencryption = tls
+       smtppass = PASSWORD123
+       chainreplyto = false
+       smtpserverport = 587
+    [alias]
+       st = status
+       ci = commit
+       co = checkout
+       br = branch
+
+
+vim
+$ vi ~/.vimrc
+    filetype plugin indent on
+    syntax on
+    set title
+    set tabstop=8
+    set softtabstop=8
+    set shiftwidth=8
+    set noexpandtab
+or in vim, run
+    :set tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab
+
+
+checkpatch as git-hook
+if you see warnings or errors that you know you added, you can amend the commit
+by changing the file, using git add to add the changes, and then using git
+commit --amend to commit the changes
+
+$ apt-get install codespell
+$ apt-get install python-ply python-git
+$ vi .git/hooks/post-commit
+    #!/bin/sh
+    exec git show --format=email HEAD | ./scripts/checkpatch.pl --strict --codespell
+$ chmod a+x .git/hooks/post-commit
+
+
+
+email settings
+
+for gmail, go "your name" -> "security" -> "turn off (not recommended)" the
+special security to let git send-email work with tls and gmail
+
+check: send a patch via "git send-email" to your account, at the received
+email got to '...' on the right upper corner, and select "show original", take
+the original source patch and try to apply it manually in the sources
+--- this should work!!! ---
+
+
+irc help
+
+#kernel-outreachy IRC channel on irc.oftc.net, or on the outreachy-kernel mailing list
+https://groups.google.com/forum/#!forum/outreachy-kernel
+
+
+
+
+SOURCE
+
+clone current kernel
+$ git clone --branch staging-testing git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git linux
+
+
+
+
+
+MODFY SOURCE, BUILD AND TEST!!!
+
+
+
+
+
+(opt) CHECKPATCH - if not set up as git-hook in ENVIRONMENT
+
+Before or while committing check the patch for correct style.
+NOTE: This runs implicitely at COMMIT if set up as git-hook
+
+Or... - run the script manually
+$ git show --format=email HEAD | ./scripts/checkpatch.pl --strict --codespell
+
+Or... - run it over a specified path
+$ perl scripts/checkpatch.pl -f drivers/staging/android/* | less
+
+Pick a warning, and try to fix it
+
+
+
+
+
+COMMIT
+
+commit your changes, use signed-off line
+$ git commit -asv
+    -> then write a message
+
+make sure your commit looks fine
+$ git show HEAD
+or
+$ git log --pretty=oneline --abbrev-commit
+
+
+
+
+
+PATCH
+
+create a patch of last commit, write it to ~/configs
+$ git format-patch --subject-prefix="PATCH" --signoff -o /tmp HEAD^
+
+create a patch series starting (first patch) from commit 2fe9357
+$ git format-patch --subject-prefix="PATCH" --signoff -o /tmp 2fe9357^..HEAD
+
+
+patch versioning
+
+first version
+$ git format-patch --subject-prefix="PATCH" --signoff
+
+    [PATCH] Foo: Fix these things
+
+an updated version
+$ git format-patch --subject-prefix="PATCH v2" --signoff
+
+    [PATCH v2] Foo: Fix these things better
+
+
+
+patch series
+
+in case of a patch series, write a cover letter followed by mails
+having [PATCH x/y] or [RFC x/y] in their titles
+NB: '-n' makes the patch 'numbered'
+
+$ git format-patch --cover-letter -n --subject-prefix="PATCH" --signoff (...)
+or e.g.
+$ git format-patch --cover-letter -n --subject-prefix="PATCH v2" --signoff (...)
+
+
+An example of what this would look like is:
+
+    [PATCH 0/3] comedi: Fix these things
+    [PATCH 1/3] comedi: Fix the first thing
+    [PATCH 2/3] comedi: Fix the second thing
+    [PATCH 3/3] comedi: Fix the third thing
+
+And the updated versioning for a second revision:
+
+    [PATCH v2 0/3] comedi: Fix these things
+    [PATCH v2 1/3] comedi: Fix the first thing
+    [PATCH v2 2/3] comedi: Fix the second thing
+    [PATCH v2 3/3] comedi: Fix the third thing
+
+The resulting emails will be
+$ git format-patch -o /tmp/ --cover-letter -n --thread=shallow --signoff --cc="linux-usb@vger.kernel.org" 3b12c21^..b7ca36a
+    cover letter
+    PATCH 1/7
+    PATCH 2/7
+    PATCH 3/7
+    PATCH 4/7
+    PATCH 5/7
+    PATCH 6/7
+    PATCH 7/7
+
+
+
+
+EDIT PATCH
+
+open the patch in an editor and write the comments below the '---'
+
+    Signed-off-by: Lothar Rubusch <l.rubusch@foo.com>
+    Reviewed-by: Brendan Higgins <brendanhiggins@foo.bar>
+    ---
+    <Comments go here>
+
+     Documentation/dev-tools/kunit/start.rst | 13 ++++++++-----
+     Documentation/dev-tools/kunit/usage.rst |  4 ++--
+     include/kunit/test.h                    | 12 ++++++------
+     3 files changed, 16 insertions(+), 13 deletions(-)
+
+
+
+
+EMAIL
+
+verify first, and try to apply again
+$ git send-email --subject-prefix="PATCH v2" --to l.rubusch@foo.com --cc l.rubusch@foo.com ../configs/0001-crypto-bool-type-cosmetics.patch
+
+find the maintainer of the code you're patching, and Cc: the correct mailing list,
+
+example a patch (last commit) in crypto
+
+get maintainer:
+$ git show HEAD | perl scripts/get_maintainer.pl --separator , --nokeywords --nogit --nogit-fallback --norolestats --nol
+    Herbert Xu <herbert@foo.com>,"David S. Miller" <davem@foo.com>
+
+get mailing list (L) to set in CC:
+$ vi ./MAINTAINERS
+    4431 CRYPTO API
+    4432 M:  Herbert Xu <herbert@foo.com>
+    4433 M:  "David S. Miller" <davem@foo.com>
+    4434 L:  linux-crypto@vger.kernel.org
+
+in case, check in MAINTAINERS the correct tree (T) to setup the patch
+
+send email
+$ git send-email --subject-prefix="PATCH" --to herbert@foo.com --to davem@foo.com --cc linux-crypto@vger.kernel.org --cc l.rubusch@gmx.ch ../configs/0001-crypto-bool-type-cosmetics.patch
+
+in case fix patch
+$ git send-email --subject-prefix="PATCH v2" --to herbert@foo.com --to davem@foo.com --cc linux-crypto@vger.kernel.org --cc l.rubusch@foo.com ../configs/0001-crypto-bool-type-cosmetics__v2.patch
+
+in correspondence - write in present tense, use signed-off and respond inline e.g.
+    From: Kludge Crufty <example@email.com>
+    Subject: Design decisions for next release
+
+    On Fri, Sep 12, 2014 at 03:00:56PM -0700, Baz Quux wrote:
+    > On Fri, 12 September 2014 at 02:30:17PM -0700, Foo Bar wrote:
+    > >
+    > > I think we should do X.
+    >
+    > I think we should do Y.
+
+    I think we should do Z.
+
+    Kludge
+
+
+example
+email:
+    to: herbert@gondor.apana.org.au; davem@foo.com
+    cc: linux-crypto@vger.kernel.org; l.rubusch@foo.com
+
+topic:
+    [PATCH] crypto: bool type cosmetics
+
+mail:
+    From 8b75f67414fc60035c90eeb72f3362dede26bf7d Mon Sep 17 00:00:00 2001
+    From: Lothar Rubusch <lotophagon@foo.com>
+    Date: Sat, 14 Mar 2020 19:56:05 +0000
+    Subject: [PATCH] crypto: bool type cosmetics
+
+    When working with bool values the true and false definitions should be used
+    instead of 1 and 0.
+
+    Signed-off-by: Lothar Rubusch <lotophagon@foo.com>
+    ---
+
+    comments go here: bla bla bla
+
+    v1: some changes...
+
+     crypto/af_alg.c | 10 +++++-----
+     1 file changed, 5 insertions(+), 5 deletions(-)
+
+    diff --git a/crypto/af_alg.c b/crypto/af_alg.c
+    index 439367a8e95c..b1cd3535c525 100644
+    --- a/crypto/af_alg.c
+    +++ b/crypto/af_alg.c
+    @@ -821,8 +821,8 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
+     	struct af_alg_tsgl *sgl;
+     	struct af_alg_control con = {};
+     	long copied = 0;
+    -	bool enc = 0;
+    (...)
+
+
+
+sending patch series
+
+$ git send-email --to-cover --cc-cover /path/to/patch/series/*.patch
+
+or
+$ git send-email --to-cover --cc-cover --to <email> /path/to/patch/series/*.patch
+
+
+
+
+
+NOTE
+
+* keep patch text under 65 characters
+
+* write comments and version changelog below the '---' line
+
+* no compression and no base64 encoding, one patch per email
+
+* don't copy the patch and paste it into email (might convert tabs into spaces, i.e. corrupts the patch)
+
+* style guide: https://elixir.bootlin.com/linux/latest/source/Documentation/process/coding-style.rst
+
+* Do not work on drivers that show that they depend on CONFIG_BROKEN. If you
+  search for a driver after running `make menuconfig`, and you notice the
+  "Depends on:" line includes BROKEN, do not work on this driver.
+
+* "make help" for make targets, make also can build subtargets: make M=drivers/staging
+
+* kernel janitors (general) issues: https://kernelnewbies.org/KernelJanitors/Todo
+
+* write description in present tense
+
+* tricks for dealing with patches: https://kernelnewbies.org/PatchTipsAndTricks
+
+* small patches you may want to CC the Trivial Patch Monkey trivial@kernel.org

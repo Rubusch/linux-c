@@ -1,0 +1,57 @@
+scatterlist
+
+RESOURCES
+https://lwn.net/Articles/234617/
+
+
+THEORY
+High-performance I/O generally involves the use of direct memory access (DMA) operations. With DMA, the I/O device transfers data directly to and from main memory without the intervention of the CPU. In the simplest form of DMA, the controller is handed a pointer to a region of memory, given the length, and told to do its thing. The processor can then forget about the operation until the device signals that the work is done.
+
+This simple view has a drawback, however, in that it assumes that the data to be transferred is stored contiguously in memory. When the I/O buffer is in kernel space, the kernel can often arrange for it to be physically contiguous - though that gets harder as the size of the buffers gets larger. If the buffer is in user space, it is guaranteed to be scattered around physical memory. So it would be nice if DMA operations could work with buffers which are split into a number of distinct pieces.
+
+
+
+
+
+SOURCE
+
+    struct scatterlist {
+        struct page	*page;
+    	unsigned int	offset;
+    	dma_addr_t	dma_address;
+    	unsigned int	length;
+    };
+
+For each segment, the page pointer tells where the segment is to be found in memory, offset tells where the data begins within the page, and length is the length of the segment. Once the list has been filled in, the driver calls:
+
+    int dma_map_sg(struct device *dev, struct scatterlist *sg, int nents,
+                   enum dma_data_direction direction);
+
+For various reasons, scatterlists must fit within a single page; that restriction puts an upper limit on the number of segments which may be represented. On the i386 architecture, with high memory enabled, struct scatterlist requires 20 bytes, which limits a scatterlist to 204 entries. If each scatterlist entry points to a full page, the maximum size for a DMA transfer will be about 800KB. On an x86-64 system, the situation is worse: the structure uses 40 bytes, cutting the maximum length in half.
+
+
+
+
+
+USAGE
+
+TODO       
+
+static inline void sg_set_buf(struct scatterlist *sg, const void *buf,
+                         unsigned int buflen)
+
+    set sg entry to point at given data
+
+    sg:     SG entry
+    buf:     Data
+    buflen:   Data length
+
+
+
+
+for_each_sg(sglist, sg, nr, __i)
+
+    Loop over each sg element, following the pointer to a new list if necessary
+
+
+TODO                

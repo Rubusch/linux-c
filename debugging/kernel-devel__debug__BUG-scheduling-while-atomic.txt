@@ -1,0 +1,63 @@
+BUG: scheduling while atomic
+
+REFERENCES
+Gautam Bhanage's Personal Website
+https://www.bhanage.com/2020/06/linux-kernel-crash-debugging-bug.html
+
+
+
+
+
+why do you see that print?
+
+"Scheduling while atomic" indicates that you've tried to sleep somewhere that
+you shouldn't - like within a spinlock-protected critical section or an
+interrupt handler.
+
+
+
+
+
+things to check
+
+1. In this case you should check if you are actually returning from some code
+that could cause the lock not to be released or actually sleeping in some part
+of the code.
+
+
+2. Another error that may be spitted out during such a crash is:
+    BUG: workqueue leaked lock or atomic
+This clearly indicates that you were not unlocking a certain lock, which could
+be typically caused by returning from a routine before the lock is released.
+
+
+3. You are running something under a spinlock and it could not run to completion
+for some reason causing the kernel scheduler to be eventually invoked
+i.e. schedule() with the spinlock still held.
+
+
+
+
+These are few of the most popular reasons why you might see this print. If your
+kernel is configured to crash under such conditions, try and take a look at the
+backtrace which might hint towards what was running when this crash happened.
+
+
+
+why are some actions/contexts atomic?
+
+Some actions not "schedulable" in the kernel. This is because such actions do
+not have an associated task struct with which they can work off the scheduler.
+
+
+
+why do I see the function might_sleep()?
+
+The might_sleep() function is supposed to be executed from within schedulable
+entities which are expected to sleep on a semaphore at some time during their
+execution. Therefore, functions which are expected to sleep at some point should
+include a call to might_sleep().
+
+The only thing might_sleep() does is print a stack trace for debug when called
+from within a non-schedulable entity.  For schedulable entities, it does
+nothing.

@@ -1,0 +1,21 @@
+kernel: micro benchmarking
+
+
+DEFINITON
+    (...)
+    struct timespec ts1, ts2
+    #define START getnstimeofday(&ts1);
+
+    #define STOP(msg) \
+            getnstimeofday(&ts2); \
+            pr_info("%s, time: %d ns\n", msg, ((ts2.tv_nsec) - (ts1.tv_nsec)) );
+    (...)
+
+
+USAGE
+    (...)
+    START;
+    <perform action>
+    STOP("action performed");
+    (...)
+

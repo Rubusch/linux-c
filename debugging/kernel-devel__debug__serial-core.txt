@@ -1,0 +1,23 @@
+serial_core drivers
+
+RESOURCE
+
+drivers/tty/serial/cpm_uart_core.c
+
+
+
+SOURCE
+
+static struct uart_driver cpm_reg = {
+    .owner          = THIS_MODULE,
+    .driver_name    = "ttyCPM",
+    .dev_name       = "ttyCPM",
+    .major          = SERIAL_CPM_MAJOR,
+    .minor          = SERIAL_CPM_MINOR,
+    .cons           = CPM_UART_CONSOLE,
+    .nr             = UART_NR,
+};
+
+
+
+

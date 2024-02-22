@@ -1,0 +1,200 @@
+eBPF (extended Berkley Packet Filter)
+
+REFERENCES
+
+(introduction)
+https://lwn.net/Articles/740157/
+
+(bpf tools)
+https://www.brendangregg.com/ebpf.html
+
+(projects and tools (brendan gregg's))
+https://github.com/iovisor/bcc/blob/master/INSTALL.md
+
+(bpf CO-RE)
+https://nakryiko.com/posts/bpf-portability-and-co-re/
+
+(libbpf bootstrap)
+https://github.com/libbpf/libbpf-bootstrap
+
+(debug bpf with bpf_printk)
+https://nakryiko.com/posts/bpf-tips-printk/
+
+
+
+
+
+CONFIGURATION
+
+kernel configs needed
+
+CONFIG_BPF=y
+CONFIG_BPF_SYSCALL=y
+# [optional, for tc filters]
+CONFIG_NET_CLS_BPF=m
+# [optional, for tc actions]
+CONFIG_NET_ACT_BPF=m
+CONFIG_BPF_JIT=y
+# [for Linux kernel versions 4.1 through 4.6]
+CONFIG_HAVE_BPF_JIT=y
+# [for Linux kernel versions 4.7 and later]
+CONFIG_HAVE_EBPF_JIT=y
+# [optional, for kprobes]
+CONFIG_BPF_EVENTS=y
+# Need kernel headers through /sys/kernel/kheaders.tar.xz
+CONFIG_IKHEADERS=y
+
+## optional nice to have for vanilla kernel
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_ACT_POLICE=m
+CONFIG_NET_ACT_GACT=m
+CONFIG_DUMMY=m
+CONFIG_VXLAN=m
+
+
+
+
+
+INSTALLATION
+
+$ sudo apt install bpfcc-tools linux-headers-$(uname -r)
+or
+$ sudo apt install -y bpfcc-tools linux-headers-$(uname -r) libbpfcc libbpfcc-dev
+
+
+
+
+
+USAGE
+
+Trace new processes:
+$ sudo execsnoop-bpfcc
+
+Trace file opens with process and filename:
+$ sudo opensnoop-bpfcc
+
+Summarize block I/O (disk) latency as a power-of-2 distribution by disk:
+$ sudo biolatency-bpfcc -D
+
+Summarize block I/O size as a power-of-2 distribution by program name:
+$ sudo bitesize-bpfcc
+
+Trace common ext4 file system operations slower than 1 millisecond:
+$ sudo ext4slower-bpfcc 1
+
+Trace TCP active connections (connect()) with IP address and ports:
+$ sudo tcpconnect-bpfcc
+
+Trace TCP passive connections (accept()) with IP address and ports:
+$ sudo tcpaccept-bpfcc
+
+Trace TCP connections to local port 80, with session duration:
+$ sudo tcplife-bpfcc -L 80
+
+Trace TCP retransmissions with IP addresses and TCP state:
+$ sudo tcpretrans-bpfcc
+
+Sample stack traces at 49 Hertz for 10 seconds, emit folded format (for flame graphs):
+$ sudo profile-bpfcc -fd -F 49 10
+
+Trace details and latency of resolver DNS lookups:
+$ sudo gethostlatency-bpfcc
+
+Trace commands issued in all running bash shells:
+$ sudo bashreadline-bpfcc
+
+
+
+multi tools: user level dynamic tracing
+
+Count "tcp_send*" kernel function, print output every second:
+$ sudo funccount-bpfcc -i 1 'tcp_send*'
+
+Count "vfs_*" calls for PID 185:
+$ sudo funccount-bpfcc -p 185 'vfs_*'
+
+Trace file names opened, using dynamic tracing of the kernel do_sys_open() function:
+$ sudo trace-bpfcc 'p::do_sys_open "%s", arg2'
+
+Same as before ("p:: is assumed if not specified):
+$ sudo trace-bpfcc 'do_sys_open "%s", arg2'
+
+Trace the return of the kernel do_sys_open() funciton, and print the retval:
+$ sudo trace-bpfcc 'r::do_sys_open "ret: %d", retval'
+
+Trace do_nanosleep() kernel function and the second argument (mode), with kernel stack traces:
+$ sudo trace-bpfcc -K 'do_nanosleep "mode: %d", arg2'
+
+Trace do_nanosleep() mode by providing the prototype (no debuginfo required):
+$ sudo trace-bpfcc 'do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mode) "mode: %d", mode'
+
+Trace do_nanosleep() with the task address (may be NULL), noting the dereference:
+$ sudo trace-bpfcc 'do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mode) "task: %x", t->task'
+
+Frequency count tcp_sendmsg() size:
+$ sudo argdist-bpfcc -C 'p::tcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t size):u32:size'
+
+Summarize tcp_sendmsg() size as a power-of-2 histogram:
+$ sudo argdist-bpfcc -H 'p::tcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t size):u32:size'
+
+Frequency count stack traces that lead to the submit_bio() function (disk I/O issue):
+$ sudo stackcount-bpfcc submit_bio
+
+Summarize the latency (time taken) by the vfs_read() function for PID 181:
+$ sudo funclatency-bpfcc -p 181 -u vfs_read
+
+
+
+multi tools: user level dynamic tracing
+
+Trace the libc library function nanosleep() and print the requested sleep details:
+$ sudo trace-bpfcc 'p:c:nanosleep(struct timespec *req) "%d sec %d nsec", req->tv_sec, req->tv_nsec'
+
+Count the libc write() call for PID 181 by file descriptor:
+$ sudo argdist-bpfcc -p 181 -C 'p:c:write(int fd):int:fd' 
+
+Summarize the latency (time taken) by libc getaddrinfo(), as a power-of-2 histogram in microseconds:
+$ sudo funclatency-bpfcc -u 'c:getaddrinfo'
+
+
+
+multi tools: kernel static tracing
+
+Count stack traces that led to issuing block I/O, tracing its kernel tracepoint:
+$ sudo stackcount-bpfcc t:block:block_rq_insert
+
+
+
+$ multi tools: user statically defined tracing
+
+Trace the pthread_create USDT probe, and print arg1 as hex:
+$ sudo trace-bpfcc 'u:pthread:pthread_create "%x", arg1'
+
+
+
+
+
+
+EXAMPLES
+
+try running
+$ sudo opensnoop-bpfcc
+
+in case of issues with secureboot, try
+$ sudo mokutil --disable-validation
+
+
+
+
+
+USAGE: iovisor
+
+installation, not working on recent ubuntu
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4052245BD4284CDD
+$ echo "deb https://repo.iovisor.org/apt/$(lsb_release -cs) $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/iovisor.list
+$ sudo apt-get update
+$ sudo apt-get install bcc-tools libbcc-examples linux-headers-$(uname -r)
+
+
+
+TODO

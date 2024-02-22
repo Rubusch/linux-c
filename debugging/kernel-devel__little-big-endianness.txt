@@ -1,0 +1,34 @@
+endianness
+
+
+big endian: A big-endian ordering places the most significant byte first and the least significant byte last.
+
+little endian: A little-endian ordering does the opposite.
+
+example: 2-byte-type array...
+le: UN IX
+be: NU XI
+
+NOTE:
+the endianness refers to the byte order of multi-byte types - u8 arrays and
+strings composed of char pointers (i.e. dealing with entire bytes)
+remain the same!!
+
+
+buffer example
+
+le:    0x A0 A1 A2 A3 A4 A5 A6 A7 B0 B1 B2 B3 B4 B5 B6 B7
+=========================================================
+be8  : 0x A0 A1 A2 A3 A4 A5 A6 A7 B0 B1 B2 B3 B4 B5 B6 B7
+
+be16 : 0x A1 A0|A3 A2|A5 A4|A7 A6|B1 B0|B3 B2|B5 B4|B7 B6
+
+be32 : 0x A3 A2 A2 A1|A7 A6 A5 A4|B3 B2 B1 B0|B7 B6 B5 B4
+
+be64 : 0x A7 A6 A5 A4 A3 A2 A1 A0|B7 B6 B5 B4 B3 B2 B1 B0
+
+be128: 0x B7 B6 B5 B4 B3 B2 B1 B0 A7 A6 A5 A4 A3 A2 A1 A0
+
+
+
+

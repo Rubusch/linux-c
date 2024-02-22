@@ -1,0 +1,31 @@
+objdump
+
+REFERENCES
+
+https://stackoverflow.com/questions/13468286/how-to-read-understand-analyze-and-debug-a-linux-kernel-panic
+
+
+
+
+
+USAGE
+
+
+debug a kernel module
+
+without debug symbols, you will see the assembler code for the routine shown,
+but if your kernel has debug symbols the C code will also be available
+
+$ objdump -r -S -l --disassemble net/dccp/ipv4.o
+
+
+
+
+debug the kernel
+
+objdump -dS vmlinux > /tmp/kernel.s
+
+Open the generated assembly file, /tmp/kernel.s. with a text editor such as vim.
+Go to unwind_backtrace+0x0/0xf8, i.e. search for the address of
+unwind_backtrace + the offset. Finally, you have located the problematic part in
+your source code.

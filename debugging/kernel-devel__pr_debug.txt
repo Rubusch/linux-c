@@ -1,0 +1,30 @@
+pr_debug()
+
+RESOURCE
+https://www.kernel.org/doc/local/pr_debug.txt
+
+
+
+USAGE
+
+Some files call pr_debug(), which is ordinarily an empty macro that discards
+its arguments at compile time.  To enable debugging output, build the
+appropriate file with -DDEBUG by adding
+
+    CFLAGS_[filename].o := -DDEBUG
+
+to the Makefile.
+
+
+
+
+
+EXAMPLE
+
+For example, to see all attempts to spawn a usermode helper (such as
+/sbin/hotplug), add to lib/Makefile the line:
+
+    CFLAGS_kobject_uevent.o := -DDEBUG
+
+Then boot the new kernel, do something that spawns a usermode helper, and
+use the "dmesg" command to view the pr_debug() output.

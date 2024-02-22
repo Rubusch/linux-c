@@ -1,0 +1,75 @@
+kernel: irq
+
+You can tell you are in a hardware interrupt, because in_irq() returns
+true.
+
+
+PREEMPTION
+
+The Linux kernel is preemptive, meaning that a task can be stopped at
+(almost) any moment to give the CPU to a higher-priority task. Tasks
+may be also moved to a different CPU at almost any time. Some code
+sections, usually those dealing with per-CPU data, need to ensure that
+they run continuously on the same CPU without interference from other
+tasks. This code may not need a global lock; since it only needs to
+modify per-CPU data, there should be no possibility of concurrent
+access from elsewhere.
+
+
+preempt_disable() / preemt_enable()
+    Such code can simply disable preemption with preempt_disable(), restoring it
+    with preempt_enable().
+
+
+get_cpu() / put_cpu()
+    If the goal is to use per-CPU data, additional helper functions exist;
+    get_cpu() disables preemption and returns the current CPU ID, and put_cpu()
+    enables preemption.
+
+
+local_irq_disable() / local_irq_enable()
+    Interrupts may be delivered to the CPU while a task is executing; that too
+    may cause unexpected concurrent access to per-CPU data. To prevent this
+    problem, the developer can disable interrupt delivery with
+    local_irq_disable() and then enable it with local_irq_enable().
+
+
+local_irq_save() / local_irq_restore()
+    If the code is running in a context where the interrupts might be already
+    disabled, they should use local_irq_save() and local_irq_restore(); this
+    variant saves and restores the previous status in addition to disabling or
+    enabling the interrupts. It is worth noting that disabling interrupts also
+    disables preemption. While interrupts are disabled, the code is running in
+    atomic context and the developers need to be careful to avoid, among other
+    things, any operations that may sleep or call into the scheduler.
+
+
+
+Local lock operations map into the preemption and interrupt disabling in the
+following way:
+
+     local_lock(&llock)             preempt_disable()
+     local_unlock(&llock)           preempt_enable()
+     local_lock_irq(&llock)         local_irq_disable()
+     local_unlock_irq(&llock)       local_irq_enable()
+     local_lock_save(&llock)        local_irq_save()
+     local_unlock_restore(&llock)   local_irq_restore()
+
+
+
+
+
+EXAMPLE
+
+create an irq save context on one processor/core
+
+    #include <linux/irq.h>
+
+    (...)
+        unisgned long flags;
+
+        local_irq_save(flags);
+        // do the irq save context
+
+        local_irq_restore(flags);
+    (...)

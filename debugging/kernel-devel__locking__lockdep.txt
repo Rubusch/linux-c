@@ -1,0 +1,292 @@
+lock dependency tool
+
+REFERENCES
+
+(daniel vetter, blog series on locking strategies and lockdep)
+https://blog.ffwll.ch/2020/08/lockdep-false-positives.html
+https://blog.ffwll.ch/2022/07/locking-engineering.html
+https://blog.ffwll.ch/2022/08/locking-hierarchy.html
+
+
+
+
+
+CONFIGURATION
+
+$ make menuconfig
+-> kernel hacking -> turn on lock debugging (will select some default options)
+  * CONFIG_DEBUG_RT_MUTEXES=y
+    Detect deadlocks of rt mutex and automatically report deadlock scene information.
+
+  * CONFIG_DEBUG_SPINLOCK=y
+    Detect problems such as uninitialized use of spinlock. With the NMI watchdog, you can find the spinlock deadlock.
+
+  * CONFIG_DEBUG_MUTEXES=y
+    Detect and report mutex errors
+
+  * CONFIG_DEBUG_WW_MUTEX_SLOWPATH=y
+    Detect the slowpath test of the wait/wound type mutex.
+
+  * CONFIG_DEBUG_LOCK_ALLOC=y
+    Check that the lock in use (spinlock/rwlock/mutex/rwsem) is released, or that the lock in use is reinitialized, or that the lock is held when the process exits.
+
+  * CONFIG_PROVE_LOCKING=y
+    Enables the kernel to report deadlock details before a deadlock occurs. See /proc/lockdep_chains.
+
+  * CONFIG_LOCKDEP=y
+    The total switch of the entire Lockdep. See /proc/lockdep, /proc/lockdep_stats.
+
+  * CONFIG_LOCK_STAT=y
+    The lock holds information about the competition area, including waiting time, holding time, and so on. See /proc/lock_stat.
+
+  * CONFIG_DEBUG_LOCKDEP=y
+    More self-testing during the use of Lockdep will add a lot of extra overhead.
+
+  * CONFIG_DEBUG_ATOMIC_SLEEP=y
+    Sleeping in the atomic section can cause a lot of unpredictable problems. These atomic sections include spinlock locks, rcu read operations, kernel preemption, interrupt handling, and so on.
+
+
+
+
+
+USAGE
+
+instruments
+    /proc/sys/kernel/lock_stat         set to view the /proc/lock_stat statistics, clear the lockdep statistics
+    /proc/sys/kernel/max_lock_depth
+    /proc/sys/kernel/prove_locking
+    /proc/locks
+    /proc/lock_stat                    about lock usage statistics
+    /proc/lockdep                      locks with dependencies
+    /proc/lockdep_stats                statistic information for dependency locks
+    /proc/lockdep_chains               dependency Link List
+
+use
+$ dmesg
+
+and fetch information in the proc entries
+
+
+interpretation
+
+    (lockC){ + .  + .  . . }
+             A A  A A  A A
+             | |  | |  | |
+             | |  | |  | +---- ever used as READLOCK?
+             | |  | |  +---- ever used?
+             | |  | |
+             | |  | +---- ever held as READLOCK with SOFTIRQ enabled?
+             | |  +---- ever held with SOFTIRQ enabled?
+             | |
+             | +---- ever held as READLOCK in HARDIRQ context?
+             +---- ever held in HARDIRQ context?
+
+
+Kernel documentation says:
+    .  acquired while irqs disabled (and not in irq context)
+    -  acquired in irq context
+    +  acquired with irqs enabled
+    ?  acquired in irq context with irqs enabled.
+
+
+Steve Roestedt says:
+    . lock exists
+    + lock happened with IRQ enabled
+    - lock happened with IRQ disabled
+
+
+
+
+USAGE
+
+turn on lock stats
+# sudo bash -c "echo 1 >/proc/sys/kernel/lock_stat"
+
+turn off lock stats
+# sudo bash -c "echo 0 >/proc/sys/kernel/lock_stat"
+
+show current lock stats
+# cat /proc/lockdep_stats
+
+show current lock table
+# less /proc/lock_stat
+    01 lock_stat version 0.4
+    02-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    03                              class name    con-bounces    contentions   waittime-min   waittime-max waittime-total   waittime-avg    acq-bounces   acquisitions   holdtime-min   holdtime-max holdtime-total   holdtime-avg
+    04-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    05
+    06                         &mm->mmap_sem-W:            46             84           0.26         939.10       16371.53         194.90          47291        2922365           0.16     2220301.69 17464026916.32        5975.99
+    07                         &mm->mmap_sem-R:            37            100           1.31      299502.61      325629.52        3256.30         212344       34316685           0.10        7744.91    95016910.20           2.77
+    08                         ---------------
+    09                           &mm->mmap_sem              1          [<ffffffff811502a7>] khugepaged_scan_mm_slot+0x57/0x280
+    10                           &mm->mmap_sem             96          [<ffffffff815351c4>] __do_page_fault+0x1d4/0x510
+    11                           &mm->mmap_sem             34          [<ffffffff81113d77>] vm_mmap_pgoff+0x87/0xd0
+    12                           &mm->mmap_sem             17          [<ffffffff81127e71>] vm_munmap+0x41/0x80
+    13                         ---------------
+    14                           &mm->mmap_sem              1          [<ffffffff81046fda>] dup_mmap+0x2a/0x3f0
+    15                           &mm->mmap_sem             60          [<ffffffff81129e29>] SyS_mprotect+0xe9/0x250
+    16                           &mm->mmap_sem             41          [<ffffffff815351c4>] __do_page_fault+0x1d4/0x510
+    17                           &mm->mmap_sem             68          [<ffffffff81113d77>] vm_mmap_pgoff+0x87/0xd0
+    18
+    19.............................................................................................................................................................................................................................
+    20
+    21                         unix_table_lock:           110            112           0.21          49.24         163.91           1.46          21094          66312           0.12         624.42       31589.81           0.48
+    22                         ---------------
+    23                         unix_table_lock             45          [<ffffffff8150ad8e>] unix_create1+0x16e/0x1b0
+    24                         unix_table_lock             47          [<ffffffff8150b111>] unix_release_sock+0x31/0x250
+    25                         unix_table_lock             15          [<ffffffff8150ca37>] unix_find_other+0x117/0x230
+    26                         unix_table_lock              5          [<ffffffff8150a09f>] unix_autobind+0x11f/0x1b0
+    27                         ---------------
+    28                         unix_table_lock             39          [<ffffffff8150b111>] unix_release_sock+0x31/0x250
+    29                         unix_table_lock             49          [<ffffffff8150ad8e>] unix_create1+0x16e/0x1b0
+    30                         unix_table_lock             20          [<ffffffff8150ca37>] unix_find_other+0x117/0x230
+    31                         unix_table_lock              4          [<ffffffff8150a09f>] unix_autobind+0x11f/0x1b0
+
+
+clear statistics
+# echo 0 > /proc/lock_stat
+
+
+
+
+
+ANALYZING
+
+PROBLEM: LOCKLEAKS
+
+if the number allocated (e.g. 748) increases continually over time,
+then there is likely a leak.  The following command can be used to
+identify the leaking lock classes:
+
+# grep "lock-classes" /proc/lockdep_stats
+      lock-classes:                          748 [max: 8191]
+# grep "BD" /proc/lockdep
+
+
+
+
+
+PROBLEM: DEADLOCKS
+
+- elementary deadlocks:
+    locks taken twice
+
+  example
+
+    | CPU0
+    |
+    | lock A
+    |
+    | try to lock A again
+    | (waiting) <= DEADLOCK!
+    V
+    t
+
+
+- simple deadlocks:
+
+  example I)
+
+    | CPU0            CPU1
+    |
+    |                 lock B
+    | lock A
+    |
+    | try to lock B
+    | (waiting)
+    |                 try to lock A
+    |                 (waiting) <= DEADLOCK!
+    V
+    t
+
+
+  example II)
+
+    | CPU0            CPU1            CPU2
+    |
+    |                                 lock C
+    |                 lock B
+    | lock A
+    |
+    | try to lock B
+    | (waiting)
+    |                 try to lock C
+    |                 (waiting)
+    |                                 try to lock A
+    |                                 (waiting) <= DEADLOCK!
+    V
+    t
+
+
+
+
+- complex:
+    * if a lock is taken in INTERRUPT CONTEXT then it must have interrupts disabled when that lock is ever taken
+    * locks not taken in INTERRUPT CONTEXT can also cause deadlocks with locks taken in INTERRUPTs
+    * any lock taken when an INTERRUPT lock is held must also be protected by disabling interrupts
+
+  example I)
+
+    | CPU0
+    |
+    | lock A
+    |             --->Interrupt
+    |                 try to lock A
+    |                 (waiting) <= DEADLOCK!
+    V
+    t
+
+  example II)
+
+    | CPU0            CPU1
+    |
+    | lock A          lock B
+    |
+    | try to lock B
+    | (waiting)
+    |             --->Interrupt
+    |                 try to lock A
+    |                 (waiting) <= DEADLOCK!
+    V
+    t
+
+
+- confusing:
+    blocking timers interfere with processs
+    * del_timer_sync() can block anc cause deadlocks with other locks
+    * will not return until the specified timer has finished
+    * timer are softirqs and can be preempted by interrupts
+    * you cannot hold any lock that is in the chain of an interrupt lock
+
+  example
+
+    | CPU0            CPU1
+    | (disable
+    | interrupts)
+    |
+    | lock A
+    |
+    | del_timer_sync()
+    | (waiting)
+    |             ---> timer handler
+    |                 try to lock A
+    |                 (waiting) <= DEADLOCK!
+    V
+    t
+
+
+
+
+ISSUES
+
+issue: "INFO: lockdep is turned off" in syslog
+
+fix: lockdep seems to be very sensitive, too many locks, too many errors, etc
+will turn off lockdep.
+-> Either find in the log a message about why lockdep was turned off, and/or
+   brutalize the sources of lockdep to never turn off and fry your target..
+-> try a reboot! try less boot parameters (e.g. kdb off!)
+
+example:
+ - DEBUG_LOCKS_WARN_ON(val > preempt_count())
+   

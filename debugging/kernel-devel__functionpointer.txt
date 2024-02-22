@@ -1,0 +1,56 @@
+function pointer
+
+Some C syntax examples, useful for kernel function pointers
+
+
+
+
+
+REFERENCES
+https://stackoverflow.com/questions/1591361/understanding-typedefs-for-function-pointers-in-c
+
+
+
+
+
+what is this?
+
+    extern void (*signal(int, void(*)(int)))(int);
+
+Perfectly obscurely obvious - it's an inner function that takes two
+arguments.  One is an integer and the other one is a pointer to a
+function that takes an integer as an argument and returns nothing.
+
+The inner function (signal()) returns a pointer to a (outer) function
+that takes an integer as an argument and returns nothing.
+
+
+If you write:
+    typedef void (*SignalHandler)(int signum);
+
+then you can instead declare signal() as:
+    extern  SignalHandler signal(int signum, SignalHandler handler);
+
+This means the same thing, but is usually regarded as somewhat easier
+to read. It is clearer that the function takes an int and a
+SignalHandler and returns a SignalHandler.
+
+
+The old-school that prefers to invoke a function pointer as:
+
+    (*functionpointer)(arg1, arg2, ...);
+
+Modern syntax uses just:
+
+    functionpointer(arg1, arg2, ...);
+
+
+
+applied on the example
+
+    extern void (*signal(int, void()(int)))(int);  /*and*/
+
+is the same as
+
+    typedef void (*SignalHandler)(int signum);
+    extern SignalHandler signal(int signum, SignalHandler handler);

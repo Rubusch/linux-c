@@ -1,0 +1,47 @@
+dmesg
+
+dmesg buffer size
+### CONFIG_LOG_BUF_SHIFT 17 = 128k
+$ dmesg -s 128000
+
+set up dmesg buffer space and loglevel
+# dmesg -n 5
+only messages with a value lower (not lower equal) than the console_loglevel
+will be printed
+
+
+note: dmesg log levels are as follows
+KERN_EMERG   "0"    Emergency messages, system is       pr_emerg
+                    about to crash or is unstable
+
+KERN_ALERT   "1"    Something bad happened and action   pr_alert
+                    must be taken immediately
+
+KERN_CRIT    "2"    A critical condition occurred like  pr_crit
+                    a serious hardware/software failure
+
+KERN_ERR     "3"    An error condition, often used by   pr_err
+                    drivers to indicate difficulties
+                    with the hardware
+
+KERN_WARNING "4"    A warning, meaning nothing serious  pr_warning
+                    by itself but might indicate
+                    problems
+
+KERN_NOTICE  "5"    Nothing serious, but notably        pr_notice
+                    nevertheless. Often used to report
+                    security events.
+
+KERN_INFO    "6"    Informational message e.g. startup  pr_info
+                    information at driver
+                    initialization
+
+KERN_DEBUG   "7"    Debug messages                      pr_debug, pr_devel
+                                                        if DEBUG is defined
+
+KERN_DEFAULT "d"    The default kernel loglevel
+
+KERN_CONT    ""     "continued" line of log printout    pr_cont
+                    (only done after a line that had no
+                    enclosing \n)
+

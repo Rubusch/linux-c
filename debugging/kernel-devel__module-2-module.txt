@@ -1,0 +1,101 @@
+From Module to Module
+
+
+RESOURCES
+https://insujang.github.io/2017-05-03/calling-kernel-modules-function-from-the-other-kernel-module/
+http://stackoverflow.com/a/9499893
+
+
+A) Use struct type from another module
+
+- setup path to header folder of the other module
+- #include "other_modules_header.h"
+
+
+
+
+
+B) Use struct type instance from another module
+
+- use EXPORT_SYMBOL for struct instance, similar to exporting functions, in C)
+
+
+
+
+
+C) Call function from another module
+
+NOTE: when using cmake and build out of source, the **BUILD** folder must be
+      used for the symbol file, not the **SOURCE** folder!!!
+
+
+
+SITUATION: LKM1 has function1() called by LKM2
+
+.../lkm1/functions.h
+    (...)
+    void function1(void);
+
+
+
+.../lkm1/functions.c
+    (...)
+    #include <linux/module.h>
+
+    void function1(void);
+    EXPORT_SYMBOL(function1);
+
+    void function1(void)
+    {
+        ...
+    }
+
+
+NB: EXPORT_SYMBOL() can also be placed in .h file
+NB: EXPORT_SYMBOL_GPL() can also be used, e.g. for variables (i.e. INSTANCES! )
+    (...)
+    struct some_type_t *ptr;
+    EXPORT_SYMBOL_GPL(ptr);
+
+
+PROBLEM: at compilation of LKM2 we see
+    ERROR: "function1()" undefined!
+
+
+
+FIX:
+- build LKM1
+- find "Module.symvers" file in LKM1: ".../lkm1/Module.symvers"
+- now in LKM2 set up a file kbuild.in
+    (...)
+    KBUILD_EXTRA_SYMBOLS := <path to >/lkm1/Module.symvers
+
+    ## (opt) provide path to the folder with the header file
+    EXTRA_CFLAGS += -I/lkm1/
+    (...)
+
+    NB: EXTRA_CFLAGS seems deprecated and ccflags-y should be used instead
+
+- now build LKM2
+
+
+
+
+FIX 2:
+In case we're building the module LKM2 out of source against the kernel headers
+and/or the Makefile is not part of Kbuild, open the Makefile and localize the
+call for building the module, e.g.
+
+$ vi ./Makefile
+    (...)
+    module: version.h
+            @$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+    (...)
+
+and change the Makefile to
+    CFLAGS = KBUILD_EXTRA_SYMBOLS=<path to >/lkm1/Module.symvers
+    (...)
+    module: version.h
+            @$(MAKE) -C $(KERNELDIR) $(CFLAGS) M=$(PWD) modules
+    (...)
+

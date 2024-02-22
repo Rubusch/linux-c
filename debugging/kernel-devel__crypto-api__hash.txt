@@ -1,0 +1,368 @@
+hashing
+
+
+
+TERMINOLOGY
+
+shash - synchronous hash
+ahash - asynchronous hash
+
+
+
+RESSOURCE:
+<from kernel.org/documentation>
+
+
+
+
+
+Registering And Unregistering The Transformation
+
+There are multiple ways to register a HASH transformation, depending on whether
+the transformation is synchronous [SHASH] or asynchronous [AHASH] and the amount
+of HASH transformations we are registering. You can find the prototypes defined
+in include/crypto/internal/hash.h:
+
+    int crypto_register_ahash(struct ahash_alg *alg);
+    int crypto_register_shash(struct shash_alg *alg);
+    int crypto_register_shashes(struct shash_alg *algs, int count);
+
+The respective counterparts for unregistering the HASH transformation are as
+follows:
+
+    int crypto_unregister_ahash(struct ahash_alg *alg);
+    int crypto_unregister_shash(struct shash_alg *alg);
+    int crypto_unregister_shashes(struct shash_alg *algs, int count);
+
+
+
+
+
+Cipher Definition With struct shash_alg and ahash_alg
+
+Here are schematics of how these functions are called when operated from other
+part of the kernel. Note that the .setkey() call might happen before or after
+any of these schematics happen, but must not happen during any of these are
+in-flight. Please note that calling .init() followed immediately by .finish()
+is also a perfectly valid transformation.
+
+I)   DATA -----------.
+                     v
+      .init() -> .update() -> .final()      ! .update() might not be called
+                  ^    |         |            at all in this scenario.
+                  '----'         '---> HASH
+
+II)  DATA -----------.-----------.
+                     v           v
+      .init() -> .update() -> .finup()      ! .update() may not be called
+                  ^    |         |            at all in this scenario.
+                  '----'         '---> HASH
+
+III) DATA -----------.
+                     v
+                 .digest()                  ! The entire process is handled
+                     |                        by the .digest() call.
+                     '---------------> HASH
+
+
+Here is a schematic of how the .export()/.import() functions are called when
+used from another part of the kernel.
+
+
+KEY--.                 DATA--.
+     v                       v              ! .update() may not be called
+ .setkey() -> .init() -> .update() -> .export()   at all in this scenario.
+                          ^     |         |
+                          '-----'         '--> PARTIAL_HASH
+
+----------- other transformations happen here -----------
+
+PARTIAL_HASH--.   DATA1--.
+              v          v
+          .import -> .update() -> .final()  ! .update() may not be called
+                      ^    |         |           at all in this scenario.
+                      '----'         '--> HASH1
+
+PARTIAL_HASH--.   DATA2-.
+              v         v
+          .import -> .finup()
+                        |
+                        '---------------> HASH2
+
+
+
+NOTE: it is perfectly legal to "abandon" a request object:
+ - call .init() and then (as many times) .update()
+ - _not_ call any of .final(), .finup() or .export() at any point in future
+
+In other words implementations should mind the resource allocation and clean-up.
+No resources related to request objects should remain allocated after a call to
+.init() or .update(), since there might be no chance to free them.
+
+
+
+
+
+Specifics Of Asynchronous HASH Transformation
+
+Some of the drivers will want to use the Generic ScatterWalk in case the
+implementation needs to be fed separate chunks of the scatterlist which contains
+the input data. The buffer containing the resulting hash will always be properly
+aligned to .cra_alignmask so there is no need to worry about this.
+
+
+
+
+===
+example: shash e.g. used for integrity check value (icv) in IPsec protocol trailer
+
+
+implementation of shash algorithm: myIcvAuth.c
+
+#define MY_AUTH_ICV_NAME "myAuthIcv"
+#define MY_AUTH_ICV_TFM_NAME "myAuthIcv(aes)"
+#define MY_AUTH_ICV_DIGEST_SIZE 8
+#define MY_AUTH_ICV_BLOCK_SIZE 16
+
+/* transformation context */
+struct myAuthIcv_tfm_ctx
+{
+  struct crypto_cipher *cipher;
+};
+
+/* operation state context */
+struct myAuthIcv_desc_ctx
+{
+  u8 stateA[...];
+// diverse internal variables
+// ...
+  struct crypto_cipher *cipher;
+};
+
+static int
+myAuthIcv_initIcv(struct crypto_tfm *tfm)
+{
+  struct crypto_instance *inst = (void *)tfm->__crt_alg;
+  struct crypto_spawn *spawn = crypto_instance_ctx(inst);
+  struct crypto_cipher *cipher = crypto_spawn_cipher(spawn);
+  if (IS_ERR(cipher))
+    return PTR_ERR(cipher);
+
+  struct myAuthIcv_tfm_ctx *tfm_ctx = crypto_tfm_ctx(tfm);
+  tfm_ctx->cipher = cipher;
+}
+
+static int
+myAuthIcv_exitTfm(struct crypto_tfm *tfm)
+{
+  struct myAuthIcv_tfm_ctx *tfm_ctx = crypto_tfm_ctx(tfm);
+  crypto_free_cipher(tfm_ctx->cipher);
+}
+
+static int
+myAuthIcv_init(struct shash_desc *desc)
+{
+  struct MyAuthIcv_descCtx *ctx = shash_desc_ctx(desc);
+
+  memset(ctx->stateA, 0, sizeOf(ctx->stateA));
+  // ...
+
+  struct crypto_shash *shash = desc->tfm;
+  struct myAuthIcv_tfm_ctx *tfm_ctx = crypto_shash_ctx(shash);
+  ctx->cipher = tfm_ctx->cipher;
+
+  return 0;
+}
+
+static int
+myAuthIcv_update(struct shash_desc *desc, const u8 *data, unsigned int len)
+{
+  struct myAuthIcv_desc_ctx *ctx = shash_desc_ctx(desc);
+
+  if (!ctx->inProgress) {
+    /* encrypto stateA */
+    // calculate stuff with stateA, then use it
+    // ...
+
+    crypto_cipher_encrypt_one(ctx->cipher, ctx->stateA, ctx->stateA);
+  }
+
+  const int block_avail = sizeof(ctx->block) - ctx->block_used;
+
+  if (block_avail > len) {
+    //...
+  } else {
+    //...
+  }
+
+  return 0;
+}
+
+/* add padding and return message digest in final */
+static int
+myAuthIcv_final(struct shash_desc *desc, u8 *out)
+{
+  struct myAuthIcv_desc_ctx *ctx = shash_desc_ctx(desc);
+
+  const unsigned int num_pad_bytes = MY_AUTH_ICV_BLOCK_SIZE - ctx->block_used;
+  if (ctx->block_used) {
+    memset(ctx->block + ctx->block_used, 0, num_pad_bytes);
+    myAuthIcv_hash_block(ctx); // some function....
+  }
+
+  //...
+  memcpy(out, ctx->stateB, MY_AUTH_ICV_DIGEST_SIZE);
+
+  return 0;
+}
+
+static int
+myAuthIcv_setkey(struct crypto_shash *parent, const u8 *in_key, size_t keylen)
+{
+  struct myAuthIcv_tfm_ctx *tfm_ctx = crypto_shash_ctx(parent);
+  int err = crypto_cipher_setkey(tfm_ctx->cipher, in_key, keylen);
+
+  return err;
+}
+
+
+
+static int
+myAuthIcv_create(struct crypto_template *tmpl, struct rtattr **tb)
+{
+  /* verify that it's really a shash */
+  int err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_SHASH);
+  if (err)
+    return err;
+
+  /* return first template algo */
+  struct crypto_alg *cipherAlg = crypto_get_attr_alg(tb, CRYPTO_ALG_TYPE_CIPHER, CRYPTO_ALG_TYPE_MASK);
+  if (IS_ERR(cipher_alg))
+    return PTR_ERR(cipher_alg);
+
+  /* verify block size */
+  if (cipher_alg->cra_blocksize != MY_AUTH_ICV_BLOCK_SIZE)
+    goto out;
+
+  /* create new shash instance */
+  struct shash_instance *inst = shash_alloc_instance(MY_AUTH_ICV_TFM_NAME, cipher_alg);
+  err = PTR_ERR(inst);
+  if (IS_ERR(inst))
+    goto out_free_inst;
+
+  err = crypto_init_spawn(shash_instance_ctx(inst), cipher_alg, shash_crypto_instance(inst), CRYPTO_ALG_TYPE_MASK);
+  if (err)
+    goto out_free_inst;
+
+  unsigned long alignmask = cipher_alg->cra_alignmask;
+  inst->alg.base.cra_alignmask = alignmask;
+  inst->alg.base.cra_priority = cipher_alg->cra_priority;
+  inst->alg.base.cra_blocksize = cipher_alg->cra_blocksize;
+
+  inst->alg.digestsize = MY_AUTH_ICV_DIGEST_SIZE;
+  inst->alg.descsize = ALIGN(sizeof(struct myAuthIcv_desc_ctx), crypto_tfm_ctx_alignment());
+  inst->alg.base.cra_ctxsize = ALIGN(sizeof(struct myAuthIcv_desc_ctx), crypto_tfm_ctx_alignment());
+
+  inst->alg.base.cra_init = myAuthIcv_initTfm;
+  inst->alg.base.cra_exit = myAuthIcv_exitTfm;
+
+  inst->alg.init = myAuthIcv_init;
+  inst->alg.update = myAuthIcv_update;
+  inst->alg.final = myAuthIcv_final;
+  inst->alg.setkey = myAuthIcv_setkey;
+
+  err = shash_register_instance(tmpl, inst);
+  if (err) {
+out_free_inst:
+    shash_free_instance(shash_crypto_instance(inst));
+  }
+
+out:
+  crypto_mod_put(cipher_alg);
+  return err;
+}
+
+
+
+static struct crypto_template tmplIcv = {
+  .name = MY_AUTH_ICV_TFM_NAME,
+  .create = myAuthIcv_create,
+  .free = shash_free_instance,
+  .module = THIS_MODULE,
+};
+
+static int __init
+myAuthIcv_moduleInit(void)
+{
+  int res = crypto_register_template(&tmplIcv);
+  return res;
+}
+
+static void __exit
+myAuthIcv_moduleExit(void)
+{
+  crypto_unregister_template(&tmplIcv);
+}
+
+module_init(myAuthIcv_moduleInit);
+module_exit(myAuthIcv_moduleExit);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("BLABLA");
+MODULE_DESCRIPTION("what it does...");
+MODULE_ALIAS_CRYPTO(MY_AUTH_ICV_NAME);
+
+
+
+
+
+
+usage of shash algorithm: e.g. some icv_socket.c
+
+struct sdesc {
+  char ctx[];
+  struct shash_desc;
+};
+
+// in some function
+// ...
+  struct crypto_shash *tfm;
+  struct sdesc *sdesc;
+  u8 *tfm_icv_name = "myAuthIcv(aes)"
+  int ret;
+  size_t size, datalen;
+  u8 *data, *digest;
+
+  tfm_icv = crypto_alloc_shash(tfm_icv_name, 0, 0);
+  if (IS_ERR(tfm_icv)) {
+    return -ENOMEM;
+  }
+
+  size = sizeof(struct shash_desc) + crypto_shash_descsize(tfm_icv);
+  sdesc = kmalloc(size_desc, GFP_KERNEL);
+  if (!sdesc) {
+    ret = -ENOMEM;
+    goto out;
+  }
+
+  sdesc->shash.tfm = tfm_icv;
+
+  /* provide key (depends on algo) */
+  ret = crypto_shash_setkey(tfm_icv, my_key, NOISE_PUBLIC_KEY_LEN);
+  if (ret) {
+    pr_warn("%s: icv key could not be applied\n", __func__);
+    goto out;
+  }
+
+  /* obtain the icvdigest, calculated over "icvdata" with "icvdatalen" */
+  ret = crypto_shash_digest(&sdesc->shash, icvdata, icvdatalen, icvdigest);
+  if (ret) {
+    pr_warn("%s: icv key could not be applied\n", __func__);
+    goto out;
+  }
+
+out:
+  crypto_free_shash_digest(tfm);
+
+  return ret;
+};

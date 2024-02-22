@@ -1,0 +1,194 @@
+call trace
+
+REFERENCES
+
+https://www.kernel.org/doc/html/latest/admin-guide/bug-hunting.html
+https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
+https://stackoverflow.com/questions/13113384/what-is-the-meaning-of-question-marks-in-linux-kernel-panic-call-traces
+https://www.dedoimedo.com/computers/crash-analyze.html
+
+
+
+
+
+EXAMPLE: Call Trace
+
+    ------------[ cut here ]------------
+    WARNING: CPU: 1 PID: 28102 at kernel/module.c:1108 module_put+0x57/0x70
+    Modules linked in: dvb_usb_gp8psk(-) dvb_usb dvb_core nvidia_drm(PO) nvidia_modeset(PO) snd_hda_codec_hdmi snd_hda_intel snd_hda_codec snd_hwdep snd_hda_core snd_pcm snd_timer snd soundcore nvidia(PO) [last unloaded: rc_core]
+    CPU: 1 PID: 28102 Comm: rmmod Tainted: P        WC O 4.8.4-build.1 #1
+    Hardware name: MSI MS-7309/MS-7309, BIOS V1.12 02/23/2009
+     00000000 c12ba080 00000000 00000000 c103ed6a c1616014 00000001 00006dc6
+     c1615862 00000454 c109e8a7 c109e8a7 00000009 ffffffff 00000000 f13f6a10
+     f5f5a600 c103ee33 00000009 00000000 00000000 c109e8a7 f80ca4d0 c109f617
+    Call Trace:
+     [<c12ba080>] ? dump_stack+0x44/0x64
+     [<c103ed6a>] ? __warn+0xfa/0x120
+     [<c109e8a7>] ? module_put+0x57/0x70
+     [<c109e8a7>] ? module_put+0x57/0x70
+     [<c103ee33>] ? warn_slowpath_null+0x23/0x30
+     [<c109e8a7>] ? module_put+0x57/0x70
+     [<f80ca4d0>] ? gp8psk_fe_set_frontend+0x460/0x460 [dvb_usb_gp8psk]
+     [<c109f617>] ? symbol_put_addr+0x27/0x50
+     [<f80bc9ca>] ? dvb_usb_adapter_frontend_exit+0x3a/0x70 [dvb_usb]
+     [<f80bb3bf>] ? dvb_usb_exit+0x2f/0xd0 [dvb_usb]
+     [<c13d03bc>] ? usb_disable_endpoint+0x7c/0xb0
+     [<f80bb48a>] ? dvb_usb_device_exit+0x2a/0x50 [dvb_usb]
+     [<c13d2882>] ? usb_unbind_interface+0x62/0x250
+     [<c136b514>] ? __pm_runtime_idle+0x44/0x70
+     [<c13620d8>] ? __device_release_driver+0x78/0x120
+     [<c1362907>] ? driver_detach+0x87/0x90
+     [<c1361c48>] ? bus_remove_driver+0x38/0x90
+     [<c13d1c18>] ? usb_deregister+0x58/0xb0
+     [<c109fbb0>] ? SyS_delete_module+0x130/0x1f0
+     [<c1055654>] ? task_work_run+0x64/0x80
+     [<c1000fa5>] ? exit_to_usermode_loop+0x85/0x90
+     [<c10013f0>] ? do_fast_syscall_32+0x80/0x130
+     [<c1549f43>] ? sysenter_past_esp+0x40/0x6a
+    ---[ end trace 6ebc60ef3981792f ]---
+
+
+
+NOTES on CALL TRACE
+
+e.g.
+    [<c12ba080>] ? dump_stack+0x44/0x64
+
+means at time [<c12ba080>], probably there was a call to "symbol+offset/length",
+where
+    [<c12ba080>] - time stamp
+    ?            - probably
+    dump_stack   - the symbol
+    +0x44        - offset to that symbol
+    /0x64        - length of the instruction
+
+'?' means that the information about this stack entry is probably not reliable.
+
+The stack entry may be valid or not. Sometimes one may simply skip it. It may be
+helpful to investigate the disassembly of the involved module to see which
+function is called at ClearFunctionName+0x88 (or, on x86, immediately before
+that position).
+
+
+
+
+
+EXAMPLE: registers
+
+    (...)
+    RIP: 0010:[<ffffffffa0180279>]  [<ffffffffa0180279>] debug_fucntion+0x19/0x160 [dise]
+    RSP: 0018:ffff880435fc5b88  EFLAGS: 00010282
+    RAX: 0000000000000000 RBX: 0000000000010000 RCX: ffffc90028213000
+    RDX: 0000000000010040 RSI: 0000000000010000 RDI: ffff880fe36a0000
+    RBP: ffff880435fc5b88 R08: ffffffffa025d8a3 R09: 0000000000000000
+    R10: 0000000000000004 R11: 0000000000000004 R12: 0000000000010040
+    R13: 000000000000b101 R14: ffffc90028213010 R15: ffff880fe36a0000
+    FS:  00007fbe6040b700(0000) GS:ffff8800618e0000(0000) knlGS:0000000000000000
+    CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+    CR2: ffffc90028213000 CR3: 0000000fc965b000 CR4: 00000000000007e0
+    (...)
+
+
+
+NOTES on registers
+
+RIP - RIP is the instruction pointer. It points to a memory address,
+indicating the progress of program execution in memory. In our case,
+you can see the exact address in the line just below the bracketed
+exception line
+NB: On 32-bit architecture, the instruction pointer is called EIP.
+
+
+Privilege levels (CS, DS,...)
+
+Privilege level is the concept of protecting resources on a
+CPU. Different execution threads can have different privilege levels,
+which grant access to system resources, like memory regions, I/O
+ports, etc. There are four levels, ranging from 0 to 3. Level 0 is the
+most privileged, known as "Kernel mode". Level 3 is the least
+privileged, known as "User mode". Most modern operating systems,
+including Linux, ignore the intermediate two levels, using only 0 and
+3. The levels are also known as Rings.
+
+
+Current Privilege Level (CPL)
+
+CS - The Code Segment register is the one that points to a segment
+where program instructions are set. The two least significant bits of
+this register specify the Current Privilege Level (CPL) of the
+CPU. Two bits, meaning numbers between 'xxx0' (Kernel) and 'xxx3'
+(User). The format used to present the descriptor data can be
+confusing, but it's very simple. If the right-most figure is even,
+then we're in the Kernel mode; if the last figure is odd, then we're
+in the User mode. Hence, we see that CPL is 0, the offending task
+leading to the crash was running in the Kernel mode.
+
+
+Descriptor Privilege Level (DPL) and Requested Privilege Level (RPL)
+
+DS - Descriptor Privilege Level (DPL) is the highest level of
+privilege that can access the resource and is defined. This value is
+defined in the Segment Descriptor. Requested Privilege Level (RPL) is
+defined in the Segment Selector, the last two bits. Mathematically,
+CPL is not allowed to exceed MAX(RPL,DPL), and if it does, this will
+cause a general protection fault.
+
+
+Now, why is all this important, you ask?
+
+Well, for instance, if you encounter a case where system crashed while
+the CPL was 3, then this could indicate faulty hardware, because the
+system should not crash because of a problem in the User
+mode. Alternatively, there might be a problem with a buggy system
+call. Just some rough examples.
+
+
+
+
+
+EXAMPLE: kernel suffix ".isra.NN+0xXX/0xYY"
+
+    (...)
+    Sep 14 21:57:12 bwacer kernel:  [<ffffffff81092991>] ? enqueue_task_fair+0x101/0x540
+    Sep 14 21:57:12 bwacer kernel:  [<ffffffff81065bbb>] ? lock_timer_base.isra.35+0x2b/0x50
+    Sep 14 21:57:12 bwacer kernel:  [<ffffffff814c6f09>] schedule+0x29/0x70
+    (...)
+
+
+
+NOTES: on suffix '.isra.XX+0xOFFSET/0xLENGTH'
+
+'isra' is the suffix added to the function name when gcc optimization option
+'-fipa-sra' being carried out, from the gcc manual:
+
+-fipa-sra
+
+    Perform interprocedural scalar replacement of aggregates, removal of unused
+    parameters and replacement of parameters passed by reference by parameters
+    passed by value.
+
+    Enabled at levels -O2, -O3 and -Os.
+
+All functions optimized with this are counted and suffixed by 'isra'.
+
+Internally the function macro ASM_FORMAT_PRIVATE_NAME takes clone_fn_id_num++
+as its 3rd argument. This is the arbitrary number found after "isra". This
+going by its name is the count of functions that are cloned under this compiler
+option (or may be a global counter that keeps track of all cloned functions).
+
+
+
+
+
+EXAMPLE: kernel suffix ".cold+0xXX/0xYY"
+
+    Call Trace:
+    dump_stack+0x7e/0xb6
+    process_one_work.cold+0x41/0x46
+    worker_thread+0x4c/0x3f0
+    (...)
+
+The function process_one_work() consists of two address ranges, one of
+which contains "cold" code which is expected to not execute very often.
+There is a minimal symbol, process_one_work.cold+0x41, which is the address
+of the "cold" range.

@@ -1,0 +1,273 @@
+memory management (mm)
+
+REFERENCES
+
+https://notes.eddyerburgh.me/operating-systems/linux/memory-management
+
+
+
+
+
+PAGES
+
+The hardware memory management unit (MMU) that manages the translation
+between virtual and physical memory, typically deals in pages. Most
+32-bit architectures have 4KB pages, whereas most 64-bit architectures
+have 8KB pages.
+
+The kernel represents a physical page with the page struct, defined in
+<linux/mm_types.h>, simplified:
+
+    struct page {
+      unsigned long flags;            /* status of the page */
+      atomic_t _count;                /* usage count of the page: how
+                                       * many references there are to
+                                       * the page; -1 is free -> use
+                                       * page_count
+                                       */
+      atomic_t _mapcount;
+      unsigned long private;
+      struct address_space *mapping;
+      pgoff_t index;
+      struct list_head lru;
+      void *virtual;                  /* the page’s virtual address */
+    };
+
+NB: Developers should use the page_count function to determine whether
+    a page is free or not. page_count returns 0 if the page is free
+    and a non-negative integer if the page is in use.
+
+NB: Some memory (called high memory) isn’t permanently mapped in the
+    kernel’s address space. For high memory the value in "virtual"
+    will be NULL
+
+
+
+
+ZONES
+
+1. ZONE_DMA contains pages that can undergo DMA
+
+2. ZONE_DMA32 contains pages that can undergo DMA and are only
+   accessible by 32-bit devices
+
+3. ZONE_NORMAL contains normal pages
+
+4. ZONE_HIGHMEM contains high memory
+
+
+For example, a normal allocation can come from ZONE_NORMAL or
+ZONE_DMA, but not both. Allocations must come from a single zone at
+once.
+
+    struct zone {
+      unsigned long watermark[NR_WMARK];             /* holds the minimum low and high watermarks for the zone */
+      unsigned long lowmem_reserve[MAX_NR_ZONES];
+      struct per_cpu_pageset pageset[NR_CPUS];
+      spinlock_t lock;                               /* protects the structure from concurrent access */
+      struct free_area free_area[MAX_ORDER]
+      spinlock_t lru_lock;
+      struct zone_lru {
+      struct list_head list;
+      unsigned long nr_saved_scan;
+      } lru[NR_LRU_LISTS];
+      struct zone_reclaim_stat reclaim_stat;
+      unsigned long pages_scanned;
+      unsigned long flags;
+      atomic_long_t vm_stat[NR_VM_ZONE_STAT_ITEMS];
+      int prev_priority;
+      unsigned int inactive_ratio;
+      wait_queue_head_t *wait_table;
+      unsigned long wait_table_hash_nr_entries;
+      unsigned long wait_table_bits;
+      struct pglist_data *zone_pgdat;
+      unsigned long zone_start_pfn;
+      unsigned long spanned_pages;
+      unsigned long present_pages;
+      const char *name;
+    };
+
+
+Zones are needed because of limits in the hardware, the kernel can’t
+treat all pages as equal. Limitations are:
+
+- Some hardware devices can only perform direct memory access (DMA) to
+  certain address spaces.
+
+- Some architectures can physically address larger areas than they can
+  virtually address. As a consequence, some memory is not permanently
+  mapped into the kernel address space.
+
+
+
+
+
+ALLOCATION
+
+    struct page* alloc_pages(gfp_t gfp_mask, unsigned int order)
+
+This allocates 2^ORDER contiguous pages, and returns a pointer to the
+first page's page struct. On error, alloc_pages() returns NULL.
+
+    unsigned long __get_free_pages(gfp_t gfp_mask, unsigned int order)
+
+__get_free_pages() works like alloc_pages() except it returns the
+logical address of the first page, instead of the page struct.
+
+
+
+
+
+CONVERSION
+
+Return a pointer to the logical address where the given physical page
+currently resides
+
+     void* page_address(struct page *page)
+
+
+
+
+
+SINGLE PAGE
+
+    struct page * alloc_page(gfp_t gfp_mask)
+    unsigned long __get_free_page(gfp_t gfp_mask)
+
+
+
+
+
+ZEROED PAGE
+
+    unsigned long get_zeroed_page(unsigned int gfp_mask)
+
+get_zeroed_page() returns a page filled with zeros, and should be used
+when pages are given to user space
+
+
+
+
+
+FREE
+
+    void __free_pages(struct page *page, unsigned int order)
+    void free_pages(unsigned long addr, unsigned int order)
+    void free_page(unsigned long addr)
+
+
+
+
+
+CACHE
+
+A new cache is created with kmem_cache_create()
+
+    struct kmem_cache * kmem_cache_create(
+      const char *name,       /* the cache name */
+      size_t size,            /* the size of each element in the cache */
+      size_t align,           /* the offset of the first element in a cache, this is done to ensure a particular alignment in the first page */
+      unsigned long flags,
+      void (*ctor)(void *));  /* constructor for the cache, called whenever a new item is added */
+
+flags is a flags parameter used to control the behavior of the
+cache. It takes the following options:
+
+    SLAB_HWCACHE_ALIGN - instructs the slab layer to align each object within a
+                         slab to a cache line.
+
+    SLAB_POISON        - causes the slab layer to fill the slab with a known
+                         value. This is called poisoning, and can be useful to
+                         catch access to uninitialized memory.
+
+    SLAB_RED_ZONE      - causes the slab layer to insert red zones around the
+                         cache to detect buffer overflows.
+
+    SLAB_PANIC         - causes the kernel to panic if the slab allocation
+                         fails.
+
+    SLAB_CACHE_DMA     - instructs slab layer to allocate each slab in DMA-able
+                         memory.
+
+
+To destroy a cache, you call kmem_cache_destroy():
+
+    int kmem_cache_destroy(struct kmem_cache *cachep)
+
+Once a cache is created, you can allocate objects from it using
+kmem_cache_alloc():
+
+    void * kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+
+To later free an object and return it to its originating slab,
+use kmem_cache_free():
+
+    void kmem_cache_free(struct kmem_cache *cachep, void *objp)
+
+To map a page structure into the kernel’s address space, use kmap,
+declared in <linux/highmem.h>:
+
+    void *kmap(struct page *page)
+
+kmap() works on both high memory and low memory. If the page structure
+represents a page in low memory, then the virtual address is simply
+returned.  If the page is in low memory, a permanent mapping is
+created and the address is returned. kmap() may sleep, so it works
+only in process context
+
+
+Since the number of permanent mappings of high memory are limited, you
+should unmap high memory when it’s no longer needed. You do this with
+the kunmap() function.
+
+    void kunmap(struct page *page)
+
+When you need to create a mapping but the current context can’t sleep,
+you can create a temporary mapping. “These are a set of reserved
+mappings that can hold a temporary mapping.
+
+    void *kmap_atomic(struct page *page, enum km_type type)
+
+The mapping is undone wit kunmap_atomic().
+
+
+
+
+
+MISCELLANEOUS
+
+The slab layer divides objects into groups called caches. Each cache
+stores a different object. For example, one cache is for task_struct
+structs, and another for inode structs. kmalloc() is built on top of
+the slab allocator using general purpose caches.
+
+Caches are divided into slabs. Slabs can consist of multiple
+contiguous pages, although normally they are only a single page
+
+A slab is in one of three states: full, partial, or empty. When the
+kernel requests a new object, the request is satisfied by a partial
+slab if one exists, otherwise an empty slab is used.
+
+Example: An inode is a filesystem structure that represents a disk
+inode, and is allocated by the slab allocater
+
+                                       +--------+
+                                +----->| object |
+                                |      +--------+
+                     +------+   |
+                     |      |---+      +--------+
+                +--->| slab |--------->| object |
+                |    |      |---+      +--------+
+    +-------+   |    +------+   |
+    |       |---+               |      +--------+
+    | cache |                   +----->| object |
+    |       |---+                      +--------+
+    +-------+   |    +------+
+                |    |      |          +--------+
+                +--->| slab |--------->| object |
+                     |      |---+      +--------+
+                     +------+   |
+                                |      +--------+
+                                +----->| object |
+                                       +--------+
+

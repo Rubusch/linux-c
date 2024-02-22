@@ -1,0 +1,291 @@
+socketbuffer (sk_buff)
+date: 20200218
+
+
+RESOURCES
+http://vger.kernel.org/~davem/skb_data.html
+https://www.skbuff.net/skbbasic.html
+http://vger.kernel.org/~davem/skb_size.html
+
+
+
+
+
+STRUCTURE
+
+struct sk_buff {
+0x00	struct sk_buff		*next;
+0x08	struct sk_buff		*prev;
+0x10	struct sock		*sk;
+0x18	struct timeval		stamp;
+0x28	struct net_device	*dev;
+0x30	struct net_device	*input_dev;
+	union {
+		struct tcphdr	*th;
+		struct udphdr	*uh;
+		struct icmphdr	*icmph;
+		struct igmphdr	*igmph;
+		struct iphdr	*ipiph;
+		struct ipv6hdr	*ipv6h;
+		unsigned char	*raw;
+0x38	} h;
+	union {
+		struct iphdr	*iph;
+		struct ipv6hdr	*ipv6h;
+		struct arphdr	*arph;
+		unsigned char	*raw;
+0x40	} nh;
+	union {
+	  	unsigned char 	*raw;
+0x48	} mac;
+0x50	struct  dst_entry	*dst;
+0x58	struct	sec_path	*sp;
+0x60	char			cb[40];
+
+0x88	unsigned int		len,
+0x8c				data_len,
+0x90				mac_len,
+0x94				csum;
+0x98	__u32			priority;
+0x9c	__u8			local_df:1,
+				cloned:1,
+				ip_summed:2,
+				nohdr:1,
+				nfctinfo:3;
+0x9d	__u8			pkt_type;
+0x9e	__u16			protocol;
+0xa0	void			(*destructor)(struct sk_buff *skb);
+0xa8	__u32			nfmark;
+0xb0	struct nf_conntrack	*nfct;
+0xb8	__u8			ipvs_property:1;
+0xc0	struct nf_bridge_info	*nf_bridge;
+0xc8	__u16			tc_index;
+0xca	__u16			tc_verd;
+0xcc	unsigned int		truesize;
+0xd0	atomic_t		users;
+0xd8	unsigned char		*head,
+0xe0				*data,
+0xe8				*tail,
+0xf0				*end;
+};
+
+
+
+
+
+
+BASIC FUNCTIONS
+
+int skb_headroom(const struct sk_buff *skb);
+int skb_tailroom(const struct sk_buff *skb);
+
+    head             data            tail             end
+     |                |               |                |
+     +----------------+===============+----------------+
+     |                |               |                |
+     +----------------+===============+----------------+
+       skb_headroom()                   skb_tailroom()
+
+
+
+
+void
+skb_reserve(struct sk_buff *skb, unsigned int len);
+
+    tail
+    data
+    head                                              end
+     |                                                 |
+     +-------------------------------------------------+
+     |                                                 |
+     +-------------------------------------------------+
+     |   `                                             |
+     |         `                                       |
+     |               `                                 |
+     |                      `                          |
+     |                             `                   |
+     +--------------------------------+----------------+
+     |              delta             |                |
+     +--------------------------------+----------------+
+     |                                |                |
+    head                             data             end
+                                     tail
+
+
+
+unsigned char*
+skb_push(struct sk_buff *skb, unsigned int len);
+
+    head             data            tail             end
+     |                |               |                |
+     +----------------+===============+----------------+
+     |                |               |                |
+     +----------------+===============+----------------+
+     |               .                                 |
+     |              .                                  |
+     |             .                                   |
+     |            .                                    |
+     |           .                                     |
+     +----------+=====================+----------------+
+     |          |  skb->len           |                |
+     +----------+=====================+----------------+
+     |          |                     |                |
+    head       data                  tail             end
+
+
+
+unsigned char*
+skb_pull(struct sk_buff *skb, unsigned int len);
+
+    head             data            tail             end
+     |                |               |                |
+     +----------------+===============+----------------+
+     |                |               |                |
+     +----------------+===============+----------------+
+     |                 .                               |
+     |                  .                              |
+     |                   .                             |
+     |                    .                            |
+     |                     .                           |
+     +----------------------+=========+----------------+
+     |                      | skb->len|                |
+     +----------------------+=========+----------------+
+     |                      |         |                |
+    head                   data      tail             end
+
+
+
+void
+skb_trim(struct sk_buff *skb, unsigned int len);
+
+    head             data            tail             end
+     |                |               |                |
+     +----------------+===============+----------------+
+     |                |               |                |
+     +----------------+===============+----------------+
+     |                               .                 |
+     |                              .                  |
+     |                             .                   |
+     |                            .                    |
+     |                           .                     |
+     +----------------+=========+----------------------+
+     |                |         |                      |
+     +----------------+=========+----------------------+
+     |                |         |                      |
+    head             data      tail                   end
+
+
+
+unsigned char*
+skb_put(struct sk_buff *skb, unsigned int len);
+
+    head             data            tail             end
+     |                |               |                |
+     +----------------+===============+----------------+
+     |                |               |                |
+     +----------------+===============+----------------+
+     |                                 .               |
+     |                                  .              |
+     |                                   .             |
+     |                                    .            |
+     |                                     .           |
+     +----------------+=====================+----------+
+     |                |                     |          |
+     +----------------+=====================+----------+
+     |                |                     |          |
+    head             data                  tail       end
+
+
+
+pdu initialization
+
+    // alloc
+    skb = alloc_skb(len, GFP_KERNEL);
+
+    head
+    data
+    tail                                              end
+     |-------------------------------------------------|
+
+
+
+    // reserve head room
+    skb_reserve(skb, header_len); // for DMA use header_len = NET_IP_ALIGN
+
+                             data
+    head                     tail                     end
+     |---------header_len-----|------------------------|
+
+
+
+    // init with user data
+    unsigned char *data = skb_put(skb, user_data_len); // move tail
+    int err = 0;
+    skb->csum = csum_and_copy_from_user(user_pointer, data, user_data_len, 0, &err);
+    if (err)
+        goto user_fault;
+
+                                     skb_put() ->
+    head                     data        tail          end
+     |------------------------|=user=data=|-------------|
+
+
+
+    // init udp header
+    struct inet_sock *inet = inet_sk(sk);
+    struct flowi *fl = &inet->cork.fl;
+    struct udphdr *uh;
+
+    skb->h.raw = skb_push(skb, sizeof(struct udphdr));
+    uh = skb->h.uh
+    uh->source = fl->fl_ip_sport;
+    uh->dest = fl->fl_ip_dport;
+    uh->len = htons(user_data_len);
+    uh->check = 0;
+    skb->csum = csum_partial((char *)uh,  sizeof(struct udphdr), skb->csum);
+    uh->check = csum_tcpudp_magic(fl->fl4_src, fl->fl4_dst, user_data_len, IPPROTO_UDP, skb->csum);
+    if (uh->check == 0)
+        uh->check = -1;
+
+                <- skb_push()
+    head           data                  tail          end
+     |--------------|=udp=hdr=:=user=data=|-------------|
+
+
+
+    // init ip header
+    struct rtable *rt = inet->cork.rt;
+    struct iphdr *iph;
+
+    skb->nh.raw = skb_push(skb, sizeof(struct iphdr));
+    iph = skb->nh.iph;
+    iph->version = 4;
+    iph->ihl = 5;
+    iph->tos = inet->tos;
+    iph->tot_len = htons(skb->len);
+    iph->frag_off = 0;
+    iph->id = htons(inet->id++);
+    iph->ttl = ip_select_ttl(inet, &rt->u.dst);
+    iph->protocol = sk->sk_protocol; /* IPPROTO_UDP in this case */
+    iph->saddr = rt->rt_src;
+    iph->daddr = rt->rt_dst;
+    ip_send_check(iph);
+
+    skb->priority = sk->sk_priority;
+    skb->dst = dst_clone(&rt->u.dst);
+
+       <- skb_push()
+    head  data                           tail          end
+     |-----|=ip=hdr=:=udp=hdr=:=user=data=|-------------|
+
+
+
+notes on fields in "struct sk_buff"
+
+
+cb[40]
+
+This is the control buffer. It is free to use for every
+layer. Please put your private variables there. If you
+want to keep them across layers you have to do a skb_clone()
+first. This is owned by whoever has the skb queued ATM.

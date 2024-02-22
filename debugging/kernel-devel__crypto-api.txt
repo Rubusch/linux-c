@@ -1,0 +1,52 @@
+crypto api
+date: 20200218
+
+
+
+RESOURCES
+https://events17.linuxfoundation.org/sites/events/files/slides/brezillon-crypto-framework_0.pdf
+
+
+
+TERMINOLOGY
+
+AEAD: Authenticated Encryption with Associated Data
+
+transformation implementation: represents an implementation of a specific algorithm, eg. struct crypto_alg
+
+transformation object: an instance of a specific algorithm, eg. struct crypto_tfm
+
+concept of crypto api "algorithms":
+ * cipher
+ * hash
+ * AEAD
+ * HMAC
+ * Compression
+
+examples: hmac(sha1), cbc(aes) or authenc(hmac(sha1), cbc(aes))
+
+
+
+USAGE
+
+// allocate a crypto instance and a crypto request
+tfm = crypto_alloc_<ALGTYPE>(algname, type, mask);
+req = <ALGTYPE>_request_alloc(tfm, GFP_KERNEL);
+req = <ALGTYPE>_request_set_callback(req, flags, my_cb, my_cb_data);
+
+alternatively
+skcipher_alloc_instance_simple(<crypto_template>, <rtattr>, <crypto_alg>);
+
+
+// setup the context (key, flags,...)
+crypto_<ALGTYPE>_set_<CTXNAME>(tfm, ctxval);
+
+// use the algorithm (feed data, obtain result)    [ repeat ]
+<ALGTYPE>_request_set_crypt(req,...);
+crypto_<ALGTYPE>_<OPERATION>(req);
+
+<ALGTYPE>_request_free(req);
+crypto_free_<ALGTYPE>(tfm);
+
+
+

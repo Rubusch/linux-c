@@ -1,0 +1,46 @@
+kmemleak
+
+kernel memory leak detector
+
+
+
+
+
+REFERENCES
+https://www.kernel.org/doc/html/latest/dev-tools/kmemleak.html
+
+
+
+
+
+CONFIGURATION
+    CONFIG_DEBUG_KMEMLEAK=y
+
+
+
+
+
+USAGE
+
+# mount -t debugfs nodev /sys/kernel/debug/
+# cat /sys/kernel/debug/kmemleak
+
+trigger an intermediate memory scan
+# sudo bash -c "echo scan > /sys/kernel/debug/kmemleak"
+
+clear the list of all current possible memory leaks
+# sudo bash -c "echo clear > /sys/kernel/debug/kmemleak"
+
+
+
+NOTE
+
+if CONFIG_DEBUG_KMEMLEAK_DEFAULT_OFF is set, it needs to be turned on as linux
+argument via boot argument:
+# vi /etc/default/grub
+    (...)
+    GRUB_CMDLINE_LINUX_DEFAULT="... kmemleak=on"
+    (...)
+
+# update-grub
+

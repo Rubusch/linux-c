@@ -1,0 +1,438 @@
+gcov (kernel)
+
+code coverage, at the example of the mmc_spi driver
+
+
+
+
+REFERENCES
+
+https://www.man7.org/linux/man-pages/man1/gcov.1.html
+
+
+
+
+
+DEFINITION
+
+.gcno files
+
+instrumented application build, i.e. libraries, executable(s), and profiling
+artifacts (*.gcno files) are created
+
+
+
+.gcda files
+
+application test run(s) — the runtime coverage statistics (*.gcda files) is
+collected
+
+
+
+coverage statistics post-processing with GCOV/LCOV — text/HTML coverage reports
+are eventually generated
+
+
+
+
+
+MODULE SPECIFIC GCOV
+
+gcov: configuration
+
+in kconfig turn on in "make linux-menuconfig"
+    CONFIG_DEBUG_FS=y
+    CONFIG_GCOV_KERNEL=y
+
+(opt.) coverage of the entire kernel, try to avoid it!
+    CONFIG_GCOV_PROFILE_ALL=y
+
+(opt.) more recent kernels provide /proc support
+    CONFIG_GCOV_PROC=y
+
+
+
+in Makefile modify the respective kernel Makefile
+
+backup Makefiles, e.g.
+$ cp ./linux-3.4.25/drivers/of/Makefile{,.orig}
+
+for a particular module, e.g. "./of/spi.c", append
+    GCOV_PROFILE_of_spi.o := y
+
+for all files in the particular directory, set
+    GCOV_PROFILE := y
+
+
+
+gcov: build kernel
+
+build kernel
+$ make
+
+then move kernel and modules to the target board (embedded)
+
+NOTE: sometimes a single GCOV_PROFILE_... setting might not be sufficient, in
+case also try different files, also in parallel - don't need to be a dynamically
+linked module; if a gcov setup worked out can be seen if /sys/kernel/debug/gcov/
+contains valid paths after mounting the debugfs (see below)
+
+
+
+gcov: test execution
+
+on target mount the debugfs, obtains /sys/kernel/debug/gcov (old: /proc/gcov)
+# mount -t debugfs none /sys/kernel/debug
+
+perform specific action, e.g. load module
+# modprobe mmc_spi
+
+run
+# echo 0 > /sys/kernel/debug/gcov/reset
+
+NOTE: if no /proc/gcov and /sys/kernel/debug/gcov only shows "reset", try to
+pick different files in the Makefile
+
+
+(old) reset coverage data for a specific file
+# echo 0 > /proc/gcov/kernel/<specific file>.da
+reset all coverage data
+# echo 0 > /proc/gcov/vmlinux
+
+
+
+gcov: fetch data
+
+use gcov.sh script, alternatively...
+
+- move the .gcda files to the build machine
+- move the .gcno files to the build machine
+
+ATTENTION: .gcda can only be copied with 'cat' not with 'cp'
+
+fetch the .gcda files from
+    /sys/kernel/debug/gcov/opt/nx/snapshots/rubusclo_basesystem/vob/NX_BASESYSTEM/unit/buildroot/build/build/linux-3.4.25/drivers/spi/spi*.gcda
+
+or pack by script provided in documentation
+$ ./gcov__gather_on_test.sh `date +%Y%m%d%H%M%S`__gcov__`uname -r`.tar
+
+
+
+gcov: analysis
+
+The first column contains either the number of executions
+
+  number of executions | description
+  ---------------------+------------------------------------------------
+   #####               | for no execution
+                       |
+   -                   | for lines which did not produce executable code
+                       |
+   123                 | code of this line was 123 times executed
+                       |
+   123*                | Executed basic blocks having a statement with zero
+                       | execution_count end with * character
+
+NB: that this output format was changed with GCC release 3.3, so the exact
+format may differ on other systems.
+
+
+
+gcov: analysis process
+
+run gcc's gcov tool (in linux source folder)
+$ powerpc-unknown-linux-gnu-gcov -o  ./drivers/spi/ ./drivers/*.gcda
+
+or do something like
+$ cd /opt/repos/rubusclo/NX_BASESYSTEM__buildroot-upgrade-v2016.11.1__gcov/unit/buildroot/build/build/linux-4.9.27/drivers/rtc
+
+for branching information run, e.g.
+$ powerpc-unknown-linux-gnu-gcov -b ./spi.c
+
+check the resulsts
+$ vi ./spi.c.gcov
+
+
+
+gcov: analysis inside yocto (xilinx)
+
+sources were modified in a yocto devtool-workspace source
+
+modified sources were built in
+    /data/peta/v2020.2/ME-XU5-2EG-1I-D11E_PE1_QSPI/build/tmp/work/zynqmp_generic-xilinx-linux/linux-xlnx/5.4+git999-r0/
+
+recorded on the device, and entire folder /sys/kernel/debug/data was copied
+over (e.g. via SD card)
+
+mount
+$ udisksctl mount -b /dev/sdc1
+ -> /media/lothar.rubusch/LOTHAR1/data
+
+in case fix ownership
+$ sudo chown lothar.rubusch -R /media/lothar.rubusch/LOTHAR1/data
+
+change into compiled sources, and copy content over to the build sources
+$ cd ./tmp/work/zynqmp_generic-xilinx-linux/linux-xlnx/5.4+git999-r0/linux-xlnx-5.4+git999/
+
+merge in the .gcda files (.gcno files should be the same, so just copy everything)
+$ sudo cp -arf /media/lothar.rubusch/LOTHAR1/data /
+
+yocto: merge in the full sources
+$ cp -arf /data/peta/v2020.2/ME-XU5-2EG-1I-D11E_PE1_QSPI/components/yocto/workspace/sources/linux-xlnx/drivers/* ./drivers/
+
+
+being on arm64 we use generic aarch64 gcov
+NB: don't confuse with "gcov-tool"!!!
+$ aarch64-none-elf-gcov -o ./drivers/spi/ ./drivers/spi/*.gcda
+-> FIXME: could not write .c.gcov files...
+-> A.) build SDK, use gcov
+-> B.) build SDK, build kernel from sources manually, re-do measuring
+-> C.) fix tmp/work intermediates +/- and retry (did not work out)
+
+TODO: use scripts to copy the .c.gcov or .h.gcov files to the right places (see kernel doc)
+
+
+
+
+NOTES
+
+gcov files
+
+/sys/kernel/debug/gcov
+parent directory for all gcov-related files.
+
+/sys/kernel/debug/gcov/reset
+global reset file: resets all coverage data to zero when written to.
+
+/sys/kernel/debug/gcov/path/to/compile/dir/file.gcda
+the actual gcov data file as understood by the gcov tool. Resets file coverage
+data to zero when written to.
+
+/sys/kernel/debug/gcov/path/to/compile/dir/file.gcno
+symbolic link to a static data file required by the gcov tool. This file is
+generated by gcc when compiling with option -ftest-coverage.
+
+gcov provides a utility for managing the use of gcov and generating summarized
+code coverage results
+
+
+
+additional tools
+
+Lcov is a graphical front-end for gcov
+http://ltp.sourceforge.net/coverage/lcov.php
+
+
+
+gcc (userspace)
+
+the gcov flags -ftest-coverage -fprofile-arcs should be turned on by the
+CONFIG_GCOV option already
+
+for any other code use gcov as follows
+$ gcc -Wall -fprofile-arcs -ftest-coverage somecode.c
+more recent gcc's support the flag --coverage
+
+
+
+
+
+SCRIPT
+
+#!/bin/sh -e
+## script to gather data on the target ./gcov__gather-on-target.sh
+##
+## place and execute the script on the target
+DEST=$1
+if [ -z "$DEST" ] ; then
+  echo "Usage: $0 <output.tar>" >&2
+  exit 1
+fi
+
+GCDA=/sys/kernel/debug/gcov
+if [ ! -e /sys/kernel/debug/gcov ]; then
+  mount -t debugfs nodev /sys/kernel/debug
+fi
+
+TEMPDIR=$(mktemp -d)
+echo Collecting data..
+
+find $GCDA -type d -exec mkdir -p $TEMPDIR/\{\} \;
+find $GCDA -name '*.gcda' -exec sh -c 'cat < $0 > '$TEMPDIR'/$0' {} \;
+find $GCDA -name '*.gcno' -exec sh -c 'cp -d $0 '$TEMPDIR'/$0' {} \;
+tar cf $DEST -C $TEMPDIR sys
+rm -rf $TEMPDIR
+
+echo "$DEST successfully created, copy to build system and unpack with:"
+echo "  tar xf $DEST"
+
+
+
+
+
+EXAMPLE
+
+gcov analysis
+
+after having built a gcov configured kernel, installed it on a target,
+performed some actions and ran the script for obtaining a .tar file
+with .gcno/gcna files - for the analysis we come back to the linux
+sources where the kernel was built (needs .o files still around)
+
+backup the kernel sources
+IMPORTANT: don't clean!! gcov needs the same LOCATION, the .o and .gcno files
+$ cp -arf ./linux-4.9.27{,.orig} && cd ./linux-4.9.27
+
+
+
+on the target
+
+bring the gcov script (attached) to the target;
+perform action, then collect the data using the script
+TARGET# ./gcov.sh rtc.tar
+
+
+
+on the server
+
+copy the tarball from the target, by scp or cp (using NFS), into a new ./tmp folder
+$ mkdir ./tmp && cd ./tmp
+$ cp /opt/nfs/rtc.tar .
+
+extract the tar ball
+$ tar -xf ./rtc.tar
+
+copy the contents to the kernel sources
+IMPORTANT: this cuts off the long and useless ./sys/... paths prefixes
+here "home" is the top level folder, but can be what ever was the toplevel folder for the build
+$ cd /sys/kernel/debug/gcov && tar cf gcov.tar home
+
+execute gcov on the .gcda files
+IMPORTANT: use the gcov from the *build toolchain*, i.e. using buildroot use the generated "host/gcov"
+IMPORTANT: if in doubt, use the absolute path to the buildroot host/usr/bin/powerpc-...gcov, instead
+$ cd ./build/build/linux-4.9.27
+$ powerpc-unknown-linux-gnu-gcov -o ./drivers/rtc ./drivers/rtc/*.gcda
+
+
+find the results
+$ find . -name \*.gcov
+    ./drivers/rtc/io.h.gcov
+    ./drivers/rtc/rtc.h.gcov
+    ./drivers/rtc/pm_wakeup.h.gcov
+    ./drivers/rtc/err.h.gcov
+    ./drivers/rtc/hctosys.c.gcov
+    ./drivers/rtc/systohc.c.gcov
+    ./drivers/rtc/interrupt.h.gcov
+    ./drivers/rtc/rtc-mpc5121.c.gcov
+    ./drivers/rtc/device.h.gcov
+
+$ vim ./drivers/rtc/rtc-mpc5121.c.gcov
+
+
+
+
+
+ISSUES
+
+issue - '403*'
+
+wrong gcc gcov
+
+$ x86_64-unknown-linux-gnu-gcov ./spi.c
+    ./spi.gcno:version '403*', prefer '407*'
+
+    x86_64-unknown-linux-gnu-gcov: out of memory allocating 4216062832 bytes after a
+    total of 135168 bytes
+
+fix: make sure to use the correct gcov corresponding to the used gcc
+
+
+
+issue - bogus .gcno links
+
+fix:
+- perform a make clean on the source, remove all .gcov, .gcda and .gcno files
+  around in the source tree
+
+- enable gcov only for singular modules, turning on multiple modules might
+  result in a functional result for only one of the modules and invalid bogus
+  .gcno symlinks for the others (may become problematic when both call graphs
+  access the same .h file)
+
+- in case of buildroot, check if another target removed temporary files e.g.
+  when building "buildscript.sh CM12 CM12_RESCUE", the target CM12_RESCUE is
+  removing all built before (inclusively the .gcno files)
+
+
+
+issue - /*EOF*/
+
+using the wrong location to execute gcov command
+in the *.gcov files does not appear any line of code, but only *EOF*
+    ...
+    27         -:   22:/*EOF*/
+    28         -:   23:/*EOF*/
+    29         1:   24:/*EOF*/
+    30         -:   25:/*EOF*/
+    31         -:   26:/*EOF*/
+    32         -:   27:/*EOF*/
+    33         -:   28:/*EOF*/
+    34         -:   29:/*EOF*/
+    35         -:   30:/*EOF*/
+    36         1:   31:/*EOF*/
+    37     #####:   32:/*EOF*/
+    38         -:   33:/*EOF*/
+    39         6:   34:/*EOF*/
+    ...
+
+the above is the result of running the gcov tool from a wrong path, in fact
+watch out for gcov claims about "cannot open source file", e.g.
+
+at "~/buildroot/build/" the gcov command results in the following:
+$ powerpc-unknown-linux-gnu-gcov ./build/linux-3.4.25/drivers/of/of_spi.c -o ./build/linux-3.4.25/drivers/of/
+    File 'drivers/of/of_spi.c'
+    Lines executed:79.31% of 29
+    drivers/of/of_spi.c:creating 'of_spi.c.gcov'
+    drivers/of/of_spi.c:cannot open source file
+
+    File 'include/linux/spi/spi.h'
+    Lines executed:100.00% of 2
+    include/linux/spi/spi.h:creating 'spi.h.gcov'
+    include/linux/spi/spi.h:cannot open source file
+    ...
+
+fix:
+try to locate where the provided path starts off (where the make command was
+actually performed, this may differ; in case it was build with buildroot or
+yocto), in the example the location "drivers/of/of_spi.c" starts off in
+    "~/buildroot/build/build/linux-3.4.25/"
+
+the same command run at "~/buildroot/build/build/linux-3.4.25/" results in
+$ powerpc-unknown-linux-gnu-gcov ./drivers/of/of_spi.c -o ./drivers/of/
+    File 'drivers/of/of_spi.c'
+    Lines executed:79.31% of 29
+    drivers/of/of_spi.c:creating 'of_spi.c.gcov'
+
+    File 'include/linux/spi/spi.h'
+    Lines executed:100.00% of 2
+    include/linux/spi/spi.h:creating 'spi.h.gcov'
+    ...
+
+ATTENTION: the result of_spi.c.gcov file will NOT be located in
+"./drivers/of/", but again in the current location!!!
+
+
+thus in ~/buildroot/build/build/linux-3.4.25/ the code becomes visible
+$ vi ./of_spi.c.gcov
+
+
+
+issue - executed:00.00% on all files
+
+    File 'drivers/of/of_spi.c'
+    Lines executed:00.00% of 29
+    drivers/of/of_spi.c:creating 'of_spi.c.gcov'
+
+fix: make sure to execute the gcov command on the .c files, or .h files, respectively,
+but not on the .gcda files ;)
+

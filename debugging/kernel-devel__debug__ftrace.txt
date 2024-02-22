@@ -1,0 +1,67 @@
+ftrace
+
+
+
+
+
+CONFIGURATION
+
+CONFIG_FTRACE
+CONFIG_FUNCTION_TRACER
+CONFIG_FUNCTION_GRAPH_TRACER
+CONFIG_FTRACE_SYSCALLS
+CONFIG_DYNAMIC_FTRACE
+
+
+
+
+
+USAGE
+
+mount debugfs
+# mount -t debugfs nodev /sys/kernel/debug
+
+# cat /sys/kernel/debug/tracing/available_tracers
+    wakeup wakeup_rt preemptirqsoff preemptoff irqsoff function nop
+
+# cat /sys/kernel/debug/tracing/current_tracer
+    nop
+
+# echo wakeup > /sys/kernel/debug/tracing/current_tracer
+
+# cat /sys/kernel/debug/tracing/current_tracer
+    wakeup
+
+# cat /sys/kernel/debug/tracing/trace_options
+    noprint-parent nosym-offset nosym-addr noverbose
+
+# echo print-parent > /sys/kernel/debug/tracing/trace_options
+
+clear/reset tracer or ring buffer, respectively
+$ echo > /sys/kernel/debug/tracing/trace
+
+trace, e.g. loading module mmc_spi
+# echo 1 > /sys/kernel/debug/tracing/tracing_on; modprobe mmc_spi; echo 0 > /sys/kernel/debug/tracing/tracing_on
+# cat /sys/kernel/debug/tracing/trace > /tmp/trace.log
+
+
+
+
+
+
+
+
+NOTES
+
+turn on/off tracing, by setting '1' or '0'
+ATTENTION: keep space between '1' and '>'!
+# echo 1 > /sys/kernel/debug/tracing/tracing_on
+
+trace pids
+# echo <pid> > /debug/tracing/set_ftrace_pid
+e.g.
+# echo 1234 > /debug/tracing/set_ftrace_pid
+
+function tracing, in case pass function_graph
+# echo function > /debug/tracing/current_tracer
+
