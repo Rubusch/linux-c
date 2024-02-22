@@ -1,3 +1,16 @@
+/*
+  Level triggered and edge triggered event notifications
+
+  Level-triggered and edge-triggered are terms borrowed from
+  electrical engineering. When we’re using epoll the difference is
+  important. In edge triggered mode we will only receive events when
+  the state of the watched file descriptors change; whereas in level
+  triggered mode we will continue to receive events until the
+  underlying file descriptor is no longer in a ready state. Generally
+  speaking level triggered is the default and is easier to use and is
+  what I’ll use for this tutorial, though it’s good to know edge
+  triggered mode is available.
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
