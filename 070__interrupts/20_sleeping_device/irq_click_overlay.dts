@@ -1,0 +1,69 @@
+#include <dt-bindings/interrupt-controller/irq.h> /* IRQ_TYPE_EDGE_RISING,... */
+
+/dts-v1/;
+/plugin/;
+/ {
+	compatible = "raspberrypi,3-model-b", "brcm,bcm2835";
+	fragment@0 {
+		target = <&gpio>;
+		__overlay__ {
+			cs_pins: cs_pins {
+				brcm,pins = <23>;
+				brcm,function = <1>;   /* output */
+				brcm,pull = <0>;       /* none */
+			};
+
+			key_pin: key_pin { // needed for mikroE button-r-click
+				brcm,pins = <23>;
+				brcm,function = <0>;   /* input */
+				brcm,pull = <1>;       /* pull down */
+			};
+		};
+	};
+	fragment@1 {
+		target = <&soc>;
+		__overlay__ {
+			chardev_keys {
+				comatible = "lothars,chardev_keys";
+			};
+
+			int_key_wait {
+				compatible = "lothars,intkeywait";
+				pinctrl-names = "default";
+				pinctrl-0 = <&key_pin>;
+				gpios = <&gpio 23 0>;
+
+/*
+ * IRQ line status (/include/linux/irq.h)
+ *
+ * IRQ_TYPE_NONE		- default, unspecified type
+ * IRQ_TYPE_EDGE_RISING		- rising edge triggered
+ * IRQ_TYPE_EDGE_FALLING	- falling edge triggered
+ * IRQ_TYPE_EDGE_BOTH		- rising and falling edge triggered
+ * IRQ_TYPE_LEVEL_HIGH		- high level triggered
+ * IRQ_TYPE_LEVEL_LOW		- low level triggered
+ * IRQ_TYPE_LEVEL_MASK		- Mask to filter out the level bits
+ * IRQ_TYPE_SENSE_MASK		- Mask for all the above bits
+ * IRQ_TYPE_DEFAULT		- For use by some PICs to ask irq_set_type
+ *				  to setup the HW to a sane default (used
+ *                                by irqdomain map() callbacks to synchronize
+ *                                the HW state and SW flags for a newly
+ *                                allocated descriptor).
+ *
+ * IRQ_TYPE_PROBE		- Special flag for probing in progress
+ */
+				interrupts = <23 IRQ_TYPE_EDGE_BOTH>;
+				interrupt-parent = <&gpio>;
+			};
+		};
+	};
+
+	fragment@2 {
+		target = <&i2c1>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+	};
+};
