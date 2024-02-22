@@ -1,15 +1,12 @@
-DTOVERLAY = iio-ltc2422-adc_overlay
 KERNELDIR ?= /usr/src/linux
 obj-m += iio-ltc2422-adc.o
+dtb-y += iio-ltc2422-adc_overlay.dtbo
 
-all: dt
+all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
-
-dt: $(DTOVERLAY).dts
-	dtc -@ -I dts -O dtb -o $(DTOVERLAY).dtbo $(DTOVERLAY).dts
 
 clean:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
 	find $(SRC) -type f -name \*~ -delete
 
-.PHONY: all dt clean
+.PHONY: all clean

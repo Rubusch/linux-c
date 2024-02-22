@@ -1,3 +1,5 @@
+#include <dt-bindings/gpio/gpio.h> /* GPIO_ACTIVE_HIGH,... */
+
 /dts-v1/;
 /plugin/;
 / {
@@ -32,7 +34,8 @@
 				compatible = "lothars,ltc3206";
 				reg = <0x1b>;
 				pinctrl-0 = <&cs_pins>;
-				gpios = <&gpio 23 1>; /* 1 := GPIO_ACTIVE_HIGH */
+
+				gpios = <&gpio 23 GPIO_ACTIVE_HIGH>; /* 1 := GPIO_ACTIVE_HIGH */
 
 				led1r {
 					label = "red";
