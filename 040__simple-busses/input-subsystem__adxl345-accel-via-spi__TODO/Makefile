@@ -1,5 +1,6 @@
 KERNELDIR ?= /usr/src/linux
 obj-m += input_demo.o
+dtb-y += input_demo_overlay.dtbo
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
