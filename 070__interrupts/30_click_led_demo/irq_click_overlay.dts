@@ -1,0 +1,76 @@
+#include <dt-bindings/gpio/gpio.h> /* GPIO_ACTIVE_HIGH,... */
+
+/dts-v1/;
+/plugin/;
+/ {
+	compatible = "raspberrypi,3-model-b", "brcm,bcm2835";
+	fragment@0 {
+		target = <&gpio>;
+		__overlay__ {
+
+			key_pins: key_pins { // needed for mikroE button-r-click
+				brcm,pins = <23 24>;
+				brcm,function = <0>;   /* input */
+				brcm,pull = <1 1>;     /* pull down */
+			};
+
+			led_pins: led_pins {
+				brcm,pins = <27 22 26>;
+				brcm,function = <1>;	/* Output */
+				brcm,pull = <1 1 1>;	/* Pull down */
+			};
+		};
+	};
+	fragment@1 {
+		target = <&soc>;
+		__overlay__ {
+			chardev_keys {
+				comatible = "lothars,chardev_keys";
+			};
+
+			ledpwm { /* keyled class demo */
+				compatible = "lothars,ledpwm";
+				pinctrl-names = "default";
+				pinctrl-0 = <&key_pins &led_pins>;
+
+				bp1 {
+					label = "MIKROBUS_KEY_1";
+					gpios = <&gpio 23 GPIO_ACTIVE_LOW>;
+					trigger = "falling";
+				};
+
+				bp2 {
+					label = "MIKROBUS_KEY_2";
+					gpios = <&gpio 24 GPIO_ACTIVE_LOW>;
+					trigger = "falling";
+				};
+
+				ledred {
+					label = "led";
+					color = "red";
+					gpios = <&gpio 27 GPIO_ACTIVE_LOW>;
+				};
+
+				ledgreen {
+					label = "led";
+					color = "green";
+					gpios = <&gpio 22 GPIO_ACTIVE_LOW>;
+				};
+
+				ledblue {
+					label = "led";
+					color = "blue";
+					gpios = <&gpio 26 GPIO_ACTIVE_LOW>;
+				};
+			};
+		};
+	};
+	fragment@2 {
+		target = <&i2c1>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+	};
+};

@@ -1,5 +1,6 @@
 KERNELDIR ?= /usr/src/linux
 obj-m += irq_click.o
+dtb-y += irq_click_overlay.dtbo
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
