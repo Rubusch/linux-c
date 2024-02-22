@@ -12,6 +12,7 @@
 #include <linux/leds.h>
 //#include <linux/miscdevice.h> /* now instead of the miscdevice use the new led class device */
 
+// TODO check missing userspace                    
 #define DEVICE_NAME "lothars_device"
 
 /* statics */
@@ -85,7 +86,7 @@ static int __init ledclass_probe(struct platform_device* pdev)
 	struct device *dev = &pdev->dev;
 	int count, ret=0;
 
-	dev_info(dev, "ledclass_probe() started\n");
+	pr_info("%s(): started\n", __func__);
 
 	// get your first memory resource from device tree
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -153,7 +154,7 @@ static int __init ledclass_probe(struct platform_device* pdev)
 		}
 	}
 
-	dev_info(dev, "ledclass_probe() done\n");
+	dev_info(dev, "%s(): done\n", __func__);
 	return 0;
 }
 
@@ -185,7 +186,6 @@ static struct platform_driver led_platform_driver = {
 	.driver = {
 		.name = "RGBclassleds",
 		.of_match_table = ledclass_of_ids,
-		.owner = THIS_MODULE,
 	}
 };
 
@@ -196,11 +196,11 @@ static int led_init(void)
 {
 	int ret;
 
-	pr_info("led_init started\n");
+	pr_info("%s(): started\n", __func__);
 
 	ret = platform_driver_register(&led_platform_driver);
 	if (ret != 0) {
-		pr_err("platform value returned %d\n", ret);
+		pr_err("%s(): platform value returned %d\n", __func__, ret);
 		return ret;
 	}
 
@@ -208,17 +208,17 @@ static int led_init(void)
 	GPSET0_V = ioremap(GPSET0, sizeof(u32));
 	GPCLR0_V = ioremap(GPCLR0, sizeof(u32));
 
-	pr_info("led_init() done\n");
+	pr_info("%s(): done\n", __func__);
 	return 0;
 }
 
 static void led_exit(void)
 {
-	pr_info("led_exit() started\n");
+	pr_info("%s(): started\n", __func__);
 
 	platform_driver_unregister(&led_platform_driver);
 
-	pr_info("led_exit() done\n");
+	pr_info("%s(): done\n", __func__);
 }
 
 module_init(led_init);

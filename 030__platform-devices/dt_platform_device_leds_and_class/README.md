@@ -75,13 +75,6 @@ $ make
 ```
 Copy the module over to the target  
 
-## Userspace
-Easiest is to copy the folder `userspace`  to the target  
-```
-rpi$ cd ./userspace
-rpi$ make
-```
-
 # Usage
 On the target perform the following to verify the functionality  
 ```
