@@ -1,5 +1,6 @@
 KERNELDIR ?= /usr/src/linux
 obj-m += dma_demo.o
+dtb-y += dma_demo_overlay.dtbo
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
