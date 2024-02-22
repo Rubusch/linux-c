@@ -3,6 +3,7 @@ KERNELDIR ?= /usr/src/linux
 ## userspace
 APP_SELECT ?= sysfs-select.elf
 APP_POLL ?= sysfs-poll.elf
+APP_EPOLL ?= sysfs-epoll.elf
 HEADERS += sysfs_common.h
 
 CC ?= gcc
@@ -10,12 +11,15 @@ HOSTCC ?= gcc
 
 all: default
 
-default: module $(APP_SELECT) $(APP_POLL)
+default: module $(APP_SELECT) $(APP_POLL) $(APP_EPOLL)
 
 $(APP_SELECT): sysfs-select-app.c
 	$(CROSS_COMPILE)$(HOSTCC) -g -Wall -std=c11 -pedantic -Werror $^ -o $@
 
 $(APP_POLL): sysfs-poll-app.c
+	$(CROSS_COMPILE)$(HOSTCC) -g -Wall -std=c11 -pedantic -Werror $^ -o $@
+
+$(APP_EPOLL): sysfs-epoll-app.c
 	$(CROSS_COMPILE)$(HOSTCC) -g -Wall -std=c11 -pedantic -Werror $^ -o $@
 
 module:

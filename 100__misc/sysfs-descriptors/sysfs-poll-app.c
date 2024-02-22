@@ -1,11 +1,7 @@
-#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <poll.h>
 
 #include "sysfs_common.h"

@@ -1,11 +1,7 @@
-#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/select.h>
 
 #include "sysfs_common.h"
@@ -65,8 +61,8 @@ int main (int argc, char* argv[])
 			__FILE__);
 
 	// done
-	close( trigger_fd );
-	close( notify_fd );
+	close(trigger_fd);
+	close(notify_fd);
 
 	exit(EXIT_SUCCESS);
 }
