@@ -53,7 +53,6 @@ CONFIG_DEBUG_INFO (opt, better)
 
 PROBE API
 
-TODO    
     #include <linux/kprobes.h>
     int register_kprobe(struct kprobe *kp);
     kp->addr
@@ -62,7 +61,7 @@ TODO
     kp->fault_handler
     kp->flags
     kp->symbol_name
-
+TODO    
 
 
 user's pre handler

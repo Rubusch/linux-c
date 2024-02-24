@@ -85,8 +85,8 @@ kprobe_exit(void)
 	pr_info("XXX kprobe at %p unregistered\n", kp.addr);
 }
 
-module_init(kprobe_init)
-module_exit(kprobe_exit)
+module_init(kprobe_init);
+module_exit(kprobe_exit);
 
 MODULE_AUTHOR("Lothar Rubusch");
 MODULE_DESCRIPTION("kprobe: backtrace");
