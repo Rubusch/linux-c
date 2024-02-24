@@ -13,11 +13,6 @@
 
   NB: epoll() is mainly used for sockets and not for files / file
   descriptors
-
-  This demo does not actually work, since reading out on the sysfs
-  descriptors ALWAYS will have a valid descriptor to read out. So
-  epoll() does  not seem to block to wait. Anyway it shows that there
-  were no new events.
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -39,13 +34,14 @@ int main (int argc, char* argv[])
 	int epfd;
 	int cnt;
 	int ev_count;
-	int notify_fd, trigger_fd;
+	int notify_fd;
+	int trigger_fd;
 	struct epoll_event ev;
 	struct epoll_event evlist[MAX_EVENTS];
 	char attrData[100];
 
 	// prepare an fd_set
-	epfd = epoll_create(NDESCRIPTORS - 1);
+	epfd = epoll_create(NDESCRIPTORS);
         if (-1 == epfd) {
                 perror("epoll_create() failed");
                 exit(EXIT_FAILURE);
@@ -56,7 +52,46 @@ int main (int argc, char* argv[])
 		perror("open() notify failed");
 		exit(EXIT_FAILURE);
 	}
-	ev.events = EPOLLIN; // only interested in input events
+	/*
+	  Event types
+
+	  EPOLLERR
+	  An error condition occurred on the target file
+	  descriptor. It shall not be necessary to set this event in
+	  events; this interface shall always wait for it.
+
+	  EPOLLET
+	  This event shall set edge-triggered behavior for the target
+	  file descriptor. The default epoll behavior shall be
+	  level-triggered.
+
+	  EPOLLHUP
+	  A hang up occurred on the target file descriptor. It shall
+	  not be necessary to set this event in events; this interface
+	  shall always wait for it.
+
+	  EPOLLIN
+	  The file is accessible to read() operations.
+
+	  EPOLLONESHOT
+	  This event shall set one-shot behavior for the target file
+	  descriptor. After epoll_wait() retrieves an event, the file
+	  descriptor shall be disabled and epoll shall not report any
+	  other events. To reenable the file descriptor with a new
+	  event mask, the user should invoke epoll_ctl() with
+	  EPOLL_CTL_MOD in the op parameter.
+
+	  EPOLLOUT
+	  The file is accessible to write() operations.
+
+	  EPOLLPRI
+	  Urgent data exists for read() operations.
+
+	  EPOLLRDHUP
+	  A stream socket peer closed the connection, or else the peer
+	  shut down the writing half of the connection.
+	 */
+	ev.events = EPOLLHUP; // only interested in input events
 	ev.data.fd = notify_fd;
 	if (-1 == epoll_ctl(epfd, EPOLL_CTL_ADD, notify_fd, &ev)) {
 		fprintf(stderr, "epoll_ctl() failed\n");
@@ -68,10 +103,23 @@ int main (int argc, char* argv[])
 		perror("open() trigger failed");
 		exit(EXIT_FAILURE);
 	}
-	ev.events = EPOLLIN; // only interested in input events
+	ev.events = EPOLLHUP; // only interested in input events
 	ev.data.fd = trigger_fd;
 	if (-1 == epoll_ctl(epfd, EPOLL_CTL_ADD, trigger_fd, &ev)) {
 		fprintf(stderr, "epoll_ctl() failed\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// we first need to read data until the end of the file
+	cnt = read(notify_fd, attrData, 100);
+	if (0 > cnt) {
+		perror("initial notify read() failed");
+		exit(EXIT_FAILURE);
+	}
+
+	cnt = read(trigger_fd, attrData, 100);
+	if (0 > cnt) {
+		perror("initial trigger read() failed");
 		exit(EXIT_FAILURE);
 	}
 
@@ -81,33 +129,17 @@ int main (int argc, char* argv[])
 	  there are no data), so it always returns, but the
 	  counter is incremented after a trigger.
 	*/
-	if (0 > (ev_count = epoll_wait(epfd, evlist, MAX_EVENTS, 100))) {
+	if (0 > (ev_count = epoll_wait(epfd, evlist, MAX_EVENTS, 3000000))) {
 		perror("poll error");
 		exit(EXIT_FAILURE);
 	}
-
-	printf("%s: triggered %d\n", __FILE__, ev_count);
-
-	// we first need to read data until the end of the file
-	cnt = read(evlist[0].data.fd, attrData, 100);
-	if (0 > cnt) {
-		perror("first read() failed");
-		exit(EXIT_FAILURE);
-	}
-	printf("%s: '%s'\n", __FILE__, attrData);
-
-	cnt = read(evlist[1].data.fd, attrData, 100);
-	if (0 > cnt) {
-		perror("second read() failed");
-		exit(EXIT_FAILURE);
-	}
-	printf("%s: '%s'\n", __FILE__, attrData);
+	printf("%s: epoll triggered %d times\n", __FILE__, ev_count);
 
 	printf("%s: epoll_events[0]: %08X\n", __FILE__, evlist[0].data.fd);
 	printf("%s: epoll_events[1]: %08X\n", __FILE__, evlist[1].data.fd);
 
-	close(trigger_fd);
 	close(notify_fd);
+	close(trigger_fd);
 
 	exit(EXIT_SUCCESS);
 }

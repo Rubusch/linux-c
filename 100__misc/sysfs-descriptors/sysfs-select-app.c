@@ -30,8 +30,8 @@ int main (int argc, char* argv[])
 	}
 
 	// init fd_set with descriptors
-	FD_SET (notify_fd, &read_fds);
-	FD_SET (trigger_fd, &read_fds);
+	FD_SET(notify_fd, &read_fds);
+	FD_SET(trigger_fd, &read_fds);
 
 	// obtain highest descriptor, used for select()
 	max_fd = notify_fd > trigger_fd ? notify_fd : trigger_fd;
@@ -39,13 +39,13 @@ int main (int argc, char* argv[])
 	// we first need to read data until the end of the file
 	cnt = read(notify_fd, attrData, 100);
 	if (0 > cnt) {
-		perror("first read() failed");
+		perror("initial notify read() failed");
 		exit(EXIT_FAILURE);
 	}
 
 	cnt = read(trigger_fd, attrData, 100);
 	if (0 > cnt) {
-		perror("second read() failed");
+		perror("initial trigger read() failed");
 		exit(EXIT_FAILURE);
 	}
 
