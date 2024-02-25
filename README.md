@@ -8,7 +8,7 @@
 
 # Lothar's Kernel Codes
 
-![Hardware](./pics/screenshot01.jpg)  
+![Hardware](./backstage/pics/screenshot01.jpg)  
 
 No guarantee! No Warranty! No return! Use the codes at your own risk.  
 
