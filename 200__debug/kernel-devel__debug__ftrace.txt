@@ -1,6 +1,10 @@
 ftrace
 
 
+REFERENCE
+
+https://www.kernel.org/doc/html/v5.0/trace/ftrace.html
+
 
 
 
@@ -27,10 +31,10 @@ mount debugfs
 # cat /sys/kernel/debug/tracing/current_tracer
     nop
 
-# echo wakeup > /sys/kernel/debug/tracing/current_tracer
+# echo function_graph > /sys/kernel/debug/tracing/current_tracer
 
 # cat /sys/kernel/debug/tracing/current_tracer
-    wakeup
+    function_graph
 
 # cat /sys/kernel/debug/tracing/trace_options
     noprint-parent nosym-offset nosym-addr noverbose
@@ -45,17 +49,12 @@ trace, e.g. loading module mmc_spi
 # cat /sys/kernel/debug/tracing/trace > /tmp/trace.log
 
 
-
-
-
-
-
-
-NOTES
-
 turn on/off tracing, by setting '1' or '0'
 ATTENTION: keep space between '1' and '>'!
 # echo 1 > /sys/kernel/debug/tracing/tracing_on
+or
+# echo 0 > /sys/kernel/debug/tracing/tracing_on
+# cat /sys/kernel/debug/tracing/trace > /tmp/trace.log
 
 trace pids
 # echo <pid> > /debug/tracing/set_ftrace_pid
@@ -64,4 +63,71 @@ e.g.
 
 function tracing, in case pass function_graph
 # echo function > /debug/tracing/current_tracer
+or directly
+$ echo 1 > options/function-trace
+...
 
+
+limit ftrace to current application (pid)
+# echo $$ >> /sys/kernel/debug/tracing/set_ftrace_pid
+
+
+EXAMPLE: use for a kernel module, e.g. name "input_demo.ko"
+
+limit ftrace to one module
+# echo ':mod:input_demo' > /sys/kernel/debug/tracing/set_ftrace_filter
+# cat /sys/kernel/debug/tracing/set_ftrace_filter
+    adxl345_position_read [input_demo]
+    adxl345_position_show [input_demo]
+    adxl345_rate_show [input_demo]
+    adxl345_rate_store [input_demo]
+    adxl345_spi_remove [input_demo]
+    adxl345_spi_read_block [input_demo]
+    adxl345_spi_read [input_demo]
+    adxl345_send_key_events.isra.0 [input_demo]
+    adxl345_irq [input_demo]
+    adxl345_spi_write [input_demo]
+    adxl345_probe [input_demo]
+    adxl345_spi_probe [input_demo]
+
+# echo function_graph > /sys/kernel/debug/tracing/current_tracer
+
+reset (if not cleared)
+# echo > /sys/kernel/debug/tracing/trace
+
+now trace
+# echo 1 > /sys/kernel/debug/tracing/tracing_on
+
+do something
+
+NB: in this case it is an accelerometer driver, moving the
+accelerometer would NOT be sufficient, since the particular driver
+functions don't need to be trace-called. Changing e.g. a rate value
+via sysfs is a different case.
+
+# cat /sys/class/input/input3/device/rate
+    8
+# echo 10 > /sys/class/input/input3/device/rate
+
+stop tracing
+# echo 0 > /sys/kernel/debug/tracing/tracing_on
+
+result: two function calls happened, further function_graph could
+reveal timing, latencies, etc.
+# cat /sys/kernel/debug/tracing/trace
+    # tracer: function
+    #
+    # entries-in-buffer/entries-written: 2/2   #P:4
+    #
+    #                                _-----=> irqs-off/BH-disabled
+    #                               / _----=> need-resched
+    #                              | / _---=> hardirq/softirq
+    #                              || / _--=> preempt-depth
+    #                              ||| / _-=> migrate-disable
+    #                              |||| /     delay
+    #           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+    #              | |         |   |||||     |         |
+                bash-1526    [001] ...1.  9481.193317: adxl345_rate_store <-dev_attr_store
+                bash-1526    [001] ...1.  9481.193384: adxl345_spi_write <-adxl345_rate_store
+
+NB: not all internal functions seem to be called, in case a ftrace hook will be needed to be setup, API calls, though should be traced for sure
