@@ -339,7 +339,7 @@ adxl345_irq(int irq, void *handle)
 	int_stat = AC_READ(ac, ADXL345_REG_INT_SOURCE);
 
 	/*
-	  If the SINGLE_TAP event has occurred the axl345_do_tap
+	  If the SINGLE_TAP event has occurred the adxl345_do_tap
 	  function is called with the ACT_TAP_STATUS register as an
 	  argument.
 	*/
