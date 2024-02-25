@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-  uses the gpio lib (isn't gpio lib actually deprecated?)
+  uses the gpio lib
+
+  NB: since 4.8 there is a "new" gpio implementation in the kernel
 */
 #include <linux/module.h>
 #include <linux/init.h>
