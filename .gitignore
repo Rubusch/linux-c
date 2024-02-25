@@ -16,6 +16,9 @@ REMOVEME
 *.mod.o.cmd
 *.d
 *.cmd
+*.dtbo.d.dtc.tmp
+*.dtbo.d.pre.tmp
+*.dtbo.dts.tmp
 
 ## compile targets
 *.ko
