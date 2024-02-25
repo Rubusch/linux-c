@@ -29,8 +29,6 @@ API of the given exercise theme.
 
 # Build
 
-## Devicetree
-
 ## Module
 
 Having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
