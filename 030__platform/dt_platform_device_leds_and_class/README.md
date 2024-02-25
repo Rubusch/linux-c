@@ -1,5 +1,7 @@
 # LED Module with Devicetree Binding (LED class)
 
+![ColorClick Board](../dt_platform_device_leds/pics/colorclick.png)  
+
 Now instead of the miscdevice, uses the self implemented "led class
 device". The driver now shows a blinking device.  
 

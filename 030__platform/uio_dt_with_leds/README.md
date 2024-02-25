@@ -1,5 +1,7 @@
 # LED Module with Devicetree Binding (UIO demo)
 
+![ColorClick Board](../dt_platform_device_leds/pics/colorclick.png)  
+
 Userspace driver advantages:  
  - Easy to debug
  - Floating point is avaiable
@@ -118,6 +120,8 @@ Connect the ColorClick device as follows:
 - RPI: GPIO26 -> ColorClick: BL
 - RPI: GND 39 -> ColorClick: GND
 - RPI: 3V3 01 -> ColorClick: 5V
+
+![Setup](../dt_platform_device_leds/pics/setup.png)  
 
 # Build
 
