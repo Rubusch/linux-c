@@ -1,6 +1,5 @@
 # Export Symbols to another Kernel Module
 
-
 - ``EXPORT_SYMBOL`` exports the symbol to any loadable module.
 - ``EXPORT_SYMBOL_GPL`` exports the symbol only to GPL-licensed modules.
 
@@ -9,8 +8,6 @@
 * That symbol should not be static or inline.
 * Order of loading the driver is matter. ie. We should load the module which has the definition of the symbol, then only we can load the module who is using that symbol.
 * Variables, definitions of structs, etc. still will need the classic ``#include "foobar.h"`` i.e. in such cases to include some shared headers of the other module.
-
-The source was tested compiled and running on 5.4.75.  
 
 ## Usage
 

@@ -1,6 +1,16 @@
 # Hello Module Load Arguments
 
-The source was tested compiled and running on 5.4.75.  
+There are several types of permissions:  
+
+ * S_IWUSR
+ * S_IRUSR
+ * S_IXUSR
+ * S_IRGRP
+ * S_IWGRP
+ * S_IXGRP
+
+In this S_I is a common header. `R = read ,W =write ,X= Execute, USR =user ,GRP =Group`  
+Using `OR ‘|’` (or operation) we can set multiple permissions at a time.  
 
 
 ## Usage
@@ -52,27 +62,3 @@ $ sudo cat /sys/module/hello/parameters/hello_int_arg
 $ sudo cat /sys/module/hello/parameters/hello_int_arg_cb
     6
 ```
-
-
-## Notes
-
-There are several types of permissions:  
-
- * S_IWUSR
- * S_IRUSR
- * S_IXUSR
- * S_IRGRP
- * S_IWGRP
- * S_IXGRP
-
-In this S_I is a common header.  
-R = read ,W =write ,X= Execute.  
-USR =user ,GRP =Group  
-Using OR ‘|’ (or operation) we can set multiple permissions at a time.  
-
-
----
-
-## References:
-
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
