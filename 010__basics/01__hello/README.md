@@ -22,7 +22,3 @@ $ dmesg | tail
     Jan 26 14:03:16 debian kernel: Hello World!
     Jan 26 14:03:23 debian kernel: Goodbye World!
 ```
-
-## References:
-
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18

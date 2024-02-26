@@ -27,7 +27,3 @@ Logs
 [16:34:40.426] Feb  4 15:18:56 ctrl001 kernel: [  123.868181] got 1 arguments for myintArray.
 ...
 ```
-
-## References:
-
-* Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
