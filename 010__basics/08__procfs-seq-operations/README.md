@@ -12,6 +12,7 @@ $ sudo insmod ./helloprocfs.ko
 Open a terminal
 ```
 $ cat /proc/lothars_procfs_entry
+    Hello ProcFS!
 ```
 
 See on the first terminal the following log entry

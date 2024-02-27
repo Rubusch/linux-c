@@ -34,7 +34,7 @@ The source was tested compiled and running on 5.4.75, 6.3.x
 ```
 $ make
 
-$ sudo insmod ./hellosysfs.ko
+$ sudo insmod ./hello.ko
 
 $ sudo cat /sys/kernel/lothars_sysfs/hello_sysfs_value
     0
@@ -45,7 +45,7 @@ $ echo 7 | sudo tee -a /sys/kernel/lothars_sysfs/hello_sysfs_value
 $ sudo cat /sys/kernel/lothars_sysfs/hello_sysfs_value
     7
 
-$ sudo rmmod hellosysfs
+$ sudo rmmod hello
 
 $ dmesg | tail
     Jan 26 11:02:56 debian kernel: init_hello_sysfs() initializing...
