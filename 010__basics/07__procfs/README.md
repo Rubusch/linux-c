@@ -7,7 +7,7 @@ file entry, and implements a read handler.
 
 ```
 $ sudo insmod ./hello.ko
-$ cat /proc/lothars_procfs_entry
+$ cat /proc/lothars_dir/lothars_file
     Hello ProcFS!
 $ rmmod hello
 ```
