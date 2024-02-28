@@ -4,8 +4,6 @@ The demo shows the dynamic configuration of major and minor device numbers. Ther
 
 Dynamical assignment of major numbers is preferable, a range of minor numbers can be provided.  
 
-The loadable kernel module, tested on 5.4.75.  
-
 ## Usage
 
 ```
@@ -23,6 +21,5 @@ NB: The minor number 123 was provided.
 
 ## References
 
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
- * Highly inspired by / many thanks to www.embetronicx.com (2021)
+ * Linux Kernel Module Programming Guide, Peter Jay Salzman (2007)
  * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
