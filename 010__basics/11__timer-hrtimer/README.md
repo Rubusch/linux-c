@@ -15,19 +15,12 @@ linux/drivers/usb/mon/mon_text.c +188
 ## USAGE
 
 ```
-$ sudo insmod ./hello.ko num=3
+$ sudo insmod ./hello.ko
 $ sudo rmmod hello
 $ dmesg | tail
-   [ 6709.087341] [6/7] lothar's hello
-   [ 6709.087350] [7/7] lothar's hello
-   [ 6727.144308] lothar's init
-   [ 6727.144335] [1/3] lothar's hello
-   [ 6727.144353] [2/3] lothar's hello
-   [ 6727.144362] [3/3] lothar's hello
-   [ 6730.722522] lothar's exit - unloading module after 3 secs
-   [ 6730.722547] [1/3] lothar's hello
-   [ 6730.722557] [2/3] lothar's hello
-   [ 6730.722566] [3/3] lothar's hello
+    [  877.623791] hello_init(): called
+    [  878.623845] say_time(): hello hrtimer started 1000 msec ago
+    [  879.348392] hello_exit(): called
 ```
 
 ## References
