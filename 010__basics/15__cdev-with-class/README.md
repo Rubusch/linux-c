@@ -2,28 +2,23 @@
 
 Demonstrates a character device and device file setup with a class instance. In this example the kernel module creates the file `/dev/lothars_hello_device`.  
 
-The source was tested compiled and running on 5.4.75.  
-
-
 ## Usage
 
 ```
-$ sudo insmod hellofile.ko
+$ sudo insmod hello.ko
 
-$ ll /dev | grep lothar
-    crw-------   1 root root      244,   0 Jan 26 22:51 lothars_hello_device
+$ ll /dev/ | grep hello
+    crw-------  1 root root    237, 123 Feb 28 07:32 lothars_hello_device
 
-$ sudo rmmod hellofile
+$ sudo rmmod hello
 
 $ dmesg | tail
-    Jan 26 22:51:09 debian kernel: init_hello_devicefile() initializing
-    Jan 26 22:51:09 debian kernel: init_hello_devicefile() major = 244, minor = 0
-    Jan 26 22:51:09 debian kernel: init_hello_devicefile() done.
-    Jan 26 22:51:26 debian kernel: cleanup_hello_devicefile() READY.
+    [ 1461.825850] init_hello_chardev(): initializing
+    [ 1461.825988] init_hello_chardev(): major = 237, minor = 123
+    [ 1461.827544] init_hello_chardev() done.
+    [ 1506.942989] cleanup_hello_chardev() READY.
 ```
 
 ## References:
  * Linux kernel source, comented API and documentation
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
- * Highly inspired by / many thanks to www.embetronicx.com (2021)
  * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
