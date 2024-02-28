@@ -17,7 +17,7 @@ say(void)
 {
 	int idx;
 	for (idx = 1; idx <= num; idx++) {
-		pr_info("%s(): [%d/%d] lothar's hello\n", __func__, idx, num);
+		pr_info("%s(): [%d/%d] hello again\n", __func__, idx, num);
 	}
 }
 

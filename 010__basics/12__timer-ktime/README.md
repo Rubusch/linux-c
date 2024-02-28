@@ -18,16 +18,15 @@ linux/drivers/usb/mon/mon_text.c +188
 $ sudo insmod ./hello.ko num=3
 $ sudo rmmod hello
 $ dmesg | tail
-   [ 6709.087341] [6/7] lothar's hello
-   [ 6709.087350] [7/7] lothar's hello
-   [ 6727.144308] lothar's init
-   [ 6727.144335] [1/3] lothar's hello
-   [ 6727.144353] [2/3] lothar's hello
-   [ 6727.144362] [3/3] lothar's hello
-   [ 6730.722522] lothar's exit - unloading module after 3 secs
-   [ 6730.722547] [1/3] lothar's hello
-   [ 6730.722557] [2/3] lothar's hello
-   [ 6730.722566] [3/3] lothar's hello
+    [ 1050.127610] hello_init(): called
+    [ 1050.127654] say(): [1/3] hello again
+    [ 1050.127682] say(): [2/3] hello again
+    [ 1050.127702] say(): [3/3] hello again
+    [ 1053.722465] hello_exit(): called
+    [ 1053.722505] hello_exit(): unloading module after 3 secs
+    [ 1053.722530] say(): [1/3] hello again
+    [ 1053.722551] say(): [2/3] hello again
+    [ 1053.722571] say(): [3/3] hello again
 ```
 
 ## References
