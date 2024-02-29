@@ -3,23 +3,17 @@
 Demonstrates a character device and device file setup. A devicenode is
 setup, and a chardev driver will read / write from / to it. The demo
 shows in the logs the startup of the chardev driver, when the `/dev`
-file is used, e.g. through `cat` or through `echo 1`, in the current
-situation the system might freeze (wrong memory region? binary write
-needed instead of characters?).  
-
-The source was tested compiled and running on 5.4.75.  
+file is used, e.g. through `cat` or through `echo 1`  
 
 ## Usage
 
 ```
-$ sudo insmod ./hellofile.ko
+# insmod ./hello.ko
 
-$ sudo su
 # echo 1 > /dev/lothars_hello_device
 # cat /dev/lothars_hello_device
-# exit
 
-$ sudo rmmod hellofile
+# rmmod hellofile
 ```
 
 Logs  
@@ -42,10 +36,6 @@ $ dmesg | tail
     Jan 27 22:36:06 debian kernel: cleanup_hello_devicefile() READY.
 ```
 
-NB: make sure not to print function arguments of the device functions if they are not set, this can make the entire PC hang!  
-
 ## References:
  * Linux kernel source, comented API and documentation
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
- * Highly inspired by / many thanks to www.embetronicx.com (2021)
  * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
