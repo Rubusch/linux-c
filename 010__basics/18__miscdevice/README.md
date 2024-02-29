@@ -1,6 +1,13 @@
 # Miscdevice
 
-The miscdriver wraps over the common chardev driver tasks, it sets up cdev, adds it, creates a device class, provides a device node and a class node. Thus it is the preferred way to setup a character device.  
+The miscdevice wraps over the common chardev driver tasks, it sets up
+cdev, adds it, creates a device class, provides a device node and a
+class node. Thus it is the preferred way to setup a character device.  
+
+The miscdevice API removes all the boilerplate code needed in a manual
+initialization of the chardev devices. In case of customized driver
+structs or the like the driver might be adjusted, or manual
+instantiation of the device can be needed.  
 
 #### `misc_register()` performs:
 
@@ -17,7 +24,7 @@ The miscdriver wraps over the common chardev driver tasks, it sets up cdev, adds
 - `device_destroy();`  – used to delete the device
 - `class_destroy();` – used to delete the class
 
-The device driver implemented as a miscellaneous character uses the
+The device driver implemented as a miscellaneous character device uses the
 major number allocated by the Linux kernel for **miscellaneous
 devices**. This eliminates the need to define a unique major number
 for the driver; this is important, as a conflict between major numbers
@@ -28,7 +35,10 @@ pseudo-filesystem under `/sys/class/misc/`. Major number 10 is
 officially assigned to the misc driver.  
 
 ## Module
-Should compile cross - having `crossbuild-essentials-arm64` installed, `ARCH`, and `CROSS_COMPILE` set, execute  
+
+Should compile cross - having `crossbuild-essentials-arm64` installed,
+`ARCH`, and `CROSS_COMPILE` set, execute  
+
 ```
 $ make
 $ scp ./*.elf pi@10.1.10.204:~/

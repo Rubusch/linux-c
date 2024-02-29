@@ -2,8 +2,8 @@
 /*
    The miscdevice simplifies all steps needed for char device.
 
-   Demonstrated the usage of the miscdevice framework, and will result in
-   fewer lines of code.
+   Demonstrated the usage of the miscdevice framework, and will result
+   in fewer lines of code.
 
    struct miscdevice {
          int minor;

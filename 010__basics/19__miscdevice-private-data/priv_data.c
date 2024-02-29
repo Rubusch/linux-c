@@ -41,10 +41,8 @@ demo_read(struct file *file, char __user *ubuf, size_t count, loff_t *off)
 			       __func__);
 			return -EFAULT;
 		}
-
 		return 0;
 	}
-
 	return count;
 }
 

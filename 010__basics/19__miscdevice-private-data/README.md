@@ -41,9 +41,6 @@ Logs
 [20:08:22.473] Feb 10 19:08:22 ctrl001 kernel: [  905.238212] mod_exit(): called
 ```
 
-## Verified
-* Verified against a RPI3 w/ aarch64
-
 ## References
 * https://embetronicx.com/tutorials/linux/device-drivers/misc-device-driver/
 * Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018
