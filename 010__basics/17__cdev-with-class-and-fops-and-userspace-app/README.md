@@ -1,21 +1,21 @@
 # Userspace communication to kernel device driver
 
-Demonstrates a character device and device file setup. An additional userspace application will use the device node to communicate to the kernel driver.  
-
-The source was tested compiled and running on 5.4.75.  
+Demonstrates a character device and device file setup. An additional
+userspace application will use the device node to communicate to the
+kernel driver.  
 
 ## Usage
 
 ```
-$ sudo insmod ./hellochardev.ko
+# insmod ./hellochardev.ko
 
-$ sudo ./tester.elf
+# ./tester.elf
     READ: '###...###' [0]
     WRITING '123' [123]
     READ: '123' [123]
     READY.
 
-$ sudo rmmod hellochardev
+# rmmod hellochardev
 ```
 Logs  
 ```
@@ -35,6 +35,4 @@ $ dmesg | tail
 
 ## References:
  * Linux kernel source, comented API and documentation
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
- * Highly inspired by / many thanks to www.embetronicx.com (2021)
  * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
