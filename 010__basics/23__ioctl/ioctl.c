@@ -42,28 +42,7 @@ static struct miscdevice ioctl_dev = {
 static int __init mod_init(void)
 {
 	int ret;
-//dev_t dev = MKDEV(DEV_MAJOR_NUM, 0); // get first device identifier
-
-	pr_info("%s(): called", __func__);
-
-/*	// allocate device numbers
-	ret = register_chrdev_region(dev, 1, "lothars_cdev");
-	if (0 > ret) {
-		pr_err("%s(): failed to allocate major number %d",
-			__func__, DEV_MAJOR_NUM);
-		return ret;
-	}
-
-	// initialize the cdev structure and add it to kernel space
-	cdev_init(&chardev, &chardev_fops);
-	ret = cdev_add(&chardev, dev, 1);
-	if (0 > ret) {
-		pr_err("%s(): unable to add cdev", __func__);
-		unregister_chrdev_region(dev, 1);
-		return ret;
-	}
-// */
-
+	pr_info("%s(): called\n", __func__);
 	ret = misc_register(&ioctl_dev);
 	if (0 != ret) {
 		pr_err("%s(): failed to register miscdevice\n", __func__);
@@ -75,11 +54,8 @@ static int __init mod_init(void)
 
 static void __exit mod_exit(void)
 {
-	pr_info("%s(): called", __func__);
+	pr_info("%s(): called\n", __func__);
 	misc_deregister(&ioctl_dev);
-
-//	cdev_del(&chardev);
-//	unregister_chrdev_region(MKDEV(DEV_MAJOR_NUM, 0), 1);
 }
 
 module_init(mod_init);

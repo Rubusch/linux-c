@@ -6,19 +6,11 @@
 
 #include "helloioctl.h"
 
-/*
-  forwards
-*/
-
 static int device_open(struct inode *, struct file *);
 static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char __user *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 static long device_ioctl(struct file *, unsigned int, unsigned long);
-
-/*
-  globals
-*/
 
 // content the device will give when asked
 int32_t value = 0;
@@ -41,10 +33,6 @@ static struct file_operations hello_chardev_fops = {
 	.write = device_write,
 	.unlocked_ioctl = device_ioctl,
 };
-
-/*
-  function implementation
-*/
 
 /*
   Called whenever a process attempts to open the device file.

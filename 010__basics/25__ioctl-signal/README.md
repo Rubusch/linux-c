@@ -1,4 +1,4 @@
-# Ioctl demo with userspace application dealing with signals
+# IOCTL demo with userspace application dealing with signals
 
 A loadable kernelmodule and a corresponding userspace application to
 show the usage of ioctl mechanisms.  
@@ -19,19 +19,17 @@ application. The userspace application handles the signal via signal
 handler and sigaction. The action is ending the program. Unloading the
 kernelspace module unregisters the chardev.  
 
-A better example would be as on www.embedtronicx.com the interrupt
-handler in kernelspace to send the signal (event) to the userspace
-application. Anyway simulating hardware interrupts seemed more
-tedious, than (mis-)using a read event on a chardev.  
-
-The source was tested compiled and running on 5.4.75.  
+A better example would be as on www.embedtronicx.com (references) the
+interrupt handler in kernelspace to send the signal (event) to the
+userspace application. Anyway simulating hardware interrupts seemed
+more tedious, than (mis-)using a read event on a chardev.  
 
 ## Usage
 
 ```
-$ sudo insmod helloioctl.ko
+# insmod helloioctl.ko
 
-$ sudo ./ioctl.elf
+# ./ioctl.elf
     APP: device name: '/dev/lothars_chardev_device'
     APP: writing to ioctl (register application) 44
     APP: waiting for signal...
@@ -40,7 +38,7 @@ $ sudo ./ioctl.elf
 In a separate shell, perform a read on the device.  
 
 ```
-$ sudo cat /dev/lothars_chardev_device
+# cat /dev/lothars_chardev_device
 ```
 
 The first shell shows the following.  
@@ -49,11 +47,11 @@ The first shell shows the following.
     APP: sig_event_handler() - received signal from kernel: value = 1
     APP: sig_event_handler() - READY.
 
-$ sudo rmmod helloioctl
+# rmmod helloioctl
 ```
 Logs  
 ```
-$ dmesg | tail
+# dmesg | tail
     Feb  1 22:36:24 debian kernel: CHARDEV: init_hello_ioctl() - major = 244, minor = 123
     Feb  1 22:36:24 debian kernel: CHARDEV: init_hello_ioctl() device driver init - OK
 
@@ -72,6 +70,4 @@ $ dmesg | tail
 
 ## References
 
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
- * Highly inspired by / many thanks to www.embetronicx.com (2021)
  * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver

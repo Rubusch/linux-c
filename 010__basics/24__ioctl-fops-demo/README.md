@@ -1,7 +1,7 @@
-# Hello IOCTL
+# More elaborate IOCTL demo
 
-In this demo a loadable kernelmodule and a corresponding userspace application
-show the usage of ioctl mechanisms.  
+In this demo a loadable kernelmodule and a corresponding userspace
+application show the usage of ioctl mechanisms.  
 
 The ioctl implementation needs the following steps:  
  * Create IOCTL command in driver
@@ -9,14 +9,12 @@ The ioctl implementation needs the following steps:
  * Create IOCTL command in a Userspace application
  * Use the IOCTL system call in a Userspace
 
-The source was tested compiled and running on 5.4.75.  
-
 ## Usage
 
 ```
-$ sudo insmod ./helloioctl.ko
+# insmod ./helloioctl.ko
 
-$ sudo ./ioctl.elf
+# ./ioctl.elf
     device name: '/dev/lothars_chardev_device'
     enter a number to be sent to the ioctl device:
 ```
@@ -28,12 +26,12 @@ The userspace application is interactive, so enter, e.g. `123`
     value = 123
     READY.
 
-$ sudo rmmod helloioctl
+# rmmod helloioctl
 ```
 
 Logs  
 ```
-$ dmesg | tail
+# dmesg | tail
     [83289.938018] init_hello_ioctl() - major = 244, minor = 100
     [83289.938049] init_hello_ioctl() device driver init - OK
     [83289.938049] If you want to talk to the device driver,
@@ -53,6 +51,4 @@ $ dmesg | tail
 
 ## References
 
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
- * Highly inspired by / many thanks to www.embetronicx.com (2021)
  * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver

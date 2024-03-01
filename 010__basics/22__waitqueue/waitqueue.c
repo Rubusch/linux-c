@@ -24,18 +24,20 @@ static int thread_routine(void *arg)
 	switch (sel) {
 	case 1:
 		wait_event(wq1, waitqueue_flag == 11);
-		pr_info("%s(): waitqueue_flag is %ld", __func__, waitqueue_flag);
+		pr_info("%s(): waitqueue_flag is %ld\n",
+			__func__, waitqueue_flag);
 		break;
 	case 2:
 		do {
 			status = wait_event_timeout(wq2, waitqueue_flag == 22,
 						    msecs_to_jiffies(5000));
-			pr_info("%s(): waitqueue_flag is pending.. timeout",
+			pr_info("%s(): waitqueue_flag is pending.. timeout\n",
 				__func__);
 		} while (0 == status);
 		break;
 	default:
-		pr_warn("%s(): should not reach here", __func__);
+		pr_warn("%s(): should not reach here\n",
+			__func__);
 		break;
 	}
 	return 0;
@@ -55,16 +57,17 @@ hello_write(struct file *file, const char __user *ubuf, size_t len, loff_t *poff
 	size = min(len, sizeof(buf));
 	not_copied = copy_from_user(buf, ubuf, size);
 	if (0 > not_copied) {
-		pr_err("%s(): faild to read from userspace", __func__);
+		pr_err("%s(): faild to read from userspace\n",
+		       __func__);
 		return -ENOMEM;
 	}
 	ret = kstrtol(buf, 10, &waitqueue_flag);
 	if (-EINVAL == ret) {
-		pr_err("%s(): failed to convert value read from userspace",
+		pr_err("%s(): failed to convert value read from userspace\n",
 		       __func__);
 		return -EINVAL;
 	}
-	pr_info("%s(): waitqueue_flag is %ld", __func__, waitqueue_flag);
+	pr_info("%s(): waitqueue_flag is %ld\n", __func__, waitqueue_flag);
 
 	wake_up(&wq1);
 	wake_up(&wq2);

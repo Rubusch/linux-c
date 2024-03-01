@@ -1,17 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
   The Userspace implementation to the loadable kernel module.
-
-  THIS CODE RUNS IN USERSPACE!!
-
-  Until now we could have used cat for input and output, but now we
-  need to do ioctl's which require writing our own process.
-
-  ---
-  References:
-  Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
-  Highly inspired by / many thanks to www.embetronicx.com (2021)
-  stackoverflow..
 */
 
 #include "helloioctl.h"
@@ -31,9 +20,6 @@ void sig_event_handler(int sig, siginfo_t *info, void *context)
 	exit(EXIT_SUCCESS);
 }
 
-/*
-  main()
-*/
 int main(void)
 {
 	int fd = 0;

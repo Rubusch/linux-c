@@ -6,13 +6,13 @@ for writing, not for reading from the device node.
 ## Usage
 
 ```
-# sudo insmod ./waitqueue.ko
+# insmod ./waitqueue.ko
 <wait>
 # echo 1 > /dev/lothars_hello_device
 <wait>
 # echo 2 > /dev/lothars_hello_device
 <wait>
-# sudo rmmod waitqueue
+# rmmod waitqueue
 ```
 Logs  
 ```

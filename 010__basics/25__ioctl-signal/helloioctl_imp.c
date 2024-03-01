@@ -4,9 +4,9 @@
     via device_ioctl() and writes the signal number which the
     application is capable to serve.
 
-  - A separate trigger via 'cat /dev/lothars_device'
-    i.e. device_read() will then issue the passed signal number
-    (SIG_LOTHAR) to the userspace application.
+  - A separate trigger via 'cat /dev/...'  i.e. device_read() will
+    then issue the passed signal number (SIG_XYZ) to the userspace
+    application.
 
   - The userspace application has a signal handler which captures the
     signal and performs the action (quits itself).
@@ -29,17 +29,9 @@
 
 #include "helloioctl.h"
 
-/*
-  forwards
-*/
-
 static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char __user *, size_t, loff_t *);
 static long device_ioctl(struct file *, unsigned int, unsigned long);
-
-/*
-  globals
-*/
 
 // signal
 static struct task_struct *task;
@@ -52,7 +44,6 @@ static struct cdev hello_chardev;
 
 // fops
 static struct file_operations hello_chardev_fops = {
-	.owner = THIS_MODULE,
 	.release = device_release,
 	.read = device_read,
 	.unlocked_ioctl = device_ioctl,

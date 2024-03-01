@@ -2,15 +2,8 @@
 /*
   The Userspace implementation to the loadable kernel module.
 
-  THIS CODE RUNS IN USERSPACE!!
-
-  Until now we could have used cat for input and output, but now we
-  need to do ioctl's which require writing our own process.
-
-  ---
   References:
-  Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
-  Highly inspired by / many thanks to embetronicx.com (2021) - https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
+  https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
 */
 
 // device specifics such as ioctl numbers and major device file
@@ -53,18 +46,6 @@ int main(void)
 	fprintf(stdout, "reading\n");
 	ioctl(fd, RD_VALUE, (int32_t *)&value);
 	fprintf(stdout, "value = %d\n", value);
-
-/*
-	fd = open(HELLO_DEVICE_FILENAME, 0);
-	if (0 > fd) {
-		printf("can't open device file: %s\n", DEVICE_FILE_NAME);
-		exit(EXIT_FAILURE);
-	}
-
-	ioctl_get_nth_byte(fd);
-	ioctl_get_msg(fd);
-	ioctl_set_msg(fd, msg);
-// */
 
 	close(fd);
 	fprintf(stdout, "READY.\n");

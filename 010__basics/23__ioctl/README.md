@@ -3,8 +3,6 @@
 The demo uses ioctl calls from userspace application. A chardev driver
 will react on the ioctl calls.  
 
-Verified against a RPI3 w/ aarch64  
-
 ## kernel module
 
 Having e.g. `crossbuild-essentials-arm64` installed, `ARCH`, and
@@ -25,12 +23,12 @@ $ scp ./*.ko pi@10.1.10.204:~/
 ```
 Logs  
 ```
-pi@raspberrypi:~$ dmesg | tail -f
-[12:42:32.935] Feb 11 00:46:24 ctrl001 kernel: [ 8253.329589] chrdev_init(): called
-[12:42:37.055] Feb 11 00:46:28 ctrl001 kernel: [ 8972.319078] mod_init(): called
-[12:42:37.093] Feb 11 00:46:28 ctrl001 kernel: [ 8976.459050] chardev_open(): called
-[12:42:37.093] Feb 11 00:46:28 ctrl001 kernel: [ 8976.459117] chardev_ioctl(): called, cmd = 100, arg = 110
-[12:42:37.094] Feb 11 00:46:28 ctrl001 kernel: [ 8976.459164] chardev_close(): called
+pi@raspberrypi:~$ dmesg | tail
+    [34246.160280] mod_init(): called
+    [34249.495571] chardev_open(): called
+    [34249.495634] chardev_ioctl(): called, cmd = 100, arg = 110
+    [34249.495682] chardev_close(): called
+    [34253.619808] mod_exit(): called
 ```
 
 ## References

@@ -49,9 +49,6 @@
 
 #ifdef __KERNEL__
 
-/*
-  forwards
-*/
 int init_hello_ioctl(void);
 void cleanup_hello_ioctl(void);
 

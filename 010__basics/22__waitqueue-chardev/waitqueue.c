@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
   wait on events using a waitqueue
-
-  NB: make sure not to print function arguments of the device
-  functions if they are not set, this can make the entire PC hang!
 */
 
 #include <linux/kernel.h>
@@ -53,11 +50,12 @@ static int wait_routine(void *unused)
 		wait_event_interruptible(chardev_waitqueue,
 					 chardev_waitqueue_flag != 0);
 		if (2 == chardev_waitqueue_flag) {
-			printk(KERN_INFO "event came from EXIT\n");
+			printk(KERN_INFO "%s(): event came from EXIT\n",
+			       __func__);
 			return 0;
 		}
-		printk(KERN_INFO "event came from READ - read count: %d\n",
-		       ++read_count);
+		printk(KERN_INFO "%s(): event came from READ - read count: %d\n",
+		       __func__, ++read_count);
 		chardev_waitqueue_flag = 0;
 	}
 	do_exit(0);
@@ -98,7 +96,7 @@ static int __init mod_init(void)
 {
 	int ret;
 
-	printk(KERN_INFO "%s() initializing\n", __func__);
+	printk(KERN_INFO "%s(): called\n", __func__);
 	ret = misc_register(&waitqueue_dev);
 	if (0 != ret) {
 		pr_err("%s(): could not register miscdevice\n", __func__);
@@ -111,10 +109,10 @@ static int __init mod_init(void)
 	// start kernel thread
 	wait_thread = kthread_create(wait_routine, NULL, "WaitThread");
 	if (wait_thread) {
-		printk(KERN_INFO "thread created\n");
+		printk(KERN_INFO "%s(): thread created\n", __func__);
 		wake_up_process(wait_thread);
 	} else {
-		printk(KERN_ERR "thread creation failed\n");
+		printk(KERN_ERR "%s(): thread creation failed\n", __func__);
 		return -EFAULT;
 	}
 
@@ -127,11 +125,7 @@ static void __exit mod_exit(void)
 	pr_info("%s(): called\n", __func__);
 
 	chardev_waitqueue_flag = 2;
-	/**
-	 * Wakeup macros to be used to report events to the targets.
-	 */
 	wake_up_interruptible(&chardev_waitqueue);
-
 	misc_deregister(&waitqueue_dev);
 }
 

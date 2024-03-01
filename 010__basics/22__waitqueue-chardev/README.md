@@ -1,20 +1,19 @@
 # Chardev with Event Triggered Queue
 
-Demonstrates a character device and a wait on several events using
-waitqueue. Here the read is triggered as an event to the driver.  
-
-The source was tested compiled and running on 5.4.75.  
+Demonstrates a character device (miscdevice) and a wait on several
+events using waitqueue. Here the read is triggered as an event to the
+driver.  
 
 ## Usage
 
 ```
-$ sudo insmod ./waitqueue.ko
+# insmod ./waitqueue.ko
 
-$ sudo cat /dev/lothars_hello_device
+# cat /dev/lothars_hello_class
 
-$ sudo rmmod waitqueue
+# rmmod waitqueue
 
-$ dmesg | tail
+# dmesg | tail
     Jan 27 23:56:24 debian kernel: init_hello_chardev() initializing
     Jan 27 23:56:24 debian kernel: init_hello_chardev() major = 244, minor = 123
     Jan 27 23:56:24 debian kernel: thread created
@@ -32,8 +31,6 @@ $ dmesg | tail
     Jan 27 23:57:00 debian kernel: event came from EXIT
     Jan 27 23:57:00 debian kernel: cleanup_hello_chardev() READY.
 ```
-
-NB: Make sure not to print function arguments of the device functions if they are not set, this can make the entire PC hang!  
 
 ## References:
  * Linux kernel source, comented API and documentation
