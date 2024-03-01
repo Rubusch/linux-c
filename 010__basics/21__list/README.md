@@ -9,7 +9,7 @@ numbers only, characters won't be accepted.
 #### Notes on the kernel's linked list
 
 A linked list is a data structure that consists of a sequence of
-nodes. Each node is composed of two fields: the data field and the
+nodes. Each node is composed of two fields: The data field and the
 reference field which is a pointer that points to the next node in the
 sequence.  
 
@@ -25,72 +25,56 @@ Disadvantages of Linked Lists
 
  * The memory is wasted as pointers require extra memory for storage.
  * No element can be accessed randomly; it has to access each node sequentially.
- * Reverse Traversing is difficult in the linked list.
+ * Reverse traversing is difficult in the linked list.
 
 The linux kernel has built-in Linked List which are
 **Double Linked List** defined in
 ``/lib/modules/$(uname -r)/build/include/linux/list.h``  
 
-
-The source was tested compiled and running on 5.4.75.  
-
-
 ## Usage
 
 ```
-$ sudo insmod ./list.ko
+# insmod ./list.ko
 
-$ echo 7 | sudo tee -a /dev/lothars_device
-    7
+# echo 7 > /dev/lothars_device
 
-$ sudo cat /dev/lothars_device
+# cat /dev/lothars_device
 
-$ echo 456 | sudo tee -a /dev/lothars_device
-    456
+# echo 456 > /dev/lothars_device
 
-$ sudo cat /dev/lothars_device
+# cat /dev/lothars_device
 
-$ echo asdf | sudo tee -a /dev/lothars_device
-    asdf
-    tee: /dev/lothars_device: Invalid argument
+# echo asdf > /dev/lothars_device
+	bash: echo: write error: Invalid argument
 
-$ sudo cat /dev/lothars_device
-$ sudo rmmod list
+# cat /dev/lothars_device
+# rmmod list
 ```
 Logs  
 ```
 $ dmesg | tail
-    Jan 30 19:21:01 debian kernel: init_hello_linkedlist() initializing...
-    Jan 30 19:21:01 debian kernel: init_hello_linkedlist() major = 244, minor = 76
-
-    Jan 30 19:21:04 debian kernel: hello_linkedlist_write()
-    Jan 30 19:21:14 debian kernel: received 7
-
-    Jan 30 19:21:14 debian kernel: hello_linkedlist_read()
-    Jan 30 19:21:14 debian kernel: node 0 data = 7
-    Jan 30 19:21:14 debian kernel: total nodes: 1
-
-    Jan 30 19:21:30 debian kernel: hello_linkedlist_write()
-    Jan 30 19:21:36 debian kernel: received 456
-
-    Jan 30 19:21:36 debian kernel: hello_linkedlist_read()
-    Jan 30 19:21:36 debian kernel: node 0 data = 7
-    Jan 30 19:21:36 debian kernel: node 1 data = 456
-    Jan 30 19:21:36 debian kernel: total nodes: 2
-
-    Jan 30 19:21:52 debian kernel: hello_linkedlist_write()
-    Jan 30 19:21:52 debian kernel: invalid value
-
-    Jan 30 19:22:08 debian kernel: hello_linkedlist_read()
-    Jan 30 19:22:08 debian kernel: node 0 data = 7
-    Jan 30 19:22:08 debian kernel: node 1 data = 456
-    Jan 30 19:22:08 debian kernel: total nodes: 2
-
-    Jan 30 19:22:15 debian kernel: cleanup_hello_linkedlist() READY.
+    [32694.039490] list: loading out-of-tree module taints kernel.
+    [32694.040533] mod_init(): called
+    [32707.675770] hello_linkedlist_write(): called
+    [32707.675820] hello_linkedlist_write(): received 7
+    [32749.879804] hello_linkedlist_read(): called
+    [32749.879850] hello_linkedlist_read(): node 0 data = 7
+    [32749.879875] hello_linkedlist_read(): total nodes: 1
+    [32767.430232] hello_linkedlist_write(): called
+    [32767.430272] hello_linkedlist_write(): received 456
+    [32777.255551] hello_linkedlist_read(): called
+    [32777.255597] hello_linkedlist_read(): node 0 data = 7
+    [32777.255623] hello_linkedlist_read(): node 1 data = 456
+    [32777.255645] hello_linkedlist_read(): total nodes: 2
+    [32797.958093] hello_linkedlist_write(): called
+    [32797.958135] hello_linkedlist_write(): invalid value
+    [32825.747470] hello_linkedlist_read(): called
+    [32825.747517] hello_linkedlist_read(): node 0 data = 7
+    [32825.747543] hello_linkedlist_read(): node 1 data = 456
+    [32825.747565] hello_linkedlist_read(): total nodes: 2
+    [32832.490982] mod_exit(): called
 ```
 
 ## References:
 
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
- * Highly inspired by / many thanks to www.embetronicx.com (2021)
  * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
