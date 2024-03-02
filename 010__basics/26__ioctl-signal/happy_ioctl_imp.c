@@ -27,7 +27,7 @@
   chardev.
 */
 
-#include "helloioctl.h"
+#include "happy_ioctl.h"
 
 static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char __user *, size_t, loff_t *);

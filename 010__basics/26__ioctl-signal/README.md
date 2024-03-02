@@ -26,7 +26,7 @@ more tedious, than (mis-)using a read event on a chardev.
 ## Usage
 
 ```
-# insmod helloioctl.ko
+# insmod happy_ioctl.ko
 
 # ./ioctl.elf
     APP: device name: '/dev/lothars_chardev_device'
@@ -46,7 +46,7 @@ The first shell shows the following.
     APP: sig_event_handler() - received signal from kernel: value = 1
     APP: sig_event_handler() - READY.
 
-# rmmod helloioctl
+# rmmod happy_ioctl
 ```
 Logs  
 ```
