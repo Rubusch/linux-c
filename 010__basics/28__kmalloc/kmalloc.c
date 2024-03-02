@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-  demonstrates kmalloc
+  demonstrates some basic kmalloc usage, there are many similar demos
+  on the net
 */
 #include <linux/module.h>
 #include <linux/init.h>

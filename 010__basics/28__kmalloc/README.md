@@ -1,6 +1,12 @@
 # kmalloc / kzalloc
 
-The demo shows some simple allocations with `kmalloc()` and `kzalloc()`.  
+The demo shows basic allocations with `kmalloc()` and
+`kzalloc()`. This is memory basic usage, memory allocation API gets
+more complicated where origin of the allocation comes into play. On
+older 32-bit systems this means allocating linear memory or virtual
+memory which then still needs to be mounted in, or e.g. turning on the
+implicit enhancement of slabs and a slab allocator. For the basics
+this demo (references) is a good starting point.  
 
 ## Usage
 
