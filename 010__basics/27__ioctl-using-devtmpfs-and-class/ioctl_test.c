@@ -7,6 +7,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+// better share things like this in a commonly used header for .ko and
+// .elf
 #define DEVNAME "/dev/lothars_device"
 
 int main()
@@ -16,12 +18,13 @@ int main()
 	 * $ mknod /dev/mydev c 202 0
 	 * $ ./ioctl_test.elf
 	 */
-	int my_dev = open(DEVNAME, 0);
-	if (0 > my_dev) {
+	int dev = open(DEVNAME, 0);
+	if (0 > dev) {
 		perror("failed to open device");
 		exit(EXIT_FAILURE);
 	}
-	ioctl(my_dev, 100, 110); // cmd = 100, arg = 110
-	close(my_dev);
+	ioctl(dev, 100, 110); // cmd = 100, arg = 110
+	close(dev);
+
 	exit(EXIT_SUCCESS);
 }

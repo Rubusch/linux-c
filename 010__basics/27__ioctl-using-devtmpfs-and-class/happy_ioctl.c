@@ -1,28 +1,27 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-   char device
-
    The module interacts with the ioctl systemcall. This time the device node in
    the demo will be created by using **devtmpfs** instead of doing it
    manually.
 
    The main points that differ from the plain chardev demo are:
    - Include the <linux/device.h> header file to create the class
-   - The drifver will have a class name and a device name; this results in a
+   - The driver will have a class name and a device name; this results in a
      device that appears on the file system at
        /sys/class/<class name>/<device name>
    - the init function is longer, since it automatically will allocate a major
      number
 
+   As most of the "basics" code, contains still a lot of boiler-plate
+   code, using the contemporary API frameworks this should not be
+   implemented anymore in a modern driver.
 */
 
-// support char dev
 #include <linux/module.h>
-#include <linux/device.h> /* class_create(), device_create() */
+#include <linux/device.h>
 #include <linux/cdev.h>
 #include <linux/fs.h>
 
-// define major number
 #define DEVICE_NAME "lothars_device"
 #define CLASS_NAME "lothars_class"
 
@@ -51,7 +50,6 @@ static long chardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg
 
 // fops - declare a file operations structure
 static const struct file_operations chardev_fops = {
-	.owner = THIS_MODULE,
 	.open = chardev_open,
 	.release = chardev_close,
 	.unlocked_ioctl = chardev_ioctl,
