@@ -1,7 +1,6 @@
 # IOCTL demo with userspace application dealing with signals
 
-A loadable kernelmodule and a corresponding userspace application to
-show the usage of ioctl mechanisms.  
+Show the usage of ioctl mechanisms.  
 
 The ioctl implementation needs the following steps:  
  * Create IOCTL command in driver
