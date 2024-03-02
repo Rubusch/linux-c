@@ -2,16 +2,16 @@
 /*
 */
 
-#include "helloioctl.h"
+#include "happy_ioctl.h"
 
 static int __init mod_init(void)
 {
-	return init_hello_ioctl();
+	return init_happy_ioctl();
 }
 
 static void __exit mod_exit(void)
 {
-	cleanup_hello_ioctl();
+	cleanup_happy_ioctl();
 }
 
 module_init(mod_init);

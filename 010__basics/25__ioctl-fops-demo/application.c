@@ -7,7 +7,7 @@
 */
 
 // device specifics such as ioctl numbers and major device file
-#include "helloioctl.h"
+#include "happy_ioctl.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +15,6 @@
 #include <sys/types.h> /* int32_t, ... */
 #include <fcntl.h> /* open() */
 #include <unistd.h> /* close() */
-
-#include "helloioctl.h"
 
 /*
   main()
@@ -30,7 +28,7 @@ int main(void)
 
 	memset(device_name, '\0', sizeof(device_name));
 	strcat(device_name, "/dev/");
-	strcat(device_name, HELLO_DEVICE_NAME);
+	strcat(device_name, HAPPY_DEVICE_NAME);
 
 	fprintf(stdout, "device name: '%s'\n", device_name);
 	if (0 > (fd = open(device_name, O_RDWR))) {

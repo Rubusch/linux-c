@@ -4,7 +4,7 @@
   struct miscdevice for that
 */
 
-#include "helloioctl.h"
+#include "happy_ioctl.h"
 
 static int device_open(struct inode *, struct file *);
 static int device_release(struct inode *, struct file *);
@@ -22,10 +22,10 @@ dev_t dev = 0;
 static struct class *dev_class;
 
 // the character device as a struct object
-static struct cdev hello_chardev;
+static struct cdev happy_chardev;
 
 // fops
-static struct file_operations hello_chardev_fops = {
+static struct file_operations happy_chardev_fops = {
 	.owner = THIS_MODULE,
 	.open = device_open,
 	.release = device_release,
@@ -121,7 +121,7 @@ static long device_ioctl(struct file *file, unsigned int ioctl_cmd,
   linux init & clean up
 */
 
-int init_hello_ioctl(void)
+int init_happy_ioctl(void)
 {
 	/**
 	 * alloc_chrdev_region() - register a range of char device numbers
@@ -135,7 +135,7 @@ int init_hello_ioctl(void)
 	 * in @dev.  Returns zero or a negative error code.
 	 */
 	if (0 >
-	    alloc_chrdev_region(&dev, MAJOR_NUM, 1, HELLO_DEVICE_FILENAME)) {
+	    alloc_chrdev_region(&dev, MAJOR_NUM, 1, HAPPY_DEVICE_FILENAME)) {
 		printk(KERN_ALERT "device allocation failed!\n");
 		return -ENOMEM;
 	}
@@ -150,7 +150,7 @@ int init_hello_ioctl(void)
 	 * Initializes @cdev, remembering @fops, making it ready to add to the
 	 * system with cdev_add().
 	 */
-	cdev_init(&hello_chardev, &hello_chardev_fops);
+	cdev_init(&happy_chardev, &happy_chardev_fops);
 
 	/**
 	 * cdev_add() - add a char device to the system
@@ -162,7 +162,7 @@ int init_hello_ioctl(void)
 	 * cdev_add() adds the device represented by @p to the system, making it
 	 * live immediately.  A negative error code is returned on failure.
 	 */
-	if (0 > cdev_add(&hello_chardev, dev, 1)) {
+	if (0 > cdev_add(&happy_chardev, dev, 1)) {
 		printk(KERN_ALERT
 		       "%s() adding char device to the system failed\n",
 		       __func__);
@@ -183,7 +183,7 @@ int init_hello_ioctl(void)
 	 * Note, the pointer created here is to be destroyed when finished by
 	 * making a call to class_destroy().
 	 */
-	dev_class = class_create(THIS_MODULE, HELLO_CLASS_NAME);
+	dev_class = class_create(THIS_MODULE, HAPPY_CLASS_NAME);
 	if (NULL == dev_class) {
 		printk(KERN_ALERT
 		       "%s() creating a struct class structure failed\n",
@@ -216,7 +216,7 @@ int init_hello_ioctl(void)
 	 * been created with a call to class_create().
 	 */
 	if (NULL ==
-	    device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
+	    device_create(dev_class, NULL, dev, NULL, HAPPY_DEVICE_NAME)) {
 		printk(KERN_ALERT "%s() \n", __func__);
 		goto err_device;
 	}
@@ -224,7 +224,7 @@ int init_hello_ioctl(void)
 
 	printk(KERN_INFO "If you want to talk to the device driver,\n");
 	printk(KERN_INFO "you'll have to create a device file, do a:\n");
-	printk(KERN_INFO "$ sudo mknod %s c %d 0\n", HELLO_DEVICE_FILENAME,
+	printk(KERN_INFO "$ sudo mknod %s c %d 0\n", HAPPY_DEVICE_FILENAME,
 	       MAJOR_NUM);
 	printk(KERN_INFO "the device file name is important, because\n");
 	printk(KERN_INFO "the ioctl program assumes that's the\n");
@@ -236,7 +236,7 @@ err_device:
 	class_destroy(dev_class);
 
 err_class:
-	cdev_del(&hello_chardev);
+	cdev_del(&happy_chardev);
 
 err_cdev:
 	unregister_chrdev_region(dev, 1);
@@ -244,7 +244,7 @@ err_cdev:
 	return -ENOMEM;
 }
 
-void cleanup_hello_ioctl(void)
+void cleanup_happy_ioctl(void)
 {
 	/**
 	 * device_destroy() - removes a device that was created with device_create()
@@ -276,7 +276,7 @@ void cleanup_hello_ioctl(void)
 	 * opened, however any cdevs already open will remain and their fops will
 	 * still be callable even after cdev_del returns.
 	 */
-	cdev_del(&hello_chardev);
+	cdev_del(&happy_chardev);
 
 	/**
 	 * unregister_chrdev_region() - unregister a range of device numbers

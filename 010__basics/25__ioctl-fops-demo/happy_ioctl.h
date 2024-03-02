@@ -5,8 +5,8 @@
   calling ioctl (ioctl.c).
 */
 
-#ifndef HELLO_IOCTL_H
-#define HELLO_IOCTL_H
+#ifndef HAPPY_IOCTL_H
+#define HAPPY_IOCTL_H
 
 #ifdef __KERNEL__
 
@@ -49,8 +49,8 @@
 
 #ifdef __KERNEL__
 
-int init_hello_ioctl(void);
-void cleanup_hello_ioctl(void);
+int init_happy_ioctl(void);
+void cleanup_happy_ioctl(void);
 
 #endif
 
@@ -63,8 +63,8 @@ void cleanup_hello_ioctl(void);
 /*
   name of the device file
 */
-#define HELLO_DEVICE_FILENAME "lothars_chardev"
-#define HELLO_CLASS_NAME "lothars_chardev_class"
-#define HELLO_DEVICE_NAME "lothars_chardev_device"
+#define HAPPY_DEVICE_FILENAME "lothars_chardev"
+#define HAPPY_CLASS_NAME "lothars_chardev_class"
+#define HAPPY_DEVICE_NAME "lothars_chardev_device"
 
 #endif

@@ -12,7 +12,7 @@ The ioctl implementation needs the following steps:
 ## Usage
 
 ```
-# insmod ./helloioctl.ko
+# insmod ./happy_ioctl.ko
 
 # ./ioctl.elf
     device name: '/dev/lothars_chardev_device'
@@ -26,14 +26,14 @@ The userspace application is interactive, so enter, e.g. `123`
     value = 123
     READY.
 
-# rmmod helloioctl
+# rmmod happy_ioctl
 ```
 
 Logs  
 ```
 # dmesg | tail
-    [83289.938018] init_hello_ioctl() - major = 244, minor = 100
-    [83289.938049] init_hello_ioctl() device driver init - OK
+    [83289.938018] init_happy_ioctl() - major = 244, minor = 100
+    [83289.938049] init_happy_ioctl() device driver init - OK
     [83289.938049] If you want to talk to the device driver,
     [83289.938050] you'll have to create a device file, do a:
     [83289.938050] $ sudo mknod lothars_chardev c 100 0
