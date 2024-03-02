@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-  uses the gpio lib
+  This driver would only take 1 or 0 for the gpio line.
 
   NB: since 4.8 there is a "new" gpio implementation in the kernel
 */
