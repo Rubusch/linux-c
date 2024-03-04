@@ -1,5 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+  Extensively documented demo for starting a kernelthread, put it to
+  sleep and wake it up later.
+
+  NB: the demo uses plain unformated printk() comments, such comments
+  nowadays are not "desired".
 */
 
 #include <linux/kernel.h>
@@ -8,7 +13,7 @@
 #include <linux/kthread.h> /* kthread_run(), kthread_create() */
 #include <linux/delay.h> /* msleep() */
 
-#define KERNELTHREAD_NAME "lothars_kernelthread"
+#define KERNELTHREAD_NAME "happy_kernel_thread"
 
 // pointer to kernelthread
 static struct task_struct *hello_kernelthread;

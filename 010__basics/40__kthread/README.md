@@ -1,16 +1,18 @@
-# Hello Kernelthread Module
+# Kernel Thread Demo
 
-The source was tested compiled and running on 5.4.75.  
+Create a kernel thread. Put it to sleep, wake it up again, start /
+stop operations..  
 
+## Build
+
+Build it for target device, e.g. RPI, then copy the .ko file over.  
 
 ## Usage
 
 ```
-$ make
+$ sudo insmod hello.ko
 
-$ sudo insmod hellokernelthread.ko
-
-$ sudo rmmod hellokernelthread
+$ sudo rmmod hello
 
 $ dmesg | tail
     Jan 25 11:56:20 debian kernel: init_hello_kernelthread() started
@@ -26,16 +28,8 @@ $ dmesg | tail
     Jan 25 11:56:35 debian kernel: cleanup_hello_kernelthread() READY.
 ```
 
-
-## Notes
-
-The demos shows creation and stop of a single kernelthread.
-
-
----
-
 ## References:
  * Linux kernel source, comented API and documentation
- * Linux Kernel Module Programming Guide, Peter Jay Salzman, 2007-05-18
+ * Linux Kernel Module Programming Guide, Peter Jay Salzman, (2007)
  * Highly inspired by / many thanks to www.embetronicx.com (2021)
  * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
