@@ -1,10 +1,10 @@
-# gpio irq
+# GPIO: Convert Input to IRQ and Signal to Userspace App using a Chardev (Miscdevice)
 
-The demo shows incomming asynchronous events on a gpio line.  
+The demo shows incomming asynchronous events on a gpio line. The events on the GPIO line will provoke the generation of an IRQ. The kernel module is a Chardev driver (miscdevice) thus provides a device node, sysfs class representation, and a `cdev` instance.  
 
 ## Setup
 
-To _trigger the button_ simply wire the *gpio17* to 3.3V.  
+Provoke the input signal, simply wire the *GPIO26* to 3.3V.  
 
 ## Usage
 
@@ -13,7 +13,7 @@ To _trigger the button_ simply wire the *gpio17* to 3.3V.
 # ./gpio_poller_app.elf
     gpio_poller_app.c: wait for signal...
 ```
-Now press the button, or connect gpio25 to 3.3V of the board.
+Connect `GPIO26` to 3.3V of the board.
 ```
     gpio_poller_app.c: button pressed
 # rmmod gpio_irq_poll.ko
@@ -22,7 +22,7 @@ Now press the button, or connect gpio25 to 3.3V of the board.
 Logs  
 ```
 [16:12:17.373] Feb 11 04:16:09 ctrl001 kernel: [21556.797189] mod_init(): called
-[16:12:17.373] Feb 11 04:16:09 ctrl001 kernel: [21556.798286] mod_init(): gpio 17 is mapped to irq 185
+[16:12:17.373] Feb 11 04:16:09 ctrl001 kernel: [21556.798286] mod_init(): gpio 26 is mapped to irq 185
 [16:12:20.683] Feb 11 04:16:12 ctrl001 kernel: [21560.112828] gpiodev_poll(): called
 
 <connect wire from GPIO25 on RPI3b to 3.3V>

@@ -42,7 +42,6 @@ gpiodev_poll(struct file *file, poll_table *wait)
 }
 
 static struct file_operations fops = {
-	.owner = THIS_MODULE,
 	.poll = gpiodev_poll
 };
 
@@ -57,7 +56,6 @@ static int __init mod_init(void)
 	int ret;
 
 	pr_info("%s(): called\n", __func__);
-
 	init_waitqueue_head(&waitqueue);
 	if (gpio_request(GPIO_NUM, "input-gpio")) {
 		pr_err("%s(): failed to allocate gpio\n", __func__);
