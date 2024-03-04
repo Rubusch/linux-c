@@ -1,13 +1,15 @@
-# file access
+# File Creation, Read, Write..
 
-Shows how to open, read and write a file in the filesystem from off the kernel.  
+Shows how to open, read and write a file in the filesystem from off
+the kernel space.  
 
 ## Usage
 
 ```
-# insmod ./file.ko 
+# insmod ./file.ko
 # rmmod file
-# cat /tmp/foo 
+
+# cat /tmp/lothars_happy_file
    ....ooooOOOO0000*
 ```
 Logs  
