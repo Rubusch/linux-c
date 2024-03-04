@@ -1,6 +1,8 @@
-# completion
+# Completion
 
-Shows the basic usage of a completion.
+Shows the basic usage of a completion. This just demonstrates the
+feature. I make use of completions in my kthread collection. This demo
+here was picked, since it only shows completion usage.  
 
 ## Usage
 
@@ -27,4 +29,5 @@ Logs
 ```
 
 ## References
-- https://github.com/Johannes4Linux/Linux_Driver_Tutorial/tree/main
+
+- Originates from https://github.com/Johannes4Linux/Linux_Driver_Tutorial/tree/main
