@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-  operate the pwm device struct, w/o any hardware connected,
+  Operate the pwm device struct, w/o any hardware connected,
   just as demo
 */
 #include <linux/module.h>
@@ -8,7 +8,7 @@
 #include <linux/pwm.h>
 #include <linux/miscdevice.h>
 
-#define DEV_NAME "lothars_pwm"
+#define DEV_NAME "happy_pwm"
 #define PWM_ID 1
 
 struct pwm_device *pwm0 = NULL;
@@ -53,7 +53,7 @@ static int __init mod_init(void)
 		return -EFAULT;
 	}
 
-	// this is DUMMY!!!
+	// This is a DUMMY!!!
 	// NB: it probably will just hang when loaded!!!
 	pwm0 = pwm_request(PWM_ID, "pwm-backlight"); // a classic usage: backlight
 	if (pwm0 == NULL) {
@@ -80,4 +80,4 @@ module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("messing with character device classes");
+MODULE_DESCRIPTION("Messing with hw dummy devices.");

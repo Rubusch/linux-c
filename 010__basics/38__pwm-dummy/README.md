@@ -1,11 +1,15 @@
-# pwm dummy
+# A PWM Dummy
 
-The demo does not have hardware set up. Thus it just compiles a dummy pwm.  
+The demo does not have hardware set up. Thus it just compiles a dummy
+pwm. A good idea for mock-the-hardware for playing with kernel APIs approach.  
 
 ## Usage
 
--> NO USAGE, just code snipped. It compiles, but is not configured to use hwardware. Usually this would require to setup something like a `platform_device`. Hook this up by a `probe()` to the DT. Then configure a pwm and binding to this driver.  
+This is just a code snipped. It compiles, but is not configured to use
+(inexistent) hwardware. Usually this would require to setup something
+like a `platform_device`. Hook this up by a `probe()` to the DT. Then
+configure a pwm and binding to this driver.  
 
 ## References
 - https://embetronicx.com/tutorials/linux/device-drivers/gpio-linux-device-driver-using-raspberry-pi/
-- https://github.com/Johannes4Linux/Linux_Driver_Tutorial/tree/main
+- Picked the idea from here: https://github.com/Johannes4Linux/Linux_Driver_Tutorial/tree/main
