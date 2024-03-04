@@ -77,7 +77,7 @@ static int __init mod_init(void)
 	}
 
 	if (gpio_direction_input(GPIO_NUM)) {
-		pr_err("%s(): failed to set gpio direction", __func__);
+		pr_err("%s(): failed to set gpio direction\n", __func__);
 		gpio_free(GPIO_NUM);
 		return -1;
 	}

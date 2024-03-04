@@ -1,11 +1,11 @@
-# gpio irq
+# GPIO: Convert Input to IRQ and Signal to Userspace App
 
 The demo shows incomming asynchronous events on a gpio line. Then
 reacts by sending a signal to a userspace application.  
 
 ## Setup
 
-To _trigger the button_ simply wire the *gpio17* to 3.3V.  
+To _trigger the button_ simply wire the *gpio26* to 3.3V.  
 
 ## Usage
 
@@ -15,7 +15,7 @@ To _trigger the button_ simply wire the *gpio17* to 3.3V.
     signalee.c: pid: 1517
     signalee.c: wait for signal...
 ```
-Now press the button, or connect gpio17 to 3.3V of the board.  
+Now press the button, or connect gpio26 to 3.3V of the board.  
 ```
     signalee.c: button pressed
     signalee.c: button pressed
@@ -27,7 +27,7 @@ Now press the button, or connect gpio17 to 3.3V of the board.
 Logs  
 ```
 [12:02:26.138] Feb 11 00:06:18 ctrl001 kernel: [ 6565.505405] mod_init(): called
-[12:02:26.138] Feb 11 00:06:18 ctrl001 kernel: [ 6565.506029] mod_init(): gpio 17 is mapped to irq 185
+[12:02:26.138] Feb 11 00:06:18 ctrl001 kernel: [ 6565.506029] mod_init(): gpio 26 is mapped to irq 185
 
 [12:02:32.145] Feb 11 00:06:24 ctrl001 kernel: [ 6571.512328] gpio_ioctl(): called
 [12:02:32.145] Feb 11 00:06:24 ctrl001 kernel: [ 6571.512368] gpio_ioctl(): registered userspace application w/ pid 1517

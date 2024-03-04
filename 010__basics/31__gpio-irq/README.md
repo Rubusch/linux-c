@@ -1,4 +1,4 @@
-# GPIO: input converts to IRQ
+# GPIO: Convert Input to IRQ
 
 The demo shows dealing with incomming asynchronous events on a gpio
 line by IRQ generation.  

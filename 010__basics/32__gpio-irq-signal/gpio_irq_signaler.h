@@ -2,7 +2,7 @@
 #define _GPIO_IRQ_SIGNALER__H_
 
 
-#define GPIO_NUM 17
+#define GPIO_NUM 26
 #define GPIO_DEV_NAME "lothars_gpio_dev"
 
 // c language macro string concatenation *trick*
