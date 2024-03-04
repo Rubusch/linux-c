@@ -8,9 +8,10 @@
 #include <linux/interrupt.h>
 #include <linux/jiffies.h>
 
+#define SELECTED_GPIO_LINE  (26)
+
 extern unsigned long volatile jiffies;
 unsigned long old_jiffie = 0;
-#define GPIO_INPUT  (17)
 static unsigned int irq_number; // holding the pin number of irq controller
 
 static irqreturn_t
@@ -18,14 +19,15 @@ gpio_irq_handler(int irq, void *dev_id)
 {
 	unsigned long flags;
 	unsigned long diff = jiffies - old_jiffie;
+
 	if (diff < 20) { // debounce
 		return IRQ_HANDLED;
 	}
 	old_jiffie = jiffies;
-
 	local_irq_save(flags);
-	pr_info("%s(): called, as triggered by IRQ", __func__);
+	pr_info("%s(): called, as triggered by IRQ\n", __func__);
 	local_irq_restore(flags);
+
 	return IRQ_HANDLED;
 }
 
@@ -33,48 +35,49 @@ static int
 __init mod_init(void)
 {
 	int ret;
-	pr_info("%s(): called", __func__);
 
-	if (false == gpio_is_valid(GPIO_INPUT)) {
-		pr_err("%s(): gpio is invalid", __func__);
+	pr_info("%s(): called\n", __func__);
+	if (false == gpio_is_valid(SELECTED_GPIO_LINE)) {
+		pr_err("%s(): gpio is invalid\n", __func__);
 		return -EIO;
 	}
 
-	ret = gpio_request(GPIO_INPUT, "GPIO_INPUT");
+	ret = gpio_request(SELECTED_GPIO_LINE, "SELECTED_GPIO_LINE");
 	if (0 > ret) {
-		pr_err("%s(): failed to allocate gpio %d", __func__, GPIO_INPUT);
+		pr_err("%s(): failed to allocate gpio %d\n", __func__, SELECTED_GPIO_LINE);
 		return -EIO;
 	}
 
-	gpio_direction_input(GPIO_INPUT);
+	// prepare for reading on GPIO line
+	gpio_direction_input(SELECTED_GPIO_LINE);
 
-	irq_number = gpio_to_irq(GPIO_INPUT);
-	pr_info("%s(): gpio has irq number %d", __func__, irq_number);
+	// prepare IRQ when GPIO signals
+	irq_number = gpio_to_irq(SELECTED_GPIO_LINE);
+	pr_info("%s(): gpio has irq number %d\n", __func__, irq_number);
 
-	// when implementing for a device, prefer
-	// the managed variant of the request interrupt
-	// ->   devm_request_irq()
+	// when implementing for a device, prefer the managed variant
+	// of the request interrupt -> devm_request_irq()
 	ret = request_irq(irq_number,
 			  (void*) gpio_irq_handler,
 			  IRQF_TRIGGER_RISING,
-			  "lothars_gpio_irq",
+			  "happy_gpio_irq",
 			  NULL);
 	if (0 > ret) {
-		pr_err("%s(): failed to request IRQ %d", __func__, irq_number);
-		gpio_free(GPIO_INPUT);
+		pr_err("%s(): failed to request IRQ %d\n", __func__, irq_number);
+		gpio_free(SELECTED_GPIO_LINE);
 		return -EIO;
 	}
 
-	pr_info("%s(): gpio mapped to IRQ %d", __func__, irq_number);
+	pr_info("%s(): gpio mapped to IRQ %d\n", __func__, irq_number);
 	return 0;
 }
 
 static void
 __exit mod_exit(void)
 {
-	pr_info("%s(): called", __func__);
-	free_irq(irq_number, NULL);
-	gpio_free(GPIO_INPUT);
+	pr_info("%s(): called\n", __func__);
+	free_irq(irq_number, NULL); // since we did not use a managed irq line
+	gpio_free(SELECTED_GPIO_LINE);
 }
 
 module_init(mod_init);
