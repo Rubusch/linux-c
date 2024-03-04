@@ -33,11 +33,11 @@ NB: offset has to be provided in decimal, not in hex.
 
 # ./mmap_app.elf p 1
     mmap_app.c: offset '1'
-    mmap_app.c: byte on offset 1 (dec): *(ptr + 0x01) = '0x32'
+    mmap_app.c: byte on offset 1 (dec): *(ptr + 0x01) = '0x35'
 
 # ./mmap_app.elf p 2
     mmap_app.c: offset '2'
-    mmap_app.c: byte on offset 2 (dec): *(ptr + 0x02) = '0x33'
+    mmap_app.c: byte on offset 2 (dec): *(ptr + 0x02) = '0x36'
 
 # ./mmap_app.elf p 3
     mmap_app.c: offset '3'
@@ -45,7 +45,7 @@ NB: offset has to be provided in decimal, not in hex.
 
 # rmmod mmap_dev.ko
 ```
-Logs
+Logs  
 ```
 [13:18:36.897] Feb 11 01:22:28 ctrl001 kernel: [11136.268931] mod_init(): called
 [13:18:36.898] Feb 11 01:22:28 ctrl001 kernel: [11136.268997] mod_init(): allocated a page (4096 bytes)
