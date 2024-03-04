@@ -71,7 +71,7 @@ static int __init mod_init(void)
 	gpio_set_debounce(GPIO_NUM, 300);
 
 	irq_number = gpio_to_irq(GPIO_NUM);
-	ret = request_irq(irq_number,
+	ret = request_irq(irq_number, // prefer managed variant of requrest_irq()
 			  gpiodev_irq_handler,
 			  IRQF_TRIGGER_RISING,
 			  "gpio_irq_poll",

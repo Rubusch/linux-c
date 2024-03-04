@@ -1,6 +1,8 @@
-# mmap demo
+# MMAP Demo
 
-Playing around with page frame number and mapping function on a chardevice.
+Show some handling of mmap() syscalls and how they can be
+implemented. Playing around with page frame number and mapping
+function on a chardevice.  
 
 ## Usage
 
@@ -62,4 +64,4 @@ Logs
 ```
 
 ## References
-- the idea is taking mainly from https://github.com/Johannes4Linux/Linux_Driver_Tutorial/tree/main
+- The idea is mainly from https://github.com/Johannes4Linux/Linux_Driver_Tutorial/tree/main

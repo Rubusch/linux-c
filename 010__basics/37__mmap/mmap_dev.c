@@ -1,27 +1,36 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+  The demo shows the classic/"by foot" way how to deal with mapping,
+  paging and some conversions, which are nowadays covered by kernel
+  APIs.
 */
 #include <linux/module.h>
-#include <linux/slab.h> 
-#include <linux/fs.h> 
 #include <linux/mm.h>
 #include <asm/page.h>
 #include <asm/io.h>
 
 #include <linux/miscdevice.h>
 
-static void *lothars_data;
+static void *happy_data;
 
+/*
+  The johannes4linux way to implement read() and write() - a good
+  illustration!
+*/
 static ssize_t
 chardev_read(struct file *file, char __user *ubuf, size_t len, loff_t *offs)
 {
 	int not_copied, to_copy = (len > PAGE_SIZE) ? PAGE_SIZE : len;
 
 	pr_info("%s(): called\n", __func__);
-	not_copied = copy_to_user(ubuf, lothars_data, to_copy);
+	not_copied = copy_to_user(ubuf, happy_data, to_copy);
 	return to_copy - not_copied;
 }
 
+/*
+  The johannes4linux way to implement read() and write() - a good
+  illustration!
+*/
 static ssize_t
 chardev_write(struct file *file, const char __user *ubuf,
 			size_t len, loff_t *offs)
@@ -29,7 +38,7 @@ chardev_write(struct file *file, const char __user *ubuf,
 	int not_copied, to_copy = (len > PAGE_SIZE) ? PAGE_SIZE : len;
 
 	pr_info("%s(): called\n", __func__);
-	not_copied = copy_from_user(lothars_data, ubuf, to_copy);
+	not_copied = copy_from_user(happy_data, ubuf, to_copy);
 	return to_copy - not_copied;
 }
 
@@ -41,7 +50,7 @@ chardev_mmap(struct file *file, struct vm_area_struct *vma)
 	pr_info("%s(): called\n", __func__);
 
 	// page shift arithmetic (for non dma stuff)
-	vma->vm_pgoff = virt_to_phys(lothars_data) >> PAGE_SHIFT;
+	vma->vm_pgoff = virt_to_phys(happy_data) >> PAGE_SHIFT;
 
 	// then remap page frame number
 	ret = remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
@@ -71,8 +80,8 @@ int __init mod_init(void)
 
 	pr_info("%s(): called\n", __func__);
 
-	lothars_data = kzalloc(PAGE_SIZE, GFP_DMA);
-	if (!lothars_data) {
+	happy_data = kzalloc(PAGE_SIZE, GFP_DMA);
+	if (!happy_data) {
 		pr_err("%s(): failed to alloc memory\n", __func__);
 		return -ENOMEM;
 	}
@@ -83,7 +92,7 @@ int __init mod_init(void)
 	ret = misc_register(&mmap_dev);
 	if (0 != ret) {
 		pr_err("%s(): failed to register miscdevice\n", __func__);
-		kfree(lothars_data);
+		kfree(happy_data);
 		return -EFAULT;
 	}
 
@@ -93,8 +102,8 @@ int __init mod_init(void)
 void __exit mod_exit(void)
 {
 	pr_info("%s(): called\n", __func__);
-	if(lothars_data)
-		kfree(lothars_data);
+	if(happy_data)
+		kfree(happy_data);
 	misc_deregister(&mmap_dev);
 }
 

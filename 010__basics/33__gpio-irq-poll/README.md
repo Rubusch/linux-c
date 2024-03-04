@@ -1,4 +1,4 @@
-# GPIO: Convert Input to IRQ and Signal to Userspace App using a Chardev (Miscdevice)
+# GPIO: Convert Input to IRQ and let a Userspace App poll on a Device Node
 
 The demo shows incomming asynchronous events on a gpio line. The events on the GPIO line will provoke the generation of an IRQ. The kernel module is a Chardev driver (miscdevice) thus provides a device node, sysfs class representation, and a `cdev` instance.  
 
