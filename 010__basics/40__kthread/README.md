@@ -14,22 +14,19 @@ $ sudo insmod hello.ko
 
 $ sudo rmmod hello
 
-$ dmesg | tail
-    Jan 25 11:56:20 debian kernel: init_hello_kernelthread() started
-    Jan 25 11:56:20 debian kernel: init_hello_kernelthread() kernelthread initialized
-    Jan 25 11:56:20 debian kernel: kernelthread_routine() counting: 0
-    Jan 25 11:56:21 debian kernel: kernelthread_routine() counting: 1
-    Jan 25 11:56:22 debian kernel: kernelthread_routine() counting: 2
-    Jan 25 11:56:23 debian kernel: kernelthread_routine() counting: 3
-    Jan 25 11:56:24 debian kernel: kernelthread_routine() counting: 4
-    Jan 25 11:56:25 debian kernel: kernelthread_routine() counting: 5
-    Jan 25 11:56:26 debian kernel: kernelthread_routine() counting: 6
-    Jan 25 11:56:27 debian kernel: kernelthread_routine() counting: 7
-    Jan 25 11:56:35 debian kernel: cleanup_hello_kernelthread() READY.
+$ tail /var/log/kern.log
+    Mar  4 20:13:41 ctrl001 kernel: [10301.891382] mod_init() started
+    Mar  4 20:13:41 ctrl001 kernel: [10301.891854] mod_init() kernelthread initialized
+    Mar  4 20:13:41 ctrl001 kernel: [10301.891883] kernelthread_routine() counting: 0
+    Mar  4 20:13:42 ctrl001 kernel: [10302.918019] kernelthread_routine() counting: 1
+    Mar  4 20:13:43 ctrl001 kernel: [10303.941935] kernelthread_routine() counting: 2
+    Mar  4 20:13:44 ctrl001 kernel: [10304.965926] kernelthread_routine() counting: 3
+    Mar  4 20:13:45 ctrl001 kernel: [10305.989940] kernelthread_routine() counting: 4
+    Mar  4 20:13:46 ctrl001 kernel: [10307.013922] kernelthread_routine() counting: 5
+    Mar  4 20:13:47 ctrl001 kernel: [10308.037994] mod_exit() READY.
 ```
 
 ## References:
  * Linux kernel source, comented API and documentation
  * Linux Kernel Module Programming Guide, Peter Jay Salzman, (2007)
- * Highly inspired by / many thanks to www.embetronicx.com (2021)
  * https://github.com/Embetronicx/Tutorials/tree/master/Linux/Device_Driver
