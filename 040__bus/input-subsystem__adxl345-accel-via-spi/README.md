@@ -32,20 +32,18 @@ Connection (RPI3b to ADXL345):
 
 # Build
 
-## Module
-
-Having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
+Having `crossbuild-essentials-arm64` installed, provide `KERNELDIR`, `ARCH`, and `CROSS_COMPILE`, then execute  
 ```
 $ cd ./module
 $ make
 ```
-Copy the module over to the target. Copy the `.dtbo` file to `/boot/overlays` and register the DT overlay in `/boot/config.txt` as `dtoverlay`.  
+Copy the module over to the target. Copy the `.dtbo` file to `/boot/overlays` and register the DT overlay in `/boot/config.txt` as `dtoverlay` without file extension.  
 
 ## Usage
 
 ```
 $ sudo su
-# modprobe input_demo.ko
+# insmod input_demo.ko
 
 # ll /sys/class/input/input0/device
     lrwxrwxrwx 1 root root 0 Feb 25 17:27 /sys/class/input/input0/device -> ../../../spi0.0
