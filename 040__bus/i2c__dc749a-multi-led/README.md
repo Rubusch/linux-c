@@ -1,5 +1,6 @@
 # I2C Client: Multidisplay LED Demo
 
+![DC719A](pics/dc749a.png)  
 
 ## Hardware: LTC3206 I2C Multidisplay LED Controller
 
@@ -9,7 +10,6 @@ https://www.analog.com/media/en/technical-documentation/data-sheets/3206f.pdf
 DC749A Demo Board (Analog)  
 https://www.analog.com/media/en/technical-documentation/user-guides/dc749A.pdf
 
-![DC719A](pics/dc749a.png)  
 
 ### Connect
 use the connector J20  
@@ -52,31 +52,16 @@ root@ctrl001:/home/pi# i2cdetect -y 1
 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 70: -- -- -- -- -- -- -- --
 ```
-NB: The ENRGB has to be high, either connect it to e.g. GPIO23 [16], export it and set it to '1'. Alternatively, connect it direcly to 3.3V. A better solution would be to export it either by DT overlay or enable it throught the driver.  
+NB: The ENRGB has to be high, either connect it to e.g. GPIO23 [16], export it and set it to '1'. Alternatively, connect it direcly to 3.3V. A better solution would be to export it either by DT overlay or enable it throught the driver.
 
 # Build
 
-## Devicetree
-
-copy it to the specified location in the linux sources (6.3), then build it  
-```
-$ cd linux
-$ cp -arf <SOURCES>/devicetree/arch ./
-$ find . -name \*.dtb -delete
-$ make dtbs
-  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
-```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
-
-
-## Module
-
-Should crosscompile - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
+Should crosscompile when `crossbuild-essentials-arm64` are installed, set `KERNELDIR`, `ARCH`, and `CROSS_COMPILE`, then execute  
 ```
 $ cd ./module
 $ make
 ```
-Copy the module over to the target  
+Copy the .dtbo file over to `/boot/overlays` and register in `/boot/config.txt`. Copy the module over to the target  
 
 ## Usage
 ```
