@@ -43,7 +43,7 @@ Copy the module over to the target. Copy the `.dtbo` file to `/boot/overlays` an
 
 ```
 $ sudo su
-# insmod input_demo.ko
+# insmod ad.ko
 
 # ll /sys/class/input/input0/device
     lrwxrwxrwx 1 root root 0 Feb 25 17:27 /sys/class/input/input0/device -> ../../../spi0.0

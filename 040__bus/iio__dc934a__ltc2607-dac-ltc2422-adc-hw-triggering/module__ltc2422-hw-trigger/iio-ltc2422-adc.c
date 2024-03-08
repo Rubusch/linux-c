@@ -96,9 +96,10 @@ ltc2422_read_raw(struct iio_dev *indio_dev, struct iio_chan_spec const *chan,
 
 	st = iio_priv(indio_dev);
 	dev = &st->spi->dev;
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s() - called\n", __func__);
 
-	dev_info(dev, "%s() - press microbus key to start conversion", __func__);
+	dev_info(dev, "%s() - press microbus key to start conversion\n",
+		 __func__);
 
 	switch(m) {
 	case IIO_CHAN_INFO_RAW:
@@ -106,7 +107,8 @@ ltc2422_read_raw(struct iio_dev *indio_dev, struct iio_chan_spec const *chan,
 
 		ret = wait_event_interruptible(st->wq_data_available, st->conversion_done);
 		if (ret) {
-			dev_err(dev, "%s() - failed to request interrupt", __func__);
+			dev_err(dev, "%s() - failed to request interrupt\n",
+				__func__);
 			mutex_unlock(&st->lock);
 			return ret;
 		}
@@ -145,11 +147,12 @@ ltc2422_probe(struct spi_device *spi)
 	const struct spi_device_id *id = spi_get_device_id(spi);
 	int ret;
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s() - called\n", __func__);
 
 	indio_dev = devm_iio_device_alloc(dev, sizeof(*st));
 	if (!indio_dev) {
-		dev_err(dev, "%s() - devm_iio_device_alloc() failed", __func__);
+		dev_err(dev, "%s() - devm_iio_device_alloc() failed\n",
+			__func__);
 		return -ENOMEM;
 	}
 
@@ -160,17 +163,20 @@ ltc2422_probe(struct spi_device *spi)
 	// you can also use devm_gpiod_get(dev, LTC2422_GPIO_NAME, GPIOD_IN);
 	st->gpio = devm_gpiod_get_index(dev, LTC2422_GPIO_NAME, 0, GPIOD_IN);
 	if (IS_ERR(st->gpio)) {
-		dev_err(dev, "%s() - devm_gpiod_get_index() failed", __func__);
+		dev_err(dev, "%s() - devm_gpiod_get_index() failed\n",
+			__func__);
 		return PTR_ERR(st->gpio);
 	}
 
 	st->irq = gpiod_to_irq(st->gpio);
 	if (st->irq < 0) {
-		dev_err(dev, "%s() - gpiod_to_irq() failed", __func__);
+		dev_err(dev, "%s() - gpiod_to_irq() failed\n",
+			__func__);
 		return st->irq;
 	}
 
-	dev_info(dev, "%s() - the irq number is '%d;", __func__, st->irq);
+	dev_info(dev, "%s() - the irq number is '%d;\n",
+		 __func__, st->irq);
 
 	indio_dev->name = id->name;
 	indio_dev->dev.parent = &spi->dev;
@@ -185,13 +191,15 @@ ltc2422_probe(struct spi_device *spi)
 	ret = devm_request_irq(dev, st->irq, ltc2422_adc_interrupt,
 			       IRQF_TRIGGER_FALLING, id->name, st);
 	if (ret) {
-		dev_err(dev, "%s() - devm_request_irq() failed", __func__);
+		dev_err(dev, "%s() - devm_request_irq() failed\n",
+			__func__);
 		return ret;
 	}
 
 	ret = devm_iio_device_register(&spi->dev, indio_dev);
 	if (0 > ret) {
-		dev_err(dev, "%s() - devm_iio_device_register() failed", __func__);
+		dev_err(dev, "%s() - devm_iio_device_register() failed\n",
+			__func__);
 		return ret;
 	}
 
@@ -205,7 +213,7 @@ ltc2422_probe(struct spi_device *spi)
 void
 ltc2422_remove(struct spi_device *spi)
 {
-	pr_info("%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 }
 
 static const struct of_device_id ltc2422_dt_ids[] = {

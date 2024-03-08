@@ -88,23 +88,23 @@ ltc2607_set_value(struct iio_dev* indio_dev, int val, int channel)
 	int chan;
 	int ret;
 
-	dev_info(dev, "%s() - called", __func__);
-	dev_info(dev, "%s() - val '%d', channel '%d'", __func__, val, channel);
+	dev_info(dev, "%s() - called\n", __func__);
+	dev_info(dev, "%s() - val '%d', channel '%d'\n", __func__, val, channel);
 
 	chan = (2 == channel) ? 0x0f : channel;
 	if (BIT(16) <= val || 0 > val)
 		return -EINVAL;
 
-	dev_info(dev, "%s() - chan '%02x' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]", __func__, chan);
+	dev_info(dev, "%s() - chan '%02x' [0x00: DACa, 0x01: DACb, 0x0f: both DACs]\n", __func__, chan);
 
 	outbuf[0] = 0x30 | chan;       // write and update DAC: 0x30
-	dev_info(dev, "%s() - outbuf[0] '%02x'", __func__, outbuf[0]);
+	dev_info(dev, "%s() - outbuf[0] '%02x'\n", __func__, outbuf[0]);
 
 	outbuf[1] = (val >> 8) & 0xff; // MSB byte of dac_code
-	dev_info(dev, "%s() - outbuf[1] '%02x'", __func__, outbuf[1]);
+	dev_info(dev, "%s() - outbuf[1] '%02x'\n", __func__, outbuf[1]);
 
 	outbuf[2] = val & 0xff;        // LSB byte of dac_code
-	dev_info(dev, "%s() - outbuf[2] '%02x'", __func__, outbuf[2]);
+	dev_info(dev, "%s() - outbuf[2] '%02x'\n", __func__, outbuf[2]);
 
 	ret = i2c_master_send(data->client, outbuf, indio_dev->num_channels);
 	if (0 > ret)
@@ -175,14 +175,16 @@ ltc2607_write_raw(struct iio_dev* indio_dev, struct iio_chan_spec const *chan, i
 	int ret;
 	struct device *dev = indio_dev->dev.parent;
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s() - called\n", __func__);
 	switch(mask) {
 	case IIO_CHAN_INFO_RAW:
-		dev_info(dev, "%s() - case IIO_CHAN_INFO_RAW: val '%d', chan->channel '%d'", __func__, val, chan->channel);
+		dev_info(dev,
+			 "%s() - case IIO_CHAN_INFO_RAW: val '%d', chan->channel '%d'\n",
+			 __func__, val, chan->channel);
 		ret = ltc2607_set_value(indio_dev, val, chan->channel);
 		return ret;
 	default:
-		dev_info(dev, "%s() - case default", __func__);
+		dev_info(dev, "%s() - case default\n", __func__);
 		return -EINVAL;
 	}
 
@@ -207,12 +209,13 @@ ltc2607_probe(struct i2c_client *client)
 	u8 command_byte;
 	int ret;
 
-	dev_info(dev, "%s() - called", __func__);
+	dev_info(dev, "%s() - called\n", __func__);
 
 	// allocate the struct iio_dev
 	indio_dev = devm_iio_device_alloc(dev, sizeof(*data));
 	if (!indio_dev) {
-		dev_err(dev, "%s() - alloc indio_dev failed", __func__);
+		dev_err(dev, "%s() - alloc indio_dev failed\n",
+			__func__);
 		return -ENOMEM;
 	}
 
@@ -243,7 +246,8 @@ ltc2607_probe(struct i2c_client *client)
 	   per DT LTC2607 node found
 	*/
 	sprintf(data->name, "DAC%02d", counter++);
-	dev_info(dev, "%s() - was called from %s", __func__, data->name);
+	dev_info(dev, "%s() - was called from %s\n",
+		 __func__, data->name);
 
 	/* iio/i2c - init (4/8)
 
@@ -288,18 +292,22 @@ ltc2607_probe(struct i2c_client *client)
         // write DAC value
 	ret = i2c_master_send(client, inbuf, indio_dev->num_channels);
 	if (0 > ret) {
-		dev_err(dev, "%s() - i2c_master_send() failed", __func__);
+		dev_err(dev, "%s() - i2c_master_send() failed\n",
+			__func__);
 		return ret;
 	}
-	dev_info(dev, "%s() - the DAC answer is '%x'", __func__, ret);
+	dev_info(dev, "%s() - the DAC answer is '%x'\n",
+		 __func__, ret);
 
 	ret = devm_iio_device_register(dev, indio_dev);
 	if (ret) {
-		dev_err(dev, "%s() devm_iio_device_register() failed", __func__);
+		dev_err(dev, "%s() devm_iio_device_register() failed\n",
+			__func__);
 		return ret;
 	}
 
-	dev_info(dev, "%s() - ltc2607 DAC registered",  __func__);
+	dev_info(dev, "%s() - ltc2607 DAC registered\n",
+		 __func__);
 
 	return 0;
 }
@@ -307,7 +315,8 @@ ltc2607_probe(struct i2c_client *client)
 static void
 ltc2607_remove(struct i2c_client *client)
 {
-	dev_info(&client->dev, "%s() - called", __func__);
+	dev_info(&client->dev, "%s() - called\n",
+		 __func__);
 }
 
 static const struct of_device_id dac_dt_ids[] = {

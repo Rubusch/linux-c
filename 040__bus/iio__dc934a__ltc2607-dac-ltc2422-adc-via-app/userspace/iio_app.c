@@ -25,7 +25,7 @@ float LTC2422_lsb = 4.7683761E-6;
 
 int8_t ltc2422_read(uint8_t *adc_channel, int32_t *code);
 float ltc2422_voltage(uint32_t adc_code, float ltc2422_lsb);
-                  
+
 /* read
 
   returns the data and channel number
