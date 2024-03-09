@@ -169,7 +169,7 @@ struct adxl345_platform_data {
 	/*
 	  data_range:
 
-	  FULL_RES: When this bit is set with the device is in
+	  FULL_RES: When this bit is set, the device is in
 	  Full-Resolution Mode, where the output resolution increases
 	  with RANGE to maintain a 4 mg/LSB scale factor. When this
 	  bit is cleared the device is in 10-bit Mode and RANGE
