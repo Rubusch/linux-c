@@ -215,7 +215,6 @@ static struct i2c_driver ioexp_driver = {
 	.id_table = i2c_ids,
 	.driver = {
 		.name = "ioexp",
-		.owner = THIS_MODULE,
 		.of_match_table = ioexp_dt_ids,
 	},
 };
