@@ -6,7 +6,6 @@
  *
  * Datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf
  */
-// TODO 3-wire            -> 0x31—DATA_FORMAT, BIT(6) = 1
 // TODO FULL_RES / 10-bit and range bits
 // TODO THRESH_TAP
 // TODO fifo
@@ -56,9 +55,6 @@
 #define ADXL345_DATA_FORMAT_8G		2
 #define ADXL345_DATA_FORMAT_16G		3
 
-#define ADXL345_DATA_FORMAT_SPI         BIT(6) /* 1 in the SPI bit sets the device to 3-wire SPI mode,
-						  0 sets the device to 4-wire SPI mode. */
-
 #define ADXL345_DEVID			0xE5
 
 /*
@@ -98,6 +94,13 @@ static const struct iio_chan_spec adxl345_channels[] = {
 	ADXL345_CHANNEL(1, Y),
 	ADXL345_CHANNEL(2, Z),
 };
+
+static u8 _adxl345_data_format;
+void adxl345_preset_data_format(u8 data_format)
+{
+        _adxl345_data_format = data_format;
+}
+EXPORT_SYMBOL_NS_GPL(adxl345_preset_data_format, IIO_ADXL345);
 
 static int adxl345_read_raw(struct iio_dev *indio_dev,
 			    struct iio_chan_spec const *chan,
@@ -281,10 +284,8 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 	data->regmap = regmap;
 	data->type = type;
 
-	/* 3-wire SPI */
-// TODO if (SPI && DO_3-wire-spi)
-	data->data_range |= ADXL345_DATA_FORMAT_SPI;
-	pr_info("%s(): data->data_range to 3-wire SPI\n", __func__);    
+	/* First pass the configuration e.g. spi-3wire, then read the DevID */
+	data->data_range |= _adxl345_data_format;
 
 	/* Enable full-resolution mode */
 	data->data_range |= ADXL345_DATA_FORMAT_FULL_RES;

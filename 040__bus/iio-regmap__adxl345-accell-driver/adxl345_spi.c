@@ -33,6 +33,11 @@ static int adxl345_spi_probe(struct spi_device *spi)
 	if (IS_ERR(regmap))
 		return dev_err_probe(&spi->dev, PTR_ERR(regmap), "Error initializing regmap\n");
 
+	/* 3-wire SPI */
+	if (spi->mode & SPI_3WIRE) {
+		adxl345_preset_data_format(ADXL345_DATA_FORMAT_SPI);
+	}
+
 	return adxl345_core_probe(&spi->dev, regmap);
 }
 
