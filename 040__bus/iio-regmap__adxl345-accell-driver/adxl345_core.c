@@ -17,7 +17,6 @@
 #include <linux/property.h>
 #include <linux/regmap.h>
 #include <linux/units.h>
-
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 
@@ -69,7 +68,7 @@
  * At +/- 16g with 13-bit resolution, scale is computed as:
  * (16 + 16) * 9.81 / (2^13 - 1) = 0.0383
  */
-static const int adxl345_uscale = 38300;    
+static const int adxl345_uscale = 38300;
 
 /*
  * The Datasheet lists a resolution of Resolution is ~49 mg per LSB. That's
@@ -267,7 +266,7 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 
 	indio_dev = devm_iio_device_alloc(dev, sizeof(*data));
 	if (!indio_dev) {
-		pr_err("%s(): FAIL! devm_iio_device_alloc() failed\n", __func__);
+		pr_err("%s(): FAIL! devm_iio_device_alloc() failed\n", __func__);    
 		return -ENOMEM;
 	}
 	pr_info("%s(): devm_iio_device_alloc() ok\n", __func__);    
@@ -289,19 +288,18 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 
 	/* Enable full-resolution mode */
 	data->data_range |= ADXL345_DATA_FORMAT_FULL_RES;
-	pr_info("%s(): data->data_range to FULL RESOLUTION\n", __func__);    
-
+	pr_info("%s(): YYY  sending data_range 0x%04x\n", __func__, data->data_range);    
 	ret = regmap_write(data->regmap, ADXL345_REG_DATA_FORMAT,
 			   data->data_range);
 	if (ret < 0) {
-		pr_err("%s(): FAIL! regmap_write() data format failed\n", __func__);
+		pr_err("%s(): FAIL! regmap_write() data format failed\n", __func__);    
 		return dev_err_probe(dev, ret, "Failed to set data range\n");
 	}
 	pr_info("%s(): regmap_write() ok\n", __func__);    
 
 	ret = regmap_read(regmap, ADXL345_REG_DEVID, &regval);
 	if (ret < 0) {
-		pr_err("%s(): FAIL! regmap_read() failed\n", __func__);
+		pr_err("%s(): FAIL! regmap_read() failed\n", __func__);    
 		return dev_err_probe(dev, ret, "Error reading device ID\n");
 	}
 	pr_info("%s(): regmap_read() ok\n", __func__);    

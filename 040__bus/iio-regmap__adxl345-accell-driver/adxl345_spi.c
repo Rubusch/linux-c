@@ -71,3 +71,4 @@ MODULE_AUTHOR("Eva Rachel Retuya <eraretuya@gmail.com>");
 MODULE_DESCRIPTION("ADXL345 3-Axis Digital Accelerometer SPI driver");
 MODULE_LICENSE("GPL v2");
 MODULE_IMPORT_NS(IIO_ADXL345);
+
