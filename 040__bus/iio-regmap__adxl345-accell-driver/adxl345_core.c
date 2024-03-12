@@ -49,6 +49,8 @@
 #define ADXL345_POWER_CTL_MEASURE	BIT(3)
 #define ADXL345_POWER_CTL_STANDBY	0x00
 
+#define ADXL345_INT_SINGLE_TAP		BIT(6)
+
 #define ADXL345_DATA_FORMAT_FULL_RES	BIT(3) /* Up to 13-bits resolution */              
 #define ADXL345_DATA_FORMAT_2G		0
 #define ADXL345_DATA_FORMAT_4G		1
@@ -235,7 +237,7 @@ static const struct iio_info adxl345_info = {
 static int adxl345_powerup(void *regmap)
 {
 	pr_info("%s(): called\n", __func__);    
-	return regmap_write(regmap, ADXL345_REG_POWER_CTL, ADXL345_POWER_CTL_MEASURE);
+	return regmap_write(regmap, ADXL345_REG_POWER_CTL, ADXL345_POWER_CTL_MEASURE);  
 }
 
 static void adxl345_powerdown(void *regmap)
@@ -283,6 +285,34 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 	data = iio_priv(indio_dev);
 	data->regmap = regmap;
 	data->type = type;
+	
+// TODO prepare interrupt handling for this driver and TAP events           
+	ac->gpio = devm_gpiod_get_index(dev, ADXL345_GPIO_NAME, 0, GPIOD_IN);
+	if (IS_ERR(ac->gpio)) {
+		pr_err("%s(): gpio get index failed\n", __func__);
+		err = PTR_ERR(ac->gpio); // PTR_ERR return an int from a pointer
+		goto err_out;
+	}
+
+	ac->irq = gpiod_to_irq(ac->gpio);
+	if (ac->irq < 0) {
+		pr_err("%s(): gpio get irq failed\n", __func__);
+		err = ac->irq;
+		goto err_out;
+	}
+	pr_info("%s(): the IRQ number is: %d\n", __func__, ac->irq);
+
+	// request threaded interrupt
+	err = devm_request_threaded_irq(input_dev->dev.parent,
+					ac->irq,
+					NULL,
+					adxl345_irq,
+					IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
+					dev_name(dev),
+					ac);
+	if (err)
+		goto err_out;
+	
 
 	/* First pass the configuration e.g. spi-3wire, then read the DevID */
 	data->data_range |= _adxl345_data_format;
@@ -311,6 +341,13 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 				     regval, ADXL345_DEVID);
 	}
 	pr_info("%s(): regval == ADXL345_DEVID\n", __func__);    
+
+// TODO make dependable on setting in DT        
+	
+	ret = regmap_write(regmap, ADXL345_REG_INT_ENABLE, ADXL345_INT_SINGLE_TAP);
+	if (ret < 0) {
+		return dev_err_probe(dev, ret, "Failed to enable interrupt\n");
+	}
 
 	/* Enable measurement mode */
 	ret = adxl345_powerup(data->regmap);
