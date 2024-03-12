@@ -1,4 +1,10 @@
-# DMA from user space
+# ADXL345 Accel polling driver based on the input system using SPI
+
+iio: The Industrial I/O core offers a unified framework for writing
+drivers for many different types of embedded sensors.  
+
+input: Some of the parts might be also used in input drivers, such as
+for mouse, joystick, etc.  
 
 Use the ADXL345 Accel click mikroBUS accessory board connected to the
 I2C bus of the processor to verify the driver. The driver will scan

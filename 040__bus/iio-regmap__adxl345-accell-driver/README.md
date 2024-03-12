@@ -2,7 +2,21 @@
 
 ADXL345 Accel click mikroBUS: https://www.mikroe.com/accel-spi-board
 
-This is an approach to extract an upstream kernel driver for the adxl345. As far as I understood, this iio based driver was implemented in an outreachy internship program. It was presented AFAIR on the Embedded Linux Conference Europe (Lyon?). By chance I attended exactly this slot held be Julia Lawall and was listening to the author Eva Rachel Retuya. It was just by chance that I ended up with this hardware on my table and found in the datasheet and literature that not all features of the hardware were already implemented.
+Currently (v6.8) the kernel has an input driver (2009?) for this
+accelerometer, and an iio based driver approach. Probably, this driver
+should be moved rather to iio (e.g. ADC, DAC, accelerometers,...),
+than to input devices (e.g. mice, trackballs, joysticks,...).  
+
+First I extracted the upstream kernel iio driver for the
+adxl345.
+
+Annekdote - AFAIR, this iio based driver was implemented in an
+outreachy internship program. It was presented on one of the Embedded
+Linux Conference Europe (Lyon?) by the student, Eva Rachel Retuya, who
+implemented it. By chance I attended this conference slot, held by
+Julia Lawall. Just by chance some years later I ended up with this
+hardware on my table and spotted in the datasheet that not all
+features of the hardware were already implemented.  
 
 Note: The `adxl345_spi.ko` won't load easily, see insmod error:
 ```

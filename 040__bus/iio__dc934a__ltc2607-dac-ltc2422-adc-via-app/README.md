@@ -1,6 +1,14 @@
 # DC934a - Subsystem DAC (LTC2607)
 
 ![DC934a Module](../iio__dc934a__ltc2607-dac-ltc2422-adc-via-i2c/pics/dc934a.png)  
+
+
+iio: The Industrial I/O core offers a unified framework for writing
+drivers for many different types of embedded sensors.  
+
+input: Some of the parts might be also used in input drivers, such as
+for mouse, joystick, etc.  
+
 Provide a driver for the dual DAC LTC2607 (I2C). Then read the analog
 outputs from the DAC device by the ADC LTC2422 (SPI). The LTC2607 DAC
 outputs are connected to both LTC2422 ADC inputs.  

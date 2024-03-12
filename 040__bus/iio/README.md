@@ -1,5 +1,11 @@
 # iio driver dummy
 
+iio: The Industrial I/O core offers a unified framework for writing
+drivers for many different types of embedded sensors.  
+
+input: Some of the parts might be also used in input drivers, such as
+for mouse, joystick, etc.  
+
 The demo shows a dummy for the industrial IO (iio) API. After
 executing `make` there will be two kernel modules. The `-ins.ko`
 module triggers the driver module to omit messing with the device-tree
@@ -51,4 +57,6 @@ Logs
 ```
 
 ## References
+* https://www.kernel.org/doc/html/latest/driver-api/iio/index.html
+* https://wiki.analog.com/software/linux/docs/iio/iio
 * Linux Device Driver Programming, J. Madieu, 2022
