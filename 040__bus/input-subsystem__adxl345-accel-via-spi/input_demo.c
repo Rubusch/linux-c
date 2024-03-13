@@ -343,10 +343,10 @@ adxl345_irq(int irq, void *handle)
 	  function is called with the ACT_TAP_STATUS register as an
 	  argument.
 	*/
-	if (int_stat & (SINGLE_TAP)){
+	if (int_stat & (SINGLE_TAP)) {
 		pr_info("%s(): single tap interrupt has occurred\n", __func__);
 		adxl345_do_tap(ac, pdata, tap_stat);
-	};
+	}
 
 	input_sync(ac->input);
 
