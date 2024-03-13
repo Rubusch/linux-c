@@ -22,24 +22,16 @@
 #include "adxl345.h"
 
 #define ADXL345_REG_DEVID		0x00
-#define ADXL345_REG_THRESH_TAP          0x1d   
 #define ADXL345_REG_OFSX		0x1e
 #define ADXL345_REG_OFSY		0x1f
 #define ADXL345_REG_OFSZ		0x20
-#define ADXL345_REG_DUR                 0x21   
-#define ADXL345_REG_TAP_AXES            0x2a   
-#define ADXL345_REG_ACT_TAP_STATUS      0x2b   
-#define ADXL345_REG_OFS_AXIS(index)	(ADXL345_REG_OFSX + (index)) /* TODO check */            
-#define ADXL345_REG_BW_RATE		0x2c   
-#define ADXL345_REG_POWER_CTL		0x2d   
-#define ADXL345_REG_INT_ENABLE          0x2e   
-#define ADXL345_REG_INT_MAP             0x2f   
-#define ADXL345_REG_INT_SOURCE          0x30   
+#define ADXL345_REG_OFS_AXIS(index)	(ADXL345_REG_OFSX + (index))
+#define ADXL345_REG_BW_RATE		0x2c
+#define ADXL345_REG_POWER_CTL		0x2d
 #define ADXL345_REG_DATA_FORMAT		0x31
 #define ADXL345_REG_DATAX0		0x32
 #define ADXL345_REG_DATAY0		0x34
 #define ADXL345_REG_DATAZ0		0x36
-#define ADXL345_REG_FIFO_CTL            0x38   
 #define ADXL345_REG_DATA_AXIS(index)	\
 	(ADXL345_REG_DATAX0 + (index) * sizeof(__le16))
 
@@ -51,7 +43,7 @@
 
 #define ADXL345_INT_SINGLE_TAP		BIT(6)
 
-#define ADXL345_DATA_FORMAT_FULL_RES	BIT(3) /* Up to 13-bits resolution */              
+#define ADXL345_DATA_FORMAT_FULL_RES	BIT(3) /* Up to 13-bits resolution */
 #define ADXL345_DATA_FORMAT_2G		0
 #define ADXL345_DATA_FORMAT_4G		1
 #define ADXL345_DATA_FORMAT_8G		2
@@ -285,36 +277,8 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 	data = iio_priv(indio_dev);
 	data->regmap = regmap;
 	data->type = type;
-	
-// TODO prepare interrupt handling for this driver and TAP events           
-	ac->gpio = devm_gpiod_get_index(dev, ADXL345_GPIO_NAME, 0, GPIOD_IN);
-	if (IS_ERR(ac->gpio)) {
-		pr_err("%s(): gpio get index failed\n", __func__);
-		err = PTR_ERR(ac->gpio); // PTR_ERR return an int from a pointer
-		goto err_out;
-	}
 
-	ac->irq = gpiod_to_irq(ac->gpio);
-	if (ac->irq < 0) {
-		pr_err("%s(): gpio get irq failed\n", __func__);
-		err = ac->irq;
-		goto err_out;
-	}
-	pr_info("%s(): the IRQ number is: %d\n", __func__, ac->irq);
-
-	// request threaded interrupt
-	err = devm_request_threaded_irq(input_dev->dev.parent,
-					ac->irq,
-					NULL,
-					adxl345_irq,
-					IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
-					dev_name(dev),
-					ac);
-	if (err)
-		goto err_out;
-	
-
-	/* First pass the configuration e.g. spi-3wire, then read the DevID */
+	/* Obtain the specific data_format */
 	data->data_range |= _adxl345_data_format;
 
 	/* Enable full-resolution mode */
@@ -328,6 +292,7 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 	}
 	pr_info("%s(): regmap_write() ok\n", __func__);    
 
+	/* Read out DEVID */
 	ret = regmap_read(regmap, ADXL345_REG_DEVID, &regval);
 	if (ret < 0) {
 		pr_err("%s(): FAIL! regmap_read() failed\n", __func__);    
@@ -341,13 +306,6 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 				     regval, ADXL345_DEVID);
 	}
 	pr_info("%s(): regval == ADXL345_DEVID\n", __func__);    
-
-// TODO make dependable on setting in DT        
-	
-	ret = regmap_write(regmap, ADXL345_REG_INT_ENABLE, ADXL345_INT_SINGLE_TAP);
-	if (ret < 0) {
-		return dev_err_probe(dev, ret, "Failed to enable interrupt\n");
-	}
 
 	/* Enable measurement mode */
 	ret = adxl345_powerup(data->regmap);
