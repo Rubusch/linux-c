@@ -15,10 +15,13 @@ targets:
 
       ShellDriver:             ## implements "CommandProtocol, binds to "ConsoleProtocol"
         prompt: '.*\$ '
-        login_prompt: 'ctrl001 login: '
+        login_prompt: 'ctrl01 login: '
         username: 'pi'
         password: 'xdr5XDR%'
 
       SSHDriver: {}
 
       ShellStrategy: {}        ## strategy
+
+options:
+  crossbar_url: 'ws://10.1.10.1:20408/ws'
