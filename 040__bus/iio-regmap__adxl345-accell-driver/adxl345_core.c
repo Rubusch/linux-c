@@ -16,6 +16,7 @@
 #include <linux/property.h>
 #include <linux/regmap.h>
 #include <linux/units.h>
+
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 
@@ -41,8 +42,6 @@
 #define ADXL345_POWER_CTL_MEASURE	BIT(3)
 #define ADXL345_POWER_CTL_STANDBY	0x00
 
-#define ADXL345_INT_SINGLE_TAP		BIT(6)
-
 #define ADXL345_DATA_FORMAT_FULL_RES	BIT(3) /* Up to 13-bits resolution */
 #define ADXL345_DATA_FORMAT_2G		0
 #define ADXL345_DATA_FORMAT_4G		1
@@ -51,25 +50,10 @@
 
 #define ADXL345_DEVID			0xE5
 
-/*
- * In full-resolution mode, scale factor is maintained at ~4 mg/LSB
- * in all g ranges.
- *
- * At +/- 16g with 13-bit resolution, scale is computed as:
- * (16 + 16) * 9.81 / (2^13 - 1) = 0.0383
- */
-static const int adxl345_uscale = 38300;
-
-/*
- * The Datasheet lists a resolution of Resolution is ~49 mg per LSB. That's
- * ~480mm/s**2 per LSB.
- */
-static const int adxl375_uscale = 480000;
-
 struct adxl345_data {
+	const struct adxl345_chip_info *info;
 	struct regmap *regmap;
 	u8 data_range;
-	enum adxl345_device_type type;
 };
 
 #define ADXL345_CHANNEL(index, axis) {					\
@@ -106,7 +90,6 @@ static int adxl345_read_raw(struct iio_dev *indio_dev,
 	unsigned int regval;
 	int ret;
 
-	pr_info("%s(): called\n", __func__);    
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
 		/*
@@ -124,15 +107,7 @@ static int adxl345_read_raw(struct iio_dev *indio_dev,
 		return IIO_VAL_INT;
 	case IIO_CHAN_INFO_SCALE:
 		*val = 0;
-		switch (data->type) {
-		case ADXL345:
-			*val2 = adxl345_uscale;
-			break;
-		case ADXL375:
-			*val2 = adxl375_uscale;
-			break;
-		}
-
+		*val2 = data->info->uscale;
 		return IIO_VAL_INT_PLUS_MICRO;
 	case IIO_CHAN_INFO_CALIBBIAS:
 		ret = regmap_read(data->regmap,
@@ -168,7 +143,6 @@ static int adxl345_write_raw(struct iio_dev *indio_dev,
 	struct adxl345_data *data = iio_priv(indio_dev);
 	s64 n;
 
-	pr_info("%s(): called\n", __func__);    
 	switch (mask) {
 	case IIO_CHAN_INFO_CALIBBIAS:
 		/*
@@ -195,7 +169,6 @@ static int adxl345_write_raw_get_fmt(struct iio_dev *indio_dev,
 				     struct iio_chan_spec const *chan,
 				     long mask)
 {
-	pr_info("%s(): called\n", __func__);    
 	switch (mask) {
 	case IIO_CHAN_INFO_CALIBBIAS:
 		return IIO_VAL_INT;
@@ -228,47 +201,26 @@ static const struct iio_info adxl345_info = {
 
 static int adxl345_powerup(void *regmap)
 {
-	pr_info("%s(): called\n", __func__);    
-	return regmap_write(regmap, ADXL345_REG_POWER_CTL, ADXL345_POWER_CTL_MEASURE);  
+	return regmap_write(regmap, ADXL345_REG_POWER_CTL, ADXL345_POWER_CTL_MEASURE);
 }
 
 static void adxl345_powerdown(void *regmap)
 {
-	pr_info("%s(): called\n", __func__);    
 	regmap_write(regmap, ADXL345_REG_POWER_CTL, ADXL345_POWER_CTL_STANDBY);
 }
 
 int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 {
-	enum adxl345_device_type type;
 	struct adxl345_data *data;
 	struct iio_dev *indio_dev;
-	const char *name;
 	u32 regval;
 	int ret;
 
-	pr_info("%s(): called\n", __func__);    
-	type = (uintptr_t)device_get_match_data(dev);
-	switch (type) {
-	case ADXL345:
-		pr_info("%s(): name adxl345\n", __func__);    
-		name = "adxl345";
-		break;
-	case ADXL375:
-		name = "adxl375";
-		break;
-	default:
-		return -EINVAL;
-	}
-
 	indio_dev = devm_iio_device_alloc(dev, sizeof(*data));
-	if (!indio_dev) {
-		pr_err("%s(): FAIL! devm_iio_device_alloc() failed\n", __func__);    
+	if (!indio_dev)
 		return -ENOMEM;
-	}
-	pr_info("%s(): devm_iio_device_alloc() ok\n", __func__);    
-
-	indio_dev->name = name;
+	
+	indio_dev->name = data->info->name;
 	indio_dev->info = &adxl345_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = adxl345_channels;
@@ -276,47 +228,38 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 
 	data = iio_priv(indio_dev);
 	data->regmap = regmap;
-	data->type = type;
 
 	/* Obtain the specific data_format */
 	data->data_range |= _adxl345_data_format;
 
 	/* Enable full-resolution mode */
 	data->data_range |= ADXL345_DATA_FORMAT_FULL_RES;
-	pr_info("%s(): YYY  sending data_range 0x%04x\n", __func__, data->data_range);    
+	data->info = device_get_match_data(dev);
+	if (!data->info)
+		return -ENODEV;
+
 	ret = regmap_write(data->regmap, ADXL345_REG_DATA_FORMAT,
 			   data->data_range);
-	if (ret < 0) {
-		pr_err("%s(): FAIL! regmap_write() data format failed\n", __func__);    
+	if (ret < 0)
 		return dev_err_probe(dev, ret, "Failed to set data range\n");
-	}
-	pr_info("%s(): regmap_write() ok\n", __func__);    
 
 	/* Read out DEVID */
 	ret = regmap_read(regmap, ADXL345_REG_DEVID, &regval);
-	if (ret < 0) {
-		pr_err("%s(): FAIL! regmap_read() failed\n", __func__);    
+	if (ret < 0)
 		return dev_err_probe(dev, ret, "Error reading device ID\n");
-	}
-	pr_info("%s(): regmap_read() ok\n", __func__);    
 
-	if (regval != ADXL345_DEVID) {
-		pr_err("%s(): FAIL! regval != ADXL345_DEVID\n", __func__);
+	if (regval != ADXL345_DEVID)
 		return dev_err_probe(dev, -ENODEV, "Invalid device ID: %x, expected %x\n",
 				     regval, ADXL345_DEVID);
-	}
-	pr_info("%s(): regval == ADXL345_DEVID\n", __func__);    
 
 	/* Enable measurement mode */
 	ret = adxl345_powerup(data->regmap);
 	if (ret < 0)
 		return dev_err_probe(dev, ret, "Failed to enable measurement mode\n");
-	pr_info("%s(): adxl345_powerup() ok\n", __func__);    
 
 	ret = devm_add_action_or_reset(dev, adxl345_powerdown, data->regmap);
 	if (ret < 0)
 		return ret;
-	pr_info("%s(): devm_add_action_or_reset() ok\n", __func__);    
 
 	return devm_iio_device_register(dev, indio_dev);
 }
