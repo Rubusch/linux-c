@@ -8,8 +8,8 @@
 #ifndef _ADXL345_H_
 #define _ADXL345_H_
 
-#define ADXL345_DATA_FORMAT_SPI         BIT(6) /* 1 in the SPI bit sets the device to 3-wire SPI mode,
-						  0 sets the device to 4-wire SPI mode. */
+#define ADXL345_DATA_FORMAT_SPI         BIT(6)
+
 /*
  * In full-resolution mode, scale factor is maintained at ~4 mg/LSB
  * in all g ranges.
