@@ -1,6 +1,6 @@
 KERNELDIR ?= /usr/src/linux
 obj-m += platform.o
-dtb-y += platform_overlay.dtbo
+dtbo-y += platform_overlay.dtbo
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules

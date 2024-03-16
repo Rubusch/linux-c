@@ -1,6 +1,6 @@
 KERNELDIR ?= /usr/src/linux
 obj-m += uioled.o
-dtb-y += uioled_overlay.dtbo
+dtbo-y += uioled_overlay.dtbo
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules

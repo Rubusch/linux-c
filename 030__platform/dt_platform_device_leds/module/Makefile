@@ -1,6 +1,6 @@
 KERNELDIR ?= /usr/src/linux
 obj-m += leddriver.o
-dtb-y += leddriver_overlay.dtbo
+dtbo-y += leddriver_overlay.dtbo
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
