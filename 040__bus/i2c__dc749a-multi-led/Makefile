@@ -1,6 +1,6 @@
 KERNELDIR ?= /usr/src/linux
 obj-m += i2c_ltc3206euf.o
-dtb-y += i2c_ltc3206euf_overlay.dtbo
+dtbo-y += i2c_ltc3206euf_overlay.dtbo
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules

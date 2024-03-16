@@ -1,6 +1,6 @@
 KERNELDIR ?= /usr/src/linux
 obj-m += iio-ltc2607-dac.o
-dtb-y += iio-ltc2607-dac_overlay.dtbo
+dtbo-y += iio-ltc2607-dac_overlay.dtbo
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules

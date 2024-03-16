@@ -1,6 +1,6 @@
 KERNELDIR ?= /usr/src/linux
 obj-m += iio-ltc2422-adc.o
-dtb-y += iio-ltc2422-adc_overlay.dtbo
+dtbo-y += iio-ltc2422-adc_overlay.dtbo
 
 all:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
