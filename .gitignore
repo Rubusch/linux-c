@@ -27,6 +27,7 @@ REMOVEME
 *.dtb
 *.dtbo
 *.pyc
+__pycache__
 
 ## backups
 .#*
