@@ -6,11 +6,6 @@
  *
  * Datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf
  */
-// TODO FULL_RES / 10-bit and range bits
-// TODO THRESH_TAP
-// TODO fifo
-// TODO int1
-// TODO int2 ?
 
 #include <linux/module.h>
 #include <linux/property.h>
@@ -22,38 +17,9 @@
 
 #include "adxl345.h"
 
-#define ADXL345_REG_DEVID		0x00
-#define ADXL345_REG_OFSX		0x1e
-#define ADXL345_REG_OFSY		0x1f
-#define ADXL345_REG_OFSZ		0x20
-#define ADXL345_REG_OFS_AXIS(index)	(ADXL345_REG_OFSX + (index))
-#define ADXL345_REG_BW_RATE		0x2c
-#define ADXL345_REG_POWER_CTL		0x2d
-#define ADXL345_REG_DATA_FORMAT		0x31
-#define ADXL345_REG_DATAX0		0x32
-#define ADXL345_REG_DATAY0		0x34
-#define ADXL345_REG_DATAZ0		0x36
-#define ADXL345_REG_DATA_AXIS(index)	\
-	(ADXL345_REG_DATAX0 + (index) * sizeof(__le16))
-
-#define ADXL345_BW_RATE			GENMASK(3, 0)
-#define ADXL345_BASE_RATE_NANO_HZ	97656250LL
-
-#define ADXL345_POWER_CTL_MEASURE	BIT(3)
-#define ADXL345_POWER_CTL_STANDBY	0x00
-
-#define ADXL345_DATA_FORMAT_FULL_RES	BIT(3) /* Up to 13-bits resolution */
-#define ADXL345_DATA_FORMAT_2G		0
-#define ADXL345_DATA_FORMAT_4G		1
-#define ADXL345_DATA_FORMAT_8G		2
-#define ADXL345_DATA_FORMAT_16G		3
-
-#define ADXL345_DEVID			0xE5
-
 struct adxl345_data {
 	const struct adxl345_chip_info *info;
 	struct regmap *regmap;
-	u8 data_range;
 };
 
 #define ADXL345_CHANNEL(index, axis) {					\
@@ -67,18 +33,23 @@ struct adxl345_data {
 		BIT(IIO_CHAN_INFO_SAMP_FREQ),				\
 }
 
+const struct adxl345_chip_info adxl3x5_chip_info[] = {
+	[ADXL345] = {
+		.name = "adxl345",
+		.uscale = ADXL345_USCALE,
+	},
+	[ADXL375] = {
+		.name = "adxl375",
+		.uscale = ADXL375_USCALE,
+	},
+};
+EXPORT_SYMBOL_NS_GPL(adxl3x5_chip_info, IIO_ADXL345);
+
 static const struct iio_chan_spec adxl345_channels[] = {
 	ADXL345_CHANNEL(0, X),
 	ADXL345_CHANNEL(1, Y),
 	ADXL345_CHANNEL(2, Z),
 };
-
-static u8 _adxl345_data_format;
-void adxl345_preset_data_format(u8 data_format)
-{
-        _adxl345_data_format = data_format;
-}
-EXPORT_SYMBOL_NS_GPL(adxl345_preset_data_format, IIO_ADXL345);
 
 static int adxl345_read_raw(struct iio_dev *indio_dev,
 			    struct iio_chan_spec const *chan,
@@ -209,42 +180,25 @@ static void adxl345_powerdown(void *regmap)
 	regmap_write(regmap, ADXL345_REG_POWER_CTL, ADXL345_POWER_CTL_STANDBY);
 }
 
-int adxl345_core_probe(struct device *dev, struct regmap *regmap)
+static int adxl345_setup(struct device *dev, struct adxl345_data *data,
+			 int (*setup)(struct device*, struct regmap*))
 {
-	struct adxl345_data *data;
-	struct iio_dev *indio_dev;
 	u32 regval;
 	int ret;
 
-	indio_dev = devm_iio_device_alloc(dev, sizeof(*data));
-	if (!indio_dev)
-		return -ENOMEM;
+	pr_info("%s(): called\n", __func__);
 
-	indio_dev->name = data->info->name;
-	indio_dev->info = &adxl345_info;
-	indio_dev->modes = INDIO_DIRECT_MODE;
-	indio_dev->channels = adxl345_channels;
-	indio_dev->num_channels = ARRAY_SIZE(adxl345_channels);
-
-	data = iio_priv(indio_dev);
-	data->regmap = regmap;
-
-	/* Obtain the specific data_format */
-	data->data_range |= _adxl345_data_format;
-
-	/* Enable full-resolution mode */
-	data->data_range |= ADXL345_DATA_FORMAT_FULL_RES;
-	data->info = device_get_match_data(dev);
-	if (!data->info)
-		return -ENODEV;
-
-	ret = regmap_write(data->regmap, ADXL345_REG_DATA_FORMAT,
-			   data->data_range);
-	if (ret < 0)
-		return dev_err_probe(dev, ret, "Failed to set data range\n");
+	/* Perform bus specific settings if available */
+	pr_info("%s(): calling setup()\n", __func__);
+	if (setup) {
+		ret = setup(dev, data->regmap);
+		if (ret)
+			return ret;
+	}
 
 	/* Read out DEVID */
-	ret = regmap_read(regmap, ADXL345_REG_DEVID, &regval);
+	pr_info("%s(): retrieving DEVID\n", __func__);
+	ret = regmap_read(data->regmap, ADXL345_REG_DEVID, &regval);
 	if (ret < 0)
 		return dev_err_probe(dev, ret, "Error reading device ID\n");
 
@@ -252,7 +206,15 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 		return dev_err_probe(dev, -ENODEV, "Invalid device ID: %x, expected %x\n",
 				     regval, ADXL345_DEVID);
 
+	/* Update data_format to full-resolution mode */
+	pr_info("%s(): setting full range\n", __func__);
+	ret = regmap_update_bits(data->regmap, ADXL345_REG_DATA_FORMAT,
+				 ADXL345_DATA_FORMAT_MSK, ADXL345_DATA_FORMAT_FULL_RES);
+	if (ret)
+		return dev_err_probe(dev, ret, "Failed to update data_format register\n");;
+
 	/* Enable measurement mode */
+	pr_info("%s(): enable measurement\n", __func__);
 	ret = adxl345_powerup(data->regmap);
 	if (ret < 0)
 		return dev_err_probe(dev, ret, "Failed to enable measurement mode\n");
@@ -260,6 +222,49 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap)
 	ret = devm_add_action_or_reset(dev, adxl345_powerdown, data->regmap);
 	if (ret < 0)
 		return ret;
+
+	return 0;
+}
+
+/**
+ * adxl345_core_probe() - probe and setup for the adxl345 accelerometer,
+ *                        also covers the adlx375 accelerometer
+ * @dev:	Driver model representation of the device
+ * @regmap:	Regmap instance for the device
+ * @setup:	Setup routine to be executed right before the standard device
+ *		setup, can also be set to NULL if not required
+ *
+ * Return: 0 on success, negative errno on error
+ */
+int adxl345_core_probe(struct device *dev, struct regmap *regmap,
+		       const struct adxl345_chip_info *chip_info,
+		       int (*setup)(struct device*, struct regmap*))
+{
+	struct adxl345_data *data;
+	struct iio_dev *indio_dev;
+	int ret;
+
+	pr_info("%s(): called\n", __func__);
+
+	indio_dev = devm_iio_device_alloc(dev, sizeof(*data));
+	if (!indio_dev)
+		return -ENOMEM;
+
+	data = iio_priv(indio_dev);
+	data->regmap = regmap;
+	data->info = chip_info;
+
+	indio_dev->name = chip_info->name;
+	indio_dev->info = &adxl345_info;
+	indio_dev->modes = INDIO_DIRECT_MODE;
+	indio_dev->channels = adxl345_channels;
+	indio_dev->num_channels = ARRAY_SIZE(adxl345_channels);
+
+	ret = adxl345_setup(dev, data, setup);
+	if (ret) {
+		dev_err(dev, "ADXL345 setup failed\n");
+		return ret;
+	}
 
 	return devm_iio_device_register(dev, indio_dev);
 }

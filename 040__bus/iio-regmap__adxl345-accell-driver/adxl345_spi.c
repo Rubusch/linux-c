@@ -20,9 +20,32 @@ static const struct regmap_config adxl345_spi_regmap_config = {
 	.read_flag_mask = BIT(7) | BIT(6),
 };
 
+static int adxl345_spi_setup(struct device *dev, struct regmap *regmap)
+{
+	struct spi_device *spi = container_of(dev, struct spi_device, dev);
+	int ret;
+
+	pr_info("%s(): called\n", __func__);
+
+	if (spi->mode & SPI_3WIRE) {
+		ret = regmap_write(regmap, ADXL345_REG_DATA_FORMAT,
+				   ADXL345_DATA_FORMAT_SPI);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 static int adxl345_spi_probe(struct spi_device *spi)
 {
+	const struct adxl345_chip_info *chip_data;
 	struct regmap *regmap;
+
+	/* Retrieve device name to pass it as driver specific data */
+	chip_data = device_get_match_data(&spi->dev);
+	if (!chip_data)
+		chip_data = (const struct adxl345_chip_info*) spi_get_device_id(spi)->driver_data;
 
 	/* Bail out if max_speed_hz exceeds 5 MHz */
 	if (spi->max_speed_hz > ADXL345_MAX_SPI_FREQ_HZ)
@@ -30,42 +53,31 @@ static int adxl345_spi_probe(struct spi_device *spi)
 				     spi->max_speed_hz);
 
 	regmap = devm_regmap_init_spi(spi, &adxl345_spi_regmap_config);
-	if (IS_ERR(regmap))
-		return dev_err_probe(&spi->dev, PTR_ERR(regmap), "Error initializing regmap\n");
+	if (IS_ERR(regmap)) {
+		dev_err_probe(&spi->dev, PTR_ERR(regmap), "Error initializing spi regmap: %ld\n",
+			      PTR_ERR(regmap));
+		return PTR_ERR(regmap);
+	}
 
-	/* 3-wire SPI */
-	if (spi->mode & SPI_3WIRE)
-		adxl345_preset_data_format(ADXL345_DATA_FORMAT_SPI);
-
-	return adxl345_core_probe(&spi->dev, regmap);
+	return adxl345_core_probe(&spi->dev, regmap, chip_data, &adxl345_spi_setup);
 }
 
-static const struct adxl345_chip_info adxl345_spi_info = {
-	.name = "adxl345",
-	.uscale = ADXL345_USCALE,
-};
-
-static const struct adxl345_chip_info adxl375_spi_info = {
-	.name = "adxl375",
-	.uscale = ADXL375_USCALE,
-};
-
 static const struct spi_device_id adxl345_spi_id[] = {
-	{ "adxl345", (kernel_ulong_t)&adxl345_spi_info },
-	{ "adxl375", (kernel_ulong_t)&adxl375_spi_info },
+	{ "adxl345", (kernel_ulong_t)&adxl3x5_chip_info[ADXL345] },
+	{ "adxl375", (kernel_ulong_t)&adxl3x5_chip_info[ADXL375] },
 	{ }
 };
 MODULE_DEVICE_TABLE(spi, adxl345_spi_id);
 
 static const struct of_device_id adxl345_of_match[] = {
-	{ .compatible = "adi,adxl345", .data = &adxl345_spi_info },
-	{ .compatible = "adi,adxl375", .data = &adxl375_spi_info },
+	{ .compatible = "adi,adxl345", .data = &adxl3x5_chip_info[ADXL345] },
+	{ .compatible = "adi,adxl375", .data = &adxl3x5_chip_info[ADXL375] },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, adxl345_of_match);
 
 static const struct acpi_device_id adxl345_acpi_match[] = {
-	{ "ADS0345", (kernel_ulong_t)&adxl345_spi_info },
+	{ "ADS0345", (kernel_ulong_t)&adxl3x5_chip_info[ADXL345] },
 	{ }
 };
 MODULE_DEVICE_TABLE(acpi, adxl345_acpi_match);
