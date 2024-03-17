@@ -2,15 +2,20 @@ project = r"02__init-arguments"
 module = r"hello.ko"
 mod_arguments = r'mystring="foobar" myshort=255 myintArray=1'
 
+SRC = r"../" + project + "/" + module
+DST = r":/tmp"
+#KERNELVERSION = f"6.3.13" # TODO rm
+KERNELVERSION = f"6.6.21"
+
 def test_preparation(shell):
     stdout, stderr, ret = shell.run("uname -r")
     assert 0 == ret
-    assert "6.3.13" in stdout[0]
+    assert KERNELVERSION in stdout[0]
 
 def test_copy_lkm(target):
     drv = target.get_driver("SSHDriver")
-    src = r"../../../010__basics/" + project + "/" + module
-    dst = r":/tmp"
+    src = SRC
+    dst = DST
     ret = drv.scp(src=src, dst=dst)
     assert 0 == ret
 
