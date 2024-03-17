@@ -23,14 +23,14 @@ $ sudo insmod ./hello.ko hello_int_arg=76 hello_int_array=1,2,3 hello_string_arg
 $ sudo rmmod hello
 
 $ dmesg | tail
-    Jan 26 17:52:32 debian kernel: init_hello_arguments() initializing...
-    Jan 26 17:52:32 debian kernel: init_hello_arguments() hello_int_arg = 76
-    Jan 26 17:52:32 debian kernel: init_hello_arguments() hello_int_arg_cb = 0
-    Jan 26 17:52:32 debian kernel: init_hello_arguments() hello_int_array[0] = 1
-    Jan 26 17:52:32 debian kernel: init_hello_arguments() hello_int_array[1] = 2
-    Jan 26 17:52:32 debian kernel: init_hello_arguments() hello_int_array[2] = 3
-    Jan 26 17:52:32 debian kernel: init_hello_arguments() hello_string_arg = 'Hello'
-    Jan 26 17:52:37 debian kernel: cleanup_hello_arguments() READY.
+    Jan 26 17:52:32 debian kernel: init_hello_arguments(): initializing...
+    Jan 26 17:52:32 debian kernel: init_hello_arguments(): hello_int_arg = 76
+    Jan 26 17:52:32 debian kernel: init_hello_arguments(): hello_int_arg_cb = 0
+    Jan 26 17:52:32 debian kernel: init_hello_arguments(): hello_int_array[0] = 1
+    Jan 26 17:52:32 debian kernel: init_hello_arguments(): hello_int_array[1] = 2
+    Jan 26 17:52:32 debian kernel: init_hello_arguments(): hello_int_array[2] = 3
+    Jan 26 17:52:32 debian kernel: init_hello_arguments(): hello_string_arg = 'Hello'
+    Jan 26 17:52:37 debian kernel: cleanup_hello_arguments(): READY.
 
 ```
 
