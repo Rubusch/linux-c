@@ -10,7 +10,7 @@ targets:
         cmd_on: 'ssh pi@10.1.10.10 /usr/bin/gpioset gpiochip4 26=1'
         cmd_off: 'ssh pi@10.1.10.10 /usr/bin/gpioset gpiochip4 26=0'
         cmd_cycle: 'ssh pi@10.1.10.10 "/usr/bin/gpioset gpiochip4 26=0 && sleep 1 && /usr/bin/gpioset gpiochip4 26=1"'
-     
+
       SerialDriver: {}         ## implements "ConsoleProtocol"
 
       ShellDriver:             ## implements "CommandProtocol, binds to "ConsoleProtocol"
@@ -19,7 +19,8 @@ targets:
         username: 'pi'
         password: 'xdr5XDR%'
 
-      SSHDriver: {}
+      SSHDriver:
+        username: 'pi'
 
       ShellStrategy: {}        ## strategy
 
