@@ -11,6 +11,11 @@ sys.path.insert(0, '../../backstage/labgrid/labgrid_lib')
 import common_kernel
 from common_kernel import *
 
+
+def test_stat(cmd):
+    do_stat(PROJECT, MODULES)
+    do_stat(PROJECT, DTBOS)
+
 def test_login(shell_cmd): ## reboot
     do_login_check(shell_cmd, KERNELVERSION)
 

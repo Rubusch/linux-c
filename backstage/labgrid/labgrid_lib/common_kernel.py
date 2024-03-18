@@ -1,6 +1,14 @@
 def announce():
     print("Imported!")
 
+def do_stat(arg_project, arg_files):
+    import errno, os, sys
+    import os.path
+    for filename in arg_files:
+        ret = os.path.isfile(f"../{arg_project}/{filename}")
+        if not ret:
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename)
+
 def do_login_check(cmd, arg_kernelversion):
     stdout, stderr, ret = cmd.run("uname -r")
     assert 0 == ret
