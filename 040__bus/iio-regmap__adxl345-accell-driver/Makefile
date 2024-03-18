@@ -11,7 +11,7 @@ DTBOFILES := $(DTSFILES:.dts=.dtbo)
 ## fix: append EXTRAVERSION to $(uname -r), remove version before '-'
 EXTRAVERSION = "-lothar01"
 
-%.dtbo: $(DTSFILES)
+%.dtbo: %.dts
 	$(DTC) dtc -O dtb -o $@ $<
 
 all: $(DTBOFILES)

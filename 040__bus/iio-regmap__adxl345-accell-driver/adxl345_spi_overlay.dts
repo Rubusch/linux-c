@@ -27,6 +27,7 @@
 //				status = "disabled";
 //			};
 
+//			accel: adxl345 { // TODO check      
 			accel: adxl345@0 {
 				compatible = "lothars,adxl345";
 				spi-max-frequency = <5000000>;
