@@ -25,6 +25,8 @@ static int adxl345_i2c_probe(struct i2c_client *client)
 	const struct adxl345_chip_info *chip_data;
 	struct regmap *regmap;
 
+	pr_info("%s(): called\n", __func__);
+
 	/* Retrieve device data, i.e. the name, to pass it to the core */
 	chip_data = i2c_get_match_data(client);
 
@@ -37,14 +39,14 @@ static int adxl345_i2c_probe(struct i2c_client *client)
 }
 
 static const struct i2c_device_id adxl345_i2c_id[] = {
-	{ "adxl345", (kernel_ulong_t)&adxl3x5_chip_info[ADXL345] },
+	{ "adxl345i2c", (kernel_ulong_t)&adxl3x5_chip_info[ADXL345] },
 	{ "adxl375", (kernel_ulong_t)&adxl3x5_chip_info[ADXL375] },
 	{ }
 };
 MODULE_DEVICE_TABLE(i2c, adxl345_i2c_id);
 
 static const struct of_device_id adxl345_of_match[] = {
-	{ .compatible = "adi,adxl345", .data = &adxl3x5_chip_info[ADXL345] },
+	{ .compatible = "lothars,adxl345i2c", .data = &adxl3x5_chip_info[ADXL345] },
 	{ .compatible = "adi,adxl375", .data = &adxl3x5_chip_info[ADXL375] },
 	{ }
 };

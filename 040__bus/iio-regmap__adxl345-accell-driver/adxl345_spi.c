@@ -42,6 +42,8 @@ static int adxl345_spi_probe(struct spi_device *spi)
 	const struct adxl345_chip_info *chip_data;
 	struct regmap *regmap;
 
+	pr_info("%s(): called\n", __func__);
+
 	/* Retrieve device name to pass it as driver specific data */
 	chip_data = device_get_match_data(&spi->dev);
 	if (!chip_data)
@@ -63,14 +65,14 @@ static int adxl345_spi_probe(struct spi_device *spi)
 }
 
 static const struct spi_device_id adxl345_spi_id[] = {
-	{ "adxl345", (kernel_ulong_t)&adxl3x5_chip_info[ADXL345] },
+	{ "adxl345spi", (kernel_ulong_t)&adxl3x5_chip_info[ADXL345] },
 	{ "adxl375", (kernel_ulong_t)&adxl3x5_chip_info[ADXL375] },
 	{ }
 };
 MODULE_DEVICE_TABLE(spi, adxl345_spi_id);
 
 static const struct of_device_id adxl345_of_match[] = {
-	{ .compatible = "adi,adxl345", .data = &adxl3x5_chip_info[ADXL345] },
+	{ .compatible = "lothars,adxl345spi", .data = &adxl3x5_chip_info[ADXL345] },
 	{ .compatible = "adi,adxl375", .data = &adxl3x5_chip_info[ADXL375] },
 	{ }
 };
