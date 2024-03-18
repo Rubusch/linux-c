@@ -22,13 +22,14 @@ def do_load_lkms(cmd, arg_mods):
     for mod in arg_mods:
         cmd.run_check(f"sudo insmod /tmp/{mod}")
 
+def do_load_lkms_and_args(cmd, arg_mods, arg_modargs):
+    for mod in arg_mods:
+        cmd.run_check(f"sudo insmod /tmp/{mod} {arg_modargs}")
+
 def undo_load_lkms(cmd, arg_mods):
     for mod in list(reversed(arg_mods)):
         mod = mod.split(".")[0]
-        stdout, stderr, ret = cmd.run(f"sudo lsmod | grep {mod}")
-        if 0 < len(stdout):
-            if mod in stdout[0]:
-                cmd.run_check(f"sudo rmmod {mod}")
+        cmd.run(f"sudo rmmod {mod}")
 
 def do_copy_dtbo(target, cmd, arg_dtbos, arg_project):
     drv = target.get_driver("SSHDriver")
@@ -66,5 +67,5 @@ def undo_register_dtbo(cmd):
 def do_log_verification(cmd, arg_patterns):
     stdout, stderr, ret = cmd.run(r"sudo tail -n 50 /var/log/messages")
     assert 0 == ret
-    for expected_pattern in arg_patterns:
-        assert 0 < len([m for m in stdout if expected_pattern in m])
+    for pattern in arg_patterns:
+        assert 0 < len([m for m in stdout if pattern in m])
