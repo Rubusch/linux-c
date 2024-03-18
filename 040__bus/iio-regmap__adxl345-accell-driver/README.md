@@ -2,21 +2,13 @@
 
 ADXL345 Accel click mikroBUS: https://www.mikroe.com/accel-spi-board
 
-Currently (v6.8) the kernel has an input driver (2009?) for this
-accelerometer, and an iio based driver approach. Probably, this driver
-should be moved rather to iio (e.g. ADC, DAC, accelerometers,...),
-than to input devices (e.g. mice, trackballs, joysticks,...).  
+Currently (v6.8) the kernel has an input driver variant (2009?) for this
+accelerometer, and an iio based driver approach. Probably, this particular
+implementation should be moved to iio (e.g. ADC, DAC, accelerometers,...),
+rather than to input devices (e.g. mice, trackballs, joysticks,...).  
 
 First I extracted the upstream kernel iio driver for the
 adxl345.
-
-Annekdote - AFAIR, this iio based driver was implemented in an
-outreachy internship program. It was presented on one of the Embedded
-Linux Conference Europe (Lyon?) by the student, Eva Rachel Retuya, who
-implemented it. By chance I attended this conference slot, held by
-Julia Lawall. Just by chance some years later I ended up with this
-hardware on my table and spotted in the datasheet that not all
-features of the hardware were already implemented.  
 
 Note: The `adxl345_spi.ko` won't load easily, see insmod error:
 ```
@@ -71,52 +63,70 @@ $ sudo su
     industrialio          102400  1 adxl345_core
 ```
 
+...or for the i2c variant do  
+```
+# modprobe industrialio
+# modprobe regmap_i2c
+# modprobe i2c-dev
+
+# insmod adxl345_core.ko
+# insmod adxl345_i2c.ko
+```
+
 Check functionality of the accelerometer.  
 
 Load the module and observe incoming data on i2c with the tool evtest.  
 ```
-# evtest /dev/input/event0
-    Input driver version is 1.0.1
-    Input device ID: bus 0x18 vendor 0x0 product 0x0 version 0x0
-    Input device name: "IOACCEL keyboard"
-    Supported events:
-      Event type 0 (EV_SYN)
-      Event type 1 (EV_KEY)
-        Event code 2 (KEY_1)
-    Properties:
-    Testing ... (interrupt to exit)
+# ll /sys/bus/iio/devices/iio\:device0/
+total 0
+-rw-r--r-- 1 root root 4096 Mar 18 18:29 in_accel_sampling_frequency
+-rw-r--r-- 1 root root 4096 Mar 18 18:29 in_accel_scale
+-rw-r--r-- 1 root root 4096 Mar 18 18:29 in_accel_x_calibbias
+-rw-r--r-- 1 root root 4096 Mar 18 18:29 in_accel_x_raw
+-rw-r--r-- 1 root root 4096 Mar 18 18:29 in_accel_y_calibbias
+-rw-r--r-- 1 root root 4096 Mar 18 18:29 in_accel_y_raw
+-rw-r--r-- 1 root root 4096 Mar 18 18:29 in_accel_z_calibbias
+-rw-r--r-- 1 root root 4096 Mar 18 18:29 in_accel_z_raw
+-r--r--r-- 1 root root 4096 Mar 18 18:29 name
+lrwxrwxrwx 1 root root    0 Mar 18 18:29 of_node -> ../../../../../../../../firmware/devicetree/base/soc/spi@7e204000/adxl345@0
+drwxr-xr-x 2 root root    0 Mar 18 18:29 power
+-r--r--r-- 1 root root 4096 Mar 18 18:29 sampling_frequency_available
+lrwxrwxrwx 1 root root    0 Mar 18 18:29 subsystem -> ../../../../../../../../bus/iio
+-rw-r--r-- 1 root root 4096 Mar 18 18:29 uevent
+-r--r--r-- 1 root root 4096 Mar 18 18:29 waiting_for_supplier
 
---- move the board, to generate input data with the accelerometer ---
+# cat /sys/bus/iio/devices/iio\:device0/{in_accel_x_raw,in_accel_y_raw,in_accel_z_raw}
+-18
+5
+252
 
-    Event: time 1703185720.684805, type 1 (EV_KEY), code 2 (KEY_1), value 1
-    Event: time 1703185720.684805, -------------- SYN_REPORT ------------
-    Event: time 1703185720.740839, type 1 (EV_KEY), code 2 (KEY_1), value 0
-    Event: time 1703185720.740839, -------------- SYN_REPORT ------------
-    Event: time 1703185720.852791, type 1 (EV_KEY), code 2 (KEY_1), value 1
-    Event: time 1703185720.852791, -------------- SYN_REPORT ------------
-    Event: time 1703185720.908827, type 1 (EV_KEY), code 2 (KEY_1), value 0
-    Event: time 1703185720.908827, -------------- SYN_REPORT ------------
-    Event: time 1703185721.692780, type 1 (EV_KEY), code 2 (KEY_1), value 1
-    Event: time 1703185721.692780, -------------- SYN_REPORT ------------
-    Event: time 1703185721.748833, type 1 (EV_KEY), code 2 (KEY_1), value 0
-    Event: time 1703185721.748833, -------------- SYN_REPORT ------------
-    Event: time 1703185721.916789, type 1 (EV_KEY), code 2 (KEY_1), value 1
-    Event: time 1703185721.916789, -------------- SYN_REPORT ------------
-    Event: time 1703185721.972838, type 1 (EV_KEY), code 2 (KEY_1), value 0
-    Event: time 1703185721.972838, -------------- SYN_REPORT ------------
-    ^C
+```
+move the board, to generate input data with the accelerometer    
 
 # rmmod input_demo
 ```
 
-Follow the logs   
+Logs for spi (here `dmesg` when hardware is attached)  
 ```
-Dec 21 19:01:13 ctrl001 kernel: [  722.135841] i2c_dev: i2c /dev entries driver
+[ 1539.449651] adxl345_core_probe(): called
+[ 1539.449704] adxl345_setup(): called
+[ 1539.449713] adxl345_setup(): calling setup()
+[ 1539.449722] adxl345_spi_setup(): called
+[ 1539.449730] adxl345_setup(): retrieving DEVID
+[ 1539.449788] adxl345_setup(): setting full range  ## with hardware
+[ 1539.449816] adxl345_setup(): enable measurement
+```
 
-Dec 21 19:08:06 ctrl001 kernel: [ 1135.192614] input_demo: loading out-of-tree module taints kernel.
-Dec 21 19:08:06 ctrl001 kernel: [ 1135.194003] adxl345 1-001d: ioaccel_probe() - called
-Dec 21 19:08:06 ctrl001 kernel: [ 1135.195141] input: IOACCEL keyboard as /devices/platform/soc/3f804000.i2c/i2c-1/1-001d/input/input0
+Logs for i2c (here `/var/log/messages` when no hardware is attached)  
 ```
+Mar 18 10:44:13 ctrl01 kernel: [  375.199296] adxl345_i2c_probe(): called
+Mar 18 10:44:13 ctrl01 kernel: [  375.199420] adxl345_core_probe(): called
+Mar 18 10:44:13 ctrl01 kernel: [  375.199452] adxl345_setup(): called
+Mar 18 10:44:13 ctrl01 kernel: [  375.199461] adxl345_setup(): calling setup()
+Mar 18 10:44:13 ctrl01 kernel: [  375.199470] adxl345_setup(): retrieving DEVID
+Mar 18 10:44:13 ctrl01 kernel: [  375.200012] adxl345_i2c: probe of 1-001d failed with error -121
+```
+
 
 ## References
 * Linux kernel 6.3.13, this is the mainline kernel driver with some upgrades

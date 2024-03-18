@@ -2,7 +2,6 @@
 /plugin/;
 / {
 	compatible = "raspberrypi,3-model-b", "brcm,bcm2835";
-//	compatible = "raspberrypi,3-model-b", "brcm,bcm2837";
 	fragment@0 {
 		target = <&i2c1>;
 		__overlay__ {
