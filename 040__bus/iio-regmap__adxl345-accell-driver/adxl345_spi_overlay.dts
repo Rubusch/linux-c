@@ -17,15 +17,15 @@
 		__overlay__ {
 			#address-cells = <1>;
 			#size-cells = <0>;
-			spidev0: spidev@0{
-				reg = <0>;
-				status = "disabled";
-			};
-
-			spidev1: spidev@1{
-				reg = <1>;
-				status = "disabled";
-			};
+//			spidev0: spidev@0{
+//				reg = <0>;
+//				status = "disabled";
+//			};
+//
+//			spidev1: spidev@1{
+//				reg = <1>;
+//				status = "disabled";
+//			};
 
 			accel: adxl345@0 {
 				compatible = "lothars,adxl345";

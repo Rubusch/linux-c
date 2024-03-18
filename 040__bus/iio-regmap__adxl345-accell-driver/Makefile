@@ -3,21 +3,22 @@ obj-m += adxl345_core.o
 obj-m += adxl345_i2c.o
 obj-m += adxl345_spi.o
 
-## dtbo-y seems to be broken (again...)
-DTFILE = input_demo_overlay
+## dtbo-y seems to be broken (again...?)
+DTSFILES := adxl345_spi_overlay.dts adxl345_i2c_overlay.dts
+DTBOFILES := $(DTSFILES:.dts=.dtbo)
 
 ## issue: insmod: ERROR: could not insert module adxl345_spi.ko: Invalid module format
 ## fix: append EXTRAVERSION to $(uname -r), remove version before '-'
 EXTRAVERSION = "-lothar01"
 
-all: dt
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+%.dtbo: $(DTSFILES)
+	$(DTC) dtc -O dtb -o $@ $<
 
-dt:
-	$(DTC) dtc -O dtb -o $(DTFILE).dtbo $(DTFILE).dts
+all: $(DTBOFILES)
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 
 clean:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
 	find $(SRC) -type f -name \*~ -delete
 
-.PHONY: all dt clean
+.PHONY: all clean
