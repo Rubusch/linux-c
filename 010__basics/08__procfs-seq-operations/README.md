@@ -6,7 +6,7 @@ file entry, and implements a read handler with sequence operations.
 ## Usage
 
 ```
-$ sudo insmod ./helloprocfs.ko
+$ sudo insmod ./hello.ko
 ```
 
 Open a terminal
@@ -31,4 +31,16 @@ $ echo "foo" | sudo tee -a /proc/lothars_procfs_entry
 $ dmesg | tail
     (...)
     Jan 21 23:27:51 debian kernel: write handler
+```
+
+Logs  
+```
+[   24.638229] start_procfs()
+[   24.638259] /proc/lothars_procfs_entry created
+[   24.675862] open_procfs()
+[   24.675997] read_procfs()
+[   24.676013] READ
+[   24.676072] read_procfs()
+[   24.857405] stop_procfs()
+[   24.857446] /proc/lothars_procfs_entry removed
 ```

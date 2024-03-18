@@ -16,13 +16,11 @@ Logs
 ```
 $ tail -f /var/log/messages
     ...
-    [22:57:11.409] Feb  5 23:43:41 ctrl001 kernel: [ 5207.852755] mod_init()
-    [22:57:21.192] Feb  5 23:43:51 ctrl001 kernel: [ 5217.608495] open_procfs()
-    [22:57:21.192] Feb  5 23:43:51 ctrl001 kernel: [ 5217.608699] read_procfs()
-    [22:57:21.192] Feb  5 23:43:51 ctrl001 kernel: [ 5217.608725] READ
-    [22:57:21.193] Feb  5 23:43:51 ctrl001 kernel: [ 5217.608858] read_procfs()
-    [22:58:28.022] Feb  5 23:44:58 ctrl001 kernel: [ 5284.445341] open_procfs()
-    [22:58:28.022] Feb  5 23:44:58 ctrl001 kernel: [ 5284.445537] write_procfs()
-    [22:58:38.529] Feb  5 23:45:08 ctrl001 kernel: [ 5294.965630] mod_exit()
+	[   24.077552] mod_init()
+	[   24.133629] open_procfs()
+	[   24.133769] read_procfs()
+	[   24.133785] READ
+	[   24.133846] read_procfs()
+	[   24.356034] mod_exit()
     ...
 ```
