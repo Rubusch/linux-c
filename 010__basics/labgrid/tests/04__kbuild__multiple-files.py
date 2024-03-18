@@ -1,31 +1,33 @@
-project = r"04__kbuild__multiple-files"
-module = r"hellomultiple.ko"
-mod_arguments = r""
+PROJECT = r"04__kbuild__multiple-files"
+MODULES = [r"hellomultiple.ko"]
+KERNELVERSION = r"6.6.21"
 
-SRC = r"../" + project + "/" + module
-DST = r":/tmp"
-KERNELVERSION = f"6.6.21"
+import sys
+## NB: this is from where pytest is called!
+sys.path.insert(0, '../../backstage/labgrid/labgrid_lib')
+import common_kernel
+from common_kernel import *
 
-def test_preparation(shell):
-    stdout, stderr, ret = shell.run("uname -r")
-    assert 0 == ret
-    assert KERNELVERSION in stdout[0]
 
-def test_copy_lkm(target):
-    drv = target.get_driver("SSHDriver")
-    src = SRC
-    dst = DST
-    ret = drv.scp(src=src, dst=dst)
-    assert 0 == ret
+def test_login(shell_cmd): ## reboot
+    do_login_check(shell_cmd, KERNELVERSION)
 
-def test_load_lkm(shell):
-    shell.run_check(r"sudo insmod /tmp/" + module + " " + mod_arguments)
-    stdout, stderr, ret = shell.run(r"sudo tail -n 50 /var/log/messages")
-    assert ret == 0
-    assert 1 <= len([m for m in stdout if r"Hello World!" in m])
+def test_turn_off_wifi_spi(cmd): ## reduce log noise
+    cmd.run_check("sudo killall wpa_supplicant")
+    cmd.run_check("sudo ip link set wlan0 down")
+    cmd.run_check("sudo systemctl stop dnsmasq")
 
-def test_unload_lkm(shell):
-    shell.run(r"sudo rmmod " + module)
-    stdout, stderr, ret = shell.run(r"sudo tail -n 50 /var/log/messages")
-    assert ret == 0
-    assert 1 <= len([m for m in stdout if r"Goodbye World!" in m])
+def test_copy_lkm(cmd, target):
+    do_copy_lkms(cmd, target, MODULES, PROJECT)
+
+def test_load_lkm(cmd):
+    do_load_lkms(cmd, MODULES)
+
+def test_logs_load(cmd):
+    do_log_verification(cmd, [r"Hello World!"])
+
+def test_unload_lkm(cmd):
+    undo_load_lkms(cmd, MODULES)
+
+def test_logs_unload(cmd):
+    do_log_verification(cmd, [r"Goodbye World!"])

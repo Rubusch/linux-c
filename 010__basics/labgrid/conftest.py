@@ -1,17 +1,20 @@
 """ ref: docs.pytest.org/en/6.2.x/fixture.html """
 import pytest
 
-@pytest.fixture(scope='session')
-def command(target):
+## just activates "shell" (assumed already we're already in "shell")
+# TODO merge both and do a check    
+@pytest.fixture(scope="function")
+def cmd(target):
     shell = target.get_driver('CommandProtocol')
     target.activate(shell)
     return shell
 
-@pytest.fixture(scope='session')
-def shell(strategy):
+## reboots and reinits a "shell" state
+@pytest.fixture(scope="function")
+def shell_cmd(strategy, target):
+    strategy.transition("off")
     strategy.transition("shell")
+    sshdrv = target.get_driver("SSHDriver")
+    sshdrv.on_deactivate()
+    sshdrv.on_activate()
     return strategy.shell
-
-@pytest.fixture(scope='session')
-def strategy(strategy):
-    return strategy

@@ -1,35 +1,37 @@
-project = r"03__init-arguments"
-module = r"hello.ko"
-mod_arguments = r'hello_int_arg=76 hello_int_array=1,2,3 hello_string_arg="Hello"'
-
-SRC = r"../" + project + "/" + module
-DST = r":/tmp"
-#KERNELVERSION = r"6.3.13" # TODO rm
+PROJECT = r"03__init-arguments"
+MODULES = [r"hello.ko"]
+MODARGS = r'hello_int_arg=76 hello_int_array=1,2,3 hello_string_arg="Hello"'
 KERNELVERSION = r"6.6.21"
 
-def test_preparation(shell):
-    stdout, stderr, ret = shell.run("uname -r")
-    assert 0 == ret
-    assert KERNELVERSION in stdout[0]
+import sys
+## NB: this is from where pytest is called!
+sys.path.insert(0, '../../backstage/labgrid/labgrid_lib')
+import common_kernel
+from common_kernel import *
 
-def test_copy_lkm(target):
-    drv = target.get_driver("SSHDriver")
-    src = SRC
-    dst = DST
-    ret = drv.scp(src=src, dst=dst)
-    assert 0 == ret
 
-def test_load_lkm(shell):
-    shell.run_check(r"sudo insmod /tmp/" + module + " " + mod_arguments)
-    stdout, stderr, ret = shell.run(r"sudo tail -n 50 /var/log/messages")
-    assert 0 == ret
-    assert 1 == len([m for m in stdout if r"init_hello_arguments(): initializing..." in m])
-    assert 1 == len([m for m in stdout if r"init_hello_arguments(): hello_int_arg = 76" in m])
-    assert 1 == len([m for m in stdout if r"init_hello_arguments(): hello_int_arg_cb = 0" in m])
-    assert 1 == len([m for m in stdout if r"init_hello_arguments(): hello_int_array[0] = 1" in m])
-    assert 1 == len([m for m in stdout if r"init_hello_arguments(): hello_int_array[1] = 2" in m])
-    assert 1 == len([m for m in stdout if r"init_hello_arguments(): hello_int_array[2] = 3" in m])
-    assert 1 == len([m for m in stdout if r"init_hello_arguments(): hello_string_arg = 'Hello'" in m])
+def test_login(shell_cmd): ## reboot
+    do_login_check(shell_cmd, KERNELVERSION)
 
-def test_unload_lkm(shell):
-    shell.run_check(r"sudo rmmod " + module)
+def test_turn_off_wifi_spi(cmd): ## reduce log noise
+    cmd.run_check("sudo killall wpa_supplicant")
+    cmd.run_check("sudo ip link set wlan0 down")
+    cmd.run_check("sudo systemctl stop dnsmasq")
+
+def test_copy_lkm(cmd, target):
+    do_copy_lkms(cmd, target, MODULES, PROJECT)
+
+def test_load_lkm_with_args(cmd):
+    do_load_lkms_and_args(cmd, MODULES, MODARGS)
+
+def test_logs_load(cmd):
+    do_log_verification(cmd, [r"init_hello_arguments(): initializing...",
+                              r"init_hello_arguments(): hello_int_arg = 76",
+                              r"init_hello_arguments(): hello_int_arg_cb = 0",
+                              r"init_hello_arguments(): hello_int_array[0] = 1",
+                              r"init_hello_arguments(): hello_int_array[1] = 2",
+                              r"init_hello_arguments(): hello_int_array[2] = 3",
+                              r"init_hello_arguments(): hello_string_arg = 'Hello'"])
+
+def test_unload_lkm(cmd):
+    undo_load_lkms(cmd, MODULES)

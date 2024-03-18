@@ -1,5 +1,5 @@
-PROJECT = r"01__hello"
-MODULES = [r"hello.ko"]
+PROJECT = r"05__kbuild__symbol-export"
+MODULES = [r"module_a.ko", r"module_b.ko"]
 KERNELVERSION = r"6.6.21"
 
 import sys
@@ -7,6 +7,7 @@ import sys
 sys.path.insert(0, '../../backstage/labgrid/labgrid_lib')
 import common_kernel
 from common_kernel import *
+
 
 def test_login(shell_cmd): ## reboot
     do_login_check(shell_cmd, KERNELVERSION)
@@ -23,10 +24,13 @@ def test_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)
 
 def test_logs_load(cmd):
-    do_log_verification(cmd, [r"Hello World!"])
+    do_log_verification(cmd, [r"init_module_a() initializing..",
+                              r"init_module_b() initializing..",
+                              r"shared_func() has been called!"])
 
 def test_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
 def test_logs_unload(cmd):
-    do_log_verification(cmd, [r"Goodbye World!"])
+    do_log_verification(cmd, [r"cleanup_module_b() READY.",
+                              r"cleanup_module_a() READY."])
