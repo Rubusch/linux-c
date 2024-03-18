@@ -12,9 +12,9 @@ def cmd(target):
 ## reboots and reinits a "shell" state
 @pytest.fixture(scope="function")
 def shell_cmd(strategy, target):
-    sshdrv = target.get_driver("SSHDriver")
     strategy.transition("off")
-    sshdrv.on_deactivate()
     strategy.transition("shell")
+    sshdrv = target.get_driver("SSHDriver")
+    sshdrv.on_deactivate()
     sshdrv.on_activate()
     return strategy.shell
