@@ -12,11 +12,15 @@ linux/drivers/usb/mon/mon_text.c +188
    stamp = stamp * USEC_PER_SEC + now.tv_nsec / NSEC_PER_USEC;
 ```
 
-## USAGE
+## Usage
 
 ```
 $ sudo insmod ./hello.ko num=3
 $ sudo rmmod hello
+```
+
+Logs   
+```
 $ dmesg | tail
     [ 1050.127610] hello_init(): called
     [ 1050.127654] say(): [1/3] hello again
