@@ -1,7 +1,6 @@
 PROJECT = r"10__timer-mod-time"
 MODULES = [r"hello.ko"]
 KERNELVERSION = r"6.6.21"
-SYSFS_FILE = r"/sys/kernel/lothars_sysfs/hello_sysfs_value"
 
 import sys
 ## NB: this is from where pytest is called!
