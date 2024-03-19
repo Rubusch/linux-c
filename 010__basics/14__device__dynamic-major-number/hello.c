@@ -32,7 +32,7 @@ int init_devnum(void)
 		pr_err("%s(): alloc_chrdev_region() failed", __func__);
 		return -ENOMEM;
 	}
-	pr_info("%s() major = %d, minor = %d", __func__, MAJOR(dev),
+	pr_info("%s(): major = %d, minor = %d\n", __func__, MAJOR(dev),
 	       MINOR(dev));
 	return 0;
 }
@@ -49,7 +49,7 @@ void cleanup_devnum(void)
 	 * allocated those numbers in the first place...
 	 */
 	unregister_chrdev_region(dev, 1);
-	pr_info("%s() READY.", __func__);
+	pr_info("%s(): READY.\n", __func__);
 }
 
 static int __init mod_init(void)

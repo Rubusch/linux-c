@@ -1,6 +1,8 @@
 # Device Node by Module
 
-Demonstrates a character device and device file setup with a class instance. In this example the kernel module creates the file `/dev/lothars_hello_device`.  
+Demonstrates a character device and device file setup with a class
+instance. In this example the kernel module creates the file
+`/dev/lothars_hello_device`.  
 
 ## Usage
 
