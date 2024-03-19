@@ -27,8 +27,6 @@ When creating a sysfs entry
 
 (Notes taken from https://embetronicx.com/tutorials/linux/device-drivers/sysfs-in-linux-kernel/)
 
-The source was tested compiled and running on 5.4.75, 6.3.x  
-
 ## Usage
 
 ```
@@ -46,16 +44,20 @@ $ sudo cat /sys/kernel/lothars_sysfs/hello_sysfs_value
     7
 
 $ sudo rmmod hello
+```
 
+Logs   
+```
 $ dmesg | tail
-    Jan 26 11:02:56 debian kernel: init_hello_sysfs() initializing...
-    Jan 26 11:03:00 debian kernel: sysfs_show(000000001c4ef222, 000000003ba4d8b1, '0
-    Jan 26 11:03:00 debian kernel: ') - Read!
-    Jan 26 11:03:04 debian kernel: sysfs_store(000000001c4ef222, 000000003ba4d8b1, '7
-    Jan 26 11:03:04 debian kernel: ', 2) - Write!
-    Jan 26 11:03:06 debian kernel: sysfs_show(000000001c4ef222, 000000003ba4d8b1, '7
-    Jan 26 11:03:06 debian kernel: ') - Read!
-    Jan 26 11:03:10 debian kernel: cleanup_hello_sysfs() READY.
+    Mar 19 19:17:17 ctrl01 kernel: [   23.405998] mod_init(): called
+    Mar 19 19:17:17 ctrl01 kernel: [   23.504164] sysfs_show(00000000e64594d4, 00000000a129d74d, '0
+    Mar 19 19:17:17 ctrl01 kernel: [   23.504164] ') - read!
+    Mar 19 19:17:17 ctrl01 kernel: [   23.610155] sysfs_store(00000000e64594d4, 00000000a129d74d, '7
+    Mar 19 19:17:17 ctrl01 kernel: [   23.610155] ', 2) - write!
+    Mar 19 19:17:17 ctrl01 kernel: [   23.690580] sysfs_show(00000000e64594d4, 00000000a129d74d, '7
+    Mar 19 19:17:17 ctrl01 kernel: [   23.690580] ') - read!
+    Mar 19 19:17:17 ctrl01 kernel: [   23.903324] mod_exit(): called
+    Mar 19 19:17:17 ctrl01 kernel: [   23.903369] mod_exit() READY.
 ```
 
 ## References:
