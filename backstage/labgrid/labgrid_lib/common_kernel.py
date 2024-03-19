@@ -77,3 +77,13 @@ def do_log_verification(cmd, arg_patterns):
     assert 0 == ret
     for pattern in arg_patterns:
         assert 0 < len([m for m in stdout if pattern in m])
+
+def do_cat_verification(cmd, arg_nodefile, arg_patterns):
+    stdout, stderr, ret = cmd.run(f"sudo cat {arg_nodefile}")
+    assert 0 == ret
+    for pattern in arg_patterns:
+        assert 0 < len([m for m in stdout if pattern in m])
+
+def do_echo_write(cmd, arg_nodefile, arg_input):
+    stdout, stderr, ret = cmd.run(f"echo '{arg_input}' | sudo tee -a {arg_nodefile}")
+    assert 0 == ret
