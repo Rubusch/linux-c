@@ -9,25 +9,28 @@ import common_kernel
 from common_kernel import *
 
 
-def test_login(shell_cmd): ## reboot
+def test_000_files(cmd):
+    do_stat(PROJECT, MODULES)
+
+def test_010_login(shell_cmd): ## reboot
     do_login_check(shell_cmd, KERNELVERSION)
 
-def test_turn_off_wifi_spi(cmd): ## reduce log noise
+def test_020_turn_off_wifi(cmd): ## reduce log noise
     cmd.run_check("sudo killall wpa_supplicant")
     cmd.run_check("sudo ip link set wlan0 down")
     cmd.run_check("sudo systemctl stop dnsmasq")
 
-def test_copy_lkm(cmd, target):
+def test_030_copy_lkm(cmd, target):
     do_copy_lkms(cmd, target, MODULES, PROJECT)
 
-def test_load_lkm(cmd):
+def test_040_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)
 
-def test_logs_load(cmd):
+def test_050_logs_load(cmd):
     do_log_verification(cmd, [r"Hello World!"])
 
-def test_unload_lkm(cmd):
+def test_060_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
-def test_logs_unload(cmd):
+def test_070_logs_unload(cmd):
     do_log_verification(cmd, [r"Goodbye World!"])

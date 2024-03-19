@@ -9,26 +9,29 @@ import common_kernel
 from common_kernel import *
 
 
-def test_login(shell_cmd): ## reboot
+def test_000_files(cmd):
+    do_stat(PROJECT, MODULES)
+
+def test_010_login(shell_cmd): ## reboot
     do_login_check(shell_cmd, KERNELVERSION)
 
-def test_turn_off_wifi_spi(cmd): ## reduce log noise
+def test_020_turn_off_wifi(cmd): ## reduce log noise
     cmd.run_check("sudo killall wpa_supplicant")
     cmd.run_check("sudo ip link set wlan0 down")
     cmd.run_check("sudo systemctl stop dnsmasq")
 
-def test_copy_lkm(cmd, target):
+def test_030_copy_lkm(cmd, target):
     do_copy_lkms(cmd, target, MODULES, PROJECT)
 
-def test_load_lkm(cmd):
+def test_040_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)
 
-def test_logs_load(cmd):
+def test_050_logs_load(cmd):
     do_log_verification(cmd, [r"I was assigned major number ",
                               r"To talk to the device, create a dev file with",
                               r"'sudo mknod /dev/lothars_char_dev c"])
 
-def test_device_node(cmd):
+def test_060_device_node(cmd):
     import re
     stdout, stderr, ret = cmd.run("sudo tail -n 50 /var/log/messages")
     assert 0 == ret
@@ -40,5 +43,5 @@ def test_device_node(cmd):
     assert 0 == ret
     assert "already told you 1 times Hello World!" in stdout[0]
 
-def test_unload_lkm(cmd):
+def test_070_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)

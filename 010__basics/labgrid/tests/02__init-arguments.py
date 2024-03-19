@@ -10,21 +10,24 @@ import common_kernel
 from common_kernel import *
 
 
-def test_login(shell_cmd): ## reboot
+def test_000_files(cmd):
+    do_stat(PROJECT, MODULES)
+
+def test_010_login(shell_cmd): ## reboot
     do_login_check(shell_cmd, KERNELVERSION)
 
-def test_turn_off_wifi_spi(cmd): ## reduce log noise
+def test_020_turn_off_wifi(cmd): ## reduce log noise
     cmd.run_check("sudo killall wpa_supplicant")
     cmd.run_check("sudo ip link set wlan0 down")
     cmd.run_check("sudo systemctl stop dnsmasq")
 
-def test_copy_lkm(cmd, target):
+def test_030_copy_lkm(cmd, target):
     do_copy_lkms(cmd, target, MODULES, PROJECT)
 
-def test_load_lkm_with_args(cmd):
+def test_040_load_lkm_with_args(cmd):
     do_load_lkms_and_args(cmd, MODULES, MODARGS)
 
-def test_logs_load(cmd):
+def test_050_logs_load(cmd):
     do_log_verification(cmd, [r"myshort is a short integer: 255",
                               r"myint is a integer: 420",
                               r"mylong is a long integer: 9999",
@@ -33,5 +36,5 @@ def test_logs_load(cmd):
                               r"myintArray[1] = -1",
                               r"got 1 arguments for myintArray."])
 
-def test_unload_lkm(cmd):
+def test_060_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)

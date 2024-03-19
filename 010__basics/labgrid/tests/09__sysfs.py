@@ -1,6 +1,7 @@
-PROJECT = r"05__kbuild__symbol-export"
-MODULES = [r"module_a.ko", r"module_b.ko"]
+PROJECT = r"09__sysfs"
+MODULES = [r"hello.ko"]
 KERNELVERSION = r"6.6.21"
+SYSFS_FILE = r"/sys/kernel/lothars_sysfs/hello_sysfs_value"
 
 import sys
 ## NB: this is from where pytest is called!
@@ -26,14 +27,18 @@ def test_030_copy_lkm(cmd, target):
 def test_040_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)
 
-def test_050_logs_load(cmd):
-    do_log_verification(cmd, [r"init_module_a() initializing..",
-                              r"init_module_b() initializing..",
-                              r"shared_func() has been called!"])
+def test_050_cat_sysfs(cmd):
+    do_cat_verification(cmd, SYSFS_FILE, [r"0"])
 
-def test_060_unload_lkm(cmd):
+def test_060_echo_sysfs(cmd):
+    do_echo_write(cmd, SYSFS_FILE, r"7")
+
+def test_070_cat_sysfs(cmd):
+    do_cat_verification(cmd, SYSFS_FILE, [r"7"])
+
+def test_080_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
-def test_070_logs_unload(cmd):
-    do_log_verification(cmd, [r"cleanup_module_b() READY.",
-                              r"cleanup_module_a() READY."])
+def test_090_logs_load(cmd):
+    do_log_verification(cmd, [r"mod_init(): called",
+                              r"mod_exit(): called"])
