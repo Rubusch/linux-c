@@ -211,7 +211,7 @@ static int adxl345_setup(struct device *dev, struct adxl345_data *data,
 	ret = regmap_update_bits(data->regmap, ADXL345_REG_DATA_FORMAT,
 				 ADXL345_DATA_FORMAT_MSK, ADXL345_DATA_FORMAT_FULL_RES);
 	if (ret)
-		return dev_err_probe(dev, ret, "Failed to update data_format register\n");;
+		return dev_err_probe(dev, ret, "Failed to update data_format register\n");
 
 	/* Enable measurement mode */
 	pr_info("%s(): enable measurement\n", __func__);
