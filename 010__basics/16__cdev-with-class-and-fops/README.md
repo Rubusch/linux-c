@@ -18,22 +18,17 @@ file is used, e.g. through `cat` or through `echo 1`
 
 Logs  
 ```
-$ dmesg | tail
-    Jan 27 22:33:23 debian kernel: init_hello_devicefile() initializing
-    Jan 27 22:33:23 debian kernel: init_hello_devicefile() major = 244, minor = 123
-    Jan 27 22:33:23 debian kernel: init_hello_devicefile() done.
-
-// write through 'echo'
-    Jan 27 22:35:51 debian kernel: hello_open()
-    Jan 27 22:35:51 debian kernel: hello_write()
-    Jan 27 22:35:51 debian kernel: hello_release()
-
-// read through 'cat'
-    Jan 27 22:35:59 debian kernel: hello_open()
-    Jan 27 22:35:59 debian kernel: hello_read()
-    Jan 27 22:35:59 debian kernel: hello_release()
-
-    Jan 27 22:36:06 debian kernel: cleanup_hello_devicefile() READY.
+[   23.918298] hello: loading out-of-tree module taints kernel.
+[   23.919147] init_hello_chardev(): called
+[   23.919178] init_hello_chardev(): major = 237, minor = 123
+[   23.919739] init_hello_chardev(): done
+[   24.100860] hello_open(): called
+[   24.100985] hello_write(): called
+[   24.101039] hello_release(): called
+[   24.261369] hello_open(): called
+[   24.261495] hello_read(): called
+[   24.261549] hello_release(): called
+[   24.453131] cleanup_hello_chardev(): READY.
 ```
 
 ## References:

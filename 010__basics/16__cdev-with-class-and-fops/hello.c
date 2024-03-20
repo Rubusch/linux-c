@@ -139,7 +139,7 @@ int init_hello_chardev(void)
 	 * Note, the pointer created here is to be destroyed when finished by
 	 * making a call to class_destroy().
 	 */
-	dev_class = class_create(THIS_MODULE, HELLO_CLASS_NAME);
+	dev_class = class_create(HELLO_CLASS_NAME);
 	if (NULL == dev_class) {
 		pr_err("%s(): class_create() failed\n", __func__);
 		goto err_class;
