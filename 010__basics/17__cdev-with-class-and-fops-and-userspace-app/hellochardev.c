@@ -33,7 +33,6 @@ static struct cdev hello_chardev_cdev;
 uint8_t *kernel_buf;
 
 static struct file_operations fops = {
-	.owner = THIS_MODULE,
 	.open = hello_open,
 	.release = hello_release,
 	.read = hello_read,
@@ -158,7 +157,7 @@ int init_hello_chardev(void)
 	 * Note, the pointer created here is to be destroyed when finished by
 	 * making a call to class_destroy().
 	 */
-	dev_class = class_create(THIS_MODULE, HELLO_CLASS_NAME);
+	dev_class = class_create(HELLO_CLASS_NAME);
 	if (NULL == dev_class) {
 		printk(KERN_ERR "class_create() failed\n");
 		goto err_class;
