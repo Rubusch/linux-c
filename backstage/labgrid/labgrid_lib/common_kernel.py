@@ -1,24 +1,35 @@
 def announce():
     print("Imported!")
 
-def do_stat(arg_project, arg_files):
+def do_stat(arg_project, args_file):
     import errno, os, sys
     import os.path
-    for filename in arg_files:
+    for filename in args_file:
         ret = os.path.isfile(f"../{arg_project}/{filename}")
         if not ret:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename)
+
+def do_cmd(cmd, arg_cmd):
+    cmd.run_check(arg_cmd)
+
+def do_cmd_expect(cmd, arg_cmd, args_expect):
+    stdout, stderr, ret = cmd.run(arg_cmd)
+    assert 0 == ret
+    for pattern in args_expect:
+        raw = [m for m in stdout if pattern in m]
+        assert 0 < len(raw)
 
 def do_login_check(cmd, arg_kernelversion):
     stdout, stderr, ret = cmd.run("uname -r")
     assert 0 == ret
     assert arg_kernelversion in stdout[0]
 
-def do_copy_lkms(cmd, target, arg_mods, arg_project):
+## TODO rename: do_copy(
+def do_copy_lkms(cmd, target, args_mod, arg_project):
     drv = target.get_driver("SSHDriver")
     assert None != drv
     dst = r":/tmp"
-    for mod in arg_mods:
+    for mod in args_mod:
         src = f"../{arg_project}/{mod}"
         ret = drv.scp(src=src, dst=dst)
         assert 0 == ret
@@ -26,22 +37,25 @@ def do_copy_lkms(cmd, target, arg_mods, arg_project):
     import time
     time.sleep(3)
 
-def do_load_lkms(cmd, arg_mods):
-    for mod in arg_mods:
+def do_load_lkms(cmd, args_mod):
+    for mod in args_mod:
         cmd.run_check(f"sudo insmod /tmp/{mod}")
 
-def do_load_lkms_and_args(cmd, arg_mods, arg_modargs):
-    for mod in arg_mods:
-        cmd.run_check(f"sudo insmod /tmp/{mod} {arg_modargs}")
+def do_load_lkm_and_args(cmd, arg_mod, arg_modargs):
+    cmd.run_check(f"sudo insmod /tmp/{mod} {arg_modargs}")
+## TODO rm
+#def do_load_lkms_and_args(cmd, arg_mods, arg_modargs):
+#    for mod in arg_mods:
+#        cmd.run_check(f"sudo insmod /tmp/{mod} {arg_modargs}")
 
-def undo_load_lkms(cmd, arg_mods):
-    for mod in list(reversed(arg_mods)):
+def undo_load_lkms(cmd, args_mod):
+    for mod in list(reversed(args_mod)):
         mod = mod.split(".")[0]
         cmd.run(f"sudo rmmod {mod}")
 
-def do_copy_dtbo(target, cmd, arg_dtbos, arg_project):
+def do_copy_dtbo(target, cmd, args_dtbo, arg_project):
     drv = target.get_driver("SSHDriver")
-    for dtbo in arg_dtbos:
+    for dtbo in args_dtbo:
         src = f"../{arg_project}/{dtbo}"
         dst = f":/tmp"
         ret = drv.scp(src=src, dst=dst)
@@ -51,8 +65,8 @@ def do_copy_dtbo(target, cmd, arg_dtbos, arg_project):
     import time
     time.sleep(3)
 
-def undo_copy_dtbo(cmd, arg_dtbos):
-    for dtbo in arg_dtbos:
+def undo_copy_dtbo(cmd, args_dtbo):
+    for dtbo in args_dtbo:
         cmd.run_check(f"sudo rm /boot/overlays/{dtbo}")
 
 def do_register_dtbo(cmd, arg_dtbo):
@@ -72,16 +86,16 @@ def undo_register_dtbo(cmd):
     import time
     time.sleep(3)
 
-def do_log_verification(cmd, arg_patterns):
+def do_log_verification(cmd, args_pattern):
     stdout, stderr, ret = cmd.run(r"sudo tail -n 50 /var/log/messages")
     assert 0 == ret
-    for pattern in arg_patterns:
+    for pattern in args_pattern:
         assert 0 < len([m for m in stdout if pattern in m])
 
-def do_cat_verification(cmd, arg_nodefile, arg_patterns):
+def do_cat_verification(cmd, arg_nodefile, args_pattern):
     stdout, stderr, ret = cmd.run(f"sudo cat {arg_nodefile}")
     assert 0 == ret
-    for pattern in arg_patterns:
+    for pattern in args_pattern:
         assert 0 < len([m for m in stdout if pattern in m])
 
 def do_echo_write(cmd, arg_nodefile, arg_input):
