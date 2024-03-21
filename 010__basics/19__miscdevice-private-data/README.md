@@ -15,15 +15,6 @@ $ make
 ```
 Copy the module over to the target  
 
-## Userspace
-
-Compile cross as well, set ``$CROSS_COMPILE``.   
-```
-rpi$ cd ./userspace
-rpi$ make
-```
-Copy the module over to the target  
-
 ## Usage
 
 ```
