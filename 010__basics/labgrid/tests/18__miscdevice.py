@@ -22,8 +22,8 @@ def test_020_turn_off_wifi(cmd): ## reduce log noise
     cmd.run_check("sudo systemctl stop dnsmasq")
 
 def test_030_copy_lkm(cmd, target):
-    do_copy_lkms(cmd, target, MODULES, PROJECT)
-    do_copy_lkms(cmd, target, USERSPACE, PROJECT)
+    do_copy_files(cmd, target, MODULES, PROJECT)
+    do_copy_files(cmd, target, USERSPACE, PROJECT)
 
 def test_040_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)

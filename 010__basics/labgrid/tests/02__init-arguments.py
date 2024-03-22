@@ -22,10 +22,10 @@ def test_020_turn_off_wifi(cmd): ## reduce log noise
     cmd.run_check("sudo systemctl stop dnsmasq")
 
 def test_030_copy_lkm(cmd, target):
-    do_copy_lkms(cmd, target, MODULES, PROJECT)
+    do_copy_files(cmd, target, MODULES, PROJECT)
 
 def test_040_load_lkm_with_args(cmd):
-    do_load_lkms_and_args(cmd, MODULES, MODARGS)
+    do_load_lkm_and_args(cmd, MODULES[0], MODARGS)
 
 def test_050_logs_load(cmd):
     do_log_verification(cmd, [r"myshort is a short integer: 255",

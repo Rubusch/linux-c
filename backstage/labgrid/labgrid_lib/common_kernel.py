@@ -25,7 +25,7 @@ def do_login_check(cmd, arg_kernelversion):
     assert arg_kernelversion in stdout[0]
 
 ## TODO rename: do_copy(
-def do_copy_lkms(cmd, target, args_mod, arg_project):
+def do_copy_files(cmd, target, args_mod, arg_project):
     drv = target.get_driver("SSHDriver")
     assert None != drv
     dst = r":/tmp"
@@ -42,11 +42,7 @@ def do_load_lkms(cmd, args_mod):
         cmd.run_check(f"sudo insmod /tmp/{mod}")
 
 def do_load_lkm_and_args(cmd, arg_mod, arg_modargs):
-    cmd.run_check(f"sudo insmod /tmp/{mod} {arg_modargs}")
-## TODO rm
-#def do_load_lkms_and_args(cmd, arg_mods, arg_modargs):
-#    for mod in arg_mods:
-#        cmd.run_check(f"sudo insmod /tmp/{mod} {arg_modargs}")
+    cmd.run_check(f"sudo insmod /tmp/{arg_mod} {arg_modargs}")
 
 def undo_load_lkms(cmd, args_mod):
     for mod in list(reversed(args_mod)):
@@ -89,6 +85,9 @@ def undo_register_dtbo(cmd):
 def do_log_verification(cmd, args_pattern):
     stdout, stderr, ret = cmd.run(r"sudo tail -n 50 /var/log/messages")
     assert 0 == ret
+    stdout = [bytes(m, 'ISO-8859-1').strip() for m in stdout]
+    #stdout = [bytes(m, 'utf-8').strip() for m in stdout]
+    stdout = [m.decode() for m in  stdout]
     for pattern in args_pattern:
         assert 0 < len([m for m in stdout if pattern in m])
 
