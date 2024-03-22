@@ -23,17 +23,12 @@ static const struct regmap_config adxl345_spi_regmap_config = {
 static int adxl345_spi_setup(struct device *dev, struct regmap *regmap)
 {
 	struct spi_device *spi = container_of(dev, struct spi_device, dev);
-	int ret;
 
 	pr_info("%s(): called\n", __func__);
 
-	if (spi->mode & SPI_3WIRE) {
-		ret = regmap_write(regmap, ADXL345_REG_DATA_FORMAT,
-				   ADXL345_DATA_FORMAT_SPI);
-		if (ret)
-			return ret;
-	}
-
+	if (spi->mode & SPI_3WIRE)
+		return regmap_write(regmap, ADXL345_REG_DATA_FORMAT,
+			    ADXL345_DATA_FORMAT_SPI);
 	return 0;
 }
 
@@ -47,7 +42,7 @@ static int adxl345_spi_probe(struct spi_device *spi)
 	/* Retrieve device name to pass it as driver specific data */
 	chip_data = device_get_match_data(&spi->dev);
 	if (!chip_data)
-		chip_data = (const struct adxl345_chip_info *) spi_get_device_id(spi)->driver_data;
+		chip_data = spi_get_device_match_data(spi);
 
 	/* Bail out if max_speed_hz exceeds 5 MHz */
 	if (spi->max_speed_hz > ADXL345_MAX_SPI_FREQ_HZ)
@@ -55,11 +50,8 @@ static int adxl345_spi_probe(struct spi_device *spi)
 				     spi->max_speed_hz);
 
 	regmap = devm_regmap_init_spi(spi, &adxl345_spi_regmap_config);
-	if (IS_ERR(regmap)) {
-		dev_err_probe(&spi->dev, PTR_ERR(regmap), "Error initializing spi regmap: %ld\n",
-			      PTR_ERR(regmap));
-		return PTR_ERR(regmap);
-	}
+	if (IS_ERR(regmap))
+		return dev_err_probe(&spi->dev, PTR_ERR(regmap), "Error initializing regmap\n");
 
 	return adxl345_core_probe(&spi->dev, regmap, chip_data, &adxl345_spi_setup);
 }

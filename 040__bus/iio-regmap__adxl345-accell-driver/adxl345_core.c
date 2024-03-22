@@ -231,6 +231,7 @@ static int adxl345_setup(struct device *dev, struct adxl345_data *data,
  *                        also covers the adlx375 accelerometer
  * @dev:	Driver model representation of the device
  * @regmap:	Regmap instance for the device
+ * @chip_info:  Chip specific data
  * @setup:	Setup routine to be executed right before the standard device
  *		setup, can also be set to NULL if not required
  *

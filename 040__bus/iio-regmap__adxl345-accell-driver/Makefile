@@ -4,7 +4,9 @@ obj-m += adxl345_i2c.o
 obj-m += adxl345_spi.o
 
 ## dtbo-y seems to be broken (again...?)
-DTSFILES := adxl345_spi_overlay.dts adxl345_i2c_overlay.dts
+DTSFILES += adxl345_spi_overlay.dts
+DTSFILES += adxl345_i2c_overlay.dts
+DTSFILES += adxl345_spi-3wire_overlay.dts
 DTBOFILES := $(DTSFILES:.dts=.dtbo)
 
 ## issue: insmod: ERROR: could not insert module adxl345_spi.ko: Invalid module format
