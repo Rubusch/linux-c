@@ -154,7 +154,7 @@ int init_hello_ioctl(void)
 		goto err_cdev;
 	}
 
-	dev_class = class_create(THIS_MODULE, HELLO_CLASS_NAME);
+	dev_class = class_create(HELLO_CLASS_NAME);
 	if (NULL == dev_class) {
 		printk(KERN_ERR
 		       "CHARDEV: %s() creating a struct class structure failed\n",

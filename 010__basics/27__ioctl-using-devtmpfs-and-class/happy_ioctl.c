@@ -87,7 +87,7 @@ static int __init chardev_init(void)
 	}
 
 	// register the device class
-	chardev_class = class_create(THIS_MODULE, CLASS_NAME);
+	chardev_class = class_create(CLASS_NAME);
 	if (IS_ERR(chardev_class)) {
 		unregister_chrdev_region(dev, 1);
 		cdev_del(&chardev_dev);
