@@ -1,7 +1,7 @@
-PROJECT = r"25__ioctl-fops-demo"
-MODULES = [r"happy_ioctl.ko"]
+PROJECT = r"29__mmap"
+MODULES = [r"mmap_dev.ko"]
 KERNELVERSION = r"6.6.21"
-APPFILE = "ioctl.elf"
+APPFILE = "mmap_app.elf"
 
 import sys
 ## NB: this is from where pytest is called!
@@ -28,18 +28,12 @@ def test_030_copy(cmd, target):
 def test_040_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)
 
+## the module and mmap_app.elf are interactive,
+## -> here not tested
+
 def test_060_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
 def test_070_logs_load(cmd):
-    do_log_verification(cmd, [r"init_happy_ioctl() - major =",
-                              r"init_happy_ioctl() device driver init - OK",
-                              "If you want to talk to the device driver,",
-                              r"you'll have to create a device file, do a:",
-                              r"$ sudo mknod lothars_chardev",
-                              "the device file name is important, because",
-                              "the ioctl program assumes that's the",
-                              r"file you'll use.",
-                              "character device unregistered",
-                              r"READY."])
-
+    do_log_verification(cmd, ["mod_init(): called",
+                              "mod_exit(): called"])

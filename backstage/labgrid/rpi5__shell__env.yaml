@@ -18,6 +18,7 @@ targets:
         login_prompt: 'ctrl01 login: '
         username: 'pi'
         password: 'xdr5XDR%'
+        post_login_settle_time: 3
 
       SSHDriver:
         username: 'pi'

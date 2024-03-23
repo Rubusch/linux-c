@@ -1,4 +1,4 @@
-PROJECT = r"25__ioctl-fops-demo"
+PROJECT = r"26__ioctl-signal"
 MODULES = [r"happy_ioctl.ko"]
 KERNELVERSION = r"6.6.21"
 APPFILE = "ioctl.elf"
@@ -28,18 +28,14 @@ def test_030_copy(cmd, target):
 def test_040_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)
 
+def test_050_cat(cmd):
+    do_cat_verification(cmd, "/dev/lothars_chardev_device", [])
+
 def test_060_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
 def test_070_logs_load(cmd):
-    do_log_verification(cmd, [r"init_happy_ioctl() - major =",
-                              r"init_happy_ioctl() device driver init - OK",
-                              "If you want to talk to the device driver,",
-                              r"you'll have to create a device file, do a:",
-                              r"$ sudo mknod lothars_chardev",
-                              "the device file name is important, because",
-                              "the ioctl program assumes that's the",
-                              r"file you'll use.",
-                              "character device unregistered",
-                              r"READY."])
-
+    do_log_verification(cmd, ["CHARDEV: init_hello_ioctl() - major =",
+                              "CHARDEV: init_hello_ioctl() device driver init - OK",
+                              "CHARDEV: character device unregistered",
+                              "CHARDEV: READY."])
