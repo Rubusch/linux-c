@@ -26,7 +26,6 @@ static struct cdev happy_chardev;
 
 // fops
 static struct file_operations happy_chardev_fops = {
-	.owner = THIS_MODULE,
 	.open = device_open,
 	.release = device_release,
 	.read = device_read,
@@ -183,7 +182,7 @@ int init_happy_ioctl(void)
 	 * Note, the pointer created here is to be destroyed when finished by
 	 * making a call to class_destroy().
 	 */
-	dev_class = class_create(THIS_MODULE, HAPPY_CLASS_NAME);
+	dev_class = class_create(HAPPY_CLASS_NAME);
 	if (NULL == dev_class) {
 		printk(KERN_ALERT
 		       "%s() creating a struct class structure failed\n",
