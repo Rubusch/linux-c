@@ -39,10 +39,10 @@ def test_054_write(cmd):
 def test_056_cat(cmd):
     do_cat_verification(cmd, DEVNODE, [])
 
-def test_050_unload_lkm(cmd):
+def test_060_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
-def test_060_logs_load(cmd):
+def test_070_logs_load(cmd):
     do_log_verification(cmd, [r"mod_init(): called",
                               r"hello_linkedlist_write(): called",
                               r"hello_linkedlist_write(): received 7",
