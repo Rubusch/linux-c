@@ -42,7 +42,7 @@ static int adxl345_spi_probe(struct spi_device *spi)
 	/* Retrieve device name to pass it as driver specific data */
 	chip_data = spi_get_device_match_data(spi);
 	if (!chip_data)
-		return dev_err_probe(&spi->dev, -EINVAL, "Error getting spi "device match data\n");
+		return dev_err_probe(&spi->dev, -EINVAL, "Error getting spi device match data\n");
 
 	/* Bail out if max_speed_hz exceeds 5 MHz */
 	if (spi->max_speed_hz > ADXL345_MAX_SPI_FREQ_HZ)
