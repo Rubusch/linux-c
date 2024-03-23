@@ -10,7 +10,9 @@ def do_stat(arg_project, args_file):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename)
 
 def do_cmd(cmd, arg_cmd):
-    cmd.run_check(arg_cmd)
+    arg_bytes = bytes(arg_cmd, 'ISO-8859-1').strip()
+    #cmd.run_check(arg_cmd) ## TODO looks like this may have issues with format strings
+    cmd.run_check(arg_bytes.decode())
 
 def do_cmd_expect(cmd, arg_cmd, args_expect):
     stdout, stderr, ret = cmd.run(arg_cmd)
@@ -86,7 +88,6 @@ def do_log_verification(cmd, args_pattern):
     stdout, stderr, ret = cmd.run(r"sudo tail -n 50 /var/log/messages")
     assert 0 == ret
     stdout = [bytes(m, 'ISO-8859-1').strip() for m in stdout]
-    #stdout = [bytes(m, 'utf-8').strip() for m in stdout]
     stdout = [m.decode() for m in  stdout]
     for pattern in args_pattern:
         assert 0 < len([m for m in stdout if pattern in m])

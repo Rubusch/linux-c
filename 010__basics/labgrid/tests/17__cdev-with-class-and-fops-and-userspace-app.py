@@ -1,7 +1,7 @@
 PROJECT = r"17__cdev-with-class-and-fops-and-userspace-app"
 MODULES = [r"hellochardev.ko"]
 KERNELVERSION = r"6.6.21"
-USERSPACE = [r"tester.elf"]
+USERSPACE = ["tester.elf"]
 
 import sys
 ## NB: this is from where pytest is called!
@@ -29,7 +29,8 @@ def test_040_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)
 
 def test_050_app(cmd):
-    do_cmd(cmd, f"sudo /tmp/{USERSPACE[0]}")
+    runapp=f"sudo /tmp/{USERSPACE[0]}"
+    do_cmd(cmd, runapp)
 
 def test_060_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)

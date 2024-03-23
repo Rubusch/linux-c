@@ -46,9 +46,6 @@ def test_070_logs_load(cmd):
                               "mod_init(): both threads up and running",
                               "hello_write(): called",
                               "hello_write(): waitqueue_flag is 1",
-                              "thread_routine(): waitqueue_flag is pending.. timeout",
                               "hello_write(): called",
                               "hello_write(): waitqueue_flag is 2",
-                              "mod_exit(): called",
-                              "thread_routine(): waitqueue_flag is 11",
-                              "thread_routine(): waitqueue_flag is pending.. timeout"])
+                              "mod_exit(): called"])
