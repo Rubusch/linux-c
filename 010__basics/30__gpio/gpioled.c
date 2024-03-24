@@ -3,6 +3,7 @@
   This driver would only take 1 or 0 for the gpio line.
 
   NB: since 4.8 there is a "new" gpio implementation in the kernel
+  -> refer to /include/linux/gpio.h
 */
 #include <linux/module.h>
 #include <linux/init.h>
@@ -10,7 +11,7 @@
 #include <linux/miscdevice.h>
 
 #define DEVICE_NAME "lothars_gpio_driver"
-#define GPIO_LED 4
+#define GPIO_LED 516  /* GPIO04 with a base of gpiochip0 on 512 */
 
 static ssize_t
 driver_write(struct file *file, const char *ubuf,

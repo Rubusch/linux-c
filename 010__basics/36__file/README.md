@@ -14,10 +14,6 @@ the kernel space.
 ```
 Logs  
 ```
-[23:21:30.750] [12493.528020] mod_init(): called
-[23:21:30.804] [12493.532723] mod_init(): wrote 128 bytes to file
-[23:21:30.805] [12493.538824] mod_init(): read 128 bytes: '....ooooOOOO0000*
-[23:21:30.805] [12493.538824] '
 [23:21:30.805] Feb 10 22:21:30 ctrl001 kernel: [12493.528020] mod_init(): called
 [23:21:30.806] Feb 10 22:21:30 ctrl001 kernel: [12493.532723] mod_init(): wrote 128 bytes to file
 [23:21:30.807] Feb 10 22:21:30 ctrl001 kernel: [12493.538824] mod_init(): read 128 bytes: '....ooooOOOO0000*

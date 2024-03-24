@@ -82,8 +82,16 @@ static int __init mod_init(void)
 		return -1;
 	}
 
-	gpio_set_debounce(GPIO_NUM, 300);
+	/*
+	  in order to use gpio debound, instead of using gpios
+	  directly go through gpoi_descriptor
 
+	  static struct *gpiod; // usually in a gpio_data structure
+
+	  giod = devm_fwnode_gpiod_get(dev, child, NULL, GPIOD_IN, desc);
+
+	  gpiod_set_debounce(GPIO_NUM, 300);
+	*/
 	irq_number = gpio_to_irq(GPIO_NUM);
 	ret = request_irq(irq_number,
 			  gpio_irq_signal_handler,

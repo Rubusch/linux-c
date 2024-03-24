@@ -8,7 +8,7 @@
 #include <linux/interrupt.h>
 #include <linux/jiffies.h>
 
-#define SELECTED_GPIO_LINE  (26)
+#define SELECTED_GPIO_LINE  (26 + GPIO_DYNAMIC_BASE)   /* don't do this at home!! */
 
 extern unsigned long volatile jiffies;
 unsigned long old_jiffie = 0;

@@ -68,7 +68,15 @@ static int __init mod_init(void)
 		return -EFAULT;
 	}
 
-	gpio_set_debounce(GPIO_NUM, 300);
+	/*
+	  same story here:
+	  gpio_set_debounce(GPIO_NUM, 300);
+
+	  converts to something e.g.:
+	  struct gpio_descriptor *gpiod;
+	  gpiod = devm_gpiod_get_optional(&pdev->dev, "id", GPIOD_IN);
+	  gpiod_set_debounce(gpiod, 300);
+	*/
 
 	irq_number = gpio_to_irq(GPIO_NUM);
 	ret = request_irq(irq_number, // prefer managed variant of requrest_irq()
