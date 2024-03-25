@@ -3,8 +3,6 @@
 #### Notes on the DT binding
 
 For the RPI3b: The keys are added with the following DT binding.
-There is an arm and an arm64 version of the DT, anyway the 64 bit
-version  diverts to the 32 version(v6.3.1).  
 ```
 $ vi ./linux/arch/arm/boot/dts/bcm2710-rpi-3-b.dts
     ...
@@ -44,29 +42,43 @@ IOMUX / The LInux user space naming convention:
 [further details on IOMUX on NPX's iMX7D p125ff -> references]
 
 ## Module
-Should compile cross - having crossbuild-essentials-arm64 installed, `ARCH`, and `CROSS_COMPILE` set, execute  
+
+For cross-compilation install `crossbuild-essentials-arm64`,
+set at least `ARCH`, and `CROSS_COMPILE`. Build the rpi kernel
+according to the rpi documentation.  
+```
+$ cat ~/workspace/source-me.sh
+    export CROSS_COMPILE=aarch64-linux-gnu-
+    export ARCH=arm64
+    export KERNEL=kernel8
+    export KDEFCONFIG_NAME=bcm2711_defconfig
+    export KERNELDIR=/usr/src/linux
+```
+
+Build the module  
 ```
 $ cd ./module
 $ make
 ```
-Copy the module over to the target  
+Copy the module to the target device  
 
-The .dts overlay fragment is built with the module. Just place it on the raspberry pi under `/boot/overlays` and register it with `dtoverlay` in the `/boot/configs.txt`.  
+The DT overlay fragment is built with the module. Copy the DT overlay
+fragment to the target device, to `/boot/overlays`. Register the DT
+overlay fragment in `/boot/configs.txt`.  
 
 ```
-...
-[all]
-dtoverlay = <name of the .dtbo file>
-...
+    ...
+    [all]
+    dtoverlay = <name of the .dtbo file>
+    ...
 ```
-Then reboot and check if the fragment is in the DT.  
-
+Then reboot. Verify that phandles of the fragment are searcheable in the DT.  
 ```
 # dtc -I fs -O dts /sys/firmware/devicetree/base | less
 ```
 
 ## Userspace
-Compile cross, then copy the .elf over to the target.   
+Compile cross, then copy the .elf over to the target.  
 ```
 rpi$ cd ./userspace
 rpi$ make
@@ -81,7 +93,18 @@ pi@raspberrypi:~$ sudo find /sys -name "*lothar*"
     /sys/bus/platform/drivers/lotharskeys
     /sys/module/chardev/drivers/platform:lotharskeys
 
+pi@raspberrypi:~$ sudo ./ioctl_test.elf
+
 pi@raspberrypi:~$ sudo rmmod chardev
+```
+
+Logs  
+```
+chardev_probe(): called
+chardev_probe(): got minor 121
+chardev_open(): called
+chardev_ioctl(): called, cmd = 100, arg = 110
+chardev_close(): called
 ```
 
 ## References

@@ -4,7 +4,7 @@ TARGET = $(SOURCE:.c=.elf)
 
 .PREFIXES = .c .o
 CC = $(CROSS_COMPILE)gcc
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -lgpiod
 
 %.c%.o:
 	$(CC) $(CFLAGS) -c $<

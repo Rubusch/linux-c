@@ -8,13 +8,14 @@ DTSFILES += adxl345_spi_overlay.dts
 DTSFILES += adxl345_i2c_overlay.dts
 DTSFILES += adxl345_spi-3wire_overlay.dts
 DTBOFILES := $(DTSFILES:.dts=.dtbo)
+DTC ?= dtc
 
 ## issue: insmod: ERROR: could not insert module adxl345_spi.ko: Invalid module format
 ## fix: append EXTRAVERSION to $(uname -r), remove version before '-'
 EXTRAVERSION = "-lothar01"
 
 %.dtbo: %.dts
-	$(DTC) dtc -O dtb -o $@ $<
+	$(DTC) -O dtb -o $@ $<
 
 all: $(DTBOFILES)
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules

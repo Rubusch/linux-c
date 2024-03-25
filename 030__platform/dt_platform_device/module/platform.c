@@ -40,7 +40,6 @@ static long chardev_ioctl(struct file *file, unsigned int cmd, unsigned long arg
 
 // fops - declare a file operations structure
 static const struct file_operations chardev_fops = {
-	.owner = THIS_MODULE,
 	.open = chardev_open,
 	.release = chardev_close,
 	.unlocked_ioctl = chardev_ioctl,
@@ -55,11 +54,12 @@ static struct miscdevice chardev_miscdevice = {
 
 
 // of - add probe() function becomes the new __init function
-static int __init chardev_probe(struct platform_device *pdev)
+//static int __init chardev_probe(struct platform_device *pdev)    
+static int chardev_probe(struct platform_device *pdev)
 {
 	int ret;
 
-	pr_info("%s(): chardev init was called!\n", __func__);
+	pr_info("%s(): called\n", __func__);
 
 	// register the device at the kernel
 	ret = misc_register(&chardev_miscdevice);
@@ -73,9 +73,10 @@ static int __init chardev_probe(struct platform_device *pdev)
 }
 
 // of - the remove() function becomes the new __exit function, NB: returns int
-static int __exit chardev_remove(struct platform_device *pdev)
+//static int __exit chardev_remove(struct platform_device *pdev)   
+static int chardev_remove(struct platform_device *pdev)
 {
-	pr_info("%s(): the chardev exit was called!\n", __func__);
+	pr_info("%s(): called\n", __func__);
 
 	// unregister the miscdevice instance
 	misc_deregister(&chardev_miscdevice);
@@ -96,7 +97,6 @@ static struct platform_driver chardev_platform_driver = {
 	.driver = {
 		.name = "lotharskeys",
 		.of_match_table = chardev_of_ids,
-		.owner = THIS_MODULE,
 	}
 };
 

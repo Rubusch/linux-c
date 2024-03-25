@@ -18,7 +18,7 @@
 		target = <&soc>;
 		__overlay__ {
  			chardev_keys {
- 				comatible = "lothars,chardev_keys";
+ 				compatible = "lothars,chardev_keys";
  			};
 
  			// leds: colors

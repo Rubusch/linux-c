@@ -1,12 +1,12 @@
 /dts-v1/;
 /plugin/;
 / {
-	compatible = "raspberrypi,3-model-b", "brcm,bcm2835";
+	compatible = "raspberrypi,3-model-b", "brcm,bcm2837";
 	fragment@0 {
 		target = <&soc>;
 		__overlay__ {
 			chardev_keys {
-				comatible = "lothars,chardev_keys";
+				compatible = "lothars,chardev_keys";
 			};
 		};
 	};
