@@ -24,7 +24,7 @@
 			#size-cells = <1>;
 
  			chardev_keys {
- 				comatible = "lothars,chardev_keys";
+ 				compatible = "lothars,chardev_keys";
  			};
 
  			// leds: colors
