@@ -54,7 +54,6 @@ static struct miscdevice chardev_miscdevice = {
 
 
 // of - add probe() function becomes the new __init function
-//static int __init chardev_probe(struct platform_device *pdev)    
 static int chardev_probe(struct platform_device *pdev)
 {
 	int ret;
@@ -73,7 +72,6 @@ static int chardev_probe(struct platform_device *pdev)
 }
 
 // of - the remove() function becomes the new __exit function, NB: returns int
-//static int __exit chardev_remove(struct platform_device *pdev)   
 static int chardev_remove(struct platform_device *pdev)
 {
 	pr_info("%s(): called\n", __func__);
