@@ -28,6 +28,7 @@ REMOVEME
 *.dtbo
 *.pyc
 __pycache__
+.pytest_cache
 
 ## backups
 .#*
