@@ -66,6 +66,9 @@ def do_copy_dtbo(cmd, target, args_dtbo, arg_project):
 def undo_copy_dtbo(cmd, args_dtbo):
     for dtbo in args_dtbo:
         cmd.run_check(f"sudo rm /boot/overlays/{dtbo}")
+    cmd.run_check("sync")
+    import time
+    time.sleep(3)
 
 def do_register_dtbo(cmd, arg_dtbo):
     cmd.run_check(r"sudo cp /boot/config.txt /boot/config.txt.orig")
