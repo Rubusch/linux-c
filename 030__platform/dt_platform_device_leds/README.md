@@ -34,29 +34,39 @@ The `container_of` macro then returns the address of the member for the specifie
 
 # Build
 
-## Devicetree
-The devicetree fragment should be (also) compatible to the `bcm2710-rpi-3-b.dts` for e.g. rpi 3b.  
-
 ## Module
-Compile cross having ``crossbuild-essentials-arm64`` installed. `ARCH`, and `CROSS_COMPILE` are set, then execute  
+
+For cross-compilation install `crossbuild-essentials-arm64`,
+set at least `ARCH`, and `CROSS_COMPILE`. Build the rpi kernel
+according to the rpi documentation.  
 ```
-$ cd ./module
+$ cat ~/workspace/source-me.sh
+    export CROSS_COMPILE=aarch64-linux-gnu-
+    export ARCH=arm64
+    export KERNEL=kernel8
+    export KDEFCONFIG_NAME=bcm2711_defconfig
+    export KERNELDIR=/usr/src/linux
+```
+
+Build the module  
+```
 $ make
 ```
-Copy the *.ko and *.dtbo over to the target. Move the *.dtbo to `/boot/overlay/` and register it in `/boot/config.txt`  
+Copy the module to the target device  
+
+The DT overlay fragment is built with the module. Copy the DT overlay
+fragment to the target device, to `/boot/overlays`. Register the DT
+overlay fragment in `/boot/configs.txt`.  
 
 ```
-...
-[all]
-dtoverlay = <name of the .dtbo file>
-...
+    ...
+    [all]
+    dtoverlay = <name of the .dtbo file>
+    ...
 ```
-
-## Userspace
-Easiest is to copy the folder `userspace`  to the target  
+Then reboot. Verify that phandles of the fragment are searcheable in the DT.  
 ```
-rpi$ cd ./userspace
-rpi$ make
+# dtc -I fs -O dts /sys/firmware/devicetree/base | less
 ```
 
 # Usage
@@ -71,17 +81,9 @@ pi@raspberrypi:~$ sudo find /sys -name "*lothar*"
     /sys/bus/platform/drivers/lotharskeys
     /sys/module/chardev/drivers/platform:lotharskeys
 
-pi@ctrl001:/tmp $ sudo mknod /dev/mydev c 202 0
-
-pi@ctrl001:/tmp $ sudo ./ioctl_test.elf
-
 pi@raspberrypi:~$ sudo rmmod chardev
 ```
-FIXME: no blinking device, are the node numbers correct? shall ioctl app be used at all?   
 The module could be load, the devicetree binding would match.  
-
-## Verified
-* Verified against a RPI3 w/ aarch64
 
 ## References
 * Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 161

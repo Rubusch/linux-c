@@ -211,14 +211,13 @@ static struct platform_driver led_platform_driver = {
 	.driver = {
 		.name = "RGBleds",
 		.of_match_table = led_of_ids,
-		.owner = THIS_MODULE,
 	},
 };
 
 /*
   here the leds are connected to read/write
 */
-static int led_init(void)
+static int __init led_init(void)
 {
 	int ret;
 	u32 GPFSEL_read, GPFSEL_write;
@@ -255,7 +254,7 @@ static int led_init(void)
 	return 0;
 }
 
-static void led_exit(void)
+static void __exit led_exit(void)
 {
 	pr_info("led_exit() started\n");
 	iowrite32(GPIO_SET_ALL_LEDS, GPCLR0_V);   /* clear all the leds */

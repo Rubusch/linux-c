@@ -17,10 +17,6 @@
 	fragment@1 {
 		target = <&soc>;
 		__overlay__ {
-			chardev_keys {
-				compatible = "lothars,chardev_keys";
-			};
-
 			// leds: colors
 			ledred {
 				compatible = "lothars,RGBleds";
@@ -28,17 +24,23 @@
 				pinctrl-0 = <&led_pins>;
 			};
 
-			ledgreen {
-				compatible = "lothars,RGBleds";
-				label = "ledgreen";
-				// TODO
-			};
+			/*
+			NB: the other colors are turned off
 
-			ledblue {
-				compatible = "lothars,RGBleds";
-				label = "labelblue";
-				// TODO
-			};
+			when turned on, we will see Oops for attempts to re-establish
+			yet another lothar_device for each color, try it!
+			*/
+//			ledgreen {
+//				compatible = "lothars,RGBleds";
+//				label = "ledgreen";
+//				pinctrl-0 = <&led_pins>;
+//			};
+//
+//			ledblue {
+//				compatible = "lothars,RGBleds";
+//				label = "labelblue";
+//				pinctrl-0 = <&led_pins>;
+//			};
 		 };
 	};
 };
