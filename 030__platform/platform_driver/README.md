@@ -4,7 +4,43 @@ The demo shows a dummy platform driver and a starter module. The
 platform driver usually is loaded by DT binding, alternatively by
 another module, as in this demo.  
 
-## Usage
+# Build
+
+## Module
+For cross-compilation install `crossbuild-essentials-arm64`,
+set at least `ARCH`, and `CROSS_COMPILE`. Build the rpi kernel
+according to the rpi documentation.  
+```
+$ cat ~/workspace/source-me.sh
+    export CROSS_COMPILE=aarch64-linux-gnu-
+    export ARCH=arm64
+    export KERNEL=kernel8
+    export KDEFCONFIG_NAME=bcm2711_defconfig
+    export KERNELDIR=/usr/src/linux
+```
+
+Build the module  
+```
+$ make
+```
+Copy the module to the target device  
+
+The DT overlay fragment is built with the module. Copy the DT overlay
+fragment to the target device, to `/boot/overlays`. Register the DT
+overlay fragment in `/boot/configs.txt`.  
+
+```
+    ...
+    [all]
+    dtoverlay = <name of the .dtbo file>
+    ...
+```
+Then reboot. Verify that phandles of the fragment are searcheable in the DT.  
+```
+# dtc -I fs -O dts /sys/firmware/devicetree/base | less
+```
+
+# Usage
 
 ```
 # insmod platform.ko
@@ -34,18 +70,19 @@ E: SUBSYSTEM=misc
 
 # rmmod platform-ins.ko
 # rmmod platform
+```
 
-
+Logs  
+```
 $ dmesg
-Feb 16 21:31:03 ctrl001 kernel: [  343.403120] platform: loading out-of-tree module taints kernel.
-
-Feb 16 21:34:50 ctrl001 kernel: [  571.005423] pf_probe(): called
-Feb 16 21:47:03 ctrl001 kernel: [ 1303.682709] dummy_open(): called
-Feb 16 21:47:03 ctrl001 kernel: [ 1303.682900] dummy_read(): called
-Feb 16 21:47:03 ctrl001 kernel: [ 1303.683119] dummy_release(): called
-Feb 16 21:47:11 ctrl001 kernel: [ 1311.423151] dummy_open(): called
-Feb 16 21:47:11 ctrl001 kernel: [ 1311.423623] dummy_write(): called
-Feb 16 21:47:11 ctrl001 kernel: [ 1311.423711] dummy_release(): called
+[   29.307140] pdrv_probe(): called
+[   29.473476] dummy_open(): called
+[   29.473600] dummy_read(): called
+[   29.473654] dummy_release(): called
+[   29.642775] dummy_open(): called
+[   29.642907] dummy_write(): called
+[   29.643054] dummy_release(): called
+[   29.996749] pdrv_remove(): called
 ```
 
 ## References
