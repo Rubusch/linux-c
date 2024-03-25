@@ -52,30 +52,39 @@ Note, ledclass_dev is provided by the kernel.
 
 # Build
 
-## Devicetree
+## Module
+For cross-compilation install `crossbuild-essentials-arm64`,
+set at least `ARCH`, and `CROSS_COMPILE`. Build the rpi kernel
+according to the rpi documentation.  
+```
+$ cat ~/workspace/source-me.sh
+    export CROSS_COMPILE=aarch64-linux-gnu-
+    export ARCH=arm64
+    export KERNEL=kernel8
+    export KDEFCONFIG_NAME=bcm2711_defconfig
+    export KERNELDIR=/usr/src/linux
+```
 
-The .dts overlay fragment is built with the module. Just place it on the raspberry pi under `/boot/overlays` and register it with `dtoverlay` in the `/boot/configs.txt`.  
+Build the module  
+```
+$ make
+```
+Copy the module to the target device  
+
+The DT overlay fragment is built with the module. Copy the DT overlay
+fragment to the target device, to `/boot/overlays`. Register the DT
+overlay fragment in `/boot/configs.txt`.  
 
 ```
-...
-[all]
-dtoverlay = <name of the .dtbo file>
-...
+    ...
+    [all]
+    dtoverlay = <name of the .dtbo file>
+    ...
 ```
-Then reboot and check if the fragment is in the DT.  
-
+Then reboot. Verify that phandles of the fragment are searcheable in the DT.  
 ```
 # dtc -I fs -O dts /sys/firmware/devicetree/base | less
 ```
-
-## Module
-Compile cross having `crossbuild-essentials-arm64` installed, with `ARCH`, and
-`CROSS_COMPILE` set, execute  
-```
-$ cd ./module
-$ make
-```
-Copy the module over to the target  
 
 # Usage
 On the target perform the following to verify the functionality  

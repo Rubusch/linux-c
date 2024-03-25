@@ -12,9 +12,6 @@
 #include <linux/leds.h>
 //#include <linux/miscdevice.h> /* now instead of the miscdevice use the new led class device */
 
-// TODO check missing userspace                    
-#define DEVICE_NAME "lothars_device"
-
 /* statics */
 struct led_dev
 {
