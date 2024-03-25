@@ -51,7 +51,7 @@ def undo_load_lkms(cmd, args_mod):
         mod = mod.split(".")[0]
         cmd.run(f"sudo rmmod {mod}")
 
-def do_copy_dtbo(target, cmd, args_dtbo, arg_project):
+def do_copy_dtbo(cmd, target, args_dtbo, arg_project):
     drv = target.get_driver("SSHDriver")
     for dtbo in args_dtbo:
         src = f"../{arg_project}/{dtbo}"

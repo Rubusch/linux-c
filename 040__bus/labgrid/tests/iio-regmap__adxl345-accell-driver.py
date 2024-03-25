@@ -26,7 +26,7 @@ def test_010_login(shell_cmd): ## reboot
     do_login_check(shell_cmd, KERNELVERSION)
 
 def test_020_copy_dt(target, cmd):
-    do_copy_dtbo(target, cmd, DTBOS, PROJECT)
+    do_copy_dtbo(cmd, target, DTBOS, PROJECT)
 
 ## spi
 
