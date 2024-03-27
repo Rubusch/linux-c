@@ -144,12 +144,39 @@ dtoverlay = <name of the .dtbo file>
 ```
 
 ## Module
-Should crosscompile - having crossbuild-essentials-arm64 installed, `ARCH`, and `CROSS_COMPILE` set, execute  
+For cross-compilation install `crossbuild-essentials-arm64`,
+set at least `ARCH`, and `CROSS_COMPILE`. Build the rpi kernel
+according to the rpi documentation.  
+```
+$ cat ~/workspace/source-me.sh
+    export CROSS_COMPILE=aarch64-linux-gnu-
+    export ARCH=arm64
+    export KERNEL=kernel8
+    export KDEFCONFIG_NAME=bcm2711_defconfig
+    export KERNELDIR=/usr/src/linux
+```
+
+Build the module  
 ```
 $ cd ./module
 $ make
 ```
-Copy the module over to the target  
+Copy the module to the target device  
+
+The DT overlay fragment is built with the module. Copy the DT overlay
+fragment to the target device, to `/boot/overlays`. Register the DT
+overlay fragment in `/boot/configs.txt`.  
+
+```
+    ...
+    [all]
+    dtoverlay = <name of the .dtbo file>
+    ...
+```
+Then reboot. Verify that phandles of the fragment are searcheable in the DT.  
+```
+# dtc -I fs -O dts /sys/firmware/devicetree/base | less
+```
 
 ## Userspace
 Easiest is to copy the folder `userspace`  to the target  
@@ -159,24 +186,23 @@ rpi$ make
 ```
 
 # Usage
-
 ```
-pi@raspberrypi:~/sandbox$ sudo insmod ./leddriver.ko
+# insmod ./leddriver.ko
 
-pi@raspberrypi:~/sandbox$ lsmod | grep leddriver
+# lsmod | grep leddriver
     leddriver              16384  0
     uio                    24576  2 uio_pdrv_genirq,leddriver
 
-pi@raspberrypi:~/sandbox$ ls /sys/class/uio/uio0/
+# ls /sys/class/uio/uio0/
     dev  device  event  maps  name  power  subsystem  uevent  version
 
-pi@raspberrypi:~/sandbox$ cat /sys/class/uio/uio0/name
+# cat /sys/class/uio/uio0/name
     lothars_device
 
-pi@raspberrypi:~/sandbox$ cat /sys/class/uio/uio0/maps/map0/size
+# cat /sys/class/uio/uio0/maps/map0/size
     0x0000000000001000
 
-pi@raspberrypi:~/sandbox$ sudo ./userland.elf
+# ./userland.elf
     main(): started
     main(): /dev/mem opened
     main(): /dev/uio0 opened
@@ -198,9 +224,6 @@ pi@raspberrypi:~/sandbox$ sudo ./userland.elf
     main(): closing down
     main(): done
 ```
-
-## Verified
-* Verified against a RPI3 w/ aarch64  
 
 ## References
 * Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 197  
