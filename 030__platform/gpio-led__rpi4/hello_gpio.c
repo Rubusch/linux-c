@@ -5,47 +5,18 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
-#include <linux/cdev.h>
+#include <linux/miscdevice.h>
 #include <linux/uaccess.h>
-#include <linux/gpio.h>
+#include <linux/gpio.h> /* legacy */
+#include <linux/gpio/consumer.h> /* new gpio api */
 #include <linux/fs.h>
 
-static int __init mod_init(void);
-static void __exit mod_exit(void);
-
-static ssize_t mindblowing_read(struct file *, char __user *, size_t, loff_t *);
-static ssize_t mindblowing_write(struct file *, const char __user *, size_t,
-				 loff_t *);
 #define GPIO_LED 21
-#define GPIO_LED_NAME "GPIO_21"
+#define MINDBLOWING_GPIO_NAME "GPIO_21"
+#define MINDBLOWING_DEVICE_NAME "mindblowing_gpio_device"
+#define MINDBLOWING_DEVICE_MINOR 123
 
-#define MINBLOWING_DEVICE_NAME "mindblowing_gpio_device"
-#define MINBLOWING_DEVICE_MINOR 123
-
-dev_t dev = 0;
-static struct class *dev_class;
-static struct cdev mindblowing_cdev;
-
-static struct file_operations fops = {
-	.read = mindblowing_read,
-	.write = mindblowing_write,
-};
-
-static ssize_t mindblowing_read(struct file *filp, char __user *buf, size_t len,
-				loff_t *poff)
-{
-	uint8_t gpio_state = 0;
-	gpio_state = gpio_get_value(GPIO_LED);
-
-	// write to user
-	len = 1;
-	if (copy_to_user(buf, &gpio_state, len)) {
-		printk(KERN_ERR "%s() failed\n", __func__);
-		return -EFAULT;
-	}
-
-	return 0;
-}
+static struct gpio_desc *mindblowing_gpio;
 
 static ssize_t mindblowing_write(struct file *filp, const char __user *buf,
 				 size_t len, loff_t *poff)
@@ -54,121 +25,107 @@ static ssize_t mindblowing_write(struct file *filp, const char __user *buf,
 	memset(tmp_buf, '\0', sizeof(tmp_buf));
 
 	if (copy_from_user(tmp_buf, buf, len)) {
-		printk(KERN_ERR "%s() failed\n", __func__);
+		pr_err("%s(): failed\n", __func__);
 		return -EFAULT;
 	}
-	printk(KERN_INFO "%s() gpio %d set to %c\n", __func__, GPIO_LED,
-	       tmp_buf[0]);
+	pr_info("%s(): gpio %d set to %c\n", __func__, GPIO_LED, tmp_buf[0]);
 
 	if ('1' == tmp_buf[0]) {
-		gpio_set_value(GPIO_LED, 1);
+		gpiod_set_value(mindblowing_gpio, 1);
 	} else if ('0' == tmp_buf[0]) {
-		gpio_set_value(GPIO_LED, 0);
+		gpiod_set_value(mindblowing_gpio, 0);
 	} else {
-		printk(KERN_ERR "%s() invalid input, set gpio to '1' or '0'\n",
+		pr_err("%s(): invalid input, set gpio to '1' or '0'\n",
 		       __func__);
 		return -EINVAL;
 	}
 	return len;
 }
 
+static struct file_operations fops = {
+	.write = mindblowing_write,
+};
+
+static struct miscdevice cdev_miscdevice = {
+	.name = MINDBLOWING_DEVICE_NAME,
+	.minor = MISC_DYNAMIC_MINOR,
+	.fops = &fops,
+};
+
 /*
   init / exit
 */
-
 static int __init mod_init(void)
 {
-	if (0 > alloc_chrdev_region(&dev, 0, MINBLOWING_DEVICE_MINOR,
-				    MINBLOWING_DEVICE_NAME)) {
-		printk(KERN_ERR "alloc_chrdev_region() failed\n");
-		return -ENOMEM;
-	}
-	printk(KERN_INFO "%s() - major %d, minor %d\n", __func__, MAJOR(dev),
-	       MINOR(dev));
+	int ret;
 
-	cdev_init(&mindblowing_cdev, &fops);
+	pr_info("%s(): called\n", __func__);
 
-	if (0 > cdev_add(&mindblowing_cdev, dev, 1)) {
-		printk(KERN_ERR "%s() - cdev_add() failed\n", __func__);
-		goto err_cdev;
-	}
-
-	dev_class = class_create(THIS_MODULE, MINBLOWING_DEVICE_NAME);
-	if (!dev_class) {
-		printk(KERN_ERR "%s() - class_create() failed\n", __func__);
-		goto err_class;
-	}
-
-	if (!device_create(dev_class, NULL, dev, NULL,
-			   MINBLOWING_DEVICE_NAME)) {
-		printk(KERN_ERR "%s() - device_create() failed\n", __func__);
+	if (misc_register(&cdev_miscdevice)) {
+		pr_err("%s(): failed to regitser miscdevice\n", __func__);
 		goto err_device;
 	}
+	pr_info("%s(): got minor %i\n", __func__, cdev_miscdevice.minor);
 
 	// gpio
 
-	/**
-	 * "valid" GPIO numbers are nonnegative and may be passed to
-	 * setup routines like gpio_request().  only some valid numbers
-	 * can successfully be requested and used.
+        /**
+	 * gpiod_get_index - obtain a GPIO from a multi-index GPIO function
+	 * @dev:	GPIO consumer, can be NULL for system-global GPIOs
+	 * @con_id:	function within the GPIO consumer
+	 * @idx:	index of the GPIO to obtain in the consumer
+	 * @flags:	optional GPIO initialization flags
 	 *
-	 * Invalid GPIO numbers are useful for indicating no-such-GPIO in
-	 * platform data and other tables.
+	 * This variant of gpiod_get() allows to access GPIOs other than the first
+	 * defined one for functions that define several GPIOs.
+	 *
+	 * Return a valid GPIO descriptor, -ENOENT if no GPIO has been assigned to the
+	 * requested function and/or index, or another IS_ERR() code if an error
+	 * occurred while trying to acquire the GPIO.
 	 */
-	if (!gpio_is_valid(GPIO_LED)) {
-		printk(KERN_ERR "%s() - gpio %d is not valid\n", __func__,
-		       GPIO_LED);
+	mindblowing_gpio = gpiod_get_index(cdev_miscdevice.this_device,
+					   MINDBLOWING_GPIO_NAME, GPIO_LED, 0);
+	if (IS_ERR(mindblowing_gpio)) {
+		pr_err("%s(): failed to get gpio out\n", __func__);
+		goto err_gpio;
+	}
+	// NB: when using DT use of_find_gpio()
+
+	/**
+	 * gpiod_direction_output - set the GPIO direction to output
+	 * @desc:	GPIO to set to output
+	 * @value:	initial output value of the GPIO
+	 *
+	 * Set the direction of the passed GPIO to output, such as gpiod_set_value() can
+	 * be called safely on it. The initial value of the output must be specified
+	 * as the logical value of the GPIO, i.e. taking its ACTIVE_LOW status into
+	 * account.
+	 *
+	 * Return 0 in case of success, else an error code.
+	 */
+	ret = gpiod_direction_output(mindblowing_gpio, 0);
+	if (ret) {
+		pr_err("%s(): failed to set gpio direction\n", __func__);
 		goto err_gpio;
 	}
 
-	if (0 > gpio_request(GPIO_LED, GPIO_LED_NAME)) {
-		printk(KERN_ERR "%s() - gpio_request() failed\n", __func__);
-		goto err_gpio;
-	}
-
-	/**
-	 * set direction to "output"
-	 */
-	gpio_direction_output(GPIO_LED, 0);
-
-	/**
-	 * Using this call the GPIO 21 will be visible in /sys/class/gpio/
-	 * Now you can change the gpio values by using below commands also.
-	 * # echo 1 > /sys/class/gpio/gpio21/value   (turn ON the LED)
-	 * # echo 0 > /sys/class/gpio/gpio21/value   (turn OFF the LED)
-	 * # cat /sys/class/gpio/gpio21/value        (read the value LED)
-	 *
-	 * the second argument prevents the direction from being changed.
-	 */
-	gpio_export(GPIO_LED, false);
-
-	printk(KERN_INFO "%s() done\n", __func__);
+	pr_info("%s(): done\n", __func__);
 	return 0;
 
 err_gpio:
-	device_destroy(dev_class, dev);
+	gpiod_put(mindblowing_gpio);
 
 err_device:
-	class_destroy(dev_class);
-
-err_class:
-	cdev_del(&mindblowing_cdev);
-
-err_cdev:
-	unregister_chrdev_region(dev, 1);
 
 	return -EFAULT;
 }
 
 static void __exit mod_exit(void)
 {
-	gpio_unexport(GPIO_LED);
-	gpio_free(GPIO_LED);
+	pr_info("%s(): called\n", __func__);
 
-	device_destroy(dev_class, dev);
-	class_destroy(dev_class);
-	cdev_del(&mindblowing_cdev);
-	unregister_chrdev_region(dev, 1);
+	gpiod_put(mindblowing_gpio);
+	misc_deregister(&cdev_miscdevice);
 }
 
 module_init(mod_init);
@@ -176,4 +133,4 @@ module_exit(mod_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
-MODULE_DESCRIPTION("Demonstrates a GPIO driver!");
+MODULE_DESCRIPTION("Messing with GPIO descriptors");
