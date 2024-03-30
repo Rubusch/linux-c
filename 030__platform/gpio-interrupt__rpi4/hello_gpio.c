@@ -58,7 +58,6 @@ static struct cdev mindblowing_cdev;
 
 // device fops
 static struct file_operations fops = {
-	.owner = THIS_MODULE,
 	.read = mindblowing_read,
 	.write = mindblowing_write,
 };
@@ -155,7 +154,7 @@ static int __init mod_init(void)
 		goto err_cdev;
 	}
 
-	dev_class = class_create(THIS_MODULE, MINBLOWING_DEVICE_NAME);
+	dev_class = class_create(MINBLOWING_DEVICE_NAME);
 	if (!dev_class) {
 		printk(KERN_ERR "%s() - class_create() failed\n", __func__);
 		goto err_class;
