@@ -12,14 +12,14 @@ from common_kernel import *
 
 
 def test_000_stat(cmd):
-    do_stat(f"{PROJECT}", MODULES)
-    do_stat(f"{PROJECT}", [DTBO])
+    do_stat(PROJECT, MODULES)
+    do_stat(PROJECT, [DTBO])
 
 def test_010_login(reboot_then_cmd): ## reboot
     do_login_check(reboot_then_cmd, KERNELVERSION)
 
 def test_020_copy_dtbo(cmd, target):
-    do_copy_dtbo(cmd, target, [DTBO], f"{PROJECT}")
+    do_copy_dtbo(cmd, target, [DTBO], PROJECT)
 
 def test_025_regster_dtbo(cmd):
     do_register_dtbo(cmd, DTBO)
@@ -33,7 +33,7 @@ def test_030_turn_off_wifi(reboot_then_cmd): ## reduce log noise
     cmd.run_check("sudo systemctl stop dnsmasq")
 
 def test_035_copy_lkm(cmd, target):
-    do_copy_files(cmd, target, MODULES, f"{PROJECT}")
+    do_copy_files(cmd, target, MODULES, PROJECT)
 
 def test_040_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)
