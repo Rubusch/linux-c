@@ -9,11 +9,14 @@
 #include <linux/uaccess.h>
 #include <linux/gpio.h> /* legacy */
 #include <linux/gpio/consumer.h> /* new gpio api */
+#include <linux/of_device.h>
+#include <linux/platform_device.h>
 #include <linux/fs.h>
 
-#define GPIO_LED 21
-#define MINDBLOWING_GPIO_NAME "GPIO_21"
+#define GPIO_LED (21) //  + GPIO_DYNAMIC_BASE)
+//#define MINDBLOWING_GPIO_NAME "mindblowing"   
 #define MINDBLOWING_DEVICE_NAME "mindblowing_gpio_device"
+#define MINDBLOWING_DRIVER_NAME "mindblowing_gpio_driver"
 #define MINDBLOWING_DEVICE_MINOR 123
 
 static struct gpio_desc *mindblowing_gpio;
@@ -55,7 +58,7 @@ static struct miscdevice cdev_miscdevice = {
 /*
   init / exit
 */
-static int __init mod_init(void)
+static int mindblowing_probe(struct platform_device *pdev)
 {
 	int ret;
 
@@ -69,27 +72,42 @@ static int __init mod_init(void)
 
 	// gpio
 
-        /**
-	 * gpiod_get_index - obtain a GPIO from a multi-index GPIO function
-	 * @dev:	GPIO consumer, can be NULL for system-global GPIOs
+//        /**
+//	 * gpiod_get_index - obtain a GPIO from a multi-index GPIO function
+//	 * @dev:	GPIO consumer, can be NULL for system-global GPIOs
+//	 * @con_id:	function within the GPIO consumer
+//	 * @idx:	index of the GPIO to obtain in the consumer
+//	 * @flags:	optional GPIO initialization flags
+//	 *
+//	 * This variant of gpiod_get() allows to access GPIOs other than the first
+//	 * defined one for functions that define several GPIOs.
+//	 *
+//	 * Return a valid GPIO descriptor, -ENOENT if no GPIO has been assigned to the
+//	 * requested function and/or index, or another IS_ERR() code if an error
+//	 * occurred while trying to acquire the GPIO.
+//	 */
+//	mindblowing_gpio = gpiod_get_index(cdev_miscdevice.this_device,
+//					   MINDBLOWING_GPIO_NAME, GPIO_LED, 0);
+//	if (IS_ERR(mindblowing_gpio)) {
+//		pr_err("%s(): failed to get gpio out\n", __func__);
+//		goto err_device;
+//	}
+//	// NB: when using DT use of_find_gpio()
+
+
+	/**
+	 * devm_gpiod_get - Resource-managed gpiod_get()
+	 * @dev:	GPIO consumer
 	 * @con_id:	function within the GPIO consumer
-	 * @idx:	index of the GPIO to obtain in the consumer
 	 * @flags:	optional GPIO initialization flags
 	 *
-	 * This variant of gpiod_get() allows to access GPIOs other than the first
-	 * defined one for functions that define several GPIOs.
-	 *
-	 * Return a valid GPIO descriptor, -ENOENT if no GPIO has been assigned to the
-	 * requested function and/or index, or another IS_ERR() code if an error
-	 * occurred while trying to acquire the GPIO.
+	 * Managed gpiod_get(). GPIO descriptors returned from this function are
+	 * automatically disposed on driver detach. See gpiod_get() for detailed
+	 * information about behavior and return values.
 	 */
-	mindblowing_gpio = gpiod_get_index(cdev_miscdevice.this_device,
-					   MINDBLOWING_GPIO_NAME, GPIO_LED, 0);
-	if (IS_ERR(mindblowing_gpio)) {
-		pr_err("%s(): failed to get gpio out\n", __func__);
-		goto err_gpio;
-	}
-	// NB: when using DT use of_find_gpio()
+	// NB: binding "mindblowing" is the prefix of the DT handle:
+	//     mindblowing-leds = ...
+	mindblowing_gpio = devm_gpiod_get(&pdev->dev, "mindblowing", GPIOD_OUT_LOW);
 
 	/**
 	 * gpiod_direction_output - set the GPIO direction to output
@@ -120,6 +138,32 @@ err_device:
 	return -EFAULT;
 }
 
+static int mindblowing_remove(struct platform_device *pdev)
+{
+	pr_info("%s(): called\n", __func__);
+
+	gpiod_put(mindblowing_gpio);
+	misc_deregister(&cdev_miscdevice);
+
+	return 0;
+}
+
+static struct of_device_id mindblowing_match[] = {
+    {.compatible = "lothars,gpio-led"},
+    {/* end node */}
+};
+
+static struct platform_driver mindblowing_driver = {
+    .probe = mindblowing_probe,
+    .remove = mindblowing_remove,
+    .driver = {
+        .name = MINDBLOWING_DRIVER_NAME,
+                .of_match_table = mindblowing_match,
+    }
+};
+module_platform_driver(mindblowing_driver);
+
+/*
 static void __exit mod_exit(void)
 {
 	pr_info("%s(): called\n", __func__);
@@ -130,7 +174,7 @@ static void __exit mod_exit(void)
 
 module_init(mod_init);
 module_exit(mod_exit);
-
+// */
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
 MODULE_DESCRIPTION("Messing with GPIO descriptors");

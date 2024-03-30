@@ -1,6 +1,8 @@
 # Hello Raspberry4 GPIO/LED
 
-The source was tested compiled and running on 5.4.75.  
+This is basically an implementation of the project to light a led as
+described on embetronicx.com, using my own module and my own Raspi4
+build.  
 
 # Build
 
@@ -23,14 +25,6 @@ pi@ctrl001:/tmp $ dmesg | tail
     [  578.339581] mod_init() - major 238, minor 0
     [  578.340543] mod_init() done
 ```
-
-# Notes
-
-This is basically an implementation of the project to light a led as
-described on embetronicx.com, using my own module and my own Raspi4
-build.  
-
----
 
 ## References:
 
