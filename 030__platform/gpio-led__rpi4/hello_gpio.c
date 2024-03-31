@@ -14,7 +14,6 @@
 #include <linux/fs.h>
 
 #define GPIO_LED (21) //  + GPIO_DYNAMIC_BASE)
-//#define MINDBLOWING_GPIO_NAME "mindblowing"   
 #define MINDBLOWING_DEVICE_NAME "mindblowing_gpio_device"
 #define MINDBLOWING_DRIVER_NAME "mindblowing_gpio_driver"
 #define MINDBLOWING_DEVICE_MINOR 123
@@ -49,51 +48,25 @@ static struct file_operations fops = {
 	.write = mindblowing_write,
 };
 
-static struct miscdevice cdev_miscdevice = {
+static struct miscdevice mindblowing_mdev = {
 	.name = MINDBLOWING_DEVICE_NAME,
 	.minor = MISC_DYNAMIC_MINOR,
 	.fops = &fops,
 };
 
-/*
-  init / exit
-*/
 static int mindblowing_probe(struct platform_device *pdev)
 {
 	int ret;
 
 	pr_info("%s(): called\n", __func__);
 
-	if (misc_register(&cdev_miscdevice)) {
-		pr_err("%s(): failed to regitser miscdevice\n", __func__);
+	if (misc_register(&mindblowing_mdev)) {
+		pr_err("%s(): failed to register miscdevice\n", __func__);
 		goto err_device;
 	}
-	pr_info("%s(): got minor %i\n", __func__, cdev_miscdevice.minor);
+	pr_info("%s(): got minor %i\n", __func__, mindblowing_mdev.minor);
 
 	// gpio
-
-//        /**
-//	 * gpiod_get_index - obtain a GPIO from a multi-index GPIO function
-//	 * @dev:	GPIO consumer, can be NULL for system-global GPIOs
-//	 * @con_id:	function within the GPIO consumer
-//	 * @idx:	index of the GPIO to obtain in the consumer
-//	 * @flags:	optional GPIO initialization flags
-//	 *
-//	 * This variant of gpiod_get() allows to access GPIOs other than the first
-//	 * defined one for functions that define several GPIOs.
-//	 *
-//	 * Return a valid GPIO descriptor, -ENOENT if no GPIO has been assigned to the
-//	 * requested function and/or index, or another IS_ERR() code if an error
-//	 * occurred while trying to acquire the GPIO.
-//	 */
-//	mindblowing_gpio = gpiod_get_index(cdev_miscdevice.this_device,
-//					   MINDBLOWING_GPIO_NAME, GPIO_LED, 0);
-//	if (IS_ERR(mindblowing_gpio)) {
-//		pr_err("%s(): failed to get gpio out\n", __func__);
-//		goto err_device;
-//	}
-//	// NB: when using DT use of_find_gpio()
-
 
 	/**
 	 * devm_gpiod_get - Resource-managed gpiod_get()
@@ -143,14 +116,14 @@ static int mindblowing_remove(struct platform_device *pdev)
 	pr_info("%s(): called\n", __func__);
 
 	gpiod_put(mindblowing_gpio);
-	misc_deregister(&cdev_miscdevice);
+	misc_deregister(&mindblowing_mdev);
 
 	return 0;
 }
 
 static struct of_device_id mindblowing_match[] = {
     {.compatible = "lothars,gpio-led"},
-    {/* end node */}
+    {}
 };
 
 static struct platform_driver mindblowing_driver = {
@@ -163,18 +136,6 @@ static struct platform_driver mindblowing_driver = {
 };
 module_platform_driver(mindblowing_driver);
 
-/*
-static void __exit mod_exit(void)
-{
-	pr_info("%s(): called\n", __func__);
-
-	gpiod_put(mindblowing_gpio);
-	misc_deregister(&cdev_miscdevice);
-}
-
-module_init(mod_init);
-module_exit(mod_exit);
-// */
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
 MODULE_DESCRIPTION("Messing with GPIO descriptors");

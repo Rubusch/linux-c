@@ -13,17 +13,15 @@ $ make
 # Usage
 
 ```
-pi@ctrl001:/tmp $ sudo insmod hello_gpio.ko 
+pi@ctrl001:/tmp $ sudo insmod hello_gpio.ko
 
-pi@ctrl001:/tmp $ sudo rmmod hello_gpio 
+pi@ctrl001:/tmp $ sudo rmmod hello_gpio
 
 pi@ctrl001:/tmp $ dmesg | tail
-    [   33.586933] hello_gpio: loading out-of-tree module taints kernel.
-    [   33.587543] mod_init() - major 239, minor 0
-    [   33.592209] gpio_irq = 186
-    [   33.592309] mod_init() done
-    [  578.339581] mod_init() - major 238, minor 0
-    [  578.340543] mod_init() done
+    [   26.473992] mindblowing_probe(): called
+    [   26.474436] mindblowing_probe(): got minor 121
+    [   26.474547] mindblowing_probe(): done
+    [   26.657922] mindblowing_remove(): called
 ```
 
 ## References:
