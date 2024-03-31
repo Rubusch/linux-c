@@ -1,0 +1,19 @@
+// TODO make dt-bindings work in this overlay
+//#include <dt-bindings/gpio/gpio.h> /* GPIO_ACTIVE_HIGH,... */
+
+/dts-v1/;
+/plugin/;
+/ {
+	compatible = "raspberrypi,3-model-b", "brcm,bcm2837";
+	fragment@0 {
+		target = <&soc>;
+		__overlay__ {
+			gpio_led {
+				compatible = "lothars,gpio-led";
+//				output-gpios = <&gpio 21 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+				output-gpios = <&gpio 21 0>;
+				input-gpios = <&gpio 25 0>;
+			};
+		};
+	};
+};
