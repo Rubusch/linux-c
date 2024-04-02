@@ -95,6 +95,14 @@ def do_log_verification(cmd, args_pattern):
     for pattern in args_pattern:
         assert 0 < len([m for m in stdout if pattern in m])
 
+def do_dmesg_verification(cmd, args_pattern):
+    stdout, stderr, ret = cmd.run(r"sudo dmesg")
+    assert 0 == ret
+    stdout = [bytes(m, 'ISO-8859-1').strip() for m in stdout]
+    stdout = [m.decode() for m in  stdout]
+    for pattern in args_pattern:
+        assert 0 < len([m for m in stdout if pattern in m])
+
 def do_cat_verification(cmd, arg_nodefile, args_pattern):
     stdout, stderr, ret = cmd.run(f"sudo cat {arg_nodefile}")
     assert 0 == ret
