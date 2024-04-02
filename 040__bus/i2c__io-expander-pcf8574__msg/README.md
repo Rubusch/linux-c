@@ -1,11 +1,15 @@
 # I2C Client: IO Expander Demo
 
+![PCF8574 IO Expander Board](../i2c__io-expander-pcf8574__msg/pics/pcf8574.png)  
+
 When writing a driver for an I2C device, try to use the SMBus commands
 if at all possible (if the device uses only that subset of the I2C
 protocol). This makes it possible to use the device driver on both
 SMBus adapters and I2C adapters (the SMBus command set is
 automatically translated to I2C on I2C adapters, but plain I2C
 commands cannot be handled at all on most pure SMBus adapters.  
+
+Verified against a RPI3b w/ aarch64  
 
 ## Hardware: PCF8574 I/O Expander Device
 
@@ -17,9 +21,6 @@ https://www.waveshare.com/pcf8574-io-expansion-board.htm
 
 ...and codes:  
 https://www.waveshare.com/wiki/PCF8574_IO_Expansion_Board
-
-![PCF8574 IO Expander Board](../i2c__io-expander-pcf8574__msg/pics/pcf8574.png)  
-
 
 Connect:  
 
@@ -115,8 +116,6 @@ Oct  8 20:32:16 ctrl001 kernel: [ 7631.568660] ioexp 1-0038: ioexp_remove() done
 ```
 ![Measuring on the scope](../i2c__io-expander-pcf8574__msg/pics/measuring.png)  
 
-## Verified
-* Verified against a RPI3b w/ aarch64  
 
 ## References
 * Linux Driver Development for Embedded Procesesors, A. L. Rios, 2018, p. 220  
