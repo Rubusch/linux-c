@@ -15,9 +15,6 @@ in place additionally to allow for USB matching:
 
 - `CONFIG_USB_HID`
 
-
-The source was tested compiled and running on v6.3 on RPI.  
-
 ## Usage
 
 First, adjust the vendorid and deviceid in the source to the specific device.  
