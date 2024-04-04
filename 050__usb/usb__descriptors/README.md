@@ -81,7 +81,7 @@ The USB device contains a number of descriptors that help to define what the dev
  * Endpoint descriptor: Each endpoint descriptor is used to specify the type of transfer, direction, polling interval, and maximum packet size for each endpoint. In other words, each endpoint is a source or sink of data.  
 
 
-There are four different ways to transfer data on a USB bus. These data transfer types are set in the endpoint descriptor.
+There are four different ways to transfer data on a USB bus. These data transfer types are set in the endpoint descriptor.  
 
  * Control Transfers: Control transfers are typically used for command and status operations. They are essential to set up a USB device with all enumeration functions being performed using control transfers. This is a bi-directional transfer which uses both an IN and an OUT endpoint.  
 
