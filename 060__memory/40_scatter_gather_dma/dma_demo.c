@@ -151,7 +151,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	struct device *dev;
 	dma_cookie_t cookie;
 
-	pr_info("%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 
 	// obtain the private data structure using container_of()
 	dma_priv = container_of(file->private_data,
@@ -167,9 +167,9 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 
 	// obtain handle for dev_info()
 	dev = dma_priv->dev;
-	dev_info(dev, "%s() - the wbuf string is '%s' (initially)",
+	pr_info("%s() - the wbuf string is '%s' (initially)\n",
 		 __func__, dma_priv->wbuf);
-	dev_info(dev, "%s() - the rbuf string is '%s' (initially)",
+	pr_info("%s() - the rbuf string is '%s' (initially)\n",
 		 __func__, dma_priv->rbuf);
 
 	/* scatterlist
@@ -178,7 +178,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	   - sg_set_buf() or sg_set_page()
 	   - dma_map_sg()
 	 */
-	dev_info(dev, "%s() - scatterlist setup", __func__);
+	pr_info("%s() - scatterlist setup\n", __func__);
         // NB: wbuf should be coherent (TODO verify), unbuffered
 	sg_init_table(dma_priv->sg_cpu, sg_len);
 	sg_set_buf(dma_priv->sg_cpu, dma_priv->wbuf, SDMA_BUF_SIZE);
@@ -186,18 +186,18 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	sg_init_table(sg_device, sg_len);
 	sg_set_buf(sg_device, dma_priv->rbuf, SDMA_BUF_SIZE);
 
-	dev_info(dev, "%s() - scatterlist mapping", __func__);
+	pr_info("%s() - scatterlist mapping\n", __func__);
 	// NB: our issue here: "slave" is usually a piece of dma hardware!
 	// in M2M dma, this won't be a device, and later down neither a "slave"
 	n_sg_cpu = dma_map_sg(dev, dma_priv->sg_cpu, sg_len, DMA_TO_DEVICE);
 	if (0 == n_sg_cpu) {
-		dev_err(dev, "%s() - mapping sg_cpu to dma failed", __func__);
+		pr_err("%s() - mapping sg_cpu to dma failed", __func__);
 		return -EINVAL;
 	}
 
 	n_sg_device = dma_map_sg(dev, sg_device, sg_len, DMA_FROM_DEVICE);
 	if (0 == n_sg_device) {
-		dev_err(dev, "%s() - mapping sg_device to dma failed", __func__);
+		pr_err("%s() - mapping sg_device to dma failed", __func__);
 		return -EINVAL;
 	}
 
@@ -207,28 +207,28 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	   "slave" refers to dma hardware, since this is just a small
 	   scatterlist / dma demo, this function here will be mocked
 	*/
-	dev_info(dev, "%s() - 3. DMA transaction slave_sg()", __func__);
+	pr_info("%s() - 3. DMA transaction slave_sg()\n", __func__);
 	dma_m2m_desc = lothars_prep_slave_sg(
 		dma_priv->dma_m2m_chan, dma_priv->sg_cpu, sg_len,
 		DMA_MEM_TO_MEM, DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
 	if (!dma_m2m_desc) {
-		dev_err(dev, "%s() - m2m operation failed", __func__);
+		pr_err("%s() - m2m operation failed", __func__);
 		return -ENOMEM;
 	}
 
 	/* 4. setup a DMA callback
 	 */
-	dev_info(dev, "%s() - 4. setup a DMA completion", __func__);
+	pr_info("%s() - 4. setup a DMA completion\n", __func__);
 	dma_m2m_desc->callback = dma_sg_callback;
 	dma_m2m_desc->callback_param = dma_priv;
 	init_completion(&dma_priv->dma_m2m_ok);
 
 	/* 5. submit the DMA transaction: dmaengine_submit()
 	 */
-	dev_info(dev, "%s() - 5. submit the DMA transaction", __func__);
+	pr_info("%s() - 5. submit the DMA transaction\n", __func__);
 	cookie = dmaengine_submit(dma_m2m_desc);
 	if (dma_submit_error(cookie)) {
-		dev_err(dev, "%s() - failed to submit DMA", __func__);
+		pr_err("%s() - failed to submit DMA", __func__);
 		return -EINVAL;
 	}
 
@@ -236,12 +236,12 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 
 	   dma_async_issue_pending() - fire up!
 	*/
-	dev_info(dev, "%s() - 6. start DMA transaction", __func__);
+	pr_info("%s() - 6. start DMA transaction\n", __func__);
 	dma_async_issue_pending(dma_priv->dma_m2m_chan);
 	wait_for_completion(&dma_priv->dma_m2m_ok);
 	dma_async_is_tx_complete(dma_priv->dma_m2m_chan, cookie, NULL, NULL);
 
-	dev_info(dev, "%s() - the device can read '%s'",
+	pr_info("%s() - the device can read '%s'\n",
 		 __func__, dma_priv->rbuf);
 
 	// unmap scatterlist
@@ -253,8 +253,8 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 		return -EINVAL;
 	}
 
-	dev_info(dev, "%s() - wbuf = '%s'", __func__, dma_priv->wbuf);
-	dev_info(dev, "%s() - rbuf = '%s'", __func__, dma_priv->rbuf);
+	pr_info("%s() - wbuf = '%s'\n", __func__, dma_priv->wbuf);
+	pr_info("%s() - rbuf = '%s'\n", __func__, dma_priv->rbuf);
 
 	return count;
 }
@@ -270,14 +270,13 @@ lothars_probe(struct platform_device *pdev)
 	struct dma_private *dma_priv;
 	dma_cap_mask_t dma_m2m_mask;
 	struct dma_slave_config dma_m2m_config = {0};
-	struct device *dev = &pdev->dev;
 
-	dev_info(dev, "%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 
 	// prepare char device
 	dma_priv = devm_kzalloc(&pdev->dev, sizeof(*dma_priv), GFP_KERNEL);
 	if (!dma_priv) {
-		dev_err(dev, "%s() - allocating dma_priv failed", __func__);
+		pr_err("%s() - allocating dma_priv failed\n", __func__);
 		return -ENOMEM;
 	}
 
@@ -294,20 +293,20 @@ lothars_probe(struct platform_device *pdev)
 	*/
 	dma_priv->wbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_ATOMIC);
 	if (!dma_priv->wbuf) {
-		dev_err(dev, "%s() - failed allocating wbuf", __func__);
+		pr_err("%s() - failed allocating wbuf\n", __func__);
 		return -ENOMEM;
 	}
 
 	dma_priv->rbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_ATOMIC);
 	if (!dma_priv->rbuf) {
-		dev_err(dev, "%s() - failed allocating rbuf", __func__);
+		pr_err("%s() - failed allocating rbuf", __func__);
 		return -ENOMEM;
 	}
 
 	/* 0. Preparation: specify DMA channel caps
 
 	 */
-	dev_info(dev, "%s() - 0. preparation: specify DMA channel caps",
+	pr_info("%s() - 0. preparation: specify DMA channel caps\n",
 		 __func__);
 	dma_cap_zero(dma_m2m_mask);
 //	dma_cap_set(DMA_MEMCPY, dma_m2m_mask);    
@@ -317,10 +316,10 @@ lothars_probe(struct platform_device *pdev)
 
 	  instead use here dma_request_slave_channel(<dev>, <name>);
 	*/
-	dev_info(dev, "%s() - 1. request DMA channel", __func__);
+	pr_info("%s() - 1. request DMA channel\n", __func__);
 	dma_priv->dma_m2m_chan = dma_request_channel(dma_m2m_mask, 0, NULL);
 	if (!dma_priv->dma_m2m_chan) {
-		dev_err(dev, "%s() - opening the DMA channel failed", __func__);
+		pr_err("%s() - opening the DMA channel failed\n", __func__);
 		return -EINVAL;
 	}
 
@@ -334,12 +333,12 @@ lothars_probe(struct platform_device *pdev)
 	   (in case of a real dma device involved, this slave config
 	   should be prepared)
 	*/
-	dev_info(dev, "%s() - 2. setup slave config", __func__);
+	pr_info("%s() - 2. setup slave config\n", __func__);
 	dma_m2m_config.direction = DMA_MEM_TO_MEM;
 	dma_m2m_config.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
 	ret = dmaengine_slave_config(dma_priv->dma_m2m_chan, &dma_m2m_config);
 	if (ret) {
-		dev_err(dev, "%s() - failed to set slave configuration: %d\n",
+		pr_err("%s() - failed to set slave configuration: %d\n",
 			__func__, ret);
 		return -EINVAL;
 	}
@@ -351,7 +350,7 @@ static int
 lothars_remove(struct platform_device *pdev)
 {
 	struct dma_private *dma_priv = platform_get_drvdata(pdev);
-	dev_info(dma_priv->dev, "%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 	misc_deregister(&dma_priv->dma_misc_device);
 	dma_release_channel(dma_priv->dma_m2m_chan);
 
