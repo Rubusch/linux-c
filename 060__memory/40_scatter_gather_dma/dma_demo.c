@@ -191,13 +191,13 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	// in M2M dma, this won't be a device, and later down neither a "slave"
 	n_sg_cpu = dma_map_sg(dev, dma_priv->sg_cpu, sg_len, DMA_TO_DEVICE);
 	if (0 == n_sg_cpu) {
-		pr_err("%s() - mapping sg_cpu to dma failed", __func__);
+		pr_err("%s() - mapping sg_cpu to dma failed\n", __func__);
 		return -EINVAL;
 	}
 
 	n_sg_device = dma_map_sg(dev, sg_device, sg_len, DMA_FROM_DEVICE);
 	if (0 == n_sg_device) {
-		pr_err("%s() - mapping sg_device to dma failed", __func__);
+		pr_err("%s() - mapping sg_device to dma failed\n", __func__);
 		return -EINVAL;
 	}
 
@@ -212,7 +212,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 		dma_priv->dma_m2m_chan, dma_priv->sg_cpu, sg_len,
 		DMA_MEM_TO_MEM, DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
 	if (!dma_m2m_desc) {
-		pr_err("%s() - m2m operation failed", __func__);
+		pr_err("%s() - m2m operation failed\n", __func__);
 		return -ENOMEM;
 	}
 
@@ -228,7 +228,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	pr_info("%s() - 5. submit the DMA transaction\n", __func__);
 	cookie = dmaengine_submit(dma_m2m_desc);
 	if (dma_submit_error(cookie)) {
-		pr_err("%s() - failed to submit DMA", __func__);
+		pr_err("%s() - failed to submit DMA\n", __func__);
 		return -EINVAL;
 	}
 
@@ -249,7 +249,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	dma_unmap_sg(dev, sg_device, sg_len, DMA_TO_DEVICE);
 
 	if (*(dma_priv->wbuf) != *(dma_priv->rbuf)) {
-		pr_info("%s() - buffer copy failed", __func__);
+		pr_err("%s() - buffer copy failed\n", __func__);
 		return -EINVAL;
 	}
 
@@ -299,7 +299,7 @@ lothars_probe(struct platform_device *pdev)
 
 	dma_priv->rbuf = devm_kzalloc(&pdev->dev, SDMA_BUF_SIZE, GFP_ATOMIC);
 	if (!dma_priv->rbuf) {
-		pr_err("%s() - failed allocating rbuf", __func__);
+		pr_err("%s() - failed allocating rbuf\n", __func__);
 		return -ENOMEM;
 	}
 
