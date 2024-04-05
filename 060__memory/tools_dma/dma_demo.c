@@ -64,26 +64,26 @@ describe_dma(void* pdev_dev, dma_addr_t dma_addr, void* buf)
 {
 	struct device *dev = pdev_dev;
 
-	dev_info(dev, "%s() - XXX called", __func__);
+	pr_info("%s() - XXX called\n", __func__);
 
 	/* dma_addr
 
 	   virtual addresses (VA) equals the set value for ARM
 	*/
-	dev_info(dev, "%s() - XXX init dma_addr VA\t= 0x%llX",
+	pr_info("%s() - XXX init dma_addr VA\t= 0x%llX\n",
 		 __func__, (uint64_t) dma_addr);
 
-	dev_info(dev, "%s() - XXX init dma_addr PA\t= 0x%llX",
+	pr_info("%s() - XXX init dma_addr PA\t= 0x%llX\n",
 		 __func__, (uint64_t) virt_to_phys(&dma_addr));
 
 	/* buf
 
 	   virtual addresses (VA) equals the set value for ARM
 	 */
-	dev_info(dev, "%s() - XXX init buf VA\t\t= 0x%llX",
+	pr_info("%s() - XXX init buf VA\t\t= 0x%llX\n",
 		 __func__, (uint64_t) buf);
 
-	dev_info(dev, "%s() - XXX init buf PA\t\t= 0x%llX",
+	pr_info("%s() - XXX init buf PA\t\t= 0x%llX\n",
 		 __func__, (uint64_t) virt_to_phys(&buf));
 
 	/* context
@@ -91,32 +91,32 @@ describe_dma(void* pdev_dev, dma_addr_t dma_addr, void* buf)
 	   CONFIG_MMU: MMU-based Paged Memory Management Support
 	*/
 #ifdef CONFIG_MMU
-	dev_info(dev, "%s() - XXX CONFIG_MMU is set", __func__);
+	pr_info("%s() - XXX CONFIG_MMU is set\n", __func__);
 #else
-	dev_info(dev, "%s() - XXX CONFIG_MMU is NOT set", __func__);
+	pr_info("%s() - XXX CONFIG_MMU is NOT set\n", __func__);
 #endif
 
 	/* CONFIG_IOMMU: IOMMU support, i.e. we use IOVAs
 	 */
 #ifdef CONFIG_IOMMU
-	dev_info(dev, "%s() - XXX CONFIG_IOMMU is set", __func__);
+	pr_info("%s() - XXX CONFIG_IOMMU is set\n", __func__);
 #else
-	dev_info(dev, "%s() - XXX CONFIG_IOMMU is NOT set", __func__);
+	pr_info("%s() - XXX CONFIG_IOMMU is NOT set\n", __func__);
 #endif
 
-	dev_info(dev, "%s() - XXX dma_need_sync() = %s",
+	pr_info("%s() - XXX dma_need_sync() = %s\n",
 		 __func__, (dma_need_sync(dev, dma_addr)?"yes":"no"));
 
-	dev_info(dev, "%s() - XXX dma_max_mapping_size() = %lld",
+	pr_info("%s() - XXX dma_max_mapping_size() = %lld\n",
 		 __func__, (uint64_t) dma_max_mapping_size(dev));
 
-	dev_info(dev, "%s() - XXX dma_opt_mapping_size() = %lld",
+	pr_info("%s() - XXX dma_opt_mapping_size() = %lld\n",
 		 __func__, (uint64_t) dma_opt_mapping_size(dev));
 
-	dev_info(dev, "%s() - XXX dma_get_required_mask() = 0x%llX",
+	pr_info("%s() - XXX dma_get_required_mask() = 0x%llX\n",
 		 __func__, (uint64_t) dma_get_required_mask(dev));
 
-	dev_info(dev, "%s() - XXX dma_get_merge_boundary() = 0x%llX",
+	pr_info("%s() - XXX dma_get_merge_boundary() = 0x%llX\n",
 		 __func__, (uint64_t) dma_get_merge_boundary(dev));
 
 }
@@ -135,7 +135,7 @@ dma_m2m_callback(void *data)
 	dev_info(dma_priv->dev, "%s() - called", __func__);
 
 	if (*(dma_priv->rbuf) != *(dma_priv->wbuf))
-		dev_err(dma_priv->dev, "%s() - buffer copy failed!", __func__);
+		pr_err("%s() - buffer copy failed!\n", __func__);
 
 	dev_info(dma_priv->dev, "%s() - wbuf = '%s'", __func__, dma_priv->wbuf);
 	dev_info(dma_priv->dev, "%s() - rbuf = '%s'", __func__, dma_priv->rbuf);
@@ -166,7 +166,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	int status;
 	int ret;
 
-	pr_info("%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 
 	// obtain the private data structure using container_of()
 	dma_priv = container_of(file->private_data,
@@ -183,9 +183,9 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 
 	// obtain handle for dev_info()
 	dev = dma_priv->dev;
-	dev_info(dev, "%s() - the wbuf string is '%s' (initially)",
+	pr_info("%s() - the wbuf string is '%s' (initially)\n",
 		 __func__, dma_priv->wbuf);
-	dev_info(dev, "%s() - the rbuf string is '%s' (initially)",
+	pr_info("%s() - the rbuf string is '%s' (initially)\n",
 		 __func__, dma_priv->rbuf);
 
 	describe_dma(dma_priv->dev, dma_priv->dma_src, dma_priv->wbuf);   
@@ -195,7 +195,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	   prepare a DMA memcpy transaction, then get a descriptor for
 	   the transaction
 	*/
-	dev_info(dev, "%s() - 3. DMA transaction memcpy()", __func__);
+	pr_info("%s() - 3. DMA transaction memcpy()\n", __func__);
 	dma_m2m_desc = dma_dev->device_prep_dma_memcpy(dma_priv->dma_m2m_chan,
 						       dma_priv->dma_dst,
 						       dma_priv->dma_src,
@@ -205,7 +205,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 						       | DMA_PREP_INTERRUPT);
 
 	if (!dma_m2m_desc) {
-		dev_err(dev, "%s() - transaction setup failed", __func__);
+		pr_err("%s() - transaction setup failed\n", __func__);
 		ret = -EINVAL;
 		goto err;
 	}
@@ -217,7 +217,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
              completion, where the dmaengine API comes with the more
              specified callback appraoch
 	*/
-	dev_info(dev, "%s() - 4. setup a DMA completion", __func__);
+	pr_info("%s() - 4. setup a DMA completion\n", __func__);
 	dma_m2m_desc->callback = dma_m2m_callback;
 	dma_m2m_desc->callback_param = dma_priv;
 	init_completion(&dma_priv->dma_m2m_ok);
@@ -228,10 +228,10 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	   then check the returned transaction cookie with
 	   dma_submit_error()
 	*/
-	dev_info(dev, "%s() - 5. submit the DMA transaction", __func__);
+	pr_info("%s() - 5. submit the DMA transaction\n", __func__);
 	cookie = dmaengine_submit(dma_m2m_desc);
 	if (dma_submit_error(cookie)) {
-		dev_err(dev, "%s() - failed to submit DMA", __func__);
+		pr_err("%s() - failed to submit DMA\n", __func__);
 		ret = -EINVAL;
 		goto err;
 	}
@@ -249,7 +249,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 
 	  NB: This is the older dma_async... API
 	*/
-	dev_info(dev, "%s() - 6. start DMA transaction", __func__);
+	pr_info("%s() - 6. start DMA transaction\n", __func__);
 	dma_async_issue_pending(dma_priv->dma_m2m_chan);
 
 	/* miscellaneous
@@ -261,7 +261,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	status = wait_for_completion_timeout(&dma_priv->dma_m2m_ok,
 					     msecs_to_jiffies(2000));
 	if (0 >= status) {
-		dev_err(dev, "%s() - wait_for_completion() failed, or timeout",
+		pr_err("%s() - wait_for_completion() failed, or timeout\n",
 			__func__);
 		dmaengine_terminate_sync(dma_priv->dma_m2m_chan);
 		ret = -ETIMEDOUT;
@@ -272,15 +272,15 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	status = dma_async_is_tx_complete(dma_priv->dma_m2m_chan,
 					  cookie, NULL, NULL);
 	if (DMA_COMPLETE == status) {
-		dev_info(dev, "%s() - dma transaction has completed: DMA_COMPLETE",
+		pr_info("%s() - dma transaction has completed: DMA_COMPLETE\n",
 			 __func__);
 	} else {
-		dev_err(dev, "%s() - dma transaction did not complete: %d",
+		pr_err("%s() - dma transaction did not complete: %d\n",
 			__func__, status);
 	}
 
-	dev_info(dev, "%s() - wbuf = '%s'", __func__, dma_priv->wbuf);
-	dev_info(dev, "%s() - rbuf = '%s'", __func__, dma_priv->rbuf);
+	pr_info("%s() - wbuf = '%s'\n", __func__, dma_priv->wbuf);
+	pr_info("%s() - rbuf = '%s'\n", __func__, dma_priv->rbuf);
 
 	/* 7. Unmap DMA chunks
 
@@ -293,7 +293,7 @@ sdma_write(struct file* file, const char __user* buf, size_t count, loff_t* offs
 	   respectively.
 	 */
 err:
-	dev_info(dev, "%s() - 7. unmap DMA chunks", __func__);
+	pr_info("%s() - 7. unmap DMA chunks\n", __func__);
 	dma_free_coherent(dma_priv->dev, SDMA_BUF_SIZE,
 			  dma_priv->wbuf, dma_priv->dma_src);
 	dma_free_coherent(dma_priv->dev, SDMA_BUF_SIZE,
@@ -323,14 +323,13 @@ lothars_probe(struct platform_device* pdev)
 	int ret;
 	struct dma_private *dma_priv;
 	dma_cap_mask_t dma_m2m_mask;
-	struct device *dev = &pdev->dev;
 
-	dev_info(dev, "%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 
 	// prepare a char device
 	dma_priv = devm_kzalloc(&pdev->dev, sizeof(*dma_priv), GFP_KERNEL);
 	if (!dma_priv) {
-		dev_err(dev, "%s() - error allocating dma_priv structure", __func__);
+		pr_err("%s() - error allocating dma_priv structure\n", __func__);
 		return -ENOMEM;
 	}
 
@@ -345,17 +344,17 @@ lothars_probe(struct platform_device* pdev)
 	   For huge memories use dma_alloc_coherent() which allocates
 	   and maps DMA memory for unbuffered transactions
 	*/
-	dev_info(dev, "%s() - 0. preparation: dma_alloc_coherent()",  __func__);
+	pr_info("%s() - 0. preparation: dma_alloc_coherent()",  __func__);
 	dma_priv->wbuf = dma_alloc_coherent(&pdev->dev, SDMA_BUF_SIZE,
 					    &(dma_priv->dma_src), GFP_KERNEL);
 	if (!dma_priv->wbuf) {
-		dev_err(dev, "%s() - error allocating wbuf", __func__);
+		pr_err("%s() - error allocating wbuf\n", __func__);
 		return -ENOMEM;
 	}
 	dma_priv->rbuf = dma_alloc_coherent(&pdev->dev, SDMA_BUF_SIZE,
 					    &(dma_priv->dma_dst), GFP_KERNEL);
 	if (!dma_priv->rbuf) {
-		dev_err(dev, "%s() - error allocating rbuf", __func__);
+		pr_err("%s() - error allocating rbuf\n", __func__);
 		return -ENOMEM;
 	}
 
@@ -365,7 +364,7 @@ lothars_probe(struct platform_device* pdev)
 	- alternatively specify a private channel:
             DMA_SLAVE | DMA_PRIVATE
 	*/
-	dev_info(dev, "%s() - 0. preparation: specify DMA channel caps",
+	pr_info("%s() - 0. preparation: specify DMA channel caps\n",
 		 __func__);
 	dma_cap_zero(dma_m2m_mask);
 	dma_cap_set(DMA_MEMCPY, dma_m2m_mask);
@@ -380,10 +379,10 @@ lothars_probe(struct platform_device* pdev)
 	  - the dma_m2m_filter that helps to select a more specific
             channel between multiple channel possibilities
 	 */
-	dev_info(dev, "%s() - 1. request DMA channel", __func__);
+	pr_info("%s() - 1. request DMA channel\n", __func__);
 	dma_priv->dma_m2m_chan = dma_request_channel(dma_m2m_mask, 0, NULL);
 	if (!dma_priv->dma_m2m_chan) {
-		dev_err(dev, "%s() - error opening the memory to memory channel",
+		pr_err("%s() - error opening the memory to memory channel\n",
 			__func__);
 		return -EINVAL;
 	}
@@ -399,7 +398,7 @@ static int
 lothars_remove(struct platform_device* pdev)
 {
 	struct dma_private *dma_priv = platform_get_drvdata(pdev);
-	dev_info(dma_priv->dev, "%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 	misc_deregister(&dma_priv->dma_misc_device);
 	dma_release_channel(dma_priv->dma_m2m_chan);
 
