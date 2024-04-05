@@ -91,11 +91,11 @@ static void
 dma_sg_callback(void* data)
 {
 	struct dma_private *dma_priv = data;
-	dev_info(dma_priv->dev, "%s() - finished SG DMA transaction",
+	pr_info("%s() - finished SG DMA transaction\n",
 		 __func__);
 
-	dev_info(dma_priv->dev, "%s() - wbuf = '%s'", __func__, dma_priv->wbuf);
-	dev_info(dma_priv->dev, "%s() - rbuf = '%s'", __func__, dma_priv->rbuf);
+	pr_info("%s() - wbuf = '%s'\n", __func__, dma_priv->wbuf);
+	pr_info("%s() - rbuf = '%s'\n", __func__, dma_priv->rbuf);
 	complete(&dma_priv->dma_m2m_ok);
 }
 
