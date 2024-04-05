@@ -5,9 +5,9 @@
 	fragment@0 {
 		target = <&soc>;
 		__overlay__ {
- 			sdma_m2m {
- 				compatible = "lothars,sdma_m2m";
- 			};
+			sdma_m2m {
+				compatible = "lothars,sdma_m2m";
+			};
 		};
 	};
 };
