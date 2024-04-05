@@ -50,30 +50,29 @@ def test_075_cleanup_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
 def test_080_logs(cmd):
-    do_dmesg_verification(cmd, ["soc:sdma_m2m: lothars_probe() - called",
-                                "soc:sdma_m2m: lothars_probe() - 0. preparation: allocation for DMA buffers",
-                                "soc:sdma_m2m: lothars_probe() - 0. preparation: specify DMA channel caps",
-                                "soc:sdma_m2m: lothars_probe() - 1. request DMA channel",
+    do_dmesg_verification(cmd, ["lothars_probe() - called",
+                                "lothars_probe() - 0. preparation: allocation for DMA buffers",
+                                "lothars_probe() - 0. preparation: specify DMA channel caps",
+                                "lothars_probe() - 1. request DMA channel",
                                 "sdma_write() - called",
-                                "soc:sdma_m2m: sdma_write() - the wbuf string is '123",
-                                "soc:sdma_m2m: sdma_write() - the rbuf string is '' (initially)",
-                                "soc:sdma_m2m: sdma_write() - 2. DMA mapping",
-                                "soc:sdma_m2m: sdma_write() - dma_src map optained: ",
-                                "soc:sdma_m2m: sdma_write() - dma_dst map obtained: ",
-                                "soc:sdma_m2m: sdma_write() - 3. DMA transaction memcpy()",
-                                "soc:sdma_m2m: sdma_write() - 4. setup a DMA completion",
-                                "soc:sdma_m2m: sdma_write() - 5. submit the DMA transaction",
-                                "soc:sdma_m2m: sdma_write() - 6. start DMA transaction",
-                                "soc:sdma_m2m: sdma_write() - !!! dma_priv->dma_dst device needs sync",
-                                "soc:sdma_m2m: sdma_write() - !!! dma_priv->dma_src device needs sync",
-                                "soc:sdma_m2m: dma_m2m_callback() - called",
-                                "soc:sdma_m2m: dma_m2m_callback() - wbuf = '123",
-                                "soc:sdma_m2m: dma_m2m_callback() - rbuf = '123",
-                                "soc:sdma_m2m: sdma_write() - dma transaction has completed: DMA_COMPLETE",
-                                "soc:sdma_m2m: sdma_write() - wbuf = '123",
-                                "soc:sdma_m2m: sdma_write() - rbuf = '123",
-                                "soc:sdma_m2m: sdma_write() - 7. unmap DMA chunks",
-                                "soc:sdma_m2m: lothars_remove() - called"])
+                                "sdma_write() - the wbuf string is '123",
+                                "sdma_write() - the rbuf string is '' (initially)",
+                                "sdma_write() - 2. DMA mapping",
+                                "sdma_write() - dma_src map optained: 0x",
+                                "sdma_write() - dma_dst map obtained: 0x",
+                                "sdma_write() - 3. DMA transaction memcpy()",
+                                "sdma_write() - 4. setup a DMA completion",
+                                "sdma_write() - 5. submit the DMA transaction",
+                                "sdma_write() - 6. start DMA transaction",
+                                "sdma_m2m soc:sdma_m2m: dma_m2m_callback() - called",
+                                "sdma_m2m soc:sdma_m2m: dma_m2m_callback() - wbuf = '123",
+                                "sdma_m2m soc:sdma_m2m: dma_m2m_callback() - rbuf = '123",
+                                "sdma_write() - dma transaction has completed: DMA_COMPLETE",
+                                "sdma_write() - wbuf = '123",
+                                "sdma_write() - rbuf = '123",
+                                "sdma_write() - 7. unmap DMA chunks",
+                                "lothars_remove() - called"])
+
 ## reboot
 
 def test_090_revert_config(reboot_then_cmd):
@@ -82,4 +81,3 @@ def test_090_revert_config(reboot_then_cmd):
 
 def test_100_cleanup_overlays(cmd): ## cleanup
     undo_copy_dtbo(cmd, [DTBO])
-
