@@ -63,11 +63,10 @@ def test_080_logs(cmd):
                                 "sdma_write() - 4. setup a DMA completion",
                                 "sdma_write() - 5. submit the DMA transaction",
                                 "sdma_write() - 6. start DMA transaction",
-                                "smda_m2m soc:sdma_m2m: dma_sg_callback() - finished SG DMA transaction",
-                                "smda_m2m soc:sdma_m2m: dma_sg_callback() - wbuf = '123",
-                                "smda_m2m soc:sdma_m2m: dma_sg_callback() - rbuf = ''",
+                                "dma_sg_callback() - finished SG DMA transaction",
+                                "dma_sg_callback() - wbuf = '123",
+                                "dma_sg_callback() - rbuf = ''",
                                 "sdma_write() - the device can read ''",
-                                "sdma_write() - buffer copy failed",
                                 "lothars_remove() - called"])
 
 # reboot
@@ -78,3 +77,4 @@ def test_090_revert_config(reboot_then_cmd):
 
 def test_100_cleanup_overlays(cmd): ## cleanup
     undo_copy_dtbo(cmd, [DTBO])
+
