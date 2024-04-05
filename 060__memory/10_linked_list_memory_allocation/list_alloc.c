@@ -217,7 +217,7 @@ lothars_probe(struct platform_device *pdev)
 static int
 lothars_remove(struct platform_device *pdev)
 {
-	pr_info("%s() - called", __func__);
+	pr_info("%s() - called\n", __func__);
 	misc_deregister(&lothars_miscdevice);
 
 	return 0;
