@@ -1,4 +1,4 @@
-#include <dt-bindings/gpio/gpio.h> /* GPIO_ACTIVE_HIGH,... */
+//#include <dt-bindings/gpio/gpio.h> /* GPIO_ACTIVE_HIGH,... */
 
 /dts-v1/;
 /plugin/;
@@ -35,32 +35,32 @@
 
 				bp1 {
 					label = "MIKROBUS_KEY_1";
-					gpios = <&gpio 23 GPIO_ACTIVE_LOW>;
+					gpios = <&gpio 23 1>; /* GPIO_ACTIVE_LOW = 1 */
 					trigger = "falling";
 				};
 
 				bp2 {
 					label = "MIKROBUS_KEY_2";
-					gpios = <&gpio 24 GPIO_ACTIVE_LOW>;
+					gpios = <&gpio 24 1>; /* GPIO_ACTIVE_LOW = 1 */
 					trigger = "falling";
 				};
 
 				ledred {
 					label = "led";
 					color = "red";
-					gpios = <&gpio 27 GPIO_ACTIVE_LOW>;
+					gpios = <&gpio 27 1>; /* GPIO_ACTIVE_LOW = 1 */
 				};
 
 				ledgreen {
 					label = "led";
 					color = "green";
-					gpios = <&gpio 22 GPIO_ACTIVE_LOW>;
+					gpios = <&gpio 22 1>; /* GPIO_ACTIVE_LOW = 1 */
 				};
 
 				ledblue {
 					label = "led";
 					color = "blue";
-					gpios = <&gpio 26 GPIO_ACTIVE_LOW>;
+					gpios = <&gpio 26 1>; /* GPIO_ACTIVE_LOW = 1 */
 				};
 			};
 		};

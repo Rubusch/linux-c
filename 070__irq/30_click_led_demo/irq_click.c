@@ -455,7 +455,7 @@ lothars_probe(struct platform_device* pdev)
 	dev_info(dev, "%s() - the major number is %d\n", __func__ , major);
 
 	// create the led class
-	priv->led_class = class_create(THIS_MODULE, "keyled");
+	priv->led_class = class_create("keyled");
 	if (!priv->led_class) {
 		dev_info(dev, "%s() - failed to allocate class\n", __func__);
 		return -ENOMEM;
