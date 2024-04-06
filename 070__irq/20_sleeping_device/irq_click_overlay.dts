@@ -1,4 +1,5 @@
-#include <dt-bindings/interrupt-controller/irq.h> /* IRQ_TYPE_EDGE_RISING,... */
+// FIXME: dt setup moved and needs to be included correctly
+//#include <dt-bindings/interrupt-controller/irq.h> /* IRQ_TYPE_EDGE_RISING,... */
 
 /dts-v1/;
 /plugin/;
@@ -52,7 +53,7 @@
  *
  * IRQ_TYPE_PROBE		- Special flag for probing in progress
  */
-				interrupts = <23 IRQ_TYPE_EDGE_BOTH>;
+				interrupts = <23 3>; /* IRQ_TYPE_EDGE_BOTH = 3 */
 				interrupt-parent = <&gpio>;
 			};
 		};
