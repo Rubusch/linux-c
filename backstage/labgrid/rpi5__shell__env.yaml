@@ -15,7 +15,7 @@ targets:
 
       ShellDriver:             ## implements "CommandProtocol, binds to "ConsoleProtocol"
         prompt: '.*\$ '
-        login_prompt: 'ctrl01 login: '
+        login_prompt: 'dut1138 login: '
         username: 'pi'
         password: 'xdr5XDR%'
         post_login_settle_time: 3
