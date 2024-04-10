@@ -3,6 +3,7 @@ MODULES = ["dma_demo.ko"]
 DTBO = "dma_demo_overlay.dtbo"
 KERNELVERSION = r"6.6.21"
 
+
 import sys
 ## NB: this is from where pytest is called!
 sys.path.insert(0, '../../backstage/labgrid/labgrid_lib')
