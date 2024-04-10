@@ -21,21 +21,10 @@ Connection:
 
 # Build
 
-## Devicetree
-
-copy it to the specified location in the linux sources (6.3), then build it  
-```
-$ cd linux
-$ cp -arf <SOURCES>/devicetree/arch ./
-
-$ make dtbs
-  DTC     arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb
-```
-Copy the file `bcm2710-rpi-3-b.dtb` to the target overwriting the `/boot/bcm2710-rpi-3-b.dtb`. In case make a safety backup first.  
-
 ## Module
 
-Should crosscompile - having crossbuild-essentials-arm64 installed, ARCH, and CROSS_COMPILE set, execute  
+Should crosscompile - having crossbuild-essentials-arm64 installed,
+ARCH, and CROSS_COMPILE set, execute  
 ```
 $ cd ./module
 $ make
@@ -44,7 +33,8 @@ Copy the module over to the target
 
 ## Usage
 
-Load the module, and press the button several times, watch as the interrupts counter increases on several cores.
+Load the module, and press the button several times, watch as the
+interrupts counter increases on several cores.  
 ```
 # insmod ./irq_click.ko
 
@@ -58,7 +48,7 @@ Load the module, and press the button several times, watch as the interrupts cou
 # rmmod irq_click
 ```
 
-In another shell watch the log
+In another shell watch the log  
 ```
 $ tail -f /var/log/messages
     ...
