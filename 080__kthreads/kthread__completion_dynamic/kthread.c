@@ -50,7 +50,6 @@ static struct class *dev_class;
 static struct cdev chardev_cdev;
 
 static struct file_operations fops = {
-	.owner = THIS_MODULE,
 	.read = chardev_read,
 };
 
@@ -107,7 +106,7 @@ int init_hello_completion(void)
 		goto err_cdev;
 	}
 
-	dev_class = class_create(THIS_MODULE, CHARDEV_NAME);
+	dev_class = class_create(CHARDEV_NAME);
 	if (NULL == dev_class) {
 		printk(KERN_ERR "class_create() failed\n");
 		goto err_class;
