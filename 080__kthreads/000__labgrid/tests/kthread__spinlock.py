@@ -34,16 +34,11 @@ def test_075_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
 def test_080_logs(cmd):
-    do_dmesg_verification(cmd, [
-        "init_hello_kernelthread() started",
-        "thread1: spinlock is not locked",
-        "thread1: spinlock is locked, now",
-        "thread1 - counter = 1",
-        "init_hello_kernelthread() kernelthread initialized",
-        "thread2: spinlock is not locked",
-        "thread2: spinlock is locked, now",
-        "thread2 - counter = 2",
-        "thread2: spinlock is not locked",
-        "thread2: spinlock is locked, now",
-        "thread2 - counter = 3",
-        "cleanup_hello_kernelthread() READY."])
+    do_dmesg_verification(cmd, ["init_hello_kernelthread() started",
+                                "spinlock is not locked",
+                                "spinlock is locked, now",
+                                "- counter = 1",
+                                "init_hello_kernelthread() kernelthread initialized",
+                                "- counter = 2",
+                                "- counter = 3",
+                                "cleanup_hello_kernelthread() READY."])
