@@ -1,32 +1,5 @@
 # Hello Kernelthread Module - Spinlocks
 
-The source was tested compiled and running on 5.4.75.  
-
-## Usage
-
-```
-$ make
-
-$ sudo insmod kthread.ko
-
-$ sudo rmmod kthread
-
-$ dmesg | tail
-    Jan 31 19:05:55 debian kernel: init_hello_kernelthread() started
-    Jan 31 19:05:55 debian kernel: thread1: counter++
-    Jan 31 19:05:55 debian kernel: init_hello_kernelthread() kernelthread initialized
-    Jan 31 19:05:55 debian kernel: thread2: read counter = 1
-    Jan 31 19:05:56 debian kernel: thread1: counter++
-    Jan 31 19:05:56 debian kernel: thread2: read counter = 2
-    Jan 31 19:05:57 debian kernel: thread1: counter++
-    Jan 31 19:05:57 debian kernel: thread2: read counter = 3
-    Jan 31 19:05:58 debian kernel: thread1: counter++
-    Jan 31 19:05:58 debian kernel: thread2: read counter = 4
-    Jan 31 19:05:59 debian kernel: cleanup_hello_kernelthread() READY.
-```
-
-## Notes
-
 The demo shows elementary usage of spinlocks.  
 
 If the kernel is running on a uniprocessor and CONFIG_SMP, CONFIG_PREEMPT aren’t enabled while compiling the kernel then spinlock will not be available. Because there is no reason to have a lock when no one else can run at the same time.  
@@ -70,7 +43,28 @@ NB: Many people can hold a read lock, but a writer must be the sole holder.
  * ``write_lock_irqsave(rwlock_t *lock, unsigned long flags)``
  * ``write_unlock_irqrestore(rwlock_t *lock, unsigned long flags)``
 
----
+## Usage
+
+```
+$ make
+
+$ sudo insmod kthread.ko
+
+$ sudo rmmod kthread
+
+$ dmesg | tail
+    Jan 31 19:05:55 debian kernel: init_hello_kernelthread() started
+    Jan 31 19:05:55 debian kernel: thread1: counter++
+    Jan 31 19:05:55 debian kernel: init_hello_kernelthread() kernelthread initialized
+    Jan 31 19:05:55 debian kernel: thread2: read counter = 1
+    Jan 31 19:05:56 debian kernel: thread1: counter++
+    Jan 31 19:05:56 debian kernel: thread2: read counter = 2
+    Jan 31 19:05:57 debian kernel: thread1: counter++
+    Jan 31 19:05:57 debian kernel: thread2: read counter = 3
+    Jan 31 19:05:58 debian kernel: thread1: counter++
+    Jan 31 19:05:58 debian kernel: thread2: read counter = 4
+    Jan 31 19:05:59 debian kernel: cleanup_hello_kernelthread() READY.
+```
 
 ## References:
  * Linux kernel source, comented API and documentation

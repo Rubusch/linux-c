@@ -1,6 +1,6 @@
 # Hello Kernelthread Module
 
-The source was tested compiled and running on 5.4.75.  
+The demo shows elementary usage of mutex.
 
 ## Usage
 
@@ -23,12 +23,6 @@ $ dmesg | tail
     Jan 31 12:27:14 debian kernel: thread2 - counter = 7
     Jan 25 11:56:35 debian kernel: cleanup_hello_kernelthread() READY.
 ```
-
-## Notes
-
-The demo shows elementary usage of mutex.
-
----
 
 ## References:
  * Linux kernel source, comented API and documentation

@@ -1,6 +1,12 @@
 # Hello Kernelthread Module - RCU (read copy update)
 
-The source was tested compiled and running on 5.4.75.  
+The demo shows elementary usage of RCU.  
+
+RCUs implement lock-free synchronization mechanism where alternatively
+a rwlocks (read write locks) can be applied.  
+
+Theory: https://www.kernel.org/doc/Documentation/RCU/whatisRCU.txt  
+
 
 ## Usage
 
@@ -24,16 +30,6 @@ $ dmesg | tail
     Jan 31 19:05:58 debian kernel: thread2: read counter = 4
     Jan 31 19:05:59 debian kernel: cleanup_hello_kernelthread() READY.
 ```
-
-## Notes
-
-The demo shows elementary usage of RCU.  
-
-RCUs implement lock-free synchronization mechanism where alternatively a rwlocks (read write locks) can be applied.  
-
-theory: https://www.kernel.org/doc/Documentation/RCU/whatisRCU.txt  
-
----
 
 ## References:
  * Linux kernel source, comented API and documentation

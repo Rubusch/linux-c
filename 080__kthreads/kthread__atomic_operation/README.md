@@ -1,7 +1,6 @@
 # Hello Atomic Module
 
-The source was tested compiled and running on 5.4.75.  
-
+Demonstrates to kthreads dealing with very basic atomic operations.  
 
 ## Usage
 
@@ -33,14 +32,6 @@ $ dmesg | tail
     Jan 25 18:02:38 debian kernel: Thread2 [value: 15] [bit: 0]
     Jan 25 18:02:39 debian kernel: READY.
 ```
-
-
-## Notes
-
-Demonstrates to kthreads dealing with very basic atomic operations.  
-
-
----
 
 ## References:
  * Linux kernel source, comented API and documentation
