@@ -25,7 +25,7 @@ module_param_string(symbol, symbol, sizeof(symbol), 0644);
 /* For each probe you need to allocate a kprobe structure */
 //static struct kprobe kp = {
 //        .symbol_name    = symbol,
-//};         
+//};
 
 /* kprobe pre_handler: called just before the probed instruction is executed */
 static int handler_pre(struct kprobe *p, struct pt_regs *regs)

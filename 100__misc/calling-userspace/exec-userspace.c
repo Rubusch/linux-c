@@ -12,24 +12,25 @@ static struct delayed_work initiate_shutdown_work;
 
 static void delayed_shutdown(struct work_struct *work)
 {
-    char *cmd = "/sbin/shutdown";
-    char *argv[] = { cmd, "-h", "now", NULL, };
-    char *envp[] = { "HOME=/", "PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL, };
+	char *cmd = "/sbin/shutdown";
+	char *argv[] = { cmd, "-h", "now", NULL, };
+	char *envp[] = { "HOME=/", "PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL, };
 
-    // calls userspace application
-    call_usermodehelper(cmd, argv, envp, 0);
+	// calls userspace application
+	call_usermodehelper(cmd, argv, envp, 0);
 }
 
 static int __init mod_init(void)
 {
-    INIT_DELAYED_WORK(&initiate_shutdown_work, delayed_shutdown);
-    schedule_delayed_work(&initiate_shutdown_work, msecs_to_jiffies(200));
-    return 0;
+	pr_info("%s(): called\n", __func__);
+	INIT_DELAYED_WORK(&initiate_shutdown_work, delayed_shutdown);
+	schedule_delayed_work(&initiate_shutdown_work, msecs_to_jiffies(200));
+	return 0;
 }
 
 static void __exit mod_exit(void)
 {
-    return;
+	return;
 }
 
 module_init(mod_init);

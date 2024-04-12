@@ -102,6 +102,7 @@ static int pdrv_remove(struct platform_device *pdev)
 	pr_info("%s(): called\n", __func__);
 	priv = platform_get_drvdata(pdev);
 	pwmchip_remove(&priv->chip);
+	// TODO cleanup still missing removal of /devices/platform/lothars-pwm-dummy.1
 	return 0;
 }
 
