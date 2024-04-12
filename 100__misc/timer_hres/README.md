@@ -1,5 +1,8 @@
 # Timer Module
 
+
+Demonstrates the use of high resolution timer (nano secs).  
+
 The source was tested compiled and running on 5.4.75.  
 
 ## Usage
@@ -19,12 +22,6 @@ $ dmesg | tail
     Feb  2 00:27:52 debian kernel: timer_callback() - 3
     Feb  2 00:27:53 debian kernel: cleanup_hello() - READY.
 ```
-
-## Notes
-
-Demonstrates the use of high resolution timer (nano secs).  
-
----
 
 ## References:
 

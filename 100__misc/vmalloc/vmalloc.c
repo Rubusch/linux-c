@@ -11,7 +11,6 @@ static void *ptr;
 
 static int __init mod_init(void)
 {
-	int val = 0xabcd;
 	unsigned long size = 8192;
 
 	pr_info("%s(): called\n", __func__);
@@ -22,8 +21,9 @@ static int __init mod_init(void)
 	}
 	pr_info("%s(): vmalloc successfully\n", __func__);
 
-	ptr = ((char*) &val);
-	pr_info("%s(): *ptr1: 0x%08x", __func__, *((int*) ptr));
+	// usually needs to be mapped in (on 32bit)
+	//ptr = 0x12;
+	///pr_info("%s(): *ptr1: 0x%08x", __func__, *((int*) ptr));
 
 	return 0;
 }
