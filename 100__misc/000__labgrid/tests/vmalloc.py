@@ -1,5 +1,5 @@
-PROJECT = r"calling-userspace"
-MODULES = ["exec-userspace.ko"]
+PROJECT = r"vmalloc"
+MODULES = ["vmalloc.ko"]
 KERNELVERSION = r"6.6.21"
 
 
@@ -35,4 +35,5 @@ def test_075_unload_lkm(cmd):
 
 def test_080_logs(cmd):
     do_dmesg_verification(cmd, ["mod_init(): called",
-                                "delayed_shutdown(): called"])
+                                "mod_init(): vmalloc successfully",
+                                "mod_exit(): called"])

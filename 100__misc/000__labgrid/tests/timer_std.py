@@ -1,5 +1,5 @@
-PROJECT = r"calling-userspace"
-MODULES = ["exec-userspace.ko"]
+PROJECT = r"timer_std"
+MODULES = ["timer.ko"]
 KERNELVERSION = r"6.6.21"
 
 
@@ -24,15 +24,19 @@ def test_030_turn_off_wifi(cmd): ## reduce log noise
     cmd.run_check("sudo ip link set wlan0 down")
     cmd.run_check("sudo systemctl stop dnsmasq")
 
-def test_040_cleanup_lkm(cmd): ## in case already loaded, unload them first...
-    undo_load_lkms(cmd, MODULES)
-
-def test_050_load_lkm(cmd):
+def test_040_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)
 
-def test_075_unload_lkm(cmd):
+def test_050_delay(cmd):
+    import time
+    time.sleep(30)
+
+def test_060_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
 def test_080_logs(cmd):
     do_dmesg_verification(cmd, ["mod_init(): called",
-                                "delayed_shutdown(): called"])
+                                "timer_callback(): called",
+                                "timer_callback(): 0",
+                                "timer_callback(): called",
+                                "timer_callback(): 1"])

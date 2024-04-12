@@ -1,5 +1,5 @@
-PROJECT = r"calling-userspace"
-MODULES = ["exec-userspace.ko"]
+PROJECT = r"timer_hres"
+MODULES = ["timer.ko"]
 KERNELVERSION = r"6.6.21"
 
 
@@ -30,9 +30,19 @@ def test_040_cleanup_lkm(cmd): ## in case already loaded, unload them first...
 def test_050_load_lkm(cmd):
     do_load_lkms(cmd, MODULES)
 
+def test_060_delay(cmd):
+    import time
+    time.sleep(30)
+
 def test_075_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
 def test_080_logs(cmd):
     do_dmesg_verification(cmd, ["mod_init(): called",
-                                "delayed_shutdown(): called"])
+                                "timer_callback(): called",
+                                "timer_callback(): 0",
+                                "timer_callback(): called",
+                                "timer_callback(): 1",
+                                "timer_callback(): called",
+                                "timer_callback(): 2",
+                                "mod_exit(): called"])

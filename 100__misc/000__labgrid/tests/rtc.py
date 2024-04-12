@@ -1,5 +1,6 @@
-PROJECT = r"calling-userspace"
-MODULES = ["exec-userspace.ko"]
+PROJECT = r"rtc"
+MODULES = ["rtc-dummy.ko", "start.ko"]
+MODARGS = 'PROBED_MODULE_NAME="lothars-rtc-dummy"'
 KERNELVERSION = r"6.6.21"
 
 
@@ -24,15 +25,20 @@ def test_030_turn_off_wifi(cmd): ## reduce log noise
     cmd.run_check("sudo ip link set wlan0 down")
     cmd.run_check("sudo systemctl stop dnsmasq")
 
-def test_040_cleanup_lkm(cmd): ## in case already loaded, unload them first...
-    undo_load_lkms(cmd, MODULES)
+def test_040_lkm(cmd):
+    do_load_lkm_and_args(cmd, MODULES[0], "")
 
 def test_050_load_lkm(cmd):
-    do_load_lkms(cmd, MODULES)
+    do_load_lkm_and_args(cmd, MODULES[1], MODARGS)
 
 def test_075_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
 def test_080_logs(cmd):
-    do_dmesg_verification(cmd, ["mod_init(): called",
-                                "delayed_shutdown(): called"])
+    do_dmesg_verification(cmd, ["pdrv_probe(): called",
+                                "lothars-rtc-dummy lothars-rtc-dummy.1: pdrv_probe(): begin_time is 28, rtc_time is 0",
+                                "rtcdrv_read_time(): called",
+                                "lothars-rtc-dummy lothars-rtc-dummy.1: registered as rtc0",
+                                "rtcdrv_read_time(): called",
+                                "lothars-rtc-dummy lothars-rtc-dummy.1: setting system clock to 1970-01-01T00:00:00 UTC (0)",
+                                "pdrv_remove(): called"])

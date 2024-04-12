@@ -1,5 +1,5 @@
-PROJECT = r"calling-userspace"
-MODULES = ["exec-userspace.ko"]
+PROJECT = r"vmalist"
+MODULES = ["vma_list.ko"]
 KERNELVERSION = r"6.6.21"
 
 
@@ -34,5 +34,8 @@ def test_075_unload_lkm(cmd):
     undo_load_lkms(cmd, MODULES)
 
 def test_080_logs(cmd):
-    do_dmesg_verification(cmd, ["mod_init(): called",
-                                "delayed_shutdown(): called"])
+    do_dmesg_verification(cmd, ["print_mem(): this mm_struct has 128 vmas",
+                                "print_mem(): vma number 1 - start",
+                                "DS start =",
+                                "SS start =",
+                                "mod_exit(): called"])
