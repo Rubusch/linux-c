@@ -3,7 +3,7 @@
   An intertupt will be generated and handled, a message will be
   printed out to the console, each a button is pressed. In the
   handler, the device structure will be recovered, which is used as a
-  parameter in the dev_info() function then.
+  parameter in the `dev_info()` function then.
 
 ## Hardware: MikroE Button-R-Click
 
@@ -24,7 +24,7 @@ Connection:
 ## Module
 
 Should crosscompile - having crossbuild-essentials-arm64 installed,
-ARCH, and CROSS_COMPILE set, execute  
+ARCH, and `CROSS_COMPILE` set, execute  
 ```
 $ cd ./module
 $ make
