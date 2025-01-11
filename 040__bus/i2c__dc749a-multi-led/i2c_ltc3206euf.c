@@ -1,9 +1,9 @@
 /*
-  I2C LTC3206 Demo for the DC749A Board
-
-  Based on the referred driver, there are some adjustments to my setup,
-  about address, ENRGB, etc.
-*/
+ * I2C LTC3206 Demo for the DC749A Board
+ *
+ * Based on the referred driver, there are some adjustments to my setup,
+ * about address, ENRGB, etc.
+ */
 
 #include <linux/module.h>
 #include <linux/i2c.h>
@@ -27,8 +27,8 @@ struct led_device {
 };
 
 /*
-  store the global parameters shared for the 5 led devices
-  the parameters are updated after each led_control() call
+ * store the global parameters shared for the 5 led devices
+ * the parameters are updated after each led_control() call
  */
 struct led_priv {
 	u32 num_leds;
@@ -41,18 +41,19 @@ struct led_priv {
 static int ltc3206_led_write(struct i2c_client *client, const u8 *command)
 {
 	int ret = i2c_master_send(client, command, 3);
+
 	if (0 <= ret)
 		return 0;
 	return ret;
 }
 
 /*
-  the sysfs functions
-
-  NB: declare a static device "sub"
-  static DEVICE_ATTR(sub, S_IWUSR, NULL, sub_select);
-  -> set sub_select() as struct device::store() of the "sub" object
-*/
+ * the sysfs functions
+ *
+ * NB: declare a static device "sub"
+ * static DEVICE_ATTR(sub, S_IWUSR, NULL, sub_select);
+ * -> set sub_select() as struct device::store() of the "sub" object
+ */
 static ssize_t sub_select(struct device *dev, struct device_attribute *attr,
 			  const char *buf, size_t count)
 {
@@ -85,10 +86,10 @@ static ssize_t sub_select(struct device *dev, struct device_attribute *attr,
 static DEVICE_ATTR(sub, S_IWUSR, NULL, sub_select);
 
 /*
-  NB: declare a static device "rgb"
-  static DEVICE_ATTR(rgb, S_IWUSR, NULL, rgb_select);
-  -> set rgb_select() as the store() of the "rgb" object
-*/
+ * NB: declare a static device "rgb"
+ * static DEVICE_ATTR(rgb, S_IWUSR, NULL, rgb_select);
+ * -> set rgb_select() as the store() of the "rgb" object
+ */
 static ssize_t rgb_select(struct device *dev, struct device_attribute *attr,
 			  const char* buf, size_t count)
 {
@@ -128,15 +129,16 @@ static struct attribute_group display_cs_group = {
 };
 
 /*
-  called for each led device when writing the brightness file under
-  each device the command parameters are kept in the led_priv struct
-  that is pointed inside each led_device struct
-*/
+ * called for each led device when writing the brightness file under
+ * each device the command parameters are kept in the led_priv struct
+ * that is pointed inside each led_device struct
+ */
 static int led_control(struct led_classdev *led_cdev,
 		       enum led_brightness value)
 {
 	struct led_classdev *cdev;
 	struct led_device *led;
+
 	led = container_of(led_cdev, struct led_device, cdev);
 	cdev = &led->cdev;
 	led->brightness = value;
@@ -178,8 +180,8 @@ static int ltc3206_probe(struct i2c_client *client)
 	dev_info(dev, "platform_probe enter\n");
 
 	/*
-	  set address
-	*/
+	 * set address
+	 */
 
 	// The LTC3206 responds to only one 7-bit address which
 	// has been factory programmed to 0011011.
@@ -191,9 +193,9 @@ static int ltc3206_probe(struct i2c_client *client)
 	// NB: works, r/w bit is for the rpi at least "in front"!
 
 	/*
-	  set blue led maximum value for i2c testing
-	  ENRGB must be set to VCC to do the testing
-	*/
+	 * set blue led maximum value for i2c testing
+	 * ENRGB must be set to VCC to do the testing
+	 */
 	value[0] = 0x00;
 	value[1] = 0xF0;
 	value[2] = 0x00;
@@ -218,27 +220,27 @@ static int ltc3206_probe(struct i2c_client *client)
 	i2c_set_clientdata(client, private);
 
 	/*
-	  The flags parameter is used to optionally specify a
-	  direction and initial value for the GPIO. Values can be:
-
-	  GPIOD_ASIS or 0 to not initialize the GPIO at all. The
-	      direction must be set later with one of the dedicated
-	      functions.
-
-	  GPIOD_IN to initialize the GPIO as input.
-
-	  GPIOD_OUT_LOW to initialize the GPIO as output with a value
-	      of 0.
-
-	  GPIOD_OUT_HIGH to initialize the GPIO as output with a value
- 	      of 1.
-
-	  GPIOD_OUT_LOW_OPEN_DRAIN same as GPIOD_OUT_LOW but also
-	      enforce the line to be electrically used with open
-	      drain.
-
-	  GPIOD_OUT_HIGH_OPEN_DRAIN same as GPIOD_OUT_HIGH but also
-  	      enforce the line to be electrically used with open drain
+	 * The flags parameter is used to optionally specify a
+	 * direction and initial value for the GPIO. Values can be:
+	 *
+	 * GPIOD_ASIS or 0 to not initialize the GPIO at all. The
+	 *     direction must be set later with one of the dedicated
+	 *     functions.
+	 *
+	 * GPIOD_IN to initialize the GPIO as input.
+	 *
+	 * GPIOD_OUT_LOW to initialize the GPIO as output with a value
+	 *     of 0.
+	 *
+	 * GPIOD_OUT_HIGH to initialize the GPIO as output with a value
+	 *     of 1.
+	 *
+	 * GPIOD_OUT_LOW_OPEN_DRAIN same as GPIOD_OUT_LOW but also
+	 *     enforce the line to be electrically used with open
+	 *     drain.
+	 *
+	 * GPIOD_OUT_HIGH_OPEN_DRAIN same as GPIOD_OUT_HIGH but also
+	 *     enforce the line to be electrically used with open drain
 	 */
 
 	// NB: (at least) the first insmod after boot up, will show
