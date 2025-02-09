@@ -39,7 +39,7 @@
 #define ADXL345_REG_ACT_ACDC_MSK	BIT(7)
 #define ADXL345_REG_INACT_AXIS_MSK	GENMASK(2, 0)
 #define ADXL345_REG_INACT_ACDC_MSK	BIT(3)
-#define ADXL345_POWER_CTL_INACT_MSK	ADXL345_POWER_CTL_AUTO_SLEEP | ADXL345_POWER_CTL_LINK
+#define ADXL345_POWER_CTL_INACT_MSK	(ADXL345_POWER_CTL_AUTO_SLEEP | ADXL345_POWER_CTL_LINK)
 
 enum adxl345_axis {
 	ADXL345_Z_EN = BIT(0),
@@ -375,7 +375,7 @@ static int adxl345_set_act_inact_ac(struct adxl345_state *st,
 		st->act_ac = ac;
 	else
 		st->inact_ac = ac;
-			
+
 	return 0;
 }
 
@@ -398,7 +398,7 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 				    enum adxl345_activity_type type, bool cmd_en)
 {
 	bool axis_en, en;
-	long unsigned int autosleep = 0;
+	unsigned long autosleep = 0;
 	int ret;
 
 	ret = adxl345_write_act_axis(st, type, cmd_en);
@@ -414,8 +414,8 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 			st->inact_time_s > 0;
 	}
 
-	en ? __set_bit(ilog2(adxl345_act_int_reg[type]), (unsigned long*) &st->int_map)
-		: __clear_bit(ilog2(adxl345_act_int_reg[type]), (unsigned long*) &st->int_map);
+	en ? __set_bit(ilog2(adxl345_act_int_reg[type]), (unsigned long *)&st->int_map)
+		: __clear_bit(ilog2(adxl345_act_int_reg[type]), (unsigned long *)&st->int_map);
 
 	ret = regmap_write(st->regmap, ADXL345_REG_INT_ENABLE, st->int_map);
 	if (ret)
@@ -425,11 +425,11 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 		: __clear_bit(ilog2(ADXL345_POWER_CTL_INACT_MSK), &autosleep);
 
 	return regmap_update_bits(st->regmap, ADXL345_REG_POWER_CTL,
-			ADXL345_POWER_CTL_INACT_MSK, autosleep);
+				  ADXL345_POWER_CTL_INACT_MSK, autosleep);
 }
 
 static int adxl345_set_act_inact_threshold(struct adxl345_state *st,
-		enum adxl345_activity_type type, u8 val)
+					   enum adxl345_activity_type type, u8 val)
 {
 	int ret;
 
@@ -446,7 +446,7 @@ static int adxl345_set_act_inact_threshold(struct adxl345_state *st,
 }
 
 /**
- * adxl345_set_inact_time_s - Configure inactivity time explicitely or by ODR.
+ * adxl345_set_inact_time_s - Configure inactivity time explicitly or by ODR.
  * @st: The sensor state instance.
  * @val_s: A desired time value, between 0 and 255.
  *
@@ -461,7 +461,7 @@ static int adxl345_set_act_inact_threshold(struct adxl345_state *st,
  * ignored in this estimation. The recommended ODRs for various features
  * (activity/inactivity, sleep modes, free fall, etc.) lie between 12.5 Hz and
  * 400 Hz, thus higher or lower frequencies will result in the boundary
- * defaults or need to be explicitely specified via val_s.
+ * defaults or need to be explicitly specified via val_s.
  *
  * Return: 0 or error value.
  */
@@ -472,10 +472,10 @@ static int adxl345_set_inact_time_s(struct adxl345_state *st, u32 val_s)
 	unsigned int val = min(val_s, max_boundary);
 	int ret;
 
-	if (0 == val)
+	if (val == 0)
 		val = (adxl345_odr_tbl[st->odr][0] > max_boundary)
 			? min_boundary : max_boundary -	adxl345_odr_tbl[st->odr][0];
-	
+
 	ret = regmap_write(st->regmap, ADXL345_REG_TIME_INACT, val);
 	if (ret)
 		return ret;
@@ -488,20 +488,20 @@ static int adxl345_set_inact_time_s(struct adxl345_state *st, u32 val_s)
 /* tap */
 
 static int adxl345_write_tap_axis(struct adxl345_state *st,
-		enum adxl345_axis axis, bool en)
+				  enum adxl345_axis axis, bool en)
 {
 	st->tap_axis_ctrl = FIELD_GET(ADXL345_REG_TAP_AXIS_MSK,
-			en ? st->tap_axis_ctrl | axis
-			: st->tap_axis_ctrl & ~axis);
+				      en ? st->tap_axis_ctrl | axis
+				      : st->tap_axis_ctrl & ~axis);
 
 	return regmap_update_bits(st->regmap, ADXL345_REG_TAP_AXIS,
-			ADXL345_REG_TAP_AXIS_MSK,
-			FIELD_PREP(ADXL345_REG_TAP_AXIS_MSK,
-				st->tap_axis_ctrl));
+				  ADXL345_REG_TAP_AXIS_MSK,
+				  FIELD_PREP(ADXL345_REG_TAP_AXIS_MSK,
+					     st->tap_axis_ctrl));
 }
 
 static int _adxl345_set_tap_int(struct adxl345_state *st,
-		enum adxl345_tap_type type, bool state)
+				enum adxl345_tap_type type, bool state)
 {
 	bool axis_valid;
 	bool singletap_args_valid = false;
@@ -527,13 +527,12 @@ static int _adxl345_set_tap_int(struct adxl345_state *st,
 		en = axis_valid && singletap_args_valid && doubletap_args_valid;
 	}
 
-	if (state && en) {
+	if (state && en)
 		__set_bit(ilog2(adxl345_tap_int_reg[type]),
-			  (unsigned long*) &st->int_map);
-	} else {
+			  (unsigned long *)&st->int_map);
+	else
 		__clear_bit(ilog2(adxl345_tap_int_reg[type]),
-			    (unsigned long*) &st->int_map);
-	}
+			    (unsigned long *)&st->int_map);
 
 	return regmap_write(st->regmap, ADXL345_REG_INT_ENABLE, st->int_map);
 }
@@ -579,14 +578,14 @@ static int adxl345_is_suppressed_en(struct adxl345_state *st, bool *en)
 
 static int adxl345_set_suppressed_en(struct adxl345_state *st, bool en)
 {
-	long unsigned int regval = 0;
+	unsigned long regval = 0;
 	int ret;
 
 	en ? __set_bit(ilog2(ADXL345_TAP_SUPPRESS), &regval)
 		: __clear_bit(ilog2(ADXL345_TAP_SUPPRESS), &regval);
 
 	ret = regmap_update_bits(st->regmap, ADXL345_REG_TAP_AXIS,
-				  ADXL345_REG_TAP_SUPPRESS_MSK, regval);
+				 ADXL345_REG_TAP_SUPPRESS_MSK, regval);
 	if (ret)
 		return ret;
 
@@ -699,8 +698,8 @@ static int adxl345_set_ff_en(struct adxl345_state *st, bool cmd_en)
 {
 	bool en = cmd_en && st->ff_threshold > 0 && st->ff_time_ms > 0;
 
-	en ? __set_bit(ilog2(ADXL345_INT_FREE_FALL), (unsigned long*) &st->int_map)
-		: __clear_bit(ilog2(ADXL345_INT_FREE_FALL), (unsigned long*) &st->int_map);
+	en ? __set_bit(ilog2(ADXL345_INT_FREE_FALL), (unsigned long *)&st->int_map)
+		: __clear_bit(ilog2(ADXL345_INT_FREE_FALL), (unsigned long *)&st->int_map);
 
 	return regmap_write(st->regmap, ADXL345_REG_INT_ENABLE, st->int_map);
 }
@@ -920,8 +919,8 @@ static int adxl345_write_raw(struct iio_dev *indio_dev,
 		 * factor
 		 */
 		ret = regmap_write(st->regmap,
-				    ADXL345_REG_OFS_AXIS(chan->address),
-				    val / 4);
+				   ADXL345_REG_OFS_AXIS(chan->address),
+				   val / 4);
 		break;
 	case IIO_CHAN_INFO_SAMP_FREQ:
 		ret = adxl345_find_odr(st, val, val2, &odr);
@@ -1109,7 +1108,7 @@ static int adxl345_read_event_value(struct iio_dev *indio_dev, const struct iio_
 			return IIO_VAL_INT;
 		default:
 			return -EINVAL;
-		}		
+		}
 	case IIO_EV_TYPE_GESTURE:
 		switch (info) {
 		case IIO_EV_INFO_VALUE:
@@ -1272,8 +1271,8 @@ static int adxl345_write_raw_get_fmt(struct iio_dev *indio_dev,
 }
 
 static ssize_t in_accel_gesture_doubletap_suppressed_en_show(struct device *dev,
-						     struct device_attribute *attr,
-						     char *buf)
+							     struct device_attribute *attr,
+							     char *buf)
 {
 	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
 	struct adxl345_state *st = iio_priv(indio_dev);
@@ -1289,8 +1288,8 @@ static ssize_t in_accel_gesture_doubletap_suppressed_en_show(struct device *dev,
 }
 
 static ssize_t in_accel_gesture_doubletap_suppressed_en_store(struct device *dev,
-						      struct device_attribute *attr,
-						      const char *buf, size_t len)
+							      struct device_attribute *attr,
+							      const char *buf, size_t len)
 {
 	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
 	struct adxl345_state *st = iio_priv(indio_dev);
