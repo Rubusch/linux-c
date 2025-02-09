@@ -185,7 +185,6 @@ static const unsigned int adxl345_act_axis_msk[2] = {
 	[ADXL345_INACTIVITY] = ADXL345_REG_INACT_AXIS_MSK,
 };
 
-// "0.09765625 0.1953125 0.390625 0.78125 1.5625 3.125 6.25 12.5 25 50 100 200 400 800 1600 3200" // TODO rm
 enum adxl345_odr {
 	ADXL345_ODR_0P10HZ = 0,
 	ADXL345_ODR_0P20HZ,
@@ -214,14 +213,14 @@ enum adxl345_range {
 
 /* Certain features recommend 12.5 Hz - 400 Hz ODR */
 static const int adxl345_odr_tbl[][2] = {
-	[ADXL345_ODR_0P10HZ]	= {   0, 10},
-	[ADXL345_ODR_0P20HZ]	= {   0, 20},
-	[ADXL345_ODR_0P39HZ]	= {   0, 39},
-	[ADXL345_ODR_0P78HZ]	= {   0, 78},
-	[ADXL345_ODR_1P56HZ]	= {   1, 56},
-	[ADXL345_ODR_3P13HZ]	= {   3, 13},
-	[ADXL345_ODR_6P25HZ]	= {   6, 25},
-	[ADXL345_ODR_12P50HZ]	= {  12, 50},
+	[ADXL345_ODR_0P10HZ]	= {   0,  97000},
+	[ADXL345_ODR_0P20HZ]	= {   0, 195000},
+	[ADXL345_ODR_0P39HZ]	= {   0, 390000},
+	[ADXL345_ODR_0P78HZ]	= {   0, 781000},
+	[ADXL345_ODR_1P56HZ]	= {   1, 562000},
+	[ADXL345_ODR_3P13HZ]	= {   3, 125000},
+	[ADXL345_ODR_6P25HZ]	= {   6, 250000},
+	[ADXL345_ODR_12P50HZ]	= {  12, 500000},
 	[ADXL345_ODR_25HZ]	= {  25, 0},
 	[ADXL345_ODR_50HZ]	= {  50, 0},
 	[ADXL345_ODR_100HZ]	= { 100, 0},
@@ -240,10 +239,10 @@ static const int adxl345_odr_tbl[][2] = {
  * g := 2|4|8|16
  */ 
 static const int adxl345_fullres_range_tbl[][2] = {
-	[ADXL345_2G_RANGE]  = {0, 4788988},
-	[ADXL345_4G_RANGE]  = {0, 9577976},
-	[ADXL345_8G_RANGE]  = {1, 9155952},
-	[ADXL345_16G_RANGE] = {3, 8311903},
+	[ADXL345_2G_RANGE]  = {0, 478899},
+	[ADXL345_4G_RANGE]  = {0, 957798},
+	[ADXL345_8G_RANGE]  = {1, 915595},
+	[ADXL345_16G_RANGE] = {3, 831190},
 };
 
 /* scaling */
@@ -340,6 +339,8 @@ static struct iio_event_spec adxl345_events[] = {
 		BIT(IIO_CHAN_INFO_CALIBBIAS),				\
 	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE) |		\
 		BIT(IIO_CHAN_INFO_SAMP_FREQ),				\
+	.info_mask_shared_by_type_available = BIT(IIO_CHAN_INFO_SCALE) | \
+		BIT(IIO_CHAN_INFO_SAMP_FREQ),		\
 	.scan_index = (index),				\
 	.scan_type = {					\
 		.sign = 's',				\
@@ -486,29 +487,24 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 	if (ret)
 		return ret;
 
-	//	return adxl345_set_act_int(st, type);
-	//}
-	//static int adxl345_set_act_int(struct adxl345_state *st,
-	//			       enum adxl345_activity_type type)
-	//{
-		if (type == ADXL345_ACTIVITY) {
-			axis_en = FIELD_GET(ADXL345_REG_ACT_AXIS_MSK, st->act_axis_ctrl) > 0;
-			en = axis_en && st->act_threshold > 0;
-		} else {
-			axis_en = FIELD_GET(ADXL345_REG_INACT_AXIS_MSK, st->inact_axis_ctrl) > 0;
-			en = axis_en && st->inact_threshold > 0 &&
-				st->inact_time_s > 0;
-		}
+	if (type == ADXL345_ACTIVITY) {
+		axis_en = FIELD_GET(ADXL345_REG_ACT_AXIS_MSK, st->act_axis_ctrl) > 0;
+		en = axis_en && st->act_threshold > 0;
+	} else {
+		axis_en = FIELD_GET(ADXL345_REG_INACT_AXIS_MSK, st->inact_axis_ctrl) > 0;
+		en = axis_en && st->inact_threshold > 0 &&
+			st->inact_time_s > 0;
+	}
 
-	en ? __set_bit(adxl345_act_int_reg[type], (long unsigned int*) &st->int_map)
-		: __clear_bit(adxl345_act_int_reg[type], (long unsigned int*) &st->int_map);
+	en ? __set_bit(ilog2(adxl345_act_int_reg[type]), (unsigned long*) &st->int_map)
+		: __clear_bit(ilog2(adxl345_act_int_reg[type]), (unsigned long*) &st->int_map);
 
 	ret = regmap_write(st->regmap, ADXL345_REG_INT_ENABLE, st->int_map);
 	if (ret)
 		return ret;
 
-	en ? __set_bit(ADXL345_POWER_CTL_INACT_MSK, &autosleep)
-		: __clear_bit(ADXL345_POWER_CTL_INACT_MSK, &autosleep);
+	en ? __set_bit(ilog2(ADXL345_POWER_CTL_INACT_MSK), &autosleep)
+		: __clear_bit(ilog2(ADXL345_POWER_CTL_INACT_MSK), &autosleep);
 
 	return regmap_update_bits(st->regmap, ADXL345_REG_POWER_CTL,
 			ADXL345_POWER_CTL_INACT_MSK, autosleep);
@@ -543,22 +539,16 @@ static int adxl345_set_act_inact_threshold(struct adxl345_state *st,
 	return 0;
 }
 
-static int adxl345_inact_time_s_to_samples(struct adxl345_state *st,
-		unsigned int val_s)
+static int adxl345_set_inact_time_s(struct adxl345_state *st, u32 val_s)
 {
 	int freq_hz = adxl345_odr_tbl[st->odr][0];
 	int freq_microhz = adxl345_odr_tbl[st->odr][1];
-	/* keep 2 digits .xx [centi-Hz] to not lose precision */
+	/* keeps 2 digits .xx [centi-Hz] to not lose precision */
 	int freq_dhz = freq_hz * 100 + freq_microhz / 10000;
+	unsigned int val = DIV_ROUND_CLOSEST(val_s * freq_dhz, 100);
 
-	return DIV_ROUND_CLOSEST(val_s * freq_dhz, 100); // TODO verify: s not ms!!!
-}
-
-static int adxl345_set_inact_time_s(struct adxl345_state *st, u32 val_s)
-{
-	unsigned int val = adxl345_inact_time_s_to_samples(st, val_s);
-
-	st->inact_time_s = min(val, 0xff);
+	/* ensure an odr of: 10 < val < 255, this covers  */
+	st->inact_time_s = max(10, min(val, 0xff));
 
 	return regmap_write(st->regmap, ADXL345_REG_TIME_INACT,
 			st->inact_time_s);
@@ -606,8 +596,13 @@ static int _adxl345_set_tap_int(struct adxl345_state *st,
 		en = axis_valid && singletap_args_valid && doubletap_args_valid;
 	}
 
-	state && en ? __set_bit(adxl345_tap_int_reg[type], (long unsigned int*) &st->int_map)
-		: __clear_bit(adxl345_tap_int_reg[type], (long unsigned int*) &st->int_map);
+	if (state && en) {
+		__set_bit(ilog2(adxl345_tap_int_reg[type]),
+			  (unsigned long*) &st->int_map);
+	} else {
+		__clear_bit(ilog2(adxl345_tap_int_reg[type]),
+			    (unsigned long*) &st->int_map);
+	}
 
 	return regmap_write(st->regmap, ADXL345_REG_INT_ENABLE, st->int_map);
 }
@@ -656,8 +651,8 @@ static int adxl345_set_suppressedbit_en(struct adxl345_state *st, bool en)
 	long unsigned int regval;
 	int ret;
 
-	en ? __set_bit(ADXL345_TAP_SUPPRESS, &regval)
-		: __clear_bit(ADXL345_TAP_SUPPRESS, &regval);
+	en ? __set_bit(ilog2(ADXL345_TAP_SUPPRESS), &regval)
+		: __clear_bit(ilog2(ADXL345_TAP_SUPPRESS), &regval);
 
 	ret = regmap_update_bits(st->regmap, ADXL345_REG_TAP_AXIS,
 				  ADXL345_REG_TAP_SUPPRESS_MSK, regval);
@@ -773,8 +768,8 @@ static int adxl345_set_ff_en(struct adxl345_state *st, bool cmd_en)
 {
 	bool en = cmd_en && st->ff_threshold > 0 && st->ff_time_ms > 0;
 
-	en ? __set_bit(ADXL345_INT_FREE_FALL, (long unsigned int*) &st->int_map)
-		: __clear_bit(ADXL345_INT_FREE_FALL, (long unsigned int*) &st->int_map);
+	en ? __set_bit(ilog2(ADXL345_INT_FREE_FALL), (unsigned long*) &st->int_map)
+		: __clear_bit(ilog2(ADXL345_INT_FREE_FALL), (unsigned long*) &st->int_map);
 
 	return regmap_write(st->regmap, ADXL345_REG_INT_ENABLE, st->int_map);
 }
@@ -846,7 +841,7 @@ static int adxl345_set_odr(struct adxl345_state *st, enum adxl345_odr odr)
 	st->odr = odr;
 
 	/* update inactivity time by ODR */
-	ret = adxl345_set_inact_time_s(st, st->inact_time_s);
+	ret = adxl345_set_inact_time_s(st, 1);
 	if (ret)
 		return ret;
 
@@ -902,7 +897,6 @@ static int adxl345_read_raw(struct iio_dev *indio_dev,
 {
 	struct adxl345_state *st = iio_priv(indio_dev);
 	__le16 accel;
-//	long long samp_freq_nhz;
 	unsigned int regval;
 	int ret;
 
@@ -922,12 +916,9 @@ static int adxl345_read_raw(struct iio_dev *indio_dev,
 		*val = sign_extend32(le16_to_cpu(accel), 12);
 		return IIO_VAL_INT;
 	case IIO_CHAN_INFO_SCALE:
-//		*val = 0;
-//		*val2 = st->info->uscale;
-//		return IIO_VAL_INT_PLUS_MICRO;
 		*val = adxl345_fullres_range_tbl[st->range][0];
 		*val2 = adxl345_fullres_range_tbl[st->range][1];
-		return IIO_VAL_INT_PLUS_NANO;
+		return IIO_VAL_INT_PLUS_MICRO;
 	case IIO_CHAN_INFO_CALIBBIAS:
 		ret = regmap_read(st->regmap,
 				  ADXL345_REG_OFS_AXIS(chan->address), &regval);
@@ -941,21 +932,6 @@ static int adxl345_read_raw(struct iio_dev *indio_dev,
 
 		return IIO_VAL_INT;
 	case IIO_CHAN_INFO_SAMP_FREQ:
-//		ret = regmap_read(st->regmap, ADXL345_REG_BW_RATE, &regval);
-//		if (ret < 0)
-//			return ret;
-//
-//		samp_freq_nhz = ADXL345_BASE_RATE_NANO_HZ <<
-//				(regval & ADXL345_BW_RATE_MSK);
-//		*val = div_s64_rem(samp_freq_nhz, NANOHZ_PER_HZ, val2);
-//
-//		return IIO_VAL_INT_PLUS_NANO;
-		
-//		ret = adxl345_get_odr(st, val, val2); // TODO get_odr()
-//		if (ret)
-//			return ret;
-//		return IIO_VAL_INT;
-
 		*val = adxl345_odr_tbl[st->odr][0];
 		*val2 = adxl345_odr_tbl[st->odr][1];
 		return IIO_VAL_INT_PLUS_MICRO;
@@ -969,12 +945,10 @@ static int adxl345_read_avail(struct iio_dev *indio_dev,
 			      const int **vals, int *type,
 			      int *length, long mask)
 {
-//	struct adxl345_state *st = iio_priv(indio_dev);
-//
 	switch (mask) {
 	case IIO_CHAN_INFO_SCALE:
 		*vals = (int *)adxl345_fullres_range_tbl;
-		*type = IIO_VAL_INT_PLUS_NANO;
+		*type = IIO_VAL_INT_PLUS_MICRO;
 		*length = ARRAY_SIZE(adxl345_fullres_range_tbl) * 2;
 		return IIO_AVAIL_LIST;
 	case IIO_CHAN_INFO_SAMP_FREQ:
@@ -1009,16 +983,6 @@ static int adxl345_write_raw(struct iio_dev *indio_dev,
 				   val / 4);
 		break;
 	case IIO_CHAN_INFO_SAMP_FREQ:
-//		n = div_s64(val * NANOHZ_PER_HZ + val2,
-//			    ADXL345_BASE_RATE_NANO_HZ);
-//
-//		return regmap_update_bits(st->regmap, ADXL345_REG_BW_RATE,
-//					  ADXL345_BW_RATE_MSK,
-//					  clamp_val(ilog2(n), 0,
-//						    ADXL345_BW_RATE_MSK));
-
-//		return adxl345_set_odr(st, val, val2);
-
 		enum adxl345_odr odr;
 		ret = adxl345_find_odr(st, val, val2, &odr);
 		if (ret)
@@ -1196,7 +1160,7 @@ static int adxl345_read_event_value(struct iio_dev *indio_dev, const struct iio_
 			 */
 			*val = sign_extend32(st->tap_threshold, 7);
 			return IIO_VAL_INT;
-		case IIO_EV_INFO_TIMEOUT: // TODO experimental
+		case IIO_EV_INFO_TIMEOUT:
 			*val = st->tap_duration_us;
 			*val2 = 1000000;
 			return IIO_VAL_FRACTIONAL;
@@ -1341,161 +1305,11 @@ static int adxl345_write_raw_get_fmt(struct iio_dev *indio_dev,
 	case IIO_CHAN_INFO_CALIBBIAS:
 		return IIO_VAL_INT;
 	case IIO_CHAN_INFO_SAMP_FREQ:
-//		return IIO_VAL_INT_PLUS_NANO;
 		return IIO_VAL_INT_PLUS_MICRO;
 	default:
 		return -EINVAL;
 	}
 }
-
-/*
-// #define ADXL345_generate_iio_dev_attr_INT(A, B, C)			\
-// 	static ssize_t in_accel_##A##_##B##_##C##_show(struct device *dev, \
-// 						       struct device_attribute *attr, \
-// 						       char *buf)	\
-// 	{								\
-// 		struct iio_dev *indio_dev = dev_to_iio_dev(dev);	\
-// 		struct adxl345_state *st = iio_priv(indio_dev);		\
-// 		int val;						\
-// 									\
-// 		val = st->B##_##C;					\
-// 									\
-// 		return iio_format_value(buf, IIO_VAL_INT, 1, &val);	\
-// 	}								\
-// 									\
-// 	static ssize_t in_accel_##A##_##B##_##C##_store(struct device *dev, \
-// 							struct device_attribute *attr, \
-// 							const char *buf, size_t len) \
-// 	{								\
-// 		struct iio_dev *indio_dev = dev_to_iio_dev(dev);	\
-// 		struct adxl345_state *st = iio_priv(indio_dev);		\
-// 		int val, ret;						\
-// 									\
-// 		ret = kstrtoint(buf, 0, &val);				\
-// 		if (ret)						\
-// 			return ret;					\
-// 									\
-// 		if (val < 0 || val > 255)				\
-// 			return -EINVAL;					\
-// 									\
-// 		ret = adxl345_set_measure_en(st, false);		\
-// 		if (ret)						\
-// 			return ret;					\
-// 									\
-// 		adxl345_set_##B##_##C(st, val);				\
-// 									\
-// 		ret = adxl345_set_measure_en(st, true);			\
-// 		if (ret)						\
-// 			return ret;					\
-// 									\
-// 		return len;						\
-// 	}								\
-// 	static IIO_DEVICE_ATTR_RW(in_accel_##A##_##B##_##C, 0)
-// 
-// #define ADXL345_generate_iio_dev_attr_EN(A, B)				\
-// 	static ssize_t in_accel_##A##_##B##_en_show(struct device *dev, \
-// 						    struct device_attribute *attr, \
-// 						    char *buf)		\
-// 	{								\
-// 		struct iio_dev *indio_dev = dev_to_iio_dev(dev);	\
-// 		struct adxl345_state *st = iio_priv(indio_dev);		\
-// 		bool en;						\
-// 		int val, ret;						\
-// 									\
-// 		ret = adxl345_is_##B##_en(st, &en);			\
-// 		if (ret)						\
-// 			return ret;					\
-// 		val = en ? 1 : 0;					\
-// 									\
-// 		return iio_format_value(buf, IIO_VAL_INT, 1, &val);	\
-// 	}								\
-// 									\
-// 	static ssize_t in_accel_##A##_##B##_en_store(struct device *dev, \
-// 						     struct device_attribute *attr, \
-// 						     const char *buf, size_t len) \
-// 	{								\
-// 		struct iio_dev *indio_dev = dev_to_iio_dev(dev);	\
-// 		struct adxl345_state *st = iio_priv(indio_dev);		\
-// 		int val, ret;						\
-// 									\
-// 		ret = kstrtoint(buf, 0, &val);				\
-// 		if (ret)						\
-// 			return ret;					\
-// 									\
-// 		ret = adxl345_set_measure_en(st, false);		\
-// 		if (ret)						\
-// 			return ret;					\
-// 									\
-// 		ret = adxl345_set_##B##_en(st, val > 0);		\
-// 		if (ret)						\
-// 			return ret;					\
-// 									\
-// 		ret =  adxl345_set_measure_en(st, true);		\
-// 		if (ret)						\
-// 			return ret;					\
-// 									\
-// 		return len;						\
-// 	}								\
-// 	static IIO_DEVICE_ATTR_RW(in_accel_##A##_##B##_en, 0)
-// 
-// #define ADXL345_generate_iio_dev_attr_FRACTIONAL(A, B, C, D, E)		\
-// 	static ssize_t in_accel_##A##_##C##_##E##_show(struct device *dev, \
-// 						       struct device_attribute *attr, \
-// 						       char *buf)	\
-// 	{								\
-// 		struct iio_dev *indio_dev = dev_to_iio_dev(dev);	\
-// 		struct adxl345_state *st = iio_priv(indio_dev);		\
-// 		int vals[2];						\
-// 									\
-// 		vals[0] = st->B##_##C##_##E;				\
-// 		vals[1] = D;						\
-// 									\
-// 		return iio_format_value(buf, IIO_VAL_FRACTIONAL, 2, vals); \
-// 	}								\
-// 									\
-// 	static ssize_t in_accel_##A##_##C##_##E##_store(struct device *dev, \
-// 							struct device_attribute *attr, \
-// 							const char *buf, size_t len) \
-// 	{								\
-// 		struct iio_dev *indio_dev = dev_to_iio_dev(dev);	\
-// 		struct adxl345_state *st = iio_priv(indio_dev);		\
-// 		int val_int, val_fract_us, ret;				\
-// 									\
-// 		ret = iio_str_to_fixpoint(buf, 100000, &val_int, &val_fract_us); \
-// 		if (ret)						\
-// 			return ret;					\
-// 									\
-// 		ret = adxl345_set_measure_en(st, false);		\
-// 		if (ret)						\
-// 			return ret;					\
-// 									\
-// 		adxl345_set_##B##_##C(st, val_int, val_fract_us);	\
-// 									\
-// 		ret = adxl345_set_measure_en(st, true);			\
-// 		if (ret)						\
-// 			return ret;					\
-// 									\
-// 		return len;						\
-// 	}								\
-// 	static IIO_DEVICE_ATTR_RW(in_accel_##A##_##C##_##E, 0)
-// 
-//TODO rm what can be removed
-// */
-
-//ADXL345_generate_iio_dev_attr_INT(activity, act, value);
-//ADXL345_generate_iio_dev_attr_INT(activity, inact, value);
-//ADXL345_generate_iio_dev_attr_INT(activity, inact, time_s);
-//ADXL345_generate_iio_dev_attr_INT(freefall, ff, value);
-
-//ADXL345_generate_iio_dev_attr_FRACTIONAL(gesture_singletap, tap, duration, MICRO, us);
-//ADXL345_generate_iio_dev_attr_FRACTIONAL(gesture_doubletap, tap, window, MICRO, us);
-//ADXL345_generate_iio_dev_attr_FRACTIONAL(gesture_doubletap, tap, latent, MICRO, us);
-//ADXL345_generate_iio_dev_attr_FRACTIONAL(freefall, ff, time, MILLI, ms);
-
-//ADXL345_generate_iio_dev_attr_EN(activity, act);
-//ADXL345_generate_iio_dev_attr_EN(activity, inact);
-//ADXL345_generate_iio_dev_attr_EN(freefall, ff);
-//ADXL345_generate_iio_dev_attr_EN(gesture_doubletap, suppressed);
 
 static ssize_t in_accel_gesture_doubletap_suppressedbit_en_show(struct device *dev,
 						     struct device_attribute *attr,
@@ -1550,20 +1364,6 @@ static struct attribute *adxl345_event_attrs[] = {
 static const struct attribute_group adxl345_event_attrs_group = {
 	.attrs = adxl345_event_attrs,
 };
-
-// TODO needed?
-//static IIO_CONST_ATTR_SAMP_FREQ_AVAIL(
-//"0.09765625 0.1953125 0.390625 0.78125 1.5625 3.125 6.25 12.5 25 50 100 200 400 800 1600 3200"
-//);
-//
-//static struct attribute *adxl345_attrs[] = {
-//	&iio_const_attr_sampling_frequency_available.dev_attr.attr,
-//	NULL
-//};
-//
-//static const struct attribute_group adxl345_attrs_group = {
-//	.attrs = adxl345_attrs,
-//};
 
 static int adxl345_set_fifo(struct adxl345_state *st)
 {
@@ -1679,7 +1479,6 @@ static int adxl345_buffer_postenable(struct iio_dev *indio_dev)
 	int ret;
 
 	ret = regmap_write(st->regmap, ADXL345_REG_INT_ENABLE, st->int_map);
-	//adxl345_write_interrupts(st); // TODO rm
 	if (ret < 0)
 		return ret;
 
@@ -1699,7 +1498,6 @@ static int adxl345_buffer_predisable(struct iio_dev *indio_dev)
 
 	st->int_map = 0x00;
 	return regmap_write(st->regmap, ADXL345_REG_INT_ENABLE, st->int_map);
-//	return adxl345_write_interrupts(st); // TODO rm
 }
 
 static const struct iio_buffer_setup_ops adxl345_buffer_ops = {
@@ -1862,7 +1660,6 @@ err:
 }
 
 static const struct iio_info adxl345_info = {
-//	.attrs		= &adxl345_attrs_group, // TODO rm
 	.event_attrs	= &adxl345_event_attrs_group,
 	.read_raw	= adxl345_read_raw,
 	.write_raw	= adxl345_write_raw,
@@ -1955,13 +1752,15 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 	 */
 	ret = regmap_update_bits(st->regmap, ADXL345_REG_BW_RATE,
 				 ADXL345_BW_RATE_MSK,
-				 FIELD_PREP(ADXL345_BW_RATE_MSK, ADXL345_ODR_200HZ));
+				 FIELD_PREP(ADXL345_BW_RATE_MSK,
+					 ADXL345_ODR_200HZ));
 	if (ret)
 		return ret;
 
 	ret = regmap_update_bits(st->regmap, ADXL345_REG_DATA_FORMAT,
 				 ADXL345_DATA_FORMAT_RANGE_MSK,
-				 FIELD_PREP(ADXL345_DATA_FORMAT_RANGE_MSK, ADXL345_16G_RANGE));
+				 FIELD_PREP(ADXL345_DATA_FORMAT_RANGE_MSK,
+					 ADXL345_16G_RANGE));
 	if (ret)
 		return ret;
 
