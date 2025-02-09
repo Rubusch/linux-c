@@ -328,6 +328,18 @@ static struct iio_event_spec adxl345_events[] = {
 			BIT(IIO_EV_INFO_VALUE) |
 			BIT(IIO_EV_INFO_PERIOD),
 	},
+	{
+		/* activity, activity - ac bit */
+		.type = IIO_EV_TYPE_MAG_REFERENCED,
+		.dir = IIO_EV_DIR_RISING,
+		.mask_shared_by_type = BIT(IIO_EV_INFO_ENABLE),
+	},
+	{
+		/* activity, inactivity - ac bit */
+		.type = IIO_EV_TYPE_MAG_REFERENCED,
+		.dir = IIO_EV_DIR_FALLING,
+		.mask_shared_by_type = BIT(IIO_EV_INFO_ENABLE),
+	},
 };
 
 #define ADXL345_CHANNEL(index, reg, axis) {					\
@@ -402,35 +414,6 @@ static int adxl345_write_act_axis(struct adxl345_state *st,
 	int ret;
 
 	/*
-	 * A setting of 0 selects dc-coupled operation, and a setting of 1
-	 * enables ac-coupled operation. In dc-coupled operation, the current
-	 * acceleration magnitude is compared directly with THRESH_ACT and
-	 * THRESH_INACT to determine whether activity or inactivity is
-	 * detected.
-	 *
-	 * In ac-coupled operation for activity detection, the acceleration
-	 * value at the start of activity detection is taken as a reference
-	 * value. New samples of acceleration are then compared to this
-	 * reference value, and if the magnitude of the difference exceeds the
-	 * THRESH_ACT value, the device triggers an activity interrupt.
-	 *
-	 * Similarly, in ac-coupled operation for inactivity detection, a
-	 * reference value is used for comparison and is updated whenever the
-	 * device exceeds the inactivity threshold. After the reference value
-	 * is selected, the device compares the magnitude of the difference
-	 * between the reference value and the current acceleration with
-	 * THRESH_INACT. If the difference is less than the value in
-	 * THRESH_INACT for the time in TIME_INACT, the device is  considered
-	 * inactive and the inactivity interrupt is triggered.
-	 */
-	ret = regmap_update_bits(st->regmap, ADXL345_REG_ACT_INACT_CTRL,
-				 adxl345_act_acdc_msk[type],
-				 (type == ADXL345_ACTIVITY
-				  ? st->act_ac : st->inact_ac));
-	if (ret)
-		return ret;
-
-	/*
 	 * The ADXL345 allows for individually enabling/disabling axis for
 	 * activity and inactivity detection, respectively. Here both axis are
 	 * kept in sync, i.e. an axis will be generally enabled or disabled for
@@ -458,6 +441,35 @@ static int adxl345_write_act_axis(struct adxl345_state *st,
 		if (ret)
 			return ret;
 	}
+	return 0;
+}
+
+static int adxl345_is_act_inact_ac(struct adxl345_state *st,
+				   enum adxl345_activity_type type, bool *ac)
+{
+	if (type == ADXL345_ACTIVITY)
+		*ac = st->act_ac;
+	else
+		*ac = st->inact_ac;
+
+	return 0;
+}
+
+static int adxl345_set_act_inact_ac(struct adxl345_state *st,
+				    enum adxl345_activity_type type, bool ac)
+{
+	int ret;
+
+	ret = regmap_update_bits(st->regmap, ADXL345_REG_ACT_INACT_CTRL,
+				 adxl345_act_acdc_msk[type], ac);
+	if (ret)
+		return ret;
+
+	if (type == ADXL345_ACTIVITY)
+		st->act_ac = ac;
+	else
+		st->inact_ac = ac;
+			
 	return 0;
 }
 
@@ -510,18 +522,6 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 			ADXL345_POWER_CTL_INACT_MSK, autosleep);
 }
 
-static void adxl345_scale_act_inact_thresholds(struct adxl345_state *st,
-		enum adxl345_range old_range,
-		enum adxl345_range new_range)
-{
-	st->act_threshold =  st->act_threshold
-		* adxl345_range_factor_tbl[old_range]
-		/ adxl345_range_factor_tbl[new_range];
-	st->inact_threshold =  st->inact_threshold
-		* adxl345_range_factor_tbl[old_range]
-		/ adxl345_range_factor_tbl[new_range];
-}
-
 static int adxl345_set_act_inact_threshold(struct adxl345_state *st,
 		enum adxl345_activity_type type, u8 val)
 {
@@ -539,19 +539,44 @@ static int adxl345_set_act_inact_threshold(struct adxl345_state *st,
 	return 0;
 }
 
+/**
+ * adxl345_set_inact_time_s - Configure inactivity time explicitely or by ODR.
+ * @st: The sensor state instance.
+ * @val_s: A desired time value, between 0 and 255.
+ *
+ * If val_s is 0, a default inactivity time will be computed. It should take
+ * power consumption into consideration. Thus it shall be shorter for higher
+ * frequencies and longer for lower frequencies. Hence, frequencies above 255 Hz
+ * shall default to 10 s and frequencies below 10 Hz shall result in 255 s to
+ * detect inactivity.
+ *
+ * The approach simply subtracts the pre-decimal figure of the configured
+ * sample frequency from 255 s to compute inactivity time [s]. Sub-Hz are thus
+ * ignored in this estimation. The recommended ODRs for various features
+ * (activity/inactivity, sleep modes, free fall, etc.) lie between 12.5 Hz and
+ * 400 Hz, thus higher or lower frequencies will result in the boundary
+ * defaults or need to be explicitely specified via val_s.
+ *
+ * Return: 0 or error value.
+ */
 static int adxl345_set_inact_time_s(struct adxl345_state *st, u32 val_s)
 {
-	int freq_hz = adxl345_odr_tbl[st->odr][0];
-	int freq_microhz = adxl345_odr_tbl[st->odr][1];
-	/* keeps 2 digits .xx [centi-Hz] to not lose precision */
-	int freq_dhz = freq_hz * 100 + freq_microhz / 10000;
-	unsigned int val = DIV_ROUND_CLOSEST(val_s * freq_dhz, 100);
+	unsigned int max_boundary = 255;
+	unsigned int min_boundary = 10;
+	unsigned int val = min(val_s, max_boundary);
+	int ret;
 
-	/* ensure an odr of: 10 < val < 255, this covers  */
-	st->inact_time_s = max(10, min(val, 0xff));
+	if (0 == val)
+		val = (adxl345_odr_tbl[st->odr][0] > max_boundary)
+			? min_boundary : max_boundary -	adxl345_odr_tbl[st->odr][0];
+	
+	ret = regmap_write(st->regmap, ADXL345_REG_TIME_INACT, val);
+	if (ret)
+		return ret;
 
-	return regmap_write(st->regmap, ADXL345_REG_TIME_INACT,
-			st->inact_time_s);
+	st->inact_time_s = val;
+
+	return 0;
 }
 
 /* tap */
@@ -639,14 +664,14 @@ static int adxl345_set_doubletap_en(struct adxl345_state *st, bool en)
 	return _adxl345_set_tap_int(st, ADXL345_DOUBLE_TAP, en);
 }
 
-static int adxl345_is_suppressedbit_en(struct adxl345_state *st, bool *en)
+static int adxl345_is_suppressed_en(struct adxl345_state *st, bool *en)
 {
 	*en = st->tap_suppressed;
 
 	return 0;
 }
 
-static int adxl345_set_suppressedbit_en(struct adxl345_state *st, bool en)
+static int adxl345_set_suppressed_en(struct adxl345_state *st, bool en)
 {
 	long unsigned int regval;
 	int ret;
@@ -841,7 +866,7 @@ static int adxl345_set_odr(struct adxl345_state *st, enum adxl345_odr odr)
 	st->odr = odr;
 
 	/* update inactivity time by ODR */
-	ret = adxl345_set_inact_time_s(st, 1);
+	ret = adxl345_set_inact_time_s(st, 0);
 	if (ret)
 		return ret;
 
@@ -876,7 +901,15 @@ static int adxl345_set_range(struct adxl345_state *st, enum adxl345_range range)
 	if (ret)
 		return ret;
 
-	adxl345_scale_act_inact_thresholds(st, st->range, range);
+	st->act_threshold = st->act_threshold
+		* adxl345_range_factor_tbl[st->range]
+		/ adxl345_range_factor_tbl[range];
+	st->act_threshold = min(255, max(1, st->inact_threshold));
+
+	st->inact_threshold = st->inact_threshold
+		* adxl345_range_factor_tbl[st->range]
+		/ adxl345_range_factor_tbl[range];
+	st->inact_threshold = min(255, max(1, st->inact_threshold));
 
 	ret = adxl345_set_act_inact_threshold(st, ADXL345_ACTIVITY, st->act_threshold);
 	if (ret)
@@ -889,6 +922,27 @@ static int adxl345_set_range(struct adxl345_state *st, enum adxl345_range range)
 	st->range = range;
 
 	return 0;
+}
+
+static int adxl345_read_avail(struct iio_dev *indio_dev,
+			      struct iio_chan_spec const *chan,
+			      const int **vals, int *type,
+			      int *length, long mask)
+{
+	switch (mask) {
+	case IIO_CHAN_INFO_SCALE:
+		*vals = (int *)adxl345_fullres_range_tbl;
+		*type = IIO_VAL_INT_PLUS_MICRO;
+		*length = ARRAY_SIZE(adxl345_fullres_range_tbl) * 2;
+		return IIO_AVAIL_LIST;
+	case IIO_CHAN_INFO_SAMP_FREQ:
+		*vals = (int *)adxl345_odr_tbl;
+		*type = IIO_VAL_INT_PLUS_MICRO;
+		*length = ARRAY_SIZE(adxl345_odr_tbl) * 2;
+		return IIO_AVAIL_LIST;
+	}
+
+	return -EINVAL;
 }
 
 static int adxl345_read_raw(struct iio_dev *indio_dev,
@@ -922,14 +976,13 @@ static int adxl345_read_raw(struct iio_dev *indio_dev,
 	case IIO_CHAN_INFO_CALIBBIAS:
 		ret = regmap_read(st->regmap,
 				  ADXL345_REG_OFS_AXIS(chan->address), &regval);
-		if (ret < 0)
+		if (ret)
 			return ret;
 		/*
 		 * 8-bit resolution at +/- 2g, that is 4x accel data scale
 		 * factor
 		 */
 		*val = sign_extend32(regval, 7) * 4;
-
 		return IIO_VAL_INT;
 	case IIO_CHAN_INFO_SAMP_FREQ:
 		*val = adxl345_odr_tbl[st->odr][0];
@@ -940,32 +993,13 @@ static int adxl345_read_raw(struct iio_dev *indio_dev,
 	return -EINVAL;
 }
 
-static int adxl345_read_avail(struct iio_dev *indio_dev,
-			      struct iio_chan_spec const *chan,
-			      const int **vals, int *type,
-			      int *length, long mask)
-{
-	switch (mask) {
-	case IIO_CHAN_INFO_SCALE:
-		*vals = (int *)adxl345_fullres_range_tbl;
-		*type = IIO_VAL_INT_PLUS_MICRO;
-		*length = ARRAY_SIZE(adxl345_fullres_range_tbl) * 2;
-		return IIO_AVAIL_LIST;
-	case IIO_CHAN_INFO_SAMP_FREQ:
-		*vals = (int *)adxl345_odr_tbl;
-		*type = IIO_VAL_INT_PLUS_MICRO;
-		*length = ARRAY_SIZE(adxl345_odr_tbl) * 2;
-		return IIO_AVAIL_LIST;
-	}
-
-	return -EINVAL;
-}
-
 static int adxl345_write_raw(struct iio_dev *indio_dev,
 			     struct iio_chan_spec const *chan,
 			     int val, int val2, long mask)
 {
 	struct adxl345_state *st = iio_priv(indio_dev);
+	enum adxl345_range range;
+	enum adxl345_odr odr;
 	int ret;
 
 	ret = adxl345_set_measure_en(st, false);
@@ -976,14 +1010,12 @@ static int adxl345_write_raw(struct iio_dev *indio_dev,
 	case IIO_CHAN_INFO_CALIBBIAS:
 		/*
 		 * 8-bit resolution at +/- 2g, that is 4x accel data scale
-		 * factor
+		 * factor.
 		 */
 		ret = regmap_write(st->regmap,
-				   ADXL345_REG_OFS_AXIS(chan->address),
-				   val / 4);
+				   ADXL345_REG_OFS_AXIS(chan->address), val / 4);
 		break;
 	case IIO_CHAN_INFO_SAMP_FREQ:
-		enum adxl345_odr odr;
 		ret = adxl345_find_odr(st, val, val2, &odr);
 		if (ret)
 			return ret;
@@ -991,7 +1023,6 @@ static int adxl345_write_raw(struct iio_dev *indio_dev,
 		ret = adxl345_set_odr(st, odr);
 		break;
 	case IIO_CHAN_INFO_SCALE:
-		enum adxl345_range range;
 		ret = adxl345_find_range(st, val, val2,	&range);
 		if (ret)
 			return ret;
@@ -1067,6 +1098,21 @@ static int adxl345_read_event_config(struct iio_dev *indio_dev,
 		if (ret)
 			return ret;
 		return int_en;
+	case IIO_EV_TYPE_MAG_REFERENCED:
+		switch (dir) {
+		case IIO_EV_DIR_RISING:
+			ret = adxl345_is_act_inact_ac(st, ADXL345_ACTIVITY, &int_en);
+			if (ret)
+				return ret;
+			return int_en;
+		case IIO_EV_DIR_FALLING:
+			ret = adxl345_is_act_inact_ac(st, ADXL345_INACTIVITY, &int_en);
+			if (ret)
+				return ret;
+			return int_en;
+		default:
+			return -EINVAL;
+		}
 	default:
 		return -EINVAL;
 	}
@@ -1118,6 +1164,16 @@ static int adxl345_write_event_config(struct iio_dev *indio_dev,
 		}
 	case IIO_EV_TYPE_MAG:
 		return adxl345_set_ff_en(st, state);
+	case IIO_EV_TYPE_MAG_REFERENCED:
+		switch (dir) {
+		case IIO_EV_DIR_RISING:
+			return adxl345_set_act_inact_ac(st, ADXL345_ACTIVITY, state);
+		case IIO_EV_DIR_FALLING:
+			return adxl345_set_act_inact_ac(st, ADXL345_INACTIVITY, state);
+		default:
+			return -EINVAL;
+		}
+
 	default:
 		return -EINVAL;
 	}
@@ -1304,6 +1360,8 @@ static int adxl345_write_raw_get_fmt(struct iio_dev *indio_dev,
 	switch (mask) {
 	case IIO_CHAN_INFO_CALIBBIAS:
 		return IIO_VAL_INT;
+	case IIO_CHAN_INFO_SCALE:
+		return IIO_VAL_INT_PLUS_MICRO;
 	case IIO_CHAN_INFO_SAMP_FREQ:
 		return IIO_VAL_INT_PLUS_MICRO;
 	default:
@@ -1311,7 +1369,7 @@ static int adxl345_write_raw_get_fmt(struct iio_dev *indio_dev,
 	}
 }
 
-static ssize_t in_accel_gesture_doubletap_suppressedbit_en_show(struct device *dev,
+static ssize_t in_accel_gesture_doubletap_suppressed_en_show(struct device *dev,
 						     struct device_attribute *attr,
 						     char *buf)
 {
@@ -1320,7 +1378,7 @@ static ssize_t in_accel_gesture_doubletap_suppressedbit_en_show(struct device *d
 	bool en;
 	int val, ret;
 
-	ret = adxl345_is_suppressedbit_en(st, &en);
+	ret = adxl345_is_suppressed_en(st, &en);
 	if (ret)
 		return ret;
 	val = en ? 1 : 0;
@@ -1328,7 +1386,7 @@ static ssize_t in_accel_gesture_doubletap_suppressedbit_en_show(struct device *d
 	return iio_format_value(buf, IIO_VAL_INT, 1, &val);
 }
 
-static ssize_t in_accel_gesture_doubletap_suppressedbit_en_store(struct device *dev,
+static ssize_t in_accel_gesture_doubletap_suppressed_en_store(struct device *dev,
 						      struct device_attribute *attr,
 						      const char *buf, size_t len)
 {
@@ -1344,7 +1402,7 @@ static ssize_t in_accel_gesture_doubletap_suppressedbit_en_store(struct device *
 	if (ret)
 		return ret;
 
-	ret = adxl345_set_suppressedbit_en(st, val > 0);
+	ret = adxl345_set_suppressed_en(st, val > 0);
 	if (ret)
 		return ret;
 
@@ -1354,10 +1412,10 @@ static ssize_t in_accel_gesture_doubletap_suppressedbit_en_store(struct device *
 
 	return len;
 }
-static IIO_DEVICE_ATTR_RW(in_accel_gesture_doubletap_suppressedbit_en, 0);
+static IIO_DEVICE_ATTR_RW(in_accel_gesture_doubletap_suppressed_en, 0);
 
 static struct attribute *adxl345_event_attrs[] = {
-	&iio_dev_attr_in_accel_gesture_doubletap_suppressedbit_en.dev_attr.attr,
+	&iio_dev_attr_in_accel_gesture_doubletap_suppressed_en.dev_attr.attr,
 	NULL
 };
 
@@ -1731,10 +1789,6 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 	st->tap_window_us = 64;			/*   64 [0x40] -> .080    */
 	st->tap_latent_us = 16;			/*   16 [0x10] -> .020    */
 
-	st->act_threshold = 6;			/*    6 [0x06]            */
-	st->inact_threshold = 4;		/*    4 [0x04]            */
-	st->inact_time_s = 3;			/*    3 [0x03] -> 3       */
-
 	st->ff_threshold = 8;			/*    8 [0x08]            */
 	st->ff_time_ms = 32;			/*   32 [0x20] -> 0.16    */
 
@@ -1750,17 +1804,10 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 	 * at an output rate above the recommended maximum may result in
 	 * undesired behavior.
 	 */
-	ret = regmap_update_bits(st->regmap, ADXL345_REG_BW_RATE,
-				 ADXL345_BW_RATE_MSK,
-				 FIELD_PREP(ADXL345_BW_RATE_MSK,
-					 ADXL345_ODR_200HZ));
+	ret = adxl345_set_odr(st, ADXL345_ODR_200HZ);
 	if (ret)
 		return ret;
-
-	ret = regmap_update_bits(st->regmap, ADXL345_REG_DATA_FORMAT,
-				 ADXL345_DATA_FORMAT_RANGE_MSK,
-				 FIELD_PREP(ADXL345_DATA_FORMAT_RANGE_MSK,
-					 ADXL345_16G_RANGE));
+	ret = adxl345_set_range(st, ADXL345_16G_RANGE);
 	if (ret)
 		return ret;
 
