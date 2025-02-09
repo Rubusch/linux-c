@@ -23,94 +23,6 @@
 
 #include "adxl345.h"
 
-#define ADXL345_REG_DEVID		0x00
-#define ADXL345_REG_THRESH_TAP		0x1D
-#define ADXL345_REG_OFSX		0x1E
-#define ADXL345_REG_OFSY		0x1F
-#define ADXL345_REG_OFSZ		0x20
-#define ADXL345_REG_OFS_AXIS(index)	(ADXL345_REG_OFSX + (index))
-
-/* Tap duration */
-#define ADXL345_REG_DUR			0x21
-/* Tap latency */
-#define ADXL345_REG_LATENT		0x22
-/* Tap window */
-#define ADXL345_REG_WINDOW		0x23
-/* Activity threshold */
-#define ADXL345_REG_THRESH_ACT		0x24
-/* Inactivity threshold */
-#define ADXL345_REG_THRESH_INACT	0x25
-/* Inactivity time */
-#define ADXL345_REG_TIME_INACT		0x26
-/* Axis enable control for activity and inactivity detection */
-#define ADXL345_REG_ACT_INACT_CTRL	0x27
-/* Free-fall threshold */
-#define ADXL345_REG_THRESH_FF		0x28
-/* Free-fall time */
-#define ADXL345_REG_TIME_FF		0x29
-/* Axis control for single tap or double tap */
-#define ADXL345_REG_TAP_AXIS		0x2A
-/* Source of single tap or double tap */
-#define ADXL345_REG_ACT_TAP_STATUS	0x2B
-/* Data rate and power mode control */
-#define ADXL345_REG_BW_RATE		0x2C
-#define ADXL345_REG_POWER_CTL		0x2D
-#define ADXL345_REG_INT_ENABLE		0x2E
-#define ADXL345_REG_INT_MAP		0x2F
-#define ADXL345_REG_INT_SOURCE		0x30
-#define ADXL345_REG_INT_SOURCE_MSK	0xFF
-#define ADXL345_REG_XYZ_BASE		0x32
-#define ADXL345_REG_DATA_AXIS(index)				\
-	(ADXL345_REG_XYZ_BASE + (index) * sizeof(__le16))
-
-#define ADXL345_REG_FIFO_CTL		0x38
-#define ADXL345_FIFO_CTL_SAMPLES_MSK	GENMASK(4, 0)
-/* 0: INT1, 1: INT2 */
-#define ADXL345_FIFO_CTL_TRIGGER_MSK	BIT(5)
-#define ADXL345_FIFO_CTL_MODE_MSK	GENMASK(7, 6)
-#define ADXL345_REG_FIFO_STATUS	0x39
-#define ADXL345_REG_FIFO_STATUS_MSK	0x3F
-
-#define ADXL345_INT_OVERRUN		BIT(0)
-#define ADXL345_INT_WATERMARK		BIT(1)
-#define ADXL345_INT_FREE_FALL		BIT(2)
-#define ADXL345_INT_INACTIVITY		BIT(3)
-#define ADXL345_INT_ACTIVITY		BIT(4)
-#define ADXL345_INT_DOUBLE_TAP		BIT(5)
-#define ADXL345_INT_SINGLE_TAP		BIT(6)
-#define ADXL345_INT_DATA_READY		BIT(7)
-
-/*
- * BW_RATE bits - Bandwidth and output data rate. The default value is
- * 0x0A, which translates to a 100 Hz output data rate
- */
-#define ADXL345_BW_RATE_MSK		GENMASK(3, 0)
-#define ADXL345_BW_LOW_POWER		BIT(4)
-#define ADXL345_BASE_RATE_NANO_HZ	97656250LL
-
-#define ADXL345_POWER_CTL_STANDBY	0x00
-#define ADXL345_POWER_CTL_WAKEUP	GENMASK(1, 0)
-#define ADXL345_POWER_CTL_SLEEP		BIT(2)
-#define ADXL345_POWER_CTL_MEASURE	BIT(3)
-#define ADXL345_POWER_CTL_AUTO_SLEEP	BIT(4)
-#define ADXL345_POWER_CTL_LINK		BIT(5)
-#define ADXL345_POWER_CTL_INACT_MSK	ADXL345_POWER_CTL_AUTO_SLEEP | ADXL345_POWER_CTL_LINK
-
-/* Set the g range */
-#define ADXL345_DATA_FORMAT_RANGE_MSK	GENMASK(1, 0)
-/* Data is left justified */
-#define ADXL345_DATA_FORMAT_JUSTIFY	BIT(2)
-/* Up to 13-bits resolution */
-#define ADXL345_DATA_FORMAT_FULL_RES	BIT(3)
-#define ADXL345_DATA_FORMAT_SELF_TEST	BIT(7)
-#define ADXL345_DATA_FORMAT_2G		0
-#define ADXL345_DATA_FORMAT_4G		1
-#define ADXL345_DATA_FORMAT_8G		2
-#define ADXL345_DATA_FORMAT_16G		3
-
-#define ADXL345_DEVID			0xE5
-#define ADXL345_FIFO_SIZE		32
-
 #define ADXL345_FIFO_BYPASS	0
 #define ADXL345_FIFO_FIFO	1
 #define ADXL345_FIFO_STREAM	2
@@ -127,6 +39,7 @@
 #define ADXL345_REG_ACT_ACDC_MSK	BIT(7)
 #define ADXL345_REG_INACT_AXIS_MSK	GENMASK(2, 0)
 #define ADXL345_REG_INACT_ACDC_MSK	BIT(3)
+#define ADXL345_POWER_CTL_INACT_MSK	ADXL345_POWER_CTL_AUTO_SLEEP | ADXL345_POWER_CTL_LINK
 
 enum adxl345_axis {
 	ADXL345_Z_EN = BIT(0),
@@ -237,7 +150,7 @@ static const int adxl345_odr_tbl[][2] = {
  *
  * resolution := 13 (full)
  * g := 2|4|8|16
- */ 
+ */
 static const int adxl345_fullres_range_tbl[][2] = {
 	[ADXL345_2G_RANGE]  = {0, 478899},
 	[ADXL345_4G_RANGE]  = {0, 957798},
@@ -309,7 +222,7 @@ static struct iio_event_spec adxl345_events[] = {
 		.type = IIO_EV_TYPE_GESTURE,
 		.dir = IIO_EV_DIR_SINGLETAP,
 		.mask_separate = BIT(IIO_EV_INFO_ENABLE),
-		.mask_shared_by_type = BIT(IIO_EV_INFO_VALUE) | 
+		.mask_shared_by_type = BIT(IIO_EV_INFO_VALUE) |
 			BIT(IIO_EV_INFO_TIMEOUT),
 	},
 	{
@@ -324,7 +237,7 @@ static struct iio_event_spec adxl345_events[] = {
 		/* free fall */
 		.type = IIO_EV_TYPE_MAG,
 		.dir = IIO_EV_DIR_FALLING,
-		.mask_shared_by_type = BIT(IIO_EV_INFO_ENABLE) | 
+		.mask_shared_by_type = BIT(IIO_EV_INFO_ENABLE) |
 			BIT(IIO_EV_INFO_VALUE) |
 			BIT(IIO_EV_INFO_PERIOD),
 	},
@@ -360,7 +273,7 @@ static struct iio_event_spec adxl345_events[] = {
 		.storagebits = 16,			\
 		.endianness = IIO_LE,			\
 	},						\
-	.event_spec = adxl345_events,				\
+	.event_spec = adxl345_events,			\
 	.num_event_specs = ARRAY_SIZE(adxl345_events),	\
 }
 
@@ -397,13 +310,6 @@ static int adxl345_set_measure_en(struct adxl345_state *st, bool en)
 	unsigned int val = en ? ADXL345_POWER_CTL_MEASURE : ADXL345_POWER_CTL_STANDBY;
 
 	return regmap_write(st->regmap, ADXL345_REG_POWER_CTL, val);
-}
-
-static void adxl345_powerdown(void *ptr)
-{
-	struct adxl345_state *st = ptr;
-
-	adxl345_set_measure_en(st, false);
 }
 
 /* act/inact */
@@ -492,7 +398,7 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 				    enum adxl345_activity_type type, bool cmd_en)
 {
 	bool axis_en, en;
-	long unsigned int autosleep;
+	long unsigned int autosleep = 0;
 	int ret;
 
 	ret = adxl345_write_act_axis(st, type, cmd_en);
@@ -673,7 +579,7 @@ static int adxl345_is_suppressed_en(struct adxl345_state *st, bool *en)
 
 static int adxl345_set_suppressed_en(struct adxl345_state *st, bool en)
 {
-	long unsigned int regval;
+	long unsigned int regval = 0;
 	int ret;
 
 	en ? __set_bit(ilog2(ADXL345_TAP_SUPPRESS), &regval)
@@ -896,8 +802,8 @@ static int adxl345_set_range(struct adxl345_state *st, enum adxl345_range range)
 	int ret;
 
 	ret = regmap_update_bits(st->regmap, ADXL345_REG_DATA_FORMAT,
-				 ADXL345_DATA_FORMAT_RANGE_MSK,
-				 FIELD_PREP(ADXL345_DATA_FORMAT_RANGE_MSK, range));
+				 ADXL345_DATA_FORMAT_RANGE,
+				 FIELD_PREP(ADXL345_DATA_FORMAT_RANGE, range));
 	if (ret)
 		return ret;
 
@@ -976,13 +882,14 @@ static int adxl345_read_raw(struct iio_dev *indio_dev,
 	case IIO_CHAN_INFO_CALIBBIAS:
 		ret = regmap_read(st->regmap,
 				  ADXL345_REG_OFS_AXIS(chan->address), &regval);
-		if (ret)
+		if (ret < 0)
 			return ret;
 		/*
 		 * 8-bit resolution at +/- 2g, that is 4x accel data scale
 		 * factor
 		 */
 		*val = sign_extend32(regval, 7) * 4;
+
 		return IIO_VAL_INT;
 	case IIO_CHAN_INFO_SAMP_FREQ:
 		*val = adxl345_odr_tbl[st->odr][0];
@@ -1004,22 +911,22 @@ static int adxl345_write_raw(struct iio_dev *indio_dev,
 
 	ret = adxl345_set_measure_en(st, false);
 	if (ret)
- 		return ret;
+		return ret;
 
 	switch (mask) {
 	case IIO_CHAN_INFO_CALIBBIAS:
 		/*
 		 * 8-bit resolution at +/- 2g, that is 4x accel data scale
-		 * factor.
+		 * factor
 		 */
 		ret = regmap_write(st->regmap,
-				   ADXL345_REG_OFS_AXIS(chan->address), val / 4);
+				    ADXL345_REG_OFS_AXIS(chan->address),
+				    val / 4);
 		break;
 	case IIO_CHAN_INFO_SAMP_FREQ:
 		ret = adxl345_find_odr(st, val, val2, &odr);
 		if (ret)
 			return ret;
-
 		ret = adxl345_set_odr(st, odr);
 		break;
 	case IIO_CHAN_INFO_SCALE:
@@ -1116,8 +1023,6 @@ static int adxl345_read_event_config(struct iio_dev *indio_dev,
 	default:
 		return -EINVAL;
 	}
-
-	return ret;
 }
 
 static int adxl345_write_event_config(struct iio_dev *indio_dev,
@@ -1177,8 +1082,6 @@ static int adxl345_write_event_config(struct iio_dev *indio_dev,
 	default:
 		return -EINVAL;
 	}
-
-	return -EINVAL;
 }
 
 static int adxl345_read_event_value(struct iio_dev *indio_dev, const struct iio_chan_spec *chan,
@@ -1246,7 +1149,6 @@ static int adxl345_read_event_value(struct iio_dev *indio_dev, const struct iio_
 	default:
 		return -EINVAL;
 	}
-	return -EINVAL;
 }
 
 static int adxl345_write_event_value(struct iio_dev *indio_dev,
@@ -1423,6 +1325,13 @@ static const struct attribute_group adxl345_event_attrs_group = {
 	.attrs = adxl345_event_attrs,
 };
 
+static void adxl345_powerdown(void *ptr)
+{
+	struct adxl345_state *st = ptr;
+
+	adxl345_set_measure_en(st, false);
+}
+
 static int adxl345_set_fifo(struct adxl345_state *st)
 {
 	int ret;
@@ -1569,6 +1478,7 @@ static int adxl345_get_status(struct adxl345_state *st, unsigned int *int_stat,
 	unsigned int regval;
 	bool check_tap_stat;
 	bool check_act_stat;
+	int ret;
 
 	*act_tap_dir = IIO_NO_MOD;
 	check_tap_stat = FIELD_GET(ADXL345_REG_TAP_AXIS_MSK, st->tap_axis_ctrl) > 0;
@@ -1576,8 +1486,9 @@ static int adxl345_get_status(struct adxl345_state *st, unsigned int *int_stat,
 
 	if (check_tap_stat || check_act_stat) {
 		/* ACT_TAP_STATUS should be read before clearing the interrupt */
-		if (regmap_read(st->regmap, ADXL345_REG_ACT_TAP_STATUS, &regval))
-			return -EINVAL;
+		ret = regmap_read(st->regmap, ADXL345_REG_ACT_TAP_STATUS, &regval);
+		if (ret)
+			return ret;
 
 		if ((FIELD_GET(ADXL345_Z_EN, regval >> 4)
 				| FIELD_GET(ADXL345_Z_EN, regval)) > 0)
@@ -1755,7 +1666,7 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 	struct adxl345_state *st;
 	struct iio_dev *indio_dev;
 	u32 regval;
-	unsigned int data_format_mask = (ADXL345_DATA_FORMAT_RANGE_MSK |
+	unsigned int data_format_mask = (ADXL345_DATA_FORMAT_RANGE |
 					 ADXL345_DATA_FORMAT_JUSTIFY |
 					 ADXL345_DATA_FORMAT_FULL_RES |
 					 ADXL345_DATA_FORMAT_SELF_TEST);
@@ -1871,8 +1782,7 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 		 * interrupts to the INT1 pin, whereas bits set to 1 send their respective
 		 * interrupts to the INT2 pin. The intio shall convert this accordingly.
 		 */
-		regval = st->intio ? ADXL345_REG_INT_SOURCE_MSK
-			: ~ADXL345_REG_INT_SOURCE_MSK;
+		regval = st->intio ? 0xff : 0;
 
 		ret = regmap_write(st->regmap, ADXL345_REG_INT_MAP, regval);
 		if (ret)
