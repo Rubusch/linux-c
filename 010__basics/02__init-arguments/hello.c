@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-*/
+ */
 
 #include <linux/module.h>
 #include <linux/moduleparam.h> /* module_param(), MODULE_PARAM_DESC() */
@@ -17,17 +17,17 @@ static int myintArray[2] = { -1, -1 };
 static int arr_argc = 0;
 
 /*
-  2a. Set up a modinfo parameter:
-
-      module_param(name, type, perm);
-      MODULE_PARAM_DESC(type, desc);
-
-      name = parameter's name (char*)
-      type = datatype (int)
-      perm = permissions bit for exposing parameters in the sysfs
-             later on (0000)
-      desc = description for modinfo (char*)
-*/
+ * 2a. Set up a modinfo parameter:
+ *
+ * module_param(name, type, perm);
+ * MODULE_PARAM_DESC(type, desc);
+ *
+ * name = parameter's name (char*)
+ * type = datatype (int)
+ * perm = permissions bit for exposing parameters in the sysfs
+ *        later on (0000)
+ * desc = description for modinfo (char*)
+ */
 module_param(myshort, short, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NB: S_IRUGO == S_IRUSR | S_IRGRP | S_IROTH
 MODULE_PARM_DESC(myshort, " my short integer");
 
@@ -41,23 +41,23 @@ module_param(mystring, charp, 0000);
 MODULE_PARM_DESC(mystring, " my char pointer");
 
 /*
-  2b. Set up the array.
-
-      module_param_array(name, type, num, perm)
-      MODULE_PARAM_DESC(type, desc);
-
-      name = name of the array
-      type = datatype
-      num  = number of elements or NULL
-      perm = permissions (0000)
-      desc = description for modinfo (char*)
-*/
+ * 2b. Set up the array.
+ *
+ * module_param_array(name, type, num, perm)
+ * MODULE_PARAM_DESC(type, desc);
+ *
+ * name = name of the array
+ * type = datatype
+ * num  = number of elements or NULL
+ * perm = permissions (0000)
+ * desc = description for modinfo (char*)
+ */
 module_param_array(myintArray, int, &arr_argc, 0000);
 MODULE_PARM_DESC(myintArray, "my array of integers");
 
 /*
-  init / exit
-*/
+ * init / exit
+ */
 
 static int __init hello_init(void)
 {
