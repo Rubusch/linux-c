@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-  REFERENCES
-  - Linux Device Driver Programming, J. Madieu, 2022
+ * REFERENCES
+ * - Linux Device Driver Programming, J. Madieu, 2022
  */
 #include <linux/module.h>
 #include <linux/init.h>
@@ -11,7 +11,7 @@
 #include <linux/workqueue.h>
 
 static DECLARE_WAIT_QUEUE_HEAD(lothars_wq);
-static int condition = 0;
+static int condition; /* static, so condition = 0 initialized */
 static struct work_struct workit;
 
 static void
@@ -23,7 +23,6 @@ work_handler(struct work_struct *work)
 	condition = 1;
 	wake_up_interruptible(&lothars_wq);
 }
-
 
 static int __init mod_init(void)
 {

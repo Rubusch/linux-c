@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-  REFERENCES
-  - Linux Device Driver Programming, J. Madieu, 2022
-*/
+ * REFERENCES
+ * - Linux Device Driver Programming, J. Madieu, 2022
+ */
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/sched.h>
@@ -18,7 +18,7 @@ struct work_data {
 	int data;
 };
 
-static int sleep = 0;
+static int sleep; /* 0 initialized */
 
 static void
 work_handler(struct work_struct *work)
@@ -36,10 +36,10 @@ work_handler(struct work_struct *work)
 
 static int __init mod_init(void)
 {
-	struct work_data * wd;
+	struct work_data *wd;
 
 	pr_info("%s(): called\n", __func__);
-	wd = kmalloc(sizeof(struct work_data), GFP_KERNEL);
+	wd = kmalloc(sizeof(*wd), GFP_KERNEL);
 
 	wd->data = 47;
 	INIT_WORK(&wd->work_item, work_handler);

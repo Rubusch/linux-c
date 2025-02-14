@@ -9,9 +9,6 @@
 static int __init mod_init(void);
 static void __exit mod_exit(void);
 
-int init_hello(void);
-void cleanup_hello(void);
-
 int init_hello(void)
 {
 	// NB: Always use '\n' to flush the message, w/o the CR/LF the string
@@ -38,6 +35,6 @@ static void __exit mod_exit(void)
 module_init(mod_init);
 module_exit(mod_exit);
 
-MODULE_LICENSE("GPLv2");
+MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Lothar Rubusch <l.rubusch@gmail.com>");
 MODULE_DESCRIPTION("messing with modules");

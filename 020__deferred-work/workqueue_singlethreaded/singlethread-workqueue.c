@@ -32,7 +32,7 @@ static int __init mod_init(void)
 
 	pr_info("%s(): called\n", __func__);
 	wq = create_singlethread_workqueue("singlethread_wq");
-	wd = kmalloc(sizeof(struct work_data), GFP_KERNEL);
+	wd = kmalloc(sizeof(*wd), GFP_KERNEL);
 
 	wd->data = 47;
 	INIT_WORK(&wd->work_item, work_handler);
