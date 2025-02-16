@@ -146,16 +146,21 @@ static const int adxl345_odr_tbl[][2] = {
 
 /*
  * Full resolution frequency table:
- * (g * 2 * 9.80665) / (2^(resolution) - 1) * 100
+ * (g * 2 * 9.80665) / (2^(resolution) - 1)
  *
  * resolution := 13 (full)
  * g := 2|4|8|16
+ *
+ *  2g at 13bit: 0.004789
+ *  4g at 13bit: 0.009578
+ *  8g at 13bit: 0.019156
+ * 16g at 16bit: 0.038312
  */
 static const int adxl345_fullres_range_tbl[][2] = {
-	[ADXL345_2G_RANGE]  = {0, 478899},
-	[ADXL345_4G_RANGE]  = {0, 957798},
-	[ADXL345_8G_RANGE]  = {1, 915595},
-	[ADXL345_16G_RANGE] = {3, 831190},
+	[ADXL345_2G_RANGE]  = {0, 4789},
+	[ADXL345_4G_RANGE]  = {0, 9578},
+	[ADXL345_8G_RANGE]  = {0, 19156},
+	[ADXL345_16G_RANGE] = {0, 38312},
 };
 
 /* scaling */
@@ -397,7 +402,7 @@ static int adxl345_is_act_inact_en(struct adxl345_state *st,
 static int adxl345_set_act_inact_en(struct adxl345_state *st,
 				    enum adxl345_activity_type type, bool cmd_en)
 {
-	bool axis_en, en;
+	bool axis_en, en = false;
 	unsigned long autosleep = 0;
 	int ret;
 
