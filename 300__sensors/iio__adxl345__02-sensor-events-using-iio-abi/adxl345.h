@@ -8,8 +8,6 @@
 #ifndef _ADXL345_H_
 #define _ADXL345_H_
 
-#include <linux/regmap.h>
-
 #define ADXL345_REG_DEVID		0x00
 #define ADXL345_REG_THRESH_TAP		0x1D
 #define ADXL345_REG_OFSX		0x1E
@@ -112,6 +110,8 @@
  * ~480mm/s**2 per LSB.
  */
 #define ADXL375_USCALE	480000
+
+struct regmap;
 
 bool adxl345_is_volatile_reg(struct device *dev, unsigned int reg);
 
