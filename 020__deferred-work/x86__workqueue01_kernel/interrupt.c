@@ -1,46 +1,47 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 /*
-  Triggering Hardware Interrupt through Software
-
-  NB: x86 only
-  NB: tasklets are deprecated
-
-  Intel processors handle interrupt using IDT (Interrupt Descriptor
-  Table).  The IDT consists of 256 entries with each entry
-  corresponding to a vector and of 8 bytes. All the entries are a
-  pointer to the interrupt handling function. The CPU uses IDTR to
-  point to IDT. The relation between those two can be depicted as
-  below,
-
-  IDTR Register
-
-
-   47                               16 15              0
-  +-----------------------------------+-----------------+
-  | IDT Base Addr                     |   IDT Limit     |
-  +-----------------------------------+-----------------+
-                     |                       |
-                     |      +----------------+
-                     |      |
-		     |      |   Interrupt Descriptor Table (IDT)
-		     |      V         +-----------------+
-		     +---->(+)------->| Gate for        |
-		     |                |     Interrupt n |
-		     |                +-----------------+
-		     |                |                 |
-		     |               ...               ...
-		     |                |                 |
-		     |                +-----------------+
-		     |                +-----------------+
-		     |                +-----------------+
-		     |                | Gate Irpt. #2   |
-		     |                +-----------------+
-		     +--------------->| Gate for        |
-		                      |    Interrupt #1 |
-				      +-----------------+
-
-  An interrupt can be programmatically raised using int
-  instruction. For example, the Linux system call was using int $0x80.
-*/
+ * Triggering Hardware Interrupt through Software
+ *
+ * NB: x86 only
+ * NB: tasklets are deprecated
+ *
+ * Intel processors handle interrupt using IDT (Interrupt Descriptor
+ * Table).  The IDT consists of 256 entries with each entry
+ * corresponding to a vector and of 8 bytes. All the entries are a
+ * pointer to the interrupt handling function. The CPU uses IDTR to
+ * point to IDT. The relation between those two can be depicted as
+ * below,
+ *
+ * IDTR Register
+ *
+ *
+ *  47                               16 15              0
+ * +-----------------------------------+-----------------+
+ * | IDT Base Addr                     |   IDT Limit     |
+ * +-----------------------------------+-----------------+
+ *                    |                       |
+ *                    |      +----------------+
+ *                    |      |
+ *                    |      |   Interrupt Descriptor Table (IDT)
+ *                    |      V         +-----------------+
+ *                    +---->(+)------->| Gate for        |
+ *                    |                |     Interrupt n |
+ *                    |                +-----------------+
+ *                    |                |                 |
+ *                    |               ...               ...
+ *                    |                |                 |
+ *                    |                +-----------------+
+ *                    |                +-----------------+
+ *                    |                +-----------------+
+ *                    |                | Gate Irpt. #2   |
+ *                    |                +-----------------+
+ *                    +--------------->| Gate for        |
+ *                                     |    Interrupt #1 |
+ *                                     +-----------------+
+ *
+ * An interrupt can be programmatically raised using int
+ * instruction. For example, the Linux system call was using int $0x80.
+ */
 
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -49,18 +50,8 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/interrupt.h>
-#include <asm/io.h>
+#include <linux/io.h>
 #include <asm/hw_irq.h>
-
-/*
-  forwards
-*/
-
-static int __init mod_init(void);
-static void __exit mod_exit(void);
-
-int init_hello_interrupt(void);
-void cleanup_hello_interrupt(void);
 
 // interrupt handler
 static irqreturn_t irq_handler(int, void *);
@@ -68,25 +59,6 @@ static irqreturn_t irq_handler(int, void *);
 // chardev read()
 static ssize_t hello_interrupt_read(struct file *, char __user *, size_t,
 				    loff_t *);
-
-// workqueue
-void workqueue_fn(struct work_struct *work);
-
-#ifdef STATIC_WORKQUEUE_APPROACH
-
-// 'static' definition approach
-static struct work_struct workqueue;
-
-#else
-
-// macro approach
-DECLARE_WORK(workqueue, workqueue_fn);
-
-#endif /* STATIC_WORKQUEUE_APPROACH */
-
-/*
-  globals
-*/
 
 // chardev device
 #define HELLO_DEVICE_MINOR 123
@@ -100,7 +72,7 @@ dev_t dev;
 static struct class *dev_class;
 static struct cdev hello_interrupt_cdev;
 
-static struct file_operations fops = {
+static const struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = hello_interrupt_read,
 };
@@ -109,49 +81,45 @@ static struct file_operations fops = {
 #define IRQ_NO 11
 
 /*
-  implementation
-*/
-
-/*
-  chardev read()
-
-  Simulates something similar as an interrupt from a device.
-
-  This used to work on older kernel versions, but fails on later
-  versions. The reason is that the generic IRQ handler do_IRQ() has
-  been changed for better IRQ handling performance. Instead of using
-  the irq_to_desc() function to get the IRQ descriptor, it reads it
-  from the per-CPU data. The descriptor is put there during the
-  physical device initialization. Since this pseudo device driver
-  don't have a physical device, do_IRQ() don't find it there and
-  returns with an error. If we want to simulate IRQ using software
-  interrupt, we must first write the IRQ descriptor to the per-CPU
-  data. Unfortunately, the symbol vector_irq, the array of the IRQ
-  descriptors in the per-CPU data, is not exported to kernel modules
-  during kernel compilation. The only way to change it, is to
-  recompile the whole kernel. If you think it worth the effort, you
-  can add the line:
-
-    EXPORT_SYMBOL (vector_irq);
-
-  in the file: arch/x86/kernel/irq.c right after all the include lines.
-
-  https://stackoverflow.com/questions/57391628/error-while-raising-interrupt-11-with-inline-asm-into-kernel-module
-*/
+ * chardev read()
+ *
+ * Simulates something similar as an interrupt from a device.
+ *
+ * This used to work on older kernel versions, but fails on later
+ * versions. The reason is that the generic IRQ handler do_IRQ() has
+ * been changed for better IRQ handling performance. Instead of using
+ * the irq_to_desc() function to get the IRQ descriptor, it reads it
+ * from the per-CPU data. The descriptor is put there during the
+ * physical device initialization. Since this pseudo device driver
+ * don't have a physical device, do_IRQ() don't find it there and
+ * returns with an error. If we want to simulate IRQ using software
+ * interrupt, we must first write the IRQ descriptor to the per-CPU
+ * data. Unfortunately, the symbol vector_irq, the array of the IRQ
+ * descriptors in the per-CPU data, is not exported to kernel modules
+ * during kernel compilation. The only way to change it, is to
+ * recompile the whole kernel. If you think it worth the effort, you
+ * can add the line:
+ *
+ *   EXPORT_SYMBOL (vector_irq);
+ *
+ * in the file: arch/x86/kernel/irq.c right after all the include lines.
+ *
+ * https://stackoverflow.com/questions/57391628/error-while-raising-interrupt-11-with-inline-asm-into-kernel-module
+ */
 static ssize_t hello_interrupt_read(struct file *filp, char __user *buf,
 				    size_t len, loff_t *off)
 {
-	printk(KERN_INFO "%s()", __func__);
+	pr_info("%s()", __func__);
 	asm("int $0x38"); // corresponding to IRQ 11
 	return 0;
 }
 
 /*
-  interrupt handler
-*/
+ * interrupt handler
+ */
 static irqreturn_t irq_handler(int irq, void *dev_id)
 {
-	printk(KERN_INFO "%s() shared IRQ: interrupt occured\n", __func__);
+	pr_info("%s() shared IRQ: interrupt occurred\n", __func__);
 
 	// allocating workqueue
 	schedule_work(&workqueue);
@@ -160,44 +128,51 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
 }
 
 /*
-  workqueue
-*/
+ * workqueue
+ */
 void workqueue_fn(struct work_struct *work)
 {
-	printk(KERN_INFO "%s()\n", __func__);
+	pr_info("%s()\n", __func__);
 }
 
+#ifdef STATIC_WORKQUEUE_APPROACH
+// 'static' definition approach
+static struct work_struct workqueue;
+#else
+// macro approach
+DECLARE_WORK(workqueue, workqueue_fn);
+#endif /* STATIC_WORKQUEUE_APPROACH */
+
 /*
-  start / stop module
-*/
+ * start / stop module
+ */
 
 int init_hello_interrupt(void)
 {
-	printk(KERN_INFO "%s() initializing...\n", __func__);
-	if (0 > alloc_chrdev_region(&dev, HELLO_DEVICE_MINOR, 1,
-				    HELLO_DEVICE_CHRDEV)) {
-		printk(KERN_ERR "alloc_chrdev_region() failed\n");
+	pr_info("%s() initializing...\n", __func__);
+	if (alloc_chrdev_region(&dev, HELLO_DEVICE_MINOR, 1,
+				HELLO_DEVICE_CHRDEV) < 0) {
+		pr_err("alloc_chrdev_region() failed\n");
 		return -ENOMEM;
 	}
-	printk(KERN_INFO "%s() major = %d, minor = %d\n", __func__, MAJOR(dev),
-	       MINOR(dev));
+	pr_info("%s() major = %d, minor = %d\n", __func__,
+		MAJOR(dev), MINOR(dev));
 
 	cdev_init(&hello_interrupt_cdev, &fops);
 
-	if (0 > cdev_add(&hello_interrupt_cdev, dev, 1)) {
-		printk(KERN_ERR "cdev_add() failed\n");
+	if (cdev_add(&hello_interrupt_cdev, dev, 1) < 0) {
+		pr_err("cdev_add() failed\n");
 		goto err_cdev;
 	}
 
 	dev_class = class_create(THIS_MODULE, HELLO_DEVICE_CLASS);
-	if (NULL == dev_class) {
-		printk(KERN_ERR "class_create() failed\n");
+	if (!dev_class) {
+		pr_err("class_create() failed\n");
 		goto err_class;
 	}
 
-	if (NULL ==
-	    device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
-		printk(KERN_ERR "device_create() failed\n");
+	if (!device_create(dev_class, NULL, dev, NULL, HELLO_DEVICE_NAME)) {
+		pr_err("device_create() failed\n");
 		goto err_device;
 	}
 
@@ -216,7 +191,7 @@ int init_hello_interrupt(void)
 	 */
 	if (request_irq(IRQ_NO, irq_handler, IRQF_SHARED, HELLO_DEVICE_NAME,
 			(void *)(irq_handler))) {
-		printk(KERN_ERR "request_irq() failed!\n");
+		pr_err("request_irq() failed!\n");
 		goto err_irq;
 	}
 
@@ -245,20 +220,20 @@ err_irq:
 void cleanup_hello_interrupt(void)
 {
 	/**
-	 *free_irq - free an interrupt allocated with request_irq
-	 *@irq: Interrupt line to free
-	 *@dev_id: Device identity to free
+	 * free_irq - free an interrupt allocated with request_irq
+	 * @irq: Interrupt line to free
+	 * @dev_id: Device identity to free
 	 *
-	 *Remove an interrupt handler. The handler is removed and if the
-	 *interrupt line is no longer in use by any driver it is disabled.
-	 *On a shared IRQ the caller must ensure the interrupt is disabled
-	 *on the card it drives before calling this function. The function
-	 *does not return until any executing interrupts for this IRQ
-	 *have completed.
+	 * Remove an interrupt handler. The handler is removed and if the
+	 * interrupt line is no longer in use by any driver it is disabled.
+	 * On a shared IRQ the caller must ensure the interrupt is disabled
+	 * on the card it drives before calling this function. The function
+	 * does not return until any executing interrupts for this IRQ
+	 * have completed.
 	 *
-	 *This function must not be called from interrupt context.
+	 * This function must not be called from interrupt context.
 	 *
-	 *Returns the devname argument passed to request_irq.
+	 * Returns the devname argument passed to request_irq.
 	 */
 	free_irq(IRQ_NO, (void *)(irq_handler));
 
@@ -268,12 +243,12 @@ void cleanup_hello_interrupt(void)
 	cdev_del(&hello_interrupt_cdev);
 	unregister_chrdev_region(dev, 1);
 
-	printk(KERN_INFO "%s() READY.\n", __func__);
+	pr_info("%s() READY.\n", __func__);
 }
 
 /*
-  init / exit
-*/
+ * init / exit
+ */
 
 static int __init mod_init(void)
 {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
-  REFERENCES
-  - Linux Device Driver Programming, J. Madieu, 2022
+ *  REFERENCES
+ * - Linux Device Driver Programming, J. Madieu, 2022
  */
 #include <linux/init.h>
 #include <linux/module.h>
