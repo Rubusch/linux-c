@@ -193,19 +193,18 @@ static struct iio_event_spec adxl345_events[] = {
 		.type = IIO_EV_TYPE_THRESH,
 		.dir = IIO_EV_DIR_RISING,
 		.mask_separate = BIT(IIO_EV_INFO_ENABLE),
-		.mask_shared_by_type = BIT(IIO_EV_INFO_ENABLE) |
-			BIT(IIO_EV_INFO_VALUE),
+		.mask_shared_by_type = BIT(IIO_EV_INFO_VALUE),
 	},
 	{
 		/* inactivity */
 		.type = IIO_EV_TYPE_THRESH,
 		.dir = IIO_EV_DIR_FALLING,
 		.mask_separate = BIT(IIO_EV_INFO_ENABLE),
-		.mask_shared_by_type = BIT(IIO_EV_INFO_ENABLE) |
-			BIT(IIO_EV_INFO_VALUE) |
+		.mask_shared_by_type = BIT(IIO_EV_INFO_VALUE) |
 			BIT(IIO_EV_INFO_PERIOD),
 	},
 	{
+		/* single tap */
 		.type = IIO_EV_TYPE_GESTURE,
 		.dir = IIO_EV_DIR_SINGLETAP,
 		.mask_separate = BIT(IIO_EV_INFO_ENABLE),
@@ -213,6 +212,7 @@ static struct iio_event_spec adxl345_events[] = {
 			BIT(IIO_EV_INFO_TIMEOUT),
 	},
 	{
+		/* double tap */
 		.type = IIO_EV_TYPE_GESTURE,
 		.dir = IIO_EV_DIR_DOUBLETAP,
 		.mask_shared_by_type = BIT(IIO_EV_INFO_ENABLE) |
@@ -318,29 +318,6 @@ static int adxl345_set_measure_en(struct adxl345_state *st, bool en)
 }
 
 /* act/inact */
-
-static int adxl345_write_act_axis(struct adxl345_state *st,
-				  enum iio_modifier axis,
-				  enum adxl345_activity_type type, bool en)
-{
-	/*
-	 * Activity and inactivity share the same register for enabling
-	 * directions. Activity uses the four upper bits, where inactivity
-	 * detection uses the lower bits. In order to keep generic x, y
-	 * and z-axis type, it is shifted for initialization of activity.
-	 * NB: Activity and inactivitty axis enable bits are regmap cached.
-	 */
-	int act_shift = (type == ADXL345_ACTIVITY) ? 4 : 0;
-
-	if (en)
-		return regmap_set_bits(st->regmap,
-				       ADXL345_REG_ACT_INACT_CTRL,
-				       axis << act_shift);
-	else
-		return regmap_clear_bits(st->regmap,
-					 ADXL345_REG_ACT_INACT_CTRL,
-					 axis << act_shift);
-}
 
 static int adxl345_is_act_inact_ac(struct adxl345_state *st,
 				   enum adxl345_activity_type type, bool *ac)
@@ -455,21 +432,46 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 	unsigned int inact_time_s;
 	unsigned int threshold;
 	u32 axis_ctrl;
+	/*
+	 * Activity and inactivity share the same register for enabling
+	 * directions. Activity uses the four upper bits, where inactivity
+	 * detection uses the lower bits. In order to keep generic x, y
+	 * and z-axis type, it is shifted for initialization of activity.
+	 * NB: Activity and inactivitty axis enable bits are regmap cached.
+	 */
+	int act_shift = (type == ADXL345_ACTIVITY) ? 4 : 0;
 	int ret;
 
-	en = false;
+	switch (axis) {
+	case IIO_MOD_X:
+		axis_ctrl = ADXL345_X_EN;
+		break;
+	case IIO_MOD_Y:
+		axis_ctrl = ADXL345_Y_EN;
+		break;
+	case IIO_MOD_Z:
+		axis_ctrl = ADXL345_Z_EN;
+		break;
+	default:
+		return -EINVAL;
+	}
 
-	ret = adxl345_write_act_axis(st, axis, type, cmd_en);
-	if (ret)
-		return ret;
+	axis_ctrl = axis_ctrl << act_shift;
 
-	ret = regmap_read(st->regmap, ADXL345_REG_ACT_INACT_CTRL, &axis_ctrl);
+	if (cmd_en)
+		ret = regmap_set_bits(st->regmap,
+				      ADXL345_REG_ACT_INACT_CTRL, axis_ctrl);
+	else
+		ret = regmap_clear_bits(st->regmap,
+					ADXL345_REG_ACT_INACT_CTRL, axis_ctrl);
 	if (ret)
 		return ret;
 
 	ret = regmap_read(st->regmap, adxl345_act_thresh_reg[type], &threshold);
 	if (ret)
 		return ret;
+
+	en = false;
 
 	if (type == ADXL345_ACTIVITY) {
 		axis_en = FIELD_GET(ADXL345_REG_ACT_AXIS_MSK, axis_ctrl) > 0;
@@ -625,17 +627,17 @@ static int adxl345_set_singletap_en(struct adxl345_state *st,
 				    enum iio_modifier axis, bool en)
 {
 	int ret;
-	enum adxl345_axis axis_en;
+	enum adxl345_axis axis_ctrl;
 
 	switch (axis) {
 	case IIO_MOD_X:
-		axis_en = ADXL345_X_EN;
+		axis_ctrl = ADXL345_X_EN;
 		break;
 	case IIO_MOD_Y:
-		axis_en = ADXL345_Y_EN;
+		axis_ctrl = ADXL345_Y_EN;
 		break;
 	case IIO_MOD_Z:
-		axis_en = ADXL345_Z_EN;
+		axis_ctrl = ADXL345_Z_EN;
 		break;
 	default:
 		return -EINVAL;
@@ -643,10 +645,10 @@ static int adxl345_set_singletap_en(struct adxl345_state *st,
 
 	if (en)
 		ret = regmap_set_bits(st->regmap, ADXL345_REG_TAP_AXIS,
-				      axis_en);
+				      axis_ctrl);
 	else
 		ret = regmap_clear_bits(st->regmap, ADXL345_REG_TAP_AXIS,
-					axis_en);
+					axis_ctrl);
 	if (ret)
 		return ret;
 
@@ -1538,14 +1540,17 @@ static int adxl345_fifo_push(struct iio_dev *indio_dev,
 }
 
 static int adxl345_push_event(struct iio_dev *indio_dev, int int_stat,
-			      enum iio_modifier dir)
+			      enum iio_modifier tap_dir,
+			      enum iio_modifier act_dir)
 {
 	s64 ts = iio_get_time_ns(indio_dev);
+	struct adxl345_state *st = iio_priv(indio_dev);
+	int samples;
 	int ret = -ENOENT;
 
 	if (FIELD_GET(ADXL345_INT_SINGLE_TAP, int_stat)) {
 		ret = iio_push_event(indio_dev,
-				     IIO_MOD_EVENT_CODE(IIO_ACCEL, 0, dir,
+				     IIO_MOD_EVENT_CODE(IIO_ACCEL, 0, tap_dir,
 							IIO_EV_TYPE_GESTURE,
 							IIO_EV_DIR_SINGLETAP),
 				     ts);
@@ -1555,7 +1560,7 @@ static int adxl345_push_event(struct iio_dev *indio_dev, int int_stat,
 
 	if (FIELD_GET(ADXL345_INT_DOUBLE_TAP, int_stat)) {
 		ret = iio_push_event(indio_dev,
-				     IIO_MOD_EVENT_CODE(IIO_ACCEL, 0, dir,
+				     IIO_MOD_EVENT_CODE(IIO_ACCEL, 0, tap_dir,
 							IIO_EV_TYPE_GESTURE,
 							IIO_EV_DIR_DOUBLETAP),
 				     ts);
@@ -1565,7 +1570,7 @@ static int adxl345_push_event(struct iio_dev *indio_dev, int int_stat,
 
 	if (FIELD_GET(ADXL345_INT_ACTIVITY, int_stat)) {
 		ret = iio_push_event(indio_dev,
-				     IIO_MOD_EVENT_CODE(IIO_ACCEL, 0, dir,
+				     IIO_MOD_EVENT_CODE(IIO_ACCEL, 0, act_dir,
 							IIO_EV_TYPE_THRESH,
 							IIO_EV_DIR_RISING),
 				     ts);
@@ -1595,6 +1600,15 @@ static int adxl345_push_event(struct iio_dev *indio_dev, int int_stat,
 			return ret;
 	}
 
+	if (FIELD_GET(ADXL345_INT_WATERMARK, int_stat)) {
+		samples = adxl345_get_samples(st);
+		if (samples < 0)
+			return -EINVAL;
+
+		if (adxl345_fifo_push(indio_dev, samples) < 0)
+			return -EINVAL;
+	}
+
 	return ret;
 }
 
@@ -1611,58 +1625,45 @@ static irqreturn_t adxl345_irq_handler(int irq, void *p)
 	struct iio_dev *indio_dev = p;
 	struct adxl345_state *st = iio_priv(indio_dev);
 	unsigned int regval;
-	enum iio_modifier act_tap_dir  = IIO_NO_MOD;
+	enum iio_modifier tap_dir = IIO_NO_MOD;
+	enum iio_modifier act_dir = IIO_NO_MOD;
 	u32 axis_ctrl;
-	int int_stat, samples, ret;
+	int int_stat;
+	int ret;
 
 	ret = regmap_read(st->regmap, ADXL345_REG_TAP_AXIS, &axis_ctrl);
 	if (ret)
 		return IRQ_NONE;
 
-	if (FIELD_GET(ADXL345_REG_TAP_AXIS_MSK, axis_ctrl) > 0) {
+	if (FIELD_GET(ADXL345_REG_TAP_AXIS_MSK, axis_ctrl) ||
+	    FIELD_GET(ADXL345_REG_ACT_AXIS_MSK, axis_ctrl)) {
 		ret = regmap_read(st->regmap, ADXL345_REG_ACT_TAP_STATUS, &regval);
 		if (ret)
 			return IRQ_NONE;
 
-		/* tap direction */
-		if (FIELD_GET(ADXL345_Z_EN, regval) > 0)
-			act_tap_dir = IIO_MOD_Z;
-		else if (FIELD_GET(ADXL345_Y_EN, regval) > 0)
-			act_tap_dir = IIO_MOD_Y;
-		else if (FIELD_GET(ADXL345_X_EN, regval) > 0)
-			act_tap_dir = IIO_MOD_X;
-	}
-
-	if (FIELD_GET(ADXL345_REG_ACT_AXIS_MSK, axis_ctrl) > 0) {
-		ret = regmap_read(st->regmap, ADXL345_REG_ACT_TAP_STATUS, &regval);
-		if (ret)
-			return IRQ_NONE;
+		if (FIELD_GET(ADXL345_Z_EN, regval))
+			tap_dir = IIO_MOD_Z;
+		else if (FIELD_GET(ADXL345_Y_EN, regval))
+			tap_dir = IIO_MOD_Y;
+		else if (FIELD_GET(ADXL345_X_EN, regval))
+			tap_dir = IIO_MOD_X;
 
 		/* Activity direction is stored in the upper four bits */
 		regval >>= act_shift;
 
-		if (FIELD_GET(ADXL345_Z_EN, regval) > 0)
-			act_tap_dir = IIO_MOD_Z;
-		else if (FIELD_GET(ADXL345_Y_EN, regval) > 0)
-			act_tap_dir = IIO_MOD_Y;
-		else if (FIELD_GET(ADXL345_X_EN, regval) > 0)
-			act_tap_dir = IIO_MOD_X;
+		if (FIELD_GET(ADXL345_Z_EN, regval))
+			act_dir = IIO_MOD_Z;
+		else if (FIELD_GET(ADXL345_Y_EN, regval))
+			act_dir = IIO_MOD_Y;
+		else if (FIELD_GET(ADXL345_X_EN, regval))
+			act_dir = IIO_MOD_X;
 	}
 
 	if (regmap_read(st->regmap, ADXL345_REG_INT_SOURCE, &int_stat))
 		return IRQ_NONE;
 
-	if (adxl345_push_event(indio_dev, int_stat, act_tap_dir))
+	if (adxl345_push_event(indio_dev, int_stat, tap_dir, act_dir))
 		goto err;
-
-	if (FIELD_GET(ADXL345_INT_WATERMARK, int_stat)) {
-		samples = adxl345_get_samples(st);
-		if (samples < 0)
-			goto err;
-
-		if (adxl345_fifo_push(indio_dev, samples) < 0)
-			goto err;
-	}
 
 	if (FIELD_GET(ADXL345_INT_OVERRUN, int_stat))
 		goto err;
@@ -1823,6 +1824,22 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 		regval = intio ? 0xff : 0;
 
 		ret = regmap_write(st->regmap, ADXL345_REG_INT_MAP, regval);
+		if (ret)
+			return ret;
+
+		ret = regmap_write(st->regmap, ADXL345_REG_ACT_INACT_CTRL, 0);
+		if (ret)
+			return ret;
+
+		ret = regmap_write(st->regmap, ADXL345_REG_TIME_INACT, 3);
+		if (ret)
+			return ret;
+
+		ret = regmap_write(st->regmap, ADXL345_REG_THRESH_ACT, 6);
+		if (ret)
+			return ret;
+
+		ret = regmap_write(st->regmap, ADXL345_REG_THRESH_INACT, 4);
 		if (ret)
 			return ret;
 
