@@ -295,7 +295,7 @@ bool adxl345_is_volatile_reg(struct device *dev, unsigned int reg)
 		return false;
 	}
 }
-EXPORT_SYMBOL_NS_GPL(adxl345_is_volatile_reg, "IIO_ADXL345");
+EXPORT_SYMBOL_NS_GPL(adxl345_is_volatile_reg, IIO_ADXL345);
 
 /**
  * adxl345_set_measure_en() - Enable and disable measuring.
@@ -314,7 +314,8 @@ static int adxl345_set_measure_en(struct adxl345_state *st, bool en)
 {
 	unsigned int val = en ? ADXL345_POWER_CTL_MEASURE : ADXL345_POWER_CTL_STANDBY;
 
-	return regmap_write(st->regmap, ADXL345_REG_POWER_CTL, val);
+	return regmap_update_bits(st->regmap, ADXL345_REG_POWER_CTL,
+				  ADXL345_POWER_CTL_MEASURE, val);
 }
 
 /* act/inact */
@@ -330,9 +331,9 @@ static int adxl345_is_act_inact_ac(struct adxl345_state *st,
 		return ret;
 
 	if (type == ADXL345_ACTIVITY)
-		*ac = (FIELD_GET(ADXL345_REG_ACT_ACDC_MSK, regval) > 0);
+		*ac = FIELD_GET(ADXL345_REG_ACT_ACDC_MSK, regval);
 	else
-		*ac = (FIELD_GET(ADXL345_REG_INACT_ACDC_MSK, regval) > 0);
+		*ac = FIELD_GET(ADXL345_REG_INACT_ACDC_MSK, regval);
 
 	return 0;
 }
@@ -387,7 +388,6 @@ static int adxl345_is_act_inact_en(struct adxl345_state *st,
 				   enum adxl345_activity_type type, bool *en)
 {
 	unsigned int regval;
-	bool axis_en;
 	u32 axis_ctrl;
 	int ret;
 
@@ -398,38 +398,42 @@ static int adxl345_is_act_inact_en(struct adxl345_state *st,
 	if (type == ADXL345_ACTIVITY) {
 		switch (axis) {
 		case IIO_MOD_X:
-			axis_en = FIELD_GET(ADXL345_ACT_X_EN, axis_ctrl);
+			*en = FIELD_GET(ADXL345_ACT_X_EN, axis_ctrl);
 			break;
 		case IIO_MOD_Y:
-			axis_en = FIELD_GET(ADXL345_ACT_Y_EN, axis_ctrl);
+			*en = FIELD_GET(ADXL345_ACT_Y_EN, axis_ctrl);
 			break;
 		case IIO_MOD_Z:
-			axis_en = FIELD_GET(ADXL345_ACT_Z_EN, axis_ctrl);
+			*en = FIELD_GET(ADXL345_ACT_Z_EN, axis_ctrl);
 			break;
 		default:
+			*en = false;
 			return -EINVAL;
 		}
 	} else {
 		switch (axis) {
 		case IIO_MOD_X:
-			axis_en = FIELD_GET(ADXL345_INACT_X_EN, axis_ctrl);
+			*en = FIELD_GET(ADXL345_INACT_X_EN, axis_ctrl);
 			break;
 		case IIO_MOD_Y:
-			axis_en = FIELD_GET(ADXL345_INACT_Y_EN, axis_ctrl);
+			*en = FIELD_GET(ADXL345_INACT_Y_EN, axis_ctrl);
 			break;
 		case IIO_MOD_Z:
-			axis_en = FIELD_GET(ADXL345_INACT_Z_EN, axis_ctrl);
+			*en = FIELD_GET(ADXL345_INACT_Z_EN, axis_ctrl);
 			break;
 		default:
+			*en = false;
 			return -EINVAL;
 		}
 	}
 
-	ret = regmap_read(st->regmap, ADXL345_REG_INT_ENABLE, &regval);
-	if (ret)
-		return ret;
+	if (*en) {
+		ret = regmap_read(st->regmap, ADXL345_REG_INT_ENABLE, &regval);
+		if (ret)
+			return ret;
 
-	*en = (adxl345_act_int_reg[type] & regval) > 0;
+		*en = adxl345_act_int_reg[type] & regval;
+	}
 
 	return 0;
 }
@@ -439,7 +443,7 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 				    enum adxl345_activity_type type,
 				    bool cmd_en)
 {
-	bool axis_en, en;
+	bool en;
 	unsigned int inact_time_s;
 	unsigned int threshold;
 	u32 axis_ctrl = 0;
@@ -491,15 +495,15 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 	en = false;
 
 	if (type == ADXL345_ACTIVITY) {
-		axis_en = FIELD_GET(ADXL345_REG_ACT_AXIS_MSK, axis_ctrl) > 0;
-		en = axis_en && threshold > 0;
+		en = FIELD_GET(ADXL345_REG_ACT_AXIS_MSK, axis_ctrl) &&
+			threshold;
 	} else {
 		ret = regmap_read(st->regmap, ADXL345_REG_TIME_INACT, &inact_time_s);
 		if (ret)
 			return ret;
 
-		axis_en = FIELD_GET(ADXL345_REG_INACT_AXIS_MSK, axis_ctrl) > 0;
-		en = axis_en && threshold > 0 && inact_time_s > 0;
+		en = FIELD_GET(ADXL345_REG_INACT_AXIS_MSK, axis_ctrl) &&
+			threshold && inact_time_s;
 	}
 
 	ret = regmap_update_bits(st->regmap, ADXL345_REG_INT_ENABLE,
@@ -519,11 +523,13 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
  * @st: The sensor state instance.
  * @val_s: A desired time value, between 0 and 255.
  *
- * If val_s is 0, a default inactivity time will be computed. It should take
- * power consumption into consideration. Thus it shall be shorter for higher
- * frequencies and longer for lower frequencies. Hence, frequencies above 255 Hz
- * shall default to 10 s and frequencies below 10 Hz shall result in 255 s to
- * detect inactivity.
+ * Inactivity time can be configured between 1 and 255 sec. If a val_s of 0
+ * is configured by a user, then a default inactivity time will be computed.
+ *
+ * In such case, it should take power consumption into consideration. Thus it
+ * shall be shorter for higher frequencies and longer for lower frequencies.
+ * Hence, frequencies above 255 Hz shall default to 10 s and frequencies below
+ * 10 Hz shall result in 255 s to detect inactivity.
  *
  * The approach simply subtracts the pre-decimal figure of the configured
  * sample frequency from 255 s to compute inactivity time [s]. Sub-Hz are thus
@@ -609,7 +615,6 @@ static int adxl345_is_tap_en(struct adxl345_state *st,
 			     enum adxl345_tap_type type, bool *en)
 {
 	unsigned int regval;
-	bool axis_en;
 	u32 axis_ctrl;
 	int ret;
 
@@ -617,25 +622,33 @@ static int adxl345_is_tap_en(struct adxl345_state *st,
 	if (ret)
 		return ret;
 
+	/* Verify if axis is enabled for the tap detection. */
 	switch (axis) {
 	case IIO_MOD_X:
-		axis_en = FIELD_GET(ADXL345_TAP_X_EN, axis_ctrl);
+		*en = FIELD_GET(ADXL345_TAP_X_EN, axis_ctrl);
 		break;
 	case IIO_MOD_Y:
-		axis_en = FIELD_GET(ADXL345_TAP_Y_EN, axis_ctrl);
+		*en = FIELD_GET(ADXL345_TAP_Y_EN, axis_ctrl);
 		break;
 	case IIO_MOD_Z:
-		axis_en = FIELD_GET(ADXL345_TAP_Z_EN, axis_ctrl);
+		*en = FIELD_GET(ADXL345_TAP_Z_EN, axis_ctrl);
 		break;
 	default:
+		*en = false;
 		return -EINVAL;
 	}
 
-	ret = regmap_read(st->regmap, ADXL345_REG_INT_ENABLE, &regval);
-	if (ret)
-		return ret;
+	if (*en) {
+		/*
+		 * If axis allow for tap detection, verify if the interrupt is
+		 * enabled for tap detection.
+		 */
+		ret = regmap_read(st->regmap, ADXL345_REG_INT_ENABLE, &regval);
+		if (ret)
+			return ret;
 
-	*en = (adxl345_tap_int_reg[type] & regval) > 0;
+		*en = adxl345_tap_int_reg[type] & regval;
+	}
 
 	return 0;
 }
@@ -779,7 +792,6 @@ static int adxl345_is_ff_en(struct adxl345_state *st, bool *en)
 static int adxl345_set_ff_en(struct adxl345_state *st, bool cmd_en)
 {
 	unsigned int regval, ff_threshold;
-	const unsigned int freefall_mask = 0x02;
 	bool en;
 	int ret;
 
@@ -792,7 +804,7 @@ static int adxl345_set_ff_en(struct adxl345_state *st, bool cmd_en)
 	regval = en ? ADXL345_INT_FREE_FALL : 0x00;
 
 	return regmap_update_bits(st->regmap, ADXL345_REG_INT_ENABLE,
-				  freefall_mask, regval);
+				  ADXL345_INT_FREE_FALL, regval);
 }
 
 static int adxl345_set_ff_time(struct adxl345_state *st, u32 val_int,
@@ -1049,9 +1061,7 @@ static int adxl345_read_event_config(struct iio_dev *indio_dev,
 				     enum iio_event_direction dir)
 {
 	struct adxl345_state *st = iio_priv(indio_dev);
-	bool int_en;
-	bool act_ac;
-	bool inact_ac;
+	bool int_en, act_ac, inact_ac;
 	int ret;
 
 	switch (type) {
@@ -1634,7 +1644,7 @@ static int adxl345_push_event(struct iio_dev *indio_dev, int int_stat,
 		if (adxl345_fifo_push(indio_dev, samples) < 0)
 			return -EINVAL;
 
-		return 0;
+		ret = 0;
 	}
 
 	return ret;
@@ -1851,6 +1861,12 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 		if (ret)
 			return ret;
 
+		/*
+		 * Initialization with reasonable values to simplify operation
+		 * of the sensor. The default values are partly taken from the
+		 * older input driver for the ADXL345, and partly based on
+		 * recommendations in the datasheet.
+		 */
 		ret = regmap_write(st->regmap, ADXL345_REG_ACT_INACT_CTRL, 0);
 		if (ret)
 			return ret;
