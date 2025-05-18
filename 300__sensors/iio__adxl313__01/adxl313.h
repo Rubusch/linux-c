@@ -61,7 +61,7 @@
 #define ADXL313_INT_DREADY		BIT(7)
 
 /* FIFO entries: how many values are stored in the FIFO */
-#define ADXL313_REG_FIFO_STATUS_ENTRIES_MSK	GENMASK(5, 0) 
+#define ADXL313_REG_FIFO_STATUS_ENTRIES_MSK	GENMASK(5, 0)
 /* FIFO samples: number of samples needed for watermark (FIFO mode) */
 #define ADXL313_REG_FIFO_CTL_SAMPLES_MSK	GENMASK(4, 0)
 #define ADXL313_REG_FIFO_CTL_MODE_MSK		GENMASK(7, 6)
@@ -96,7 +96,6 @@ struct adxl313_data {
 	int irq;
 	u8 watermark;
 	u8 fifo_mode;
-
 	__le16		transf_buf __aligned(IIO_DMA_MINALIGN);
 	__le16		fifo_buf[ADXL313_NUM_AXIS * ADXL313_FIFO_SIZE + 1];
 };

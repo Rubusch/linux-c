@@ -55,7 +55,7 @@ static int adxl313_spi_setup(struct device *dev, struct regmap *regmap)
 {
 	struct spi_device *spi = container_of(dev, struct spi_device, dev);
 	int ret;
-pr_info("%s(): called\n", __func__); // TODO rm
+
 	if (spi->mode & SPI_3WIRE) {
 		ret = regmap_write(regmap, ADXL313_REG_DATA_FORMAT,
 				   ADXL313_SPI_3WIRE);
