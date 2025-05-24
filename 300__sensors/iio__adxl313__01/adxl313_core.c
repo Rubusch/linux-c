@@ -10,6 +10,7 @@
 #include <linux/bitfield.h>
 #include <linux/interrupt.h>
 #include <linux/module.h>
+#include <linux/overflow.h>
 #include <linux/property.h>
 #include <linux/regmap.h>
 #include <linux/units.h>
@@ -100,10 +101,8 @@ EXPORT_SYMBOL_NS_GPL(adxl313_is_volatile_reg, IIO_ADXL313);
 
 static int adxl313_set_measure_en(struct adxl313_data *data, bool en)
 {
-	unsigned int val = en ? ADXL313_MEASUREMENT_MODE : ADXL313_MEASUREMENT_STANDBY;
-
-	return regmap_update_bits(data->regmap, ADXL313_REG_POWER_CTL,
-				  ADXL313_POWER_CTL_MSK, val);
+	return regmap_assign_bits(data->regmap, ADXL313_REG_POWER_CTL,
+				  ADXL313_POWER_CTL_MSK, en);
 }
 
 static int adxl312_check_id(struct device *dev,
@@ -390,6 +389,7 @@ static int adxl313_set_act_inact_en(struct adxl313_data *data,
 	unsigned int axis_ctrl;
 	unsigned int threshold;
 	unsigned int inact_time_s;
+	int act_en, inact_en;
 	bool en;
 	int ret;
 
@@ -398,10 +398,8 @@ static int adxl313_set_act_inact_en(struct adxl313_data *data,
 	else
 		axis_ctrl = ADXL313_INACT_XYZ_EN;
 
-	ret = regmap_update_bits(data->regmap,
-				 ADXL313_REG_ACT_INACT_CTL,
-				 axis_ctrl,
-				 cmd_en ? 0xff : 0x00);
+	ret = regmap_assign_bits(data->regmap, ADXL313_REG_ACT_INACT_CTL,
+				 axis_ctrl, cmd_en);
 	if (ret)
 		return ret;
 
@@ -418,9 +416,28 @@ static int adxl313_set_act_inact_en(struct adxl313_data *data,
 		en = en && inact_time_s;
 	}
 
-	return regmap_update_bits(data->regmap, ADXL313_REG_INT_ENABLE,
-				  adxl313_act_int_reg[type],
-				  en ? adxl313_act_int_reg[type] : 0);
+	ret = regmap_assign_bits(data->regmap, ADXL313_REG_INT_ENABLE,
+				 adxl313_act_int_reg[type], en);
+	if (ret)
+		return ret;
+
+	/*
+	 * Advanced power saving: Set sleep and link bit only when ACT and INACT
+	 * are set. Check enable against regmap cached values.
+	 */
+	act_en = adxl313_is_act_inact_en(data, ADXL313_ACTIVITY);
+	if (act_en < 0)
+		return act_en;
+
+	inact_en = adxl313_is_act_inact_en(data, ADXL313_INACTIVITY);
+	if (inact_en < 0)
+		return inact_en;
+
+	en = en && act_en && inact_en;
+
+	return regmap_assign_bits(data->regmap, ADXL313_REG_POWER_CTL,
+				  (ADXL313_POWER_CTL_AUTO_SLEEP | ADXL313_POWER_CTL_LINK),
+				  en);
 }
 
 static int adxl313_read_raw(struct iio_dev *indio_dev,
@@ -509,7 +526,7 @@ static int adxl313_read_event_config(struct iio_dev *indio_dev,
 	switch (dir) {
 	case IIO_EV_DIR_RISING:
 		return adxl313_is_act_inact_en(data, ADXL313_ACTIVITY);
-	case  IIO_EV_DIR_FALLING:
+	case IIO_EV_DIR_FALLING:
 		return adxl313_is_act_inact_en(data, ADXL313_INACTIVITY);
 	default:
 		return -EINVAL;
@@ -645,7 +662,7 @@ static int adxl313_write_event_value(struct iio_dev *indio_dev,
 static int adxl313_set_watermark(struct iio_dev *indio_dev, unsigned int value)
 {
 	struct adxl313_data *data = iio_priv(indio_dev);
-	const unsigned int fifo_mask = 0x1f, watermark_mask  = 0x02;
+	const unsigned int fifo_mask = 0x1f, interrupt_mask = 0x02;
 	int ret;
 
 	value = min(value, ADXL313_FIFO_SIZE - 1);
@@ -658,7 +675,7 @@ static int adxl313_set_watermark(struct iio_dev *indio_dev, unsigned int value)
 	data->watermark = value;
 
 	return regmap_update_bits(data->regmap, ADXL313_REG_INT_ENABLE,
-				  watermark_mask, ADXL313_INT_WATERMARK);
+				  interrupt_mask, ADXL313_INT_WATERMARK);
 }
 
 static int adxl313_get_samples(struct adxl313_data *data)
@@ -696,10 +713,10 @@ static int adxl313_set_fifo(struct adxl313_data *data)
 static int adxl313_fifo_transfer(struct adxl313_data *data, int samples)
 {
 	size_t count;
-	int i;
+	unsigned int i;
 	int ret;
 
-	count = sizeof(data->fifo_buf[0]) * ADXL313_NUM_AXIS;
+	count = array_size(sizeof(data->fifo_buf[0]), ADXL313_NUM_AXIS);
 	for (i = 0; i < samples; i++) {
 		ret = regmap_bulk_read(data->regmap, ADXL313_REG_XYZ_BASE,
 				       data->fifo_buf + (i * count / 2), count);
@@ -709,19 +726,26 @@ static int adxl313_fifo_transfer(struct adxl313_data *data, int samples)
 	return 0;
 }
 
+/**
+ * adxl313_fifo_reset() - Reset the FIFO and interrupt status registers.
+ * @data: The device data.
+ *
+ * Reset the FIFO status registers. Reading out status registers clears the
+ * FIFO and interrupt configuration. Thus do not evaluate regmap return values.
+ * Ignore particular read register content. Register content is not processed
+ * any further. Therefore the function returns void.
+ */
 static void adxl313_fifo_reset(struct adxl313_data *data)
 {
-	int regval;
+	unsigned int regval;
 	int samples;
 
 	adxl313_set_measure_en(data, false);
 
-	/* clear samples */
 	samples = adxl313_get_samples(data);
-	if (samples)
+	if (samples > 0)
 		adxl313_fifo_transfer(data, samples);
 
-	/* clear interrupt register */
 	regmap_read(data->regmap, ADXL313_REG_INT_SOURCE, &regval);
 
 	adxl313_set_measure_en(data, true);
@@ -756,16 +780,14 @@ static const struct iio_buffer_setup_ops adxl313_buffer_ops = {
 static int adxl313_fifo_push(struct iio_dev *indio_dev, int samples)
 {
 	struct adxl313_data *data = iio_priv(indio_dev);
-	int i, ret;
-
-	if (samples <= 0)
-		return -EINVAL;
+	unsigned int i;
+	int ret;
 
 	ret = adxl313_fifo_transfer(data, samples);
 	if (ret)
 		return ret;
 
-	for (i = 0; i  < ADXL313_NUM_AXIS * samples; i += ADXL313_NUM_AXIS)
+	for (i = 0; i < ADXL313_NUM_AXIS * samples; i += ADXL313_NUM_AXIS)
 		iio_push_to_buffers(indio_dev, &data->fifo_buf[i]);
 
 	return 0;
@@ -774,7 +796,7 @@ static int adxl313_fifo_push(struct iio_dev *indio_dev, int samples)
 static int adxl313_push_event(struct iio_dev *indio_dev, int int_stat)
 {
 	s64 ts = iio_get_time_ns(indio_dev);
-	struct adxl313_data *data =  iio_priv(indio_dev);
+	struct adxl313_data *data = iio_priv(indio_dev);
 	int samples;
 	int ret = -ENOENT;
 
@@ -803,11 +825,12 @@ static int adxl313_push_event(struct iio_dev *indio_dev, int int_stat)
 	if (FIELD_GET(ADXL313_INT_WATERMARK, int_stat)) {
 		samples = adxl313_get_samples(data);
 		if (samples < 0)
-			return -EINVAL;
+			return samples;
 
 		ret = adxl313_fifo_push(indio_dev, samples);
 	}
 
+	/* Return error if no event data was pushed to the IIO channel. */
 	return ret;
 }
 
@@ -827,6 +850,7 @@ static irqreturn_t adxl313_irq_handler(int irq, void *p)
 		goto err;
 
 	return IRQ_HANDLED;
+
 err:
 	adxl313_fifo_reset(data);
 
@@ -917,7 +941,6 @@ int adxl313_core_probe(struct device *dev,
 {
 	struct adxl313_data *data;
 	struct iio_dev *indio_dev;
-	unsigned int regval;
 	u8 int_line;
 	int ret;
 
@@ -955,8 +978,8 @@ int adxl313_core_probe(struct device *dev,
 
 	if (int_line == ADXL313_INT1 || int_line == ADXL313_INT2) {
 		/* FIFO_STREAM mode */
-		regval = int_line == ADXL313_INT2 ? 0xff : 0;
-		ret = regmap_write(data->regmap, ADXL313_REG_INT_MAP, regval);
+		ret = regmap_assign_bits(data->regmap, ADXL313_REG_INT_MAP,
+					 0xff, int_line == ADXL313_INT2);
 		if (ret)
 			return ret;
 
@@ -981,8 +1004,8 @@ int adxl313_core_probe(struct device *dev,
 		if (ret)
 			return ret;
 
-		ret  = devm_iio_kfifo_buffer_setup(dev, indio_dev,
-						   &adxl313_buffer_ops);
+		ret = devm_iio_kfifo_buffer_setup(dev, indio_dev,
+						  &adxl313_buffer_ops);
 		if (ret)
 			return ret;
 
