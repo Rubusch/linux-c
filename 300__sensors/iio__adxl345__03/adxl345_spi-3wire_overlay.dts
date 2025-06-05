@@ -1,0 +1,45 @@
+/dts-v1/;
+/plugin/;
+/ {
+	compatible = "raspberrypi,3-model-b", "brcm,bcm2835";
+	fragment@0 {
+		target = <&gpio>;
+		__overlay__ {
+			accel_int_pin: accel_int_pin {
+				brcm,pins = <23>;
+				brcm,function = <0>;  /* input */
+				brcm,pull = <0>;      /* none */
+			};
+		};
+	};
+	fragment@1 {
+		target = <&spi0>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+// NB: in fact the following nodes should be deleted...
+//			spidev0: spidev@0{
+//				reg = <0>;
+//				status = "disabled";
+//			};
+//
+//			spidev1: spidev@1{
+//				reg = <1>;
+//				status = "disabled";
+//			};
+			accel: adxl345@0 {
+				compatible = "lothars,adxl345spi";
+				spi-max-frequency = <5000000>;
+				spi-cpol;
+				spi-cpha;
+				spi-3wire; /* turn on 3-wire */
+				reg = <0>;
+				pinctrl-0 = <&accel_int_pin>;
+				int-gpios = <&gpio 23 0>;
+				interrupts = <23 1>;
+				interrupt-parent = <&gpio>;
+				interrupt-names = "INT1";
+			};
+		};
+	};
+};
