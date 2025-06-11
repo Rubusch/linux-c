@@ -359,7 +359,7 @@ static int adxl345_set_inact_threshold(struct adxl345_state *st,
 }
 
 /**
- * adxl345_set_inact_time_s - Configure inactivity time explicitly or by ODR.
+ * adxl345_set_inact_time - Configure inactivity time explicitly or by ODR.
  * @st: The sensor state instance.
  * @val_int: The inactivity time, integer part.
  * @val_fract: The inactivity time, fractional part when val_int is 0.
@@ -381,20 +381,17 @@ static int adxl345_set_inact_threshold(struct adxl345_state *st,
  *
  * Return: 0 or error value.
  */
-static int adxl345_set_inact_time_s(struct adxl345_state *st, u32 val_int,
-				    u32 val_fract)
+static int adxl345_set_inact_time(struct adxl345_state *st, u32 val_int,
+				  u32 val_fract)
 {
-	unsigned int max_boundary = 255; /* by ADXL345 datasheet */
+	unsigned int max_boundary = 255;
 	unsigned int min_boundary = 10;
 	unsigned int val;
 	enum adxl345_odr odr;
 	unsigned int regval;
 	int ret;
 
-pr_info("%s(): called\n", __func__); // TODO rm
-pr_info("%s(): val_int = %d, val_fract = %d\n", __func__, val_int, val_fract); // TODO rm
 	if (val_int == 0 && val_fract == 0) {
-pr_info("%s(): CASE: (val_int == 0 && val_fract == 0) -> ODR\n", __func__); // TODO rm
 		/* Generated inactivity time based on ODR */
 		ret = regmap_read(st->regmap, ADXL345_REG_BW_RATE, &regval);
 		if (ret)
@@ -406,7 +403,6 @@ pr_info("%s(): CASE: (val_int == 0 && val_fract == 0) -> ODR\n", __func__); // T
 			? min_boundary : max_boundary -	adxl345_odr_tbl[odr][0];
 
 		st->inact_time_ms = MILLI * val;
-pr_info("%s(): st->inact_time_ms = %d\n", __func__, st->inact_time_ms); // TODO rm
 
 		/* Inactivity time in s */
 		ret = regmap_write(st->regmap, ADXL345_REG_TIME_INACT, val);
@@ -414,7 +410,6 @@ pr_info("%s(): st->inact_time_ms = %d\n", __func__, st->inact_time_ms); // TODO 
 			return ret;
 
 	} else if (val_int == 0 && val_fract > 0) {
-pr_info("%s(): CASE: (val_int == 0 && val_fract > 0) -> REG_TIME_FF\n", __func__); // TODO rm
 		/* time < 1s, free-fall */
 
 		/*
@@ -423,56 +418,25 @@ pr_info("%s(): CASE: (val_int == 0 && val_fract > 0) -> REG_TIME_FF\n", __func__
 		 * Recommended values between 100ms and 350ms (0x14 to 0x46)
 		 */
 		st->inact_time_ms = DIV_ROUND_UP(val_fract, MILLI);
-pr_info("%s(): st->inact_time_ms = %d\n", __func__, st->inact_time_ms); // TODO rm
 
 		ret = regmap_write(st->regmap, ADXL345_REG_TIME_FF,
 				   DIV_ROUND_CLOSEST(val_fract, 5));
 		if (ret)
 			return ret;
 	} else if (val_int > 0) {
-pr_info("%s(): CASE: else -> REG_TIME_INACT\n", __func__); // TODO rm
 		/* Time >= 1s, inactivity */
 		st->inact_time_ms = MILLI * val_int;
-pr_info("%s(): st->inact_time_ms = %d\n", __func__, st->inact_time_ms); // TODO rm
 
 		ret = regmap_write(st->regmap, ADXL345_REG_TIME_INACT, val_int);
 		if (ret)
 			return ret;
 	} else {
 		/* Do not support negative or wrong input. */
-pr_info("%s(): CASE: invalid\n", __func__); // TODO rm
 		return -EINVAL;
 	}
 
 	return 0;
 }
-
-//static int adxl345_write_inact_time(struct regmap *regmap,
-//				    unsigned int val_int,
-//				    unsigned int val_fract)
-//{
-//	unsigned int regval;
-//
-//	st->inact_time_ms = ; // TODO XXX
-//
-//	/* Inactivity time in s */
-//	regval = DIV_ROUND_CLOSEST(st->inact_time_ms);
-//	ret = regmap_write(st->regmap, ADXL345_REG_TIME_INACT, regval);
-//	if (ret)
-//		return ret;
-//	/*
-//	 * Inactivity/free-fall time, in ms.
-//	 * max value is 255 * 5000 us = 1.275000 seconds
-//	 *
-//	 * Note: the scaling is similar to the scaling in the ADXL380
-//	 */
-//	regval = DIV_ROUND_CLOSEST(st->inact_time_ms, 5);
-//	ret = regmap_write(st->regmap, ADXL345_REG_TIME_FF, regval);
-//	if (ret)
-//		return ret;
-//
-//	// TODO XXX 
-//}
 
 /**
  * adxl345_is_act_inact_ac() - Verify if AC or DC coupling is currently enabled.
@@ -496,7 +460,7 @@ static int adxl345_is_act_inact_ac(struct adxl345_state *st,
 
 	if (type == ADXL345_INACTIVITY_FF)
 		return 1;
-			
+
 	ret = regmap_read(st->regmap, ADXL345_REG_ACT_INACT_CTRL, &regval);
 	if (ret)
 		return ret;
@@ -623,81 +587,12 @@ static int adxl345_is_act_inact_en(struct adxl345_state *st,
 	return coupling_en && int_en;
 }
 
-static int adxl345_set_act_inact_en(struct adxl345_state *st,
-				    enum iio_modifier axis,
-				    enum adxl345_activity_type type,
-				    bool cmd_en)
+static int adxl345_set_act_inact_linkbit(struct adxl345_state *st,
+					 enum adxl345_activity_type type,
+					 bool en)
 {
-	bool en;
-	unsigned int threshold;
-	u32 axis_ctrl = 0;
-	int act_en, inact_en, act_ac_en, inact_ac_en;
-	int ret;
+	int act_en, act_ac_en, inact_en, inact_ac_en;
 
-	/*
-	 * In case of turning off, assure turning off a correspondent coupling
-	 * event. In case of not matching coupling, simply return.
-	 */
-	if (!cmd_en) {
-		/* Expected positive true if coupling matches coupling type */
-		if (adxl345_is_act_inact_ac(st, type) <= 0)
-			return 0;
-	}
-
-	if (type == ADXL345_ACTIVITY || type == ADXL345_ACTIVITY_AC) {
-		axis_ctrl = ADXL345_ACT_X_EN | ADXL345_ACT_Y_EN |
-				ADXL345_ACT_Z_EN;
-	} else {
-		axis_ctrl = ADXL345_INACT_X_EN | ADXL345_INACT_Y_EN |
-				ADXL345_INACT_Z_EN;
-	}
-
-	/* Start configuring the sensor registers */
-	ret = adxl345_set_measure_en(st, false);
-	if (ret)
-		return ret;
-
-	ret = regmap_assign_bits(st->regmap, ADXL345_REG_ACT_INACT_CTRL,
-				 axis_ctrl, cmd_en);
-	if (ret)
-		return ret;
-
-	ret = adxl345_set_act_inact_ac(st, type);
-	if (ret)
-		return ret;
-
-	if (type == ADXL345_ACTIVITY || type == ADXL345_ACTIVITY_AC) {
-		ret = regmap_read(st->regmap, adxl345_act_thresh_reg[type], &threshold);
-		if (ret)
-			return ret;
-	} else {
-		threshold = st->inact_threshold;
-	}
-
-	en = false;
-
-	switch (type) {
-	case ADXL345_ACTIVITY:
-	case ADXL345_ACTIVITY_AC:
-		en = FIELD_GET(ADXL345_REG_ACT_AXIS_MSK, axis_ctrl) &&
-			threshold;
-		break;
-	case ADXL345_INACTIVITY:
-	case ADXL345_INACTIVITY_AC:
-	case ADXL345_INACTIVITY_FF:
-		en = FIELD_GET(ADXL345_REG_INACT_AXIS_MSK, axis_ctrl) &&
-			threshold && st->inact_time_ms;
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	ret = regmap_assign_bits(st->regmap, ADXL345_REG_INT_ENABLE,
-				 adxl345_act_int_reg[type], en);
-	if (ret)
-		return ret;
-
-	/* Set sleep and link bit when ACT and INACT are enabled. */
 	act_en = adxl345_is_act_inact_en(st, ADXL345_ACTIVITY);
 	if (act_en < 0)
 		return act_en;
@@ -724,9 +619,84 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 
 	en = en && act_en && inact_en;
 
-	ret = regmap_assign_bits(st->regmap, ADXL345_REG_POWER_CTL,
-				 (ADXL345_POWER_CTL_AUTO_SLEEP | ADXL345_POWER_CTL_LINK),
-				 en);
+	return regmap_assign_bits(st->regmap, ADXL345_REG_POWER_CTL,
+				  (ADXL345_POWER_CTL_AUTO_SLEEP | ADXL345_POWER_CTL_LINK),
+				  en);
+}
+
+static int adxl345_set_act_inact_en(struct adxl345_state *st,
+				    enum adxl345_activity_type type,
+				    bool cmd_en)
+{
+	bool en;
+	unsigned int threshold;
+	u32 axis_ctrl;
+	int ret;
+
+	/*
+	 * In case of turning off, assure turning off a correspondent coupling
+	 * event. In case of not matching coupling, simply return.
+	 */
+	if (!cmd_en) {
+		/* Expected positive true if coupling matches coupling type */
+		if (adxl345_is_act_inact_ac(st, type) <= 0)
+			return 0;
+	}
+
+	/* Start configuring the sensor registers */
+	ret = adxl345_set_measure_en(st, false);
+	if (ret)
+		return ret;
+
+	if (type == ADXL345_ACTIVITY || type == ADXL345_ACTIVITY_AC) {
+		axis_ctrl = ADXL345_ACT_X_EN | ADXL345_ACT_Y_EN |
+				ADXL345_ACT_Z_EN;
+
+		ret = regmap_read(st->regmap, adxl345_act_thresh_reg[type], &threshold);
+		if (ret)
+			return ret;
+	} else {
+		axis_ctrl = ADXL345_INACT_X_EN | ADXL345_INACT_Y_EN |
+				ADXL345_INACT_Z_EN;
+
+		threshold = st->inact_threshold;
+	}
+
+	ret = regmap_assign_bits(st->regmap, ADXL345_REG_ACT_INACT_CTRL,
+				 axis_ctrl, cmd_en);
+	if (ret)
+		return ret;
+
+	ret = adxl345_set_act_inact_ac(st, type);
+	if (ret)
+		return ret;
+
+	en = false;
+
+	switch (type) {
+	case ADXL345_ACTIVITY:
+	case ADXL345_ACTIVITY_AC:
+		en = FIELD_GET(ADXL345_REG_ACT_AXIS_MSK, axis_ctrl) &&
+			threshold;
+		break;
+	case ADXL345_INACTIVITY:
+	case ADXL345_INACTIVITY_AC:
+	case ADXL345_INACTIVITY_FF:
+		en = FIELD_GET(ADXL345_REG_INACT_AXIS_MSK, axis_ctrl) &&
+			threshold && st->inact_time_ms;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	/* Enable interrupts accordingly. */
+	ret = regmap_assign_bits(st->regmap, ADXL345_REG_INT_ENABLE,
+				 adxl345_act_int_reg[type], cmd_en && en);
+	if (ret)
+		return ret;
+
+	/* Set sleep and link bit when ACT and INACT are enabled. */
+	ret = adxl345_set_act_inact_linkbit(st, type, en);
 	if (ret)
 		return ret;
 
@@ -971,7 +941,7 @@ static int adxl345_set_odr(struct adxl345_state *st, enum adxl345_odr odr)
 		return ret;
 
 	/* update inactivity time by ODR */
-	return adxl345_set_inact_time_s(st, 0, 0);
+	return adxl345_set_inact_time(st, 0, 0);
 }
 
 static int adxl345_find_range(struct adxl345_state *st, int val, int val2,
@@ -1008,7 +978,6 @@ static int adxl345_set_range(struct adxl345_state *st, enum adxl345_range range)
 	if (ret)
 		return ret;
 
-
 	ret = regmap_update_bits(st->regmap, ADXL345_REG_DATA_FORMAT,
 				 ADXL345_DATA_FORMAT_RANGE,
 				 FIELD_PREP(ADXL345_DATA_FORMAT_RANGE, range));
@@ -1017,12 +986,12 @@ static int adxl345_set_range(struct adxl345_state *st, enum adxl345_range range)
 
 	act_threshold = act_threshold * adxl345_range_factor_tbl[range_old]
 		/ adxl345_range_factor_tbl[range];
-	act_threshold = min(255, max(1, act_threshold));
+	act_threshold = min(U8_MAX, max(1, act_threshold));
 
 	inact_threshold = st->inact_threshold;
 	inact_threshold = inact_threshold * adxl345_range_factor_tbl[range_old]
 		/ adxl345_range_factor_tbl[range];
-	inact_threshold = min(255, max(1, inact_threshold));
+	inact_threshold = min(U8_MAX, max(1, inact_threshold));
 
 	ret = regmap_write(st->regmap, adxl345_act_thresh_reg[ADXL345_ACTIVITY],
 			   act_threshold);
@@ -1170,9 +1139,9 @@ static int adxl345_read_mag_config(struct adxl345_state *st,
 {
 	switch (dir) {
 	case IIO_EV_DIR_RISING:
-		return adxl345_is_act_inact_en(st, ADXL345_ACTIVITY);
+		return adxl345_is_act_inact_en(st, type_act);
 	case IIO_EV_DIR_FALLING:
-		return adxl345_is_act_inact_en(st, ADXL345_INACTIVITY);
+		return adxl345_is_act_inact_en(st, type_inact);
 	default:
 		return -EINVAL;
 	}
@@ -1188,11 +1157,9 @@ static int adxl345_write_mag_config(struct adxl345_state *st,
 {
 	switch (dir) {
 	case IIO_EV_DIR_RISING:
-		return adxl345_set_act_inact_en(st, chan->channel2,
-						type_act, state);
+		return adxl345_set_act_inact_en(st, type_act, state);
 	case IIO_EV_DIR_FALLING:
-		return adxl345_set_act_inact_en(st, chan->channel2,
-						type_inact, state);
+		return adxl345_set_act_inact_en(st, type_inact, state);
 	default:
 		return -EINVAL;
 	}
@@ -1249,12 +1216,12 @@ static int adxl345_write_event_config(struct iio_dev *indio_dev,
 	switch (type) {
 	case IIO_EV_TYPE_MAG:
 		return adxl345_write_mag_config(st, chan, dir, type,
-				    		ADXL345_ACTIVITY,
-				    		ADXL345_INACTIVITY,
-				    		state);
+						ADXL345_ACTIVITY,
+						ADXL345_INACTIVITY,
+						state);
 	case IIO_EV_TYPE_MAG_ADAPTIVE:
 		return adxl345_write_mag_config(st, chan, dir, type,
-				    		ADXL345_ACTIVITY_AC,
+						ADXL345_ACTIVITY_AC,
 						ADXL345_INACTIVITY_AC,
 						state);
 	case IIO_EV_TYPE_GESTURE:
@@ -1290,18 +1257,19 @@ static int adxl345_read_mag_value(struct adxl345_state *st,
 					  &act_threshold);
 			if (ret)
 				return ret;
-
-			*val = act_threshold;
-			return IIO_VAL_INT;
+			*val = 62500 * act_threshold;
+			*val2 = MICRO;
+			return IIO_VAL_FRACTIONAL;
 		case IIO_EV_DIR_FALLING:
-			*val = st->inact_threshold;
-			return IIO_VAL_INT;
+			*val = 62500 * st->inact_threshold;
+			*val2 = MICRO;
+			return IIO_VAL_FRACTIONAL;
 		default:
 			return -EINVAL;
 		}
 	case IIO_EV_INFO_PERIOD:
 		*val = st->inact_time_ms;
-		*val2 = MILLI; // TODO MICRO or MILLI
+		*val2 = MILLI;
 		return IIO_VAL_FRACTIONAL;
 	default:
 		return -EINVAL;
@@ -1317,6 +1285,10 @@ static int adxl345_write_mag_value(struct adxl345_state *st,
 {
 	switch (info) {
 	case IIO_EV_INFO_VALUE:
+		/*
+		 * Scaling factor 62.5mg/LSB, i.e. ~16g corresponds to 0xff
+		 */
+		val = DIV_ROUND_CLOSEST(val * MICRO + val2, 62500);
 		switch (dir) {
 		case IIO_EV_DIR_RISING:
 			return regmap_write(st->regmap,
@@ -1328,12 +1300,11 @@ static int adxl345_write_mag_value(struct adxl345_state *st,
 			return -EINVAL;
 		}
 	case IIO_EV_INFO_PERIOD:
-		return adxl345_set_inact_time_s(st, val, val2);
+		return adxl345_set_inact_time(st, val, val2);
 	default:
 		return -EINVAL;
 	}
 }
-
 
 static int adxl345_read_event_value(struct iio_dev *indio_dev,
 				    const struct iio_chan_spec *chan,
@@ -1359,17 +1330,15 @@ static int adxl345_read_event_value(struct iio_dev *indio_dev,
 		switch (info) {
 		case IIO_EV_INFO_VALUE:
 			/*
-			 * The scale factor would be 62.5mg/LSB (i.e. 0xFF = 16g) but
-			 * not applied here. In context of this general purpose sensor,
-			 * what imports is rather signal intensity than the absolute
-			 * measured g value.
+			 * Scale factor is 62.5mg/LSB i.e. 0xff = 16g
 			 */
 			ret = regmap_read(st->regmap, ADXL345_REG_THRESH_TAP,
 					  &tap_threshold);
 			if (ret)
 				return ret;
-			*val = sign_extend32(tap_threshold, 7);
-			return IIO_VAL_INT;
+			*val = 62500 * sign_extend32(tap_threshold, 7);
+			*val2 = MICRO;
+			return IIO_VAL_FRACTIONAL;
 		case IIO_EV_INFO_TIMEOUT:
 			*val = st->tap_duration_us;
 			*val2 = MICRO;
@@ -1424,6 +1393,7 @@ static int adxl345_write_event_value(struct iio_dev *indio_dev,
 	case IIO_EV_TYPE_GESTURE:
 		switch (info) {
 		case IIO_EV_INFO_VALUE:
+			val = DIV_ROUND_CLOSEST(val * MICRO + val2, 62500);
 			ret = regmap_write(st->regmap, ADXL345_REG_THRESH_TAP,
 					   min(val, 0xFF));
 			if (ret)
@@ -1869,7 +1839,6 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 					 ADXL345_DATA_FORMAT_FULL_RES |
 					 ADXL345_DATA_FORMAT_SELF_TEST);
 	unsigned int tap_threshold;
-	unsigned int ff_threshold;
 	int irq;
 	int ret;
 
@@ -1889,9 +1858,6 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 	st->tap_duration_us = 16;		/*   16 [0x10] -> .010    */
 	st->tap_window_us = 64;			/*   64 [0x40] -> .080    */
 	st->tap_latent_us = 16;			/*   16 [0x10] -> .020    */
-
-	ff_threshold = 8;			/*    8 [0x08]            */
-//	st->ff_time_ms = 32;			/*   32 [0x20] -> 0.16    */
 
 	indio_dev->name = st->info->name;
 	indio_dev->info = &adxl345_info;
@@ -1987,23 +1953,15 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 		if (ret)
 			return ret;
 
-		ret = regmap_write(st->regmap, ADXL345_REG_TIME_INACT, 3);
-		if (ret)
-			return ret;
-
 		ret = regmap_write(st->regmap, ADXL345_REG_THRESH_ACT, 6);
 		if (ret)
 			return ret;
 
-		ret = regmap_write(st->regmap, ADXL345_REG_THRESH_INACT, 4);
+		ret = adxl345_set_inact_threshold(st, 4);
 		if (ret)
 			return ret;
 
 		ret = regmap_write(st->regmap, ADXL345_REG_THRESH_TAP, tap_threshold);
-		if (ret)
-			return ret;
-
-		ret = regmap_write(st->regmap, ADXL345_REG_THRESH_FF, ff_threshold);
 		if (ret)
 			return ret;
 
