@@ -237,7 +237,7 @@ static const struct spi_device_id adc128_id[] = {
 	{ "adc121s021", (kernel_ulong_t)&adc128_config[4] },
 	{ "adc121s051", (kernel_ulong_t)&adc128_config[4] },
 	{ "adc121s101", (kernel_ulong_t)&adc128_config[4] },
-	{ }
+	{ },
 };
 MODULE_DEVICE_TABLE(spi, adc128_id);
 
