@@ -83,19 +83,19 @@ const struct regmap_access_table adxl312_readable_regs_table = {
 	.yes_ranges = adxl312_readable_reg_range,
 	.n_yes_ranges = ARRAY_SIZE(adxl312_readable_reg_range),
 };
-EXPORT_SYMBOL_NS_GPL(adxl312_readable_regs_table, IIO_ADXL313);
+EXPORT_SYMBOL_NS_GPL(adxl312_readable_regs_table, "IIO_ADXL313");
 
 const struct regmap_access_table adxl313_readable_regs_table = {
 	.yes_ranges = adxl313_readable_reg_range,
 	.n_yes_ranges = ARRAY_SIZE(adxl313_readable_reg_range),
 };
-EXPORT_SYMBOL_NS_GPL(adxl313_readable_regs_table, IIO_ADXL313);
+EXPORT_SYMBOL_NS_GPL(adxl313_readable_regs_table, "IIO_ADXL313");
 
 const struct regmap_access_table adxl314_readable_regs_table = {
 	.yes_ranges = adxl312_readable_reg_range,
 	.n_yes_ranges = ARRAY_SIZE(adxl312_readable_reg_range),
 };
-EXPORT_SYMBOL_NS_GPL(adxl314_readable_regs_table, IIO_ADXL313);
+EXPORT_SYMBOL_NS_GPL(adxl314_readable_regs_table, "IIO_ADXL313");
 
 bool adxl313_is_volatile_reg(struct device *dev, unsigned int reg)
 {
@@ -113,7 +113,7 @@ bool adxl313_is_volatile_reg(struct device *dev, unsigned int reg)
 		return false;
 	}
 }
-EXPORT_SYMBOL_NS_GPL(adxl313_is_volatile_reg, IIO_ADXL313);
+EXPORT_SYMBOL_NS_GPL(adxl313_is_volatile_reg, "IIO_ADXL313");
 
 static int adxl313_set_measure_en(struct adxl313_data *data, bool en)
 {
@@ -196,7 +196,7 @@ const struct adxl313_chip_info adxl31x_chip_info[] = {
 		.check_id = &adxl312_check_id,
 	},
 };
-EXPORT_SYMBOL_NS_GPL(adxl31x_chip_info, IIO_ADXL313);
+EXPORT_SYMBOL_NS_GPL(adxl31x_chip_info, "IIO_ADXL313");
 
 static const struct regmap_range adxl312_writable_reg_range[] = {
 	regmap_reg_range(ADXL313_REG_OFS_AXIS(0), ADXL313_REG_OFS_AXIS(2)),
@@ -219,19 +219,19 @@ const struct regmap_access_table adxl312_writable_regs_table = {
 	.yes_ranges = adxl312_writable_reg_range,
 	.n_yes_ranges = ARRAY_SIZE(adxl312_writable_reg_range),
 };
-EXPORT_SYMBOL_NS_GPL(adxl312_writable_regs_table, IIO_ADXL313);
+EXPORT_SYMBOL_NS_GPL(adxl312_writable_regs_table, "IIO_ADXL313");
 
 const struct regmap_access_table adxl313_writable_regs_table = {
 	.yes_ranges = adxl313_writable_reg_range,
 	.n_yes_ranges = ARRAY_SIZE(adxl313_writable_reg_range),
 };
-EXPORT_SYMBOL_NS_GPL(adxl313_writable_regs_table, IIO_ADXL313);
+EXPORT_SYMBOL_NS_GPL(adxl313_writable_regs_table, "IIO_ADXL313");
 
 const struct regmap_access_table adxl314_writable_regs_table = {
 	.yes_ranges = adxl312_writable_reg_range,
 	.n_yes_ranges = ARRAY_SIZE(adxl312_writable_reg_range),
 };
-EXPORT_SYMBOL_NS_GPL(adxl314_writable_regs_table, IIO_ADXL313);
+EXPORT_SYMBOL_NS_GPL(adxl314_writable_regs_table, "IIO_ADXL313");
 
 static const int adxl313_odr_freqs[][2] = {
 	[0] = { 6, 250000 },
@@ -499,7 +499,8 @@ static int adxl313_is_act_inact_en(struct adxl313_data *data,
 
 static int adxl313_set_act_inact_linkbit(struct adxl313_data *data, bool en)
 {
-	int act_en, inact_en, act_ac_en, inact_ac_en;
+	int act_ac_en, inact_ac_en;
+	int act_en, inact_en;
 
 	act_en = adxl313_is_act_inact_en(data, ADXL313_ACTIVITY);
 	if (act_en < 0)
@@ -739,7 +740,7 @@ static int adxl313_write_event_config(struct iio_dev *indio_dev,
 				      const struct iio_chan_spec *chan,
 				      enum iio_event_type type,
 				      enum iio_event_direction dir,
-				      int state)
+				      bool state)
 {
 	struct adxl313_data *data = iio_priv(indio_dev);
 
@@ -759,63 +760,6 @@ static int adxl313_write_event_config(struct iio_dev *indio_dev,
 	}
 }
 
-static int _adxl313_read_mag_value(struct adxl313_data *data,
-				   enum iio_event_direction dir,
-				   enum adxl313_activity_type type_act,
-				   enum adxl313_activity_type type_inact,
-				   int *val, int *val2)
-{
-	unsigned int threshold;
-	int ret;
-
-	switch (dir) {
-	case IIO_EV_DIR_RISING:
-		ret = regmap_read(data->regmap,
-				  adxl313_act_thresh_reg[type_act],
-				  &threshold);
-		if (ret)
-			return ret;
-		*val = threshold * 15625;
-		*val2 = MICRO;
-		return IIO_VAL_FRACTIONAL;
-	case IIO_EV_DIR_FALLING:
-		ret = regmap_read(data->regmap,
-				  adxl313_act_thresh_reg[type_inact],
-				  &threshold);
-		if (ret)
-			return ret;
-		*val = threshold * 15625;
-		*val2 = MICRO;
-		return IIO_VAL_FRACTIONAL;
-	default:
-		return -EINVAL;
-	}
-}
-
-static int _adxl313_write_mag_value(struct adxl313_data *data,
-				    enum iio_event_direction dir,
-				    enum adxl313_activity_type type_act,
-				    enum adxl313_activity_type type_inact,
-				    int val, int val2)
-{
-	unsigned int regval;
-
-	/* Scale factor 15.625 mg/LSB */
-	regval = DIV_ROUND_CLOSEST(MICRO * val + val2, 15625);
-	switch (dir) {
-	case IIO_EV_DIR_RISING:
-		return regmap_write(data->regmap,
-				    adxl313_act_thresh_reg[type_act],
-				    regval);
-	case IIO_EV_DIR_FALLING:
-		return regmap_write(data->regmap,
-				    adxl313_act_thresh_reg[type_inact],
-				    regval);
-	default:
-		return -EINVAL;
-	}
-}
-
 static int adxl313_read_mag_value(struct adxl313_data *data,
 				  enum iio_event_direction dir,
 				  enum iio_event_info info,
@@ -823,15 +767,34 @@ static int adxl313_read_mag_value(struct adxl313_data *data,
 				  enum adxl313_activity_type type_inact,
 				  int *val, int *val2)
 {
+	unsigned int threshold;
 	unsigned int period;
 	int ret;
 
 	switch (info) {
 	case IIO_EV_INFO_VALUE:
-		return _adxl313_read_mag_value(data, dir,
-					       type_act,
-					       type_inact,
-					       val, val2);
+		switch (dir) {
+		case IIO_EV_DIR_RISING:
+			ret = regmap_read(data->regmap,
+					  adxl313_act_thresh_reg[type_act],
+					  &threshold);
+			if (ret)
+				return ret;
+			*val = threshold * 15625;
+			*val2 = MICRO;
+			return IIO_VAL_FRACTIONAL;
+		case IIO_EV_DIR_FALLING:
+			ret = regmap_read(data->regmap,
+					  adxl313_act_thresh_reg[type_inact],
+					  &threshold);
+			if (ret)
+				return ret;
+			*val = threshold * 15625;
+			*val2 = MICRO;
+			return IIO_VAL_FRACTIONAL;
+		default:
+			return -EINVAL;
+		}
 	case IIO_EV_INFO_PERIOD:
 		ret = regmap_read(data->regmap, ADXL313_REG_TIME_INACT,
 				  &period);
@@ -851,12 +814,24 @@ static int adxl313_write_mag_value(struct adxl313_data *data,
 				   enum adxl313_activity_type type_inact,
 				   int val, int val2)
 {
+	unsigned int regval;
+
 	switch (info) {
 	case IIO_EV_INFO_VALUE:
-		return _adxl313_write_mag_value(data, dir,
-						type_act,
-						type_inact,
-						val, val2);
+		/* Scale factor 15.625 mg/LSB */
+		regval = DIV_ROUND_CLOSEST(MICRO * val + val2, 15625);
+		switch (dir) {
+		case IIO_EV_DIR_RISING:
+			return regmap_write(data->regmap,
+					    adxl313_act_thresh_reg[type_act],
+					    regval);
+		case IIO_EV_DIR_FALLING:
+			return regmap_write(data->regmap,
+					    adxl313_act_thresh_reg[type_inact],
+					    regval);
+		default:
+			return -EINVAL;
+		}
 	case IIO_EV_INFO_PERIOD:
 		return adxl313_set_inact_time_s(data, val);
 	default:
@@ -1224,7 +1199,7 @@ static int adxl313_setup(struct device *dev, struct adxl313_data *data,
 	return adxl313_set_measure_en(data, true);
 }
 
-static unsigned int _get_int_type(struct device *dev, int *irq)
+static unsigned int adxl313_get_int_type(struct device *dev, int *irq)
 {
 	*irq = fwnode_irq_get_byname(dev_fwnode(dev), "INT1");
 	if (*irq > 0)
@@ -1281,7 +1256,7 @@ int adxl313_core_probe(struct device *dev,
 		return ret;
 	}
 
-	int_line = _get_int_type(dev, &irq);
+	int_line = adxl313_get_int_type(dev, &irq);
 	if (int_line == ADXL313_INT_NONE) {
 		/*
 		 * FIFO_BYPASSED mode
@@ -1347,7 +1322,7 @@ int adxl313_core_probe(struct device *dev,
 
 	return devm_iio_device_register(dev, indio_dev);
 }
-EXPORT_SYMBOL_NS_GPL(adxl313_core_probe, IIO_ADXL313);
+EXPORT_SYMBOL_NS_GPL(adxl313_core_probe, "IIO_ADXL313");
 
 MODULE_AUTHOR("Lucas Stankus <lucas.p.stankus@gmail.com>");
 MODULE_DESCRIPTION("ADXL313 3-Axis Digital Accelerometer core driver");
