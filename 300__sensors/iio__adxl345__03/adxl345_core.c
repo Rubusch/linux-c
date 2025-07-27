@@ -36,29 +36,29 @@
 #define ADXL345_REG_TAP_AXIS_MSK	GENMASK(2, 0)
 #define ADXL345_REG_TAP_SUPPRESS_MSK	BIT(3)
 #define ADXL345_REG_TAP_SUPPRESS	BIT(3)
-#define ADXL345_REG_ACT_AXIS_MSK	GENMASK(6, 4)
-#define ADXL345_REG_INACT_AXIS_MSK	GENMASK(2, 0)
-#define ADXL345_REG_ACT_ACDC_MSK	BIT(7)
-#define ADXL345_REG_INACT_ACDC_MSK	BIT(3)
-#define ADXL345_REG_NO_ACDC_MSK		0x00
 #define ADXL345_POWER_CTL_INACT_MSK	(ADXL345_POWER_CTL_AUTO_SLEEP | ADXL345_POWER_CTL_LINK)
 
 #define ADXL345_TAP_Z_EN		BIT(0)
 #define ADXL345_TAP_Y_EN		BIT(1)
 #define ADXL345_TAP_X_EN		BIT(2)
-
-#define ADXL345_ACT_INACT_NO_AXIS_EN	0x00
+#define ADXL345_REG_TAP_SUPPRESS	BIT(3)
 
 #define ADXL345_INACT_Z_EN		BIT(0)
 #define ADXL345_INACT_Y_EN		BIT(1)
 #define ADXL345_INACT_X_EN		BIT(2)
+#define ADXL345_REG_INACT_ACDC		BIT(3)
+#define ADXL345_ACT_INACT_NO_AXIS_EN	0x00
+#define ADXL345_INACT_XYZ_EN		(ADXL345_INACT_Z_EN | ADXL345_INACT_Y_EN | ADXL345_INACT_X_EN)
 
 #define ADXL345_ACT_Z_EN		BIT(4)
 #define ADXL345_ACT_Y_EN		BIT(5)
 #define ADXL345_ACT_X_EN		BIT(6)
+#define ADXL345_REG_ACT_ACDC		BIT(7)
+#define ADXL345_ACT_XYZ_EN		(ADXL345_ACT_Z_EN | ADXL345_ACT_Y_EN | ADXL345_ACT_X_EN)
 
 #define ADXL345_COUPLING_DC		0
 #define ADXL345_COUPLING_AC		1
+#define ADXL345_REG_NO_ACDC		0x00
 
 /* single/double tap */
 enum adxl345_tap_type {
@@ -109,11 +109,11 @@ static const unsigned int adxl345_act_thresh_reg[] = {
 };
 
 static const unsigned int adxl345_act_acdc_msk[] = {
-	[ADXL345_ACTIVITY] = ADXL345_REG_ACT_ACDC_MSK,
-	[ADXL345_INACTIVITY] = ADXL345_REG_INACT_ACDC_MSK,
-	[ADXL345_ACTIVITY_AC] = ADXL345_REG_ACT_ACDC_MSK,
-	[ADXL345_INACTIVITY_AC] = ADXL345_REG_INACT_ACDC_MSK,
-	[ADXL345_INACTIVITY_FF] = ADXL345_REG_NO_ACDC_MSK,
+	[ADXL345_ACTIVITY] = ADXL345_REG_ACT_ACDC,
+	[ADXL345_INACTIVITY] = ADXL345_REG_INACT_ACDC,
+	[ADXL345_ACTIVITY_AC] = ADXL345_REG_ACT_ACDC,
+	[ADXL345_INACTIVITY_AC] = ADXL345_REG_INACT_ACDC,
+	[ADXL345_INACTIVITY_FF] = ADXL345_REG_NO_ACDC,
 };
 
 enum adxl345_odr {
@@ -206,19 +206,21 @@ struct adxl345_state {
 	__le16 fifo_buf[ADXL345_DIRS * ADXL345_FIFO_SIZE + 1] __aligned(IIO_DMA_MINALIGN);
 };
 
-static struct iio_event_spec adxl345_events[] = {
+static const struct iio_event_spec adxl345_events[] = {
 	{
 		/* activity */
 		.type = IIO_EV_TYPE_MAG,
 		.dir = IIO_EV_DIR_RISING,
-		.mask_shared_by_type = BIT(IIO_EV_INFO_ENABLE) |
+		.mask_shared_by_type =
+			BIT(IIO_EV_INFO_ENABLE) |
 			BIT(IIO_EV_INFO_VALUE),
 	},
 	{
 		/* activity, ac bit set */
 		.type = IIO_EV_TYPE_MAG_ADAPTIVE,
 		.dir = IIO_EV_DIR_RISING,
-		.mask_shared_by_type = BIT(IIO_EV_INFO_ENABLE) |
+		.mask_shared_by_type =
+			BIT(IIO_EV_INFO_ENABLE) |
 			BIT(IIO_EV_INFO_VALUE),
 	},
 	{
@@ -271,7 +273,8 @@ static const struct iio_event_spec adxl345_fake_chan_events[] = {
 		.type = IIO_EV_TYPE_MAG,
 		.dir = IIO_EV_DIR_FALLING,
 		.mask_separate = BIT(IIO_EV_INFO_ENABLE),
-		.mask_shared_by_type = BIT(IIO_EV_INFO_VALUE) |
+		.mask_shared_by_type =
+			BIT(IIO_EV_INFO_VALUE) |
 			BIT(IIO_EV_INFO_PERIOD),
 	},
 	{
@@ -279,7 +282,8 @@ static const struct iio_event_spec adxl345_fake_chan_events[] = {
 		.type = IIO_EV_TYPE_MAG_ADAPTIVE,
 		.dir = IIO_EV_DIR_FALLING,
 		.mask_separate = BIT(IIO_EV_INFO_ENABLE),
-		.mask_shared_by_type = BIT(IIO_EV_INFO_VALUE) |
+		.mask_shared_by_type =
+			BIT(IIO_EV_INFO_VALUE) |
 			BIT(IIO_EV_INFO_PERIOD),
 	},
 };
@@ -320,7 +324,7 @@ bool adxl345_is_volatile_reg(struct device *dev, unsigned int reg)
 		return false;
 	}
 }
-EXPORT_SYMBOL_NS_GPL(adxl345_is_volatile_reg, IIO_ADXL345);
+EXPORT_SYMBOL_NS_GPL(adxl345_is_volatile_reg, "IIO_ADXL345");
 
 /**
  * adxl345_set_measure_en() - Enable and disable measuring.
@@ -361,6 +365,49 @@ static int adxl345_set_inact_threshold(struct adxl345_state *st,
 			    st->inact_threshold);
 }
 
+static int adxl345_set_default_time(struct adxl345_state *st)
+{
+	int max_boundary = U8_MAX;
+	int min_boundary = 10;
+	enum adxl345_odr odr;
+	unsigned int regval;
+	unsigned int val;
+	int ret;
+
+	/* Generated inactivity time based on ODR */
+	ret = regmap_read(st->regmap, ADXL345_REG_BW_RATE, &regval);
+	if (ret)
+		return ret;
+
+	odr = FIELD_GET(ADXL345_BW_RATE_MSK, regval);
+	val = clamp(max_boundary - adxl345_odr_tbl[odr][0],
+		    min_boundary, max_boundary);
+	st->inact_time_ms = MILLI * val;
+
+	/* Inactivity time in s */
+	return regmap_write(st->regmap, ADXL345_REG_TIME_INACT, val);
+}
+
+static int adxl345_set_inactivity_time(struct adxl345_state *st, u32 val_int)
+{
+	st->inact_time_ms = MILLI * val_int;
+
+	return regmap_write(st->regmap, ADXL345_REG_TIME_INACT, val_int);
+}
+
+static int adxl345_set_freefall_time(struct adxl345_state *st, u32 val_fract)
+{
+	/*
+	 * Datasheet max. value is 255 * 5000 us = 1.275000 seconds.
+	 *
+	 * Recommended values between 100ms and 350ms (0x14 to 0x46)
+	 */
+	st->inact_time_ms = DIV_ROUND_UP(val_fract, MILLI);
+
+	return regmap_write(st->regmap, ADXL345_REG_TIME_FF,
+			    DIV_ROUND_CLOSEST(val_fract, 5));
+}
+
 /**
  * adxl345_set_inact_time - Configure inactivity time explicitly or by ODR.
  * @st: The sensor state instance.
@@ -389,43 +436,17 @@ static int adxl345_set_inact_threshold(struct adxl345_state *st,
 static int adxl345_set_inact_time(struct adxl345_state *st, u32 val_int,
 				  u32 val_fract)
 {
-	int max_boundary = U8_MAX;
-	int min_boundary = 10;
-	unsigned int val;
-	enum adxl345_odr odr;
-	unsigned int regval;
-	int ret;
-
-	if (val_int == 0 && val_fract == 0) {
-		/* Generated inactivity time based on ODR */
-		ret = regmap_read(st->regmap, ADXL345_REG_BW_RATE, &regval);
-		if (ret)
-			return ret;
-
-		odr = FIELD_GET(ADXL345_BW_RATE_MSK, regval);
-		val = clamp(max_boundary - adxl345_odr_tbl[odr][0],
-			    min_boundary, max_boundary);
-		st->inact_time_ms = MILLI * val;
-
-		/* Inactivity time in s */
-		return regmap_write(st->regmap, ADXL345_REG_TIME_INACT, val);
-	} else if (val_int == 0 && val_fract > 0) {
-		/* time < 1s, free-fall */
-
-		/*
-		 * Datasheet max. value is 255 * 5000 us = 1.275000 seconds.
-		 *
-		 * Recommended values between 100ms and 350ms (0x14 to 0x46)
-		 */
-		st->inact_time_ms = DIV_ROUND_UP(val_fract, MILLI);
-
-		return regmap_write(st->regmap, ADXL345_REG_TIME_FF,
-				    DIV_ROUND_CLOSEST(val_fract, 5));
-	} else if (val_int > 0) {
+	if (val_int > 0) {
 		/* Time >= 1s, inactivity */
-		st->inact_time_ms = MILLI * val_int;
-
-		return regmap_write(st->regmap, ADXL345_REG_TIME_INACT, val_int);
+		return adxl345_set_inactivity_time(st, val_int);
+	} else if (val_int == 0) {
+		if (val_fract > 0) {
+			/* Time < 1s, free-fall */
+			return adxl345_set_freefall_time(st, val_fract);
+		} else if (val_fract == 0) {
+			/* Time == 0.0s */
+			return adxl345_set_default_time(st);
+		}
 	}
 
 	/* Do not support negative or wrong input. */
@@ -553,17 +574,13 @@ static int adxl345_is_act_inact_en(struct adxl345_state *st,
 	switch (type) {
 	case ADXL345_ACTIVITY:
 	case ADXL345_ACTIVITY_AC:
-		en = FIELD_GET(ADXL345_ACT_X_EN, axis_ctrl) |
-			FIELD_GET(ADXL345_ACT_Y_EN, axis_ctrl) |
-			FIELD_GET(ADXL345_ACT_Z_EN, axis_ctrl);
+		en = FIELD_GET(ADXL345_ACT_XYZ_EN, axis_ctrl);
 		if (!en)
 			return false;
 		break;
 	case ADXL345_INACTIVITY:
 	case ADXL345_INACTIVITY_AC:
-		en = FIELD_GET(ADXL345_INACT_X_EN, axis_ctrl) |
-			FIELD_GET(ADXL345_INACT_Y_EN, axis_ctrl) |
-			FIELD_GET(ADXL345_INACT_Z_EN, axis_ctrl);
+		en = FIELD_GET(ADXL345_INACT_XYZ_EN, axis_ctrl);
 		if (!en)
 			return false;
 		break;
@@ -591,7 +608,8 @@ static int adxl345_set_act_inact_linkbit(struct adxl345_state *st,
 					 enum adxl345_activity_type type,
 					 bool en)
 {
-	int act_en, act_ac_en, inact_en, inact_ac_en;
+	int act_ac_en, inact_ac_en;
+	int act_en, inact_en;
 
 	act_en = adxl345_is_act_inact_en(st, ADXL345_ACTIVITY);
 	if (act_en < 0)
@@ -678,13 +696,11 @@ static int adxl345_set_act_inact_en(struct adxl345_state *st,
 	switch (type) {
 	case ADXL345_ACTIVITY:
 	case ADXL345_ACTIVITY_AC:
-		axis_ctrl = ADXL345_ACT_X_EN | ADXL345_ACT_Y_EN |
-				ADXL345_ACT_Z_EN;
+		axis_ctrl = ADXL345_ACT_XYZ_EN;
 		break;
 	case ADXL345_INACTIVITY:
 	case ADXL345_INACTIVITY_AC:
-		axis_ctrl = ADXL345_INACT_X_EN | ADXL345_INACT_Y_EN |
-				ADXL345_INACT_Z_EN;
+		axis_ctrl = ADXL345_INACT_XYZ_EN;
 		break;
 	case ADXL345_INACTIVITY_FF:
 		axis_ctrl = ADXL345_ACT_INACT_NO_AXIS_EN;
@@ -848,9 +864,8 @@ static int adxl345_set_doubletap_en(struct adxl345_state *st, bool en)
 	 * Generally suppress detection of spikes during the latency period as
 	 * double taps here, this is fully optional for double tap detection
 	 */
-	ret = regmap_update_bits(st->regmap, ADXL345_REG_TAP_AXIS,
-				 ADXL345_REG_TAP_SUPPRESS_MSK,
-				 en ? ADXL345_REG_TAP_SUPPRESS : 0x00);
+	ret = regmap_assign_bits(st->regmap, ADXL345_REG_TAP_AXIS,
+				 ADXL345_REG_TAP_SUPPRESS, en);
 	if (ret)
 		return ret;
 
@@ -1220,7 +1235,7 @@ static int adxl345_write_event_config(struct iio_dev *indio_dev,
 				      const struct iio_chan_spec *chan,
 				      enum iio_event_type type,
 				      enum iio_event_direction dir,
-				      int state)
+				      bool state)
 {
 	struct adxl345_state *st = iio_priv(indio_dev);
 
@@ -1642,8 +1657,8 @@ static int adxl345_fifo_push(struct iio_dev *indio_dev,
 }
 
 static int adxl345_push_event(struct iio_dev *indio_dev, int int_stat,
-			      enum iio_modifier tap_dir,
-			      enum iio_modifier act_dir)
+			      enum iio_modifier act_dir,
+			      enum iio_modifier tap_dir)
 {
 	s64 ts = iio_get_time_ns(indio_dev);
 	struct adxl345_state *st = iio_priv(indio_dev);
@@ -1676,7 +1691,7 @@ static int adxl345_push_event(struct iio_dev *indio_dev, int int_stat,
 		if (ret)
 			return ret;
 
-		if (FIELD_GET(ADXL345_REG_ACT_ACDC_MSK, regval)) {
+		if (FIELD_GET(ADXL345_REG_ACT_ACDC, regval)) {
 			/* AC coupled */
 			ret = iio_push_event(indio_dev,
 					     IIO_MOD_EVENT_CODE(IIO_ACCEL, 0, act_dir,
@@ -1701,7 +1716,7 @@ static int adxl345_push_event(struct iio_dev *indio_dev, int int_stat,
 		if (ret)
 			return ret;
 
-		if (FIELD_GET(ADXL345_REG_INACT_ACDC_MSK, regval)) {
+		if (FIELD_GET(ADXL345_REG_INACT_ACDC, regval)) {
 			/* AC coupled */
 			ret = iio_push_event(indio_dev,
 					     IIO_MOD_EVENT_CODE(IIO_ACCEL, 0,
@@ -1770,7 +1785,7 @@ static irqreturn_t adxl345_irq_handler(int irq, void *p)
 		return IRQ_NONE;
 
 	if (FIELD_GET(ADXL345_REG_TAP_AXIS_MSK, axis_ctrl) ||
-	    FIELD_GET(ADXL345_REG_ACT_AXIS_MSK, axis_ctrl)) {
+	    FIELD_GET(ADXL345_ACT_XYZ_EN, axis_ctrl)) {
 		ret = regmap_read(st->regmap, ADXL345_REG_ACT_TAP_STATUS, &regval);
 		if (ret)
 			return IRQ_NONE;
@@ -1793,7 +1808,7 @@ static irqreturn_t adxl345_irq_handler(int irq, void *p)
 	if (regmap_read(st->regmap, ADXL345_REG_INT_SOURCE, &int_stat))
 		return IRQ_NONE;
 
-	if (adxl345_push_event(indio_dev, int_stat, tap_dir, act_dir))
+	if (adxl345_push_event(indio_dev, int_stat, act_dir, tap_dir))
 		goto err;
 
 	if (FIELD_GET(ADXL345_INT_OVERRUN, int_stat))
@@ -1820,7 +1835,7 @@ static const struct iio_info adxl345_info = {
 	.hwfifo_set_watermark = adxl345_set_watermark,
 };
 
-static int _get_int_line(struct device *dev, int *irq)
+static int adxl345_get_int_line(struct device *dev, int *irq)
 {
 	*irq = fwnode_irq_get_byname(dev_fwnode(dev), "INT1");
 	if (*irq > 0)
@@ -1948,7 +1963,7 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 	if (ret)
 		return ret;
 
-	intio = _get_int_line(dev, &irq);
+	intio = adxl345_get_int_line(dev, &irq);
 	if (intio != ADXL345_INT_NONE) {
 		/*
 		 * In the INT map register, bits set to 0 route their
@@ -2004,7 +2019,7 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 
 	return devm_iio_device_register(dev, indio_dev);
 }
-EXPORT_SYMBOL_NS_GPL(adxl345_core_probe, IIO_ADXL345);
+EXPORT_SYMBOL_NS_GPL(adxl345_core_probe, "IIO_ADXL345");
 
 MODULE_AUTHOR("Eva Rachel Retuya <eraretuya@gmail.com>");
 MODULE_DESCRIPTION("ADXL345 3-Axis Digital Accelerometer core driver");

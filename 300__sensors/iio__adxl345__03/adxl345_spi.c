@@ -60,7 +60,6 @@ static const struct adxl345_chip_info adxl375_spi_info = {
 };
 
 static const struct spi_device_id adxl345_spi_id[] = {
-	{ "adxl345spi", (kernel_ulong_t)&adxl345_spi_info }, /* TODO rm */
 	{ "adxl345", (kernel_ulong_t)&adxl345_spi_info },
 	{ "adxl375", (kernel_ulong_t)&adxl375_spi_info },
 	{ }
@@ -68,7 +67,6 @@ static const struct spi_device_id adxl345_spi_id[] = {
 MODULE_DEVICE_TABLE(spi, adxl345_spi_id);
 
 static const struct of_device_id adxl345_of_match[] = {
-	{ .compatible = "lothars,adxl345spi", .data = &adxl345_spi_info }, /* TODO rm */
 	{ .compatible = "adi,adxl345", .data = &adxl345_spi_info },
 	{ .compatible = "adi,adxl375", .data = &adxl375_spi_info },
 	{ }
@@ -95,4 +93,4 @@ module_spi_driver(adxl345_spi_driver);
 MODULE_AUTHOR("Eva Rachel Retuya <eraretuya@gmail.com>");
 MODULE_DESCRIPTION("ADXL345 3-Axis Digital Accelerometer SPI driver");
 MODULE_LICENSE("GPL v2");
-MODULE_IMPORT_NS(IIO_ADXL345);
+MODULE_IMPORT_NS("IIO_ADXL345");

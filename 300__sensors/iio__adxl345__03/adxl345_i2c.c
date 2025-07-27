@@ -43,7 +43,6 @@ static const struct adxl345_chip_info adxl375_i2c_info = {
 };
 
 static const struct i2c_device_id adxl345_i2c_id[] = {
-	{ "adxl345i2c", (kernel_ulong_t)&adxl345_i2c_info }, /* TODO rm */
 	{ "adxl345", (kernel_ulong_t)&adxl345_i2c_info },
 	{ "adxl375", (kernel_ulong_t)&adxl375_i2c_info },
 	{ }
@@ -51,7 +50,6 @@ static const struct i2c_device_id adxl345_i2c_id[] = {
 MODULE_DEVICE_TABLE(i2c, adxl345_i2c_id);
 
 static const struct of_device_id adxl345_of_match[] = {
-	{ .compatible = "lothars,adxl345i2c", .data = &adxl345_i2c_info }, /* TODO rm */
 	{ .compatible = "adi,adxl345", .data = &adxl345_i2c_info },
 	{ .compatible = "adi,adxl375", .data = &adxl375_i2c_info },
 	{ }
@@ -78,4 +76,4 @@ module_i2c_driver(adxl345_i2c_driver);
 MODULE_AUTHOR("Eva Rachel Retuya <eraretuya@gmail.com>");
 MODULE_DESCRIPTION("ADXL345 3-Axis Digital Accelerometer I2C driver");
 MODULE_LICENSE("GPL v2");
-MODULE_IMPORT_NS(IIO_ADXL345);
+MODULE_IMPORT_NS("IIO_ADXL345");
