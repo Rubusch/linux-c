@@ -1,4 +1,0 @@
-ccflags-y := -O3
-happy_ioctl-y := main.o happy_ioctl_imp.o
-include $(src)/Kbuild.include
-obj-m += happy_ioctl.o

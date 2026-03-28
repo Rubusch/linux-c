@@ -1,3 +1,0 @@
-ccflags-y += -include $(kbuild-dir)/hello.h
-
-#ccflags-y += -I$(kbuild-dir)/include
